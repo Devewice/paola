@@ -1,6 +1,6 @@
 # Paola — visión, contexto y mapa del producto
 
-Este documento desarrolla la lluvia de ideas del **21/07/2026** (Estefany — Paola Biker).  
+Este documento desarrolla la lluvia de ideas del **21/07/2026** (**Paola Biker**).  
 Las notas originales no se tiran: aquí se explican, se ordenan y, donde hacía falta una decisión para poder construir, se toma una. Lo que sigue abierto de verdad queda marcado como **pendiente**.
 
 ---
@@ -15,7 +15,7 @@ Paola no es “una página de motoclub más”. Es la casa digital de un parche 
 - **Tienda:** productos y servicios propios, con reglas claras de entrega y garantía.
 - **Paola:** la persona detrás, el porqué, y por dónde hablarle.
 
-El nombre del producto y de la marca es **Paola**. El oficio público es **Paola Biker**. La dueña del relato y de la operación, hoy, es **Estefany**.
+**Paola** es la persona, la marca y el producto. El oficio público es **Paola Biker**. Ella lleva el relato y la operación.
 
 ### Para quién
 
@@ -48,7 +48,7 @@ Los referentes (Motocultura, Motoclub, BSK, gonobikerreas) sirven para ubicar el
 
 | Rol | Quién | Nota |
 |-----|--------|------|
-| Fundadora / voz / operación | Estefany (Paola Biker) | Única persona nombrada |
+| Fundadora / voz / operación | Paola | Ella es Paola; el oficio público es Paola Biker |
 | Equipo | Ninguno | No hay socios, staff ni community manager listados |
 | “Personas” en la lluvia | Ninguno | Significa: aún no hay elenco de colaboradores a mostrar |
 
@@ -284,7 +284,7 @@ Sin romanticizar: el parche necesita plata para seguir rodando. La recolección 
 | Rodadas | Agenda, tickets, ruta, estado |
 | Fotos y participantes de una rodada | Memoria |
 | Enlaces de Instagram / redes | Crédito y contacto social, no scraping |
-| Pedidos / tickets | Operación de Estefany |
+| Pedidos / tickets | Operación de Paola |
 
 **Ruta de una rodada:** punto de encuentro, recorrido previsto (texto + mapa simple cuando se pueda), no hace falta GPS en vivo en el MVP.
 
@@ -438,12 +438,12 @@ Los módulos **no se importan entre sí**. Si Inicio necesita “próxima rodada
 1. **Link real** de WhatsApp, correo, redes y el “video relevante”.
 2. **Membresía:** precio, qué incluye, si es mensual o por temporada.
 3. **¿Las rodadas se cobran o son gratis** (o mixto)?
-4. **Razón / quién / por qué / para qué:** texto final en primera persona de Estefany (aquí hay estructura, no su biografía).
-5. **NIT / quién factura** si la tienda deja de ser de afición (tema legal de Estefany).
+4. **Razón / quién / por qué / para qué:** texto final en primera persona de Paola (aquí hay estructura, no su biografía).
+5. **NIT / quién factura** si la tienda deja de ser de afición (tema legal de Paola).
 6. **Dibujo de la mascota** (quién la ilustra).
 7. **Lista real de integrantes y aliados** (hoy “personas: ninguno” y alianzas aún no nombradas).
 
-Si algo de lo “tomado” choca con lo que Estefany quería (sobre todo cobro de rodadas, membresía o el tono de Armargura), se corrige aquí; no se esconde en el código.
+Si algo de lo “tomado” choca con lo que Paola quería (sobre todo cobro de rodadas, membresía o el tono de Armargura), se corrige aquí; no se esconde en el código.
 
 ---
 
@@ -469,5 +469,5 @@ Si algo de lo “tomado” choca con lo que Estefany quería (sobre todo cobro d
 
 ## 12. Origen
 
-Lluvia de ideas inicial: 7/21/2026, Estefany — Paola Biker.  
+Lluvia de ideas inicial: 7/21/2026, Paola Biker.  
 Este archivo es esa lluvia **desarrollada**, no un recorte. Si una frase original no aparece literal, su contenido está en la sección que le corresponde (mapa, negocio, visual o fases).
