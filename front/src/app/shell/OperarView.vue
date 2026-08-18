@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { getAppDependencies } from '@app/bootstrap.ts'
-import type { OperatorBoardOuting } from '@modules/rides/domain/ports/RidesApiPort.ts'
+import type { OperatorBoardOuting } from '@modules/rides/index.ts'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
 import PaolaField from '@ui/PaolaField.vue'
