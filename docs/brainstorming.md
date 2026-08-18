@@ -98,17 +98,17 @@ Nombres tal cual la lluvia: **Paola Armargura / Cámara Incauta / moto Loigca**.
 - Una **rodada terminada** la presencia Cámara Incauta (fotos, quiénes, vehículos) y la cierra Paola Armargura si hubo algo que decir (clima, hueco, gesto del parche).
 - Una **denuncia** la abre Paola Armargura, la sostiene Cámara Incauta (evidencia) y Moto Loigca dice qué norma o cuidado aplica, sin jugar a abogada.
 
-### 4.2 Mascota: cámara 360
+### 4.2 Mascota: Insta360
 
-Referente: Insta360. El horizonte sigue siendo **versión dibujos animados**; el primer lote (fase 1) son las fotos de la cámara sobre negro.
+La mascota es la **cámara 360 Insta360** (Cámara Incauta). No es una animación 360 del sitio: es el aparato con el que se graba el parche.
 
-Archivos en `public/mascota/` (copia de `docs/resoruces/mascota camara 360/`): `en-pie.png` (vacío), `lente.png`, `x5.png`, `tumbada.png`.
+Fotos en `public/mascota/` (copia de `docs/resoruces/mascota camara 360/`): `en-pie.png` (vacío), `lente.png`, `x5.png`, `tumbada.png`.
 
 No sustituyen al logo. En UI es el objeto con **volumen**; los marcos van recortados (Paper Mario). Sirve para recorrer inicio y memorias, marcar lo grabado en rodada y guiar estados vacíos, sin stock de motoclub.
 
 ### 4.3 Paper Mario (el juego)
 
-No es “hacer un juego”. Es el referente de **recorte**: personajes y UI como papel recortado, planos, con un mundo que sí tiene volumen (la calle, la moto, Bogotá). Combina con la mascota 360: ella es el objeto “real” (volumen, lente); los marcos, menús y voces pueden sentirse de recorte.
+No es “hacer un juego”. Es el referente de **recorte**: personajes y UI como papel recortado, planos, con un mundo que sí tiene volumen (la calle, la moto, Bogotá). Combina con la Insta360: ella es el objeto “real” (volumen, lente); los marcos, menús y voces pueden sentirse de recorte.
 
 ### 4.4 Orgánico
 
@@ -357,7 +357,7 @@ Orden para no ahogar a una sola persona y para respetar privacidad.
 - Sitio con las 5 pestañas en contenido real (aunque parte sea estática).
 - Inicio, Paola (quién / por qué / para qué / contacto / redes / video).
 - Parchese: agenda simple, integrantes a mano, alianzas, Únete (WhatsApp).
-- Visual: dirección Paper Mario + mascota 360 + voces (aunque la mascota sea un primer dibujo).
+- Visual: dirección Paper Mario + Insta360 + voces.
 
 ### Fase 1 — Rodadas con cupo y memoria
 
@@ -440,7 +440,7 @@ Los módulos **no se importan entre sí**. Si Inicio necesita “próxima rodada
 - Garantía solo defectos de fabricación.
 - Pago: primero Paola; pasarela después.
 - Comunidades y social web: fases **36–44**; WhatsApp sigue para Únete y calor del parche.
-- Visual: tríada + mascota 360 animada + recorte Paper Mario + textura orgánica.
+- Visual: tríada + Insta360 + recorte Paper Mario + textura orgánica.
 - Sitio browsable sin login; cuenta cuando haya ticket, pedido o denuncia.
 
 ### Pendiente (sí o sí hay que preguntar o definir más adelante)
@@ -468,7 +468,7 @@ Si algo de lo “tomado” choca con lo que Paola quería (sobre todo cobro de r
 | Memoria | Relato + prueba de lo ya vivido |
 | Alianza | Apoyo al parche; no es marca Paola |
 | Tu voz | Frente cívico y pedagógico |
-| Cámara Incauta | Voz-testigo; mascota 360 |
+| Cámara Incauta | Voz-testigo; Insta360 |
 | Paola Armargura | Voz emocional / de carácter |
 | Moto Loigca | Voz que explica |
 | Integrante | Persona del parche (visible o no) |

@@ -132,7 +132,7 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 **Queda lista cuando:** una pantalla vacía ya se siente Paola, no Vuetify por defecto.
 
-**No incluye:** animaciones 360, ilustrar todas las páginas.
+**No incluye:** ilustrar todas las páginas.
 
 ---
 
@@ -142,11 +142,11 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 **Código**
 
-- [ ] Menú: Inicio, Parchese, Tu voz, Tienda, Paola.
-- [ ] Menú móvil usable con una mano.
-- [ ] Franja lateral (o columna) **Alianzas** persistente: placeholder “aquí van quienes apoyan el parche”.
-- [ ] Pie con enlace a WhatsApp (placeholder) y a Paola.
-- [ ] La franja **no** se mete dentro de fichas de tienda.
+- [x] Menú: Inicio, Parchese, Tu voz, Tienda, Paola.
+- [x] Menú móvil usable con una mano.
+- [x] Franja lateral (o columna) **Alianzas** persistente: placeholder “aquí van quienes apoyan el parche”.
+- [x] Pie con enlace a WhatsApp (placeholder) y a Paola.
+- [x] La franja **no** se mete dentro de fichas de tienda.
 
 **Queda lista cuando:** en cualquier pestaña se ve dónde estás y dónde están los aliados.
 

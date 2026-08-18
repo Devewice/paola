@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { TABS } from '@app/navigation.ts'
+import AlliancesStrip from '@app/shell/AlliancesStrip.vue'
 
 const route = useRoute()
 </script>
@@ -12,7 +13,7 @@ const route = useRoute()
         <img class="paola-shell-logo" src="/logo.png" alt="Paola — Rodando con propósito" />
       </router-link>
       <v-spacer />
-      <nav class="paola-nav d-flex ga-1 flex-wrap justify-end">
+      <nav class="paola-nav paola-nav--desktop" aria-label="Pestañas">
         <v-btn
           v-for="tab in TABS"
           :key="tab.to"
@@ -26,13 +27,34 @@ const route = useRoute()
     </v-app-bar>
 
     <v-main>
-      <router-view />
+      <div class="paola-shell">
+        <div class="paola-shell__page">
+          <router-view />
+        </div>
+        <AlliancesStrip />
+      </div>
     </v-main>
 
-    <v-footer class="px-4 py-3" color="background">
-      <span class="text-caption" style="color: var(--paola-muted)">
-        Paola · paolabiker.com
-      </span>
+    <v-footer class="paola-footer px-4 py-3" color="background">
+      <div class="paola-footer__row">
+        <router-link class="paola-footer__link" to="/paola">Paola</router-link>
+        <span class="paola-footer__dot" aria-hidden="true">·</span>
+        <span class="paola-footer__wa">WhatsApp · próximamente</span>
+        <span class="paola-footer__dot" aria-hidden="true">·</span>
+        <span>paolabiker.com</span>
+      </div>
     </v-footer>
+
+    <nav class="paola-bottom-nav" aria-label="Pestañas">
+      <router-link
+        v-for="tab in TABS"
+        :key="tab.to"
+        :to="tab.to"
+        class="paola-bottom-nav__item"
+        :class="{ 'is-on': route.path === tab.to }"
+      >
+        {{ tab.label }}
+      </router-link>
+    </nav>
   </v-app>
 </template>

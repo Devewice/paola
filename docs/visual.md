@@ -13,9 +13,9 @@ Fuentes (carpeta `docs/resoruces/`):
 | `Primera rodada.webp` | Afiche “Rodada por mi Cumpleaños” | Oscuro, brocha, foto de Paola, ritmo de tipografías |
 | `Brush King.otf` | Fuente brocha seca oficial | **RODADA**, **CUMPLEAÑOS** y títulos `type-brush-dry` |
 
-La visión de producto sigue en [`brainstorming.md`](./brainstorming.md). Paper Mario / mascota 360 no pisan esta marca.
+La visión de producto sigue en [`brainstorming.md`](./brainstorming.md). Paper Mario / Insta360 no pisan esta marca.
 
-Mascota (fase 1): fotos en `public/mascota/` copiadas de `docs/resoruces/mascota camara 360/`. Default de vacío: `en-pie.png`.
+Mascota (fase 1): **cámara Insta360**, fotos en `public/mascota/` (origen `docs/resoruces/mascota camara 360/`). Default de vacío: `en-pie.png`. No es una animación 360.
 
 ---
 
@@ -466,7 +466,7 @@ Una sola stack en ambos entornos — no cambiar de librería al pasar del kit al
 | Hovers y pulso marca | **CSS** | Botones, brochazo, skeleton |
 | Rastro de llanta (kit) | **Canvas** (`initPaolaCursorSmoke`) | Sprite de rodadura · anclado al scroll · fondo ~1 s · sobre UI ~0.4 s · quemado al click |
 | Modales / sheets | **Vuetify** | Transiciones Material en overlays |
-| Mascota / ilustración | **Lottie** (opcional, fase creativa) | 360 / vacíos narrativos — no UI base |
+| Mascota / ilustración | **fotos Insta360** (Lottie opcional, no UI base) | Vacíos narrativos — no es animación 360 del sitio |
 
 **Tokens compartidos:** `src/shared/motion/tokens.ts` — mismos valores en `docs/index.html#motion`.
 

@@ -63,10 +63,10 @@ Antes de implementar: lee la **fase actual** de la hoja de ruta. No abras la sig
 | Voz | Cuándo |
 |-----|--------|
 | **Moto Loigca** | Rodada anunciada, precios, cupo, ley, tips, garantía |
-| **Cámara Incauta** | Fotos, memorias, evidencia, mascota 360 |
+| **Cámara Incauta** | Fotos, memorias, evidencia, Insta360 |
 | **Paola Armargura** | Relato personal, denuncias, cierre emocional |
 
-Visual: obedecer [`docs/visual.md`](docs/visual.md). Logo oficial = `docs/resoruces/logo.png` (PNG del escudo, no una cursiva). Paleta negro + blanco + azul eléctrico (`#0088F8`). Fuentes Oswald + Montserrat. Botones radio 10px, CTA mayúsculas. Paper Mario / mascota 360 no sustituyen esta marca.
+Visual: obedecer [`docs/visual.md`](docs/visual.md). Logo oficial = `docs/resoruces/logo.png` (PNG del escudo, no una cursiva). Paleta negro + blanco + azul eléctrico (`#0088F8`). Fuentes Oswald + Montserrat. Botones radio 10px, CTA mayúsculas. Paper Mario / Insta360 no sustituyen esta marca.
 
 ---
 

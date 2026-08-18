@@ -13,7 +13,7 @@ withDefaults(
   {
     copy: 'Próximamente. Esta pestaña todavía no tiene contenido.',
     mascotSrc: '/mascota/en-pie.png',
-    mascotAlt: 'Cámara Incauta, mascota 360 del parche',
+    mascotAlt: 'Insta360, mascota Cámara Incauta del parche',
   },
 )
 </script>
