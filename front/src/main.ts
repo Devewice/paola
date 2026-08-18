@@ -15,6 +15,6 @@ import '@fontsource/montserrat/800.css'
 import '@shared/theme/portal.css'
 import '@ui/kit.css'
 
-createAppDependencies()
+await createAppDependencies()
 
 createApp(App).use(router).use(createVuetifyPlugin()).use(createMotionPlugin()).mount('#app')

@@ -1,21 +1,41 @@
-import type { Agenda } from '@modules/rides/domain/entities/Agenda.ts'
-import type { AgendaPort } from '@modules/rides/domain/ports/AgendaPort.ts'
+import type { Agenda, AgendaItem } from '@modules/rides/domain/entities/Agenda.ts'
+import { AGENDA_EMPTY_COPY, type Outing } from '@modules/rides/domain/entities/Outing.ts'
+import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
 
 export class GetAgenda {
-  private readonly agenda: AgendaPort
+  private readonly catalog: OutingCatalogPort
+  private readonly today: () => string
 
-  constructor(agenda: AgendaPort) {
-    this.agenda = agenda
+  constructor(catalog: OutingCatalogPort, today: () => string) {
+    this.catalog = catalog
+    this.today = today
   }
 
   execute(): Agenda {
-    const list = this.agenda.getAgenda()
-    const upcoming = list.items.filter((item) => item.when === 'proxima')
-    const past = list.items.filter((item) => item.when === 'pasada')
+    const today = this.today()
+    const items = this.catalog.list().map((outing) => toAgendaItem(outing, today))
+    const upcoming = items
+      .filter((item) => item.when === 'proxima')
+      .sort((a, b) => a.date.localeCompare(b.date))
+    const past = items
+      .filter((item) => item.when === 'pasada')
+      .sort((a, b) => b.date.localeCompare(a.date))
 
     return {
-      emptyCopy: list.emptyCopy,
+      emptyCopy: AGENDA_EMPTY_COPY,
       items: [...upcoming, ...past],
     }
+  }
+}
+
+function toAgendaItem(outing: Outing, today: string): AgendaItem {
+  const past = outing.status === 'realizado' || outing.date < today
+  return {
+    id: outing.id,
+    date: outing.date,
+    title: outing.title,
+    kind: outing.kind,
+    point: outing.meetingPoint,
+    when: past ? 'pasada' : 'proxima',
   }
 }

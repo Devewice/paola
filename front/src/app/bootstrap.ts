@@ -2,7 +2,7 @@ import { ComposedHomeBoardAdapter } from '@app/adapters/ComposedHomeBoardAdapter
 import { createClubModule, type ClubModule } from '@modules/club/index.ts'
 import { createHomeModule, type HomeModule } from '@modules/home/index.ts'
 import { createPaolaModule, type PaolaModule } from '@modules/paola/index.ts'
-import { createRidesModule, type RidesModule } from '@modules/rides/index.ts'
+import { createRidesModule, loadOutingCatalog, type RidesModule } from '@modules/rides/index.ts'
 
 export type AppDependencies = {
   paola: PaolaModule
@@ -13,10 +13,10 @@ export type AppDependencies = {
 
 let dependencies: AppDependencies | null = null
 
-export function createAppDependencies(): AppDependencies {
+export async function createAppDependencies(): Promise<AppDependencies> {
   const paola = createPaolaModule()
   const club = createClubModule()
-  const rides = createRidesModule()
+  const rides = createRidesModule(await loadOutingCatalog())
   const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, paola))
 
   dependencies = { paola, club, rides, home }
@@ -25,7 +25,7 @@ export function createAppDependencies(): AppDependencies {
 
 export function getAppDependencies(): AppDependencies {
   if (!dependencies) {
-    return createAppDependencies()
+    throw new Error('El cascarón aún no cableó los módulos.')
   }
   return dependencies
 }

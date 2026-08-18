@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import type { ClubModule } from '@modules/club/index.ts'
+import { usePageReveal } from '@shared/motion/usePageReveal.ts'
+import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
 import PaolaAllianceStrip from '@ui/PaolaAllianceStrip.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
+import PaolaEmpty from '@ui/PaolaEmpty.vue'
 import PaolaMemberCard from '@ui/PaolaMemberCard.vue'
+import PaolaTimeline from '@ui/PaolaTimeline.vue'
 import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
 import PaolaWaStrip from '@ui/PaolaWaStrip.vue'
 
@@ -13,23 +17,40 @@ const props = defineProps<{
 const join = props.module.getJoinChannel()
 const alliances = props.module.getAlliances()
 const members = props.module.getMembers()
+const bindReveal = usePageReveal()
 </script>
 
 <template>
-  <article class="parchese-page">
-    <header class="parchese-page__hero">
-      <p class="paola-empty__kicker">Parchese</p>
-      <h1 class="parchese-page__title type-display">El club</h1>
-      <p class="parchese-page__lead">
+  <article :ref="bindReveal" class="paola-page">
+    <PaolaAficheHero kicker="Parchese" title="El club" plate="Parche" data-reveal>
+      <template #lead>
         Cuándo hay algo, cómo te metes, quién banca y las caras que autorizaron salir.
+      </template>
+    </PaolaAficheHero>
+
+    <div data-reveal>
+      <slot name="agenda" />
+    </div>
+
+    <section class="paola-page__block" aria-label="Ciclo de rodada" data-reveal>
+      <PaolaVoiceBadge voice="loigca" />
+      <h2 class="paola-page__heading type-display">El ciclo</h2>
+      <PaolaTimeline
+        :steps="[
+          { label: 'Creada', done: false },
+          { label: 'Cupo' },
+          { label: 'Rodar' },
+          { label: 'Memoria' },
+        ]"
+      />
+      <p class="paola-page__copy paola-page__copy--muted">
+        La entidad de salida ya existe. Cupo, rodada y memoria entran en las fases que siguen.
       </p>
-    </header>
+    </section>
 
-    <slot name="agenda" />
-
-    <section class="parchese-page__members" aria-label="Así va el parche">
+    <section class="paola-page__block" aria-label="Así va el parche" data-reveal>
       <PaolaVoiceBadge voice="incauta" />
-      <h2 class="parchese-page__heading type-display">Así va el parche</h2>
+      <h2 class="paola-page__heading type-display">Así va el parche</h2>
       <div v-if="members.items.length" class="parchese-page__roster">
         <PaolaMemberCard
           v-for="member in members.items"
@@ -40,17 +61,24 @@ const members = props.module.getMembers()
           :instagram-href="member.instagramHref"
         />
       </div>
-      <p v-else class="parchese-page__empty">{{ members.emptyCopy }}</p>
+      <PaolaEmpty
+        v-else
+        compact
+        title="Nadie aún"
+        :copy="members.emptyCopy"
+        mascot-src="/mascota/en-pie.png"
+        hide-cta
+      />
     </section>
 
-    <section class="parchese-page__join" aria-label="Únete">
+    <section class="paola-page__block" aria-label="Únete" data-reveal>
       <PaolaVoiceBadge voice="loigca" />
       <PaolaWaStrip :title="join.title" :copy="join.copy">
-        <PaolaButton :href="join.href" target="_blank">{{ join.cta }}</PaolaButton>
+        <PaolaButton variant="hero" :href="join.href" target="_blank">{{ join.cta }}</PaolaButton>
       </PaolaWaStrip>
     </section>
 
-    <section class="parchese-page__alliances" aria-label="Alianzas">
+    <section class="paola-page__block" aria-label="Alianzas" data-reveal>
       <PaolaVoiceBadge voice="loigca" />
       <PaolaAllianceStrip
         kicker="Alianzas"
@@ -62,57 +90,18 @@ const members = props.module.getMembers()
 </template>
 
 <style scoped>
-.parchese-page {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: calc(var(--paola-space) * 4) calc(var(--paola-space) * 2)
-    calc(var(--paola-space) * 8);
-  display: grid;
-  gap: calc(var(--paola-space) * 5);
-}
-
-.parchese-page__hero {
-  display: grid;
-  gap: 8px;
-}
-
-.parchese-page__title {
-  margin: 0;
-  font-size: 40px;
-}
-
-.parchese-page__lead {
-  margin: 0;
-  color: var(--paola-muted);
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.parchese-page__join,
-.parchese-page__alliances,
-.parchese-page__members {
-  display: grid;
-  gap: 12px;
-}
-
-.parchese-page__heading {
-  margin: 0;
-  font-size: 22px;
-}
-
 .parchese-page__roster {
   display: grid;
   gap: 12px;
 }
 
-.parchese-page__empty {
-  margin: 0;
-  color: var(--paola-muted);
-  font-size: 15px;
-  line-height: 1.5;
+@media (min-width: 640px) {
+  .parchese-page__roster {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.parchese-page__alliances :deep(.paola-alliances) {
+.paola-page__block :deep(.paola-alliances) {
   border-left-width: 3px;
 }
 </style>

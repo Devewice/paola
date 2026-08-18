@@ -7,7 +7,8 @@ import PaolaBrushDefs from '@ui/PaolaBrushDefs.vue'
 
 const route = useRoute()
 const { paola } = getAppDependencies()
-const whatsapp = paola.getPage().contact.whatsapp
+const page = paola.getPage()
+const whatsapp = page.contact.whatsapp
 </script>
 
 <template>
@@ -41,17 +42,29 @@ const whatsapp = paola.getPage().contact.whatsapp
     </v-main>
 
     <v-footer class="paola-footer px-4 py-3" color="background">
-      <div class="paola-footer__row">
-        <router-link class="paola-footer__link" to="/paola">Paola</router-link>
-        <span class="paola-footer__dot" aria-hidden="true">·</span>
-        <a
-          class="paola-footer__link"
-          :href="whatsapp.href"
-          target="_blank"
-          rel="noopener noreferrer"
-        >{{ whatsapp.label }}</a>
-        <span class="paola-footer__dot" aria-hidden="true">·</span>
-        <span>paolabiker.com</span>
+      <div class="paola-footer__inner">
+        <img class="paola-footer__logo" src="/logo.png" alt="" width="32" height="32" />
+        <p class="paola-footer__slogan">Rodando con propósito</p>
+        <div class="paola-footer__row">
+          <router-link class="paola-footer__link" to="/paola">Paola</router-link>
+          <span class="paola-footer__dot" aria-hidden="true">·</span>
+          <a
+            class="paola-footer__link"
+            :href="whatsapp.href"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ whatsapp.label }}</a>
+          <template v-for="link in page.contact.social" :key="link.id">
+            <span class="paola-footer__dot" aria-hidden="true">·</span>
+            <a
+              class="paola-footer__link"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+            >{{ link.label }}</a>
+          </template>
+        </div>
+        <p class="paola-footer__domain">{{ page.contact.domain }}</p>
       </div>
     </v-footer>
 

@@ -262,14 +262,14 @@ Fuente: [`paola.md`](./paola.md).
 
 **Contenido / reglas**
 
-- [ ] Campos: fecha, punto de encuentro, ruta en texto, cupo máximo, qué llevar, si es rodada o actividad, si el cupo es gratis o de pago (aunque el cobro sea “se avisa por WhatsApp”).
+- [x] Campos en entidad `Outing`: fecha, punto, ruta en texto, cupo máximo, qué llevar, rodada/actividad, gratis o de pago (cobro por WhatsApp). Origen: MySQL `salidas` (vacía hoy).
 
 **Código**
 
-- [ ] Módulo `rides`: entidad salida + estados `abierto` / `lleno` / `cerrado` / `realizado`.
-- [ ] Publicación: al inicio JSON o panel mínimo; no hace falta CMS gordo.
-- [ ] Agenda y “próxima salida” leen esta entidad.
-- [ ] Tests de caso de uso: no se publica sin fecha ni cupo.
+- [x] Módulo `rides`: entidad salida + estados `abierto` / `lleno` / `cerrado` / `realizado`.
+- [x] Publicación: tabla MySQL `salidas` (`GET /api/salidas`). No hay JSON de respaldo. No hace falta CMS gordo.
+- [x] Agenda y “próxima salida” leen esta entidad.
+- [x] Tests de caso de uso: no se publica sin fecha ni cupo (`npm test`).
 
 **Queda lista cuando:** Paola puede anunciar una salida y se ve en Agenda e Inicio.
 

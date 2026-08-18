@@ -43,7 +43,11 @@ front/                    Vue + Vite + Vuetify
   src/shared/             theme, motion, ui (`@ui`)
   src/modules/            Módulos de producto (fases)
   public/                 logo, mascota, fuentes
-back/                     Cascarón HTTP (health + estáticos en prod)
+back/                     HTTP: health, GET salidas, estáticos en prod
+  db/                     Pool MySQL + migrate
+  http/                   Router y middleware
+  controllers/            Health y salidas
+  providers/              Consultas a la tabla
 docs/                     visión, fases, visual, relato
 package.json              Scripts dev/build/start en la raíz
 ```

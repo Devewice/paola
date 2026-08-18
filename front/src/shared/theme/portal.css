@@ -163,6 +163,104 @@ h2,
   line-height: 1.5;
 }
 
+.paola-empty--compact {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.paola-empty--compact .paola-empty__mascot-hole {
+  width: 140px;
+  height: 154px;
+}
+
+.paola-empty--compact .paola-empty__mascot {
+  width: 110px;
+}
+
+.paola-empty--compact .paola-empty__title {
+  font-size: 22px;
+}
+
+.paola-empty--compact .paola-cutout {
+  padding: calc(var(--paola-space) * 3);
+}
+
+.paola-page {
+  display: grid;
+  gap: calc(var(--paola-space) * 6);
+  padding: calc(var(--paola-space) * 2) 0 calc(var(--paola-space) * 6);
+}
+
+.paola-afiche {
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--paola-space) * 2);
+  text-align: center;
+}
+
+.paola-afiche__logo {
+  display: block;
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+}
+
+.paola-afiche__title {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 52px);
+}
+
+.paola-afiche__lead {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--paola-muted);
+}
+
+.paola-afiche__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.paola-page__split {
+  display: grid;
+  gap: calc(var(--paola-space) * 3);
+}
+
+.paola-page__block {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.paola-page__heading {
+  margin: 0;
+  font-size: 22px;
+}
+
+.paola-page__copy {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--paola-white);
+}
+
+.paola-page__copy--muted {
+  color: var(--paola-muted);
+  font-size: 14px;
+}
+
+@media (min-width: 960px) {
+  .paola-page__split {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
+  }
+}
+
 .paola-voices {
   display: flex;
   flex-wrap: wrap;
@@ -305,6 +403,37 @@ h2,
 .paola-footer {
   border-top: 1px solid var(--paola-line);
   padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+}
+
+.paola-footer__inner {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  width: 100%;
+}
+
+.paola-footer__logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.paola-footer__slogan {
+  margin: 0;
+  font-family: var(--paola-font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paola-muted);
+}
+
+.paola-footer__domain {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paola-muted);
 }
 
 .paola-footer__row {

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import PaolaAccordion from '@ui/PaolaAccordion.vue'
 import PaolaActionBar from '@ui/PaolaActionBar.vue'
+import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
 import PaolaAgendaItem from '@ui/PaolaAgendaItem.vue'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaAllianceStrip from '@ui/PaolaAllianceStrip.vue'
@@ -35,6 +36,7 @@ import PaolaMapBlock from '@ui/PaolaMapBlock.vue'
 import PaolaMemoriaHero from '@ui/PaolaMemoriaHero.vue'
 import PaolaMemberCard from '@ui/PaolaMemberCard.vue'
 import PaolaOrderSummary from '@ui/PaolaOrderSummary.vue'
+import PaolaOutingCard from '@ui/PaolaOutingCard.vue'
 import PaolaPager from '@ui/PaolaPager.vue'
 import PaolaProductCard from '@ui/PaolaProductCard.vue'
 import PaolaQtyStepper from '@ui/PaolaQtyStepper.vue'
@@ -91,6 +93,9 @@ const iconos = [
 
     <section>
       <h2 class="type-display">Capa brocha (solo afiche)</h2>
+      <PaolaAficheHero kicker="Afiche" title="Corte del día" plate="Rodando" logo>
+        <template #lead>Hero de producto. Brocha solo aquí, no en formularios.</template>
+      </PaolaAficheHero>
       <PaolaBrushBanner />
       <PaolaBrushPlate text="Rodada" />
       <PaolaBrushDivider />
@@ -266,12 +271,16 @@ const iconos = [
         point="Punto de kit · no es fecha real"
         when="proxima"
       />
-      <PaolaAgendaItem
-        date="2026-06-01"
-        title="Lavado grupal de cascos"
+      <PaolaOutingCard
+        title="Salida de ejemplo"
+        date="2026-08-17"
         kind="actividad"
-        point="Actividad de kit · no es fecha real"
-        when="pasada"
+        status="abierto"
+        meeting-point="Kit · no es fecha real"
+        route-text="Ruta en texto · sin mapa ni GPS"
+        :capacity="12"
+        what-to-bring="Casco"
+        :paid="false"
       />
     </section>
 

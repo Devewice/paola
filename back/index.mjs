@@ -1,9 +1,15 @@
 import dotenv from 'dotenv'
-import { createConnection } from 'mysql2/promise'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { migrate } from './db/migrate.mjs'
+import { pingPool } from './db/pool.mjs'
+import { healthController } from './controllers/health.controller.mjs'
+import { listSalidasController } from './controllers/salidas.controller.mjs'
+import { withErrors } from './http/middleware/errors.mjs'
+import { createRouter } from './http/router.mjs'
+import { sendJson } from './http/send.mjs'
 
 dotenv.config({ path: join(fileURLToPath(new URL('.', import.meta.url)), '..', '.env') })
 
@@ -21,38 +27,6 @@ const mime = {
   '.webp': 'image/webp',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
-}
-
-function sendJson(response, status, body) {
-  response.writeHead(status, { 'content-type': 'application/json; charset=utf-8' })
-  response.end(JSON.stringify(body))
-}
-
-async function pingDatabase() {
-  const host = process.env.MYSQL_HOST
-  const user = process.env.MYSQL_USER
-  const password = process.env.MYSQL_PASSWORD
-  const database = process.env.MYSQL_DATABASE
-  if (!host || !user || !password || !database) {
-    return { ok: false, detail: 'faltan variables MYSQL_* en .env' }
-  }
-
-  try {
-    const connection = await createConnection({
-      host,
-      port: Number(process.env.MYSQL_PORT) || 3306,
-      user,
-      password,
-      database,
-      connectTimeout: 8000,
-    })
-    await connection.ping()
-    await connection.end()
-    return { ok: true, detail: 'mysql ok' }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'error mysql'
-    return { ok: false, detail: message }
-  }
 }
 
 function serveStatic(request, response) {
@@ -77,21 +51,19 @@ function serveStatic(request, response) {
   createReadStream(file).pipe(response)
 }
 
+const api = createRouter([
+  { method: 'GET', path: '/api/health', handler: withErrors(healthController) },
+  { method: 'GET', path: '/api/salidas', handler: withErrors(listSalidasController) },
+])
+
 const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', 'http://localhost')
 
-  if (url.pathname === '/api/health') {
-    const db = await pingDatabase()
-    sendJson(response, 200, {
-      ok: true,
-      site: process.env.VITE_SITE_DOMAIN ?? 'paolabiker.com',
-      db,
-    })
-    return
-  }
+  const handled = await api(request, response)
+  if (handled) return
 
   if (url.pathname.startsWith('/api/')) {
-    sendJson(response, 404, { ok: false, detail: 'aún no hay API de producto' })
+    sendJson(response, 404, { ok: false, detail: 'ruta de API no existe aún' })
     return
   }
 
@@ -106,6 +78,26 @@ const server = createServer(async (request, response) => {
   })
 })
 
-server.listen(port, () => {
-  console.log(`Paola back en http://127.0.0.1:${port}`)
-})
+async function start() {
+  const ping = await pingPool().catch((error) => ({
+    ok: false,
+    detail: error instanceof Error ? error.message : 'mysql',
+  }))
+  if (ping.ok) {
+    try {
+      await migrate()
+      console.log('Paola MySQL: migrado (tabla salidas)')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'migración'
+      console.warn(`Paola MySQL: no se pudo migrar (${message})`)
+    }
+  } else {
+    console.warn(`Paola MySQL: ${ping.detail}`)
+  }
+
+  server.listen(port, () => {
+    console.log(`Paola back en http://127.0.0.1:${port}`)
+  })
+}
+
+start()

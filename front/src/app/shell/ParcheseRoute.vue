@@ -9,7 +9,7 @@ const { club, rides } = getAppDependencies()
 <template>
   <ParcheseView :module="club">
     <template #agenda>
-      <AgendaSection :module="rides" />
+      <AgendaSection :module="rides" :join-href="club.getJoinChannel().href" />
     </template>
   </ParcheseView>
 </template>
