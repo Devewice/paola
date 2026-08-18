@@ -1,0 +1,18 @@
+---
+description: Identidad visual de Paola (logo, color, tipo, botones, espacio)
+alwaysApply: true
+---
+
+# Diseño
+
+Obedece `docs/visual.md`. Piezas en `docs/resoruces/`.
+
+- Logo = `logo.png` del escudo. No fingir “Paola” con una fuente script.
+- Fondo `#05070C`, CTA `#0088F8`, cian hover `#48B4FC`, navy `#001028`.
+- Fuentes: **Oswald** (títulos/CTAs), **Montserrat** (UI). Quitar Roboto de marca.
+- Botón primario: azul, mayúsculas, alto 48px, radio 10px, glow cian en hover. **Hero** (`.btn-primary--hero`): pulso suave, uno por vista. **Brochazo**: solo afiche.
+- Iconos de dato: trazo en círculo, azul o blanco.
+- Escala de espacio 8px. Portal oscuro. Afiches pueden usar brocha; formularios no.
+- Capa brocha: Brush King (`type-brush-dry`) + Rock Salt + Bebas/Anton + Caveat; filtros SVG en manchas/separadores. Ver `docs/visual.md`.
+- Motion: GSAP + AutoAnimate (tokens en `src/shared/motion/`); CSS para hovers; Lottie opcional mascota.
+- Mascota 360 / Paper Mario no cambian paleta ni reemplazan el logo.

@@ -1,5 +1,0 @@
-export { createCounterModule } from './composition.ts'
-export type { CounterModule } from './composition.ts'
-export { default as CounterView } from './presentation/CounterView.vue'
-export { createInMemoryCounterRepository } from './infrastructure/InMemoryCounterRepository.ts'
-export { createStorageCounterRepository } from './infrastructure/StorageCounterRepository.ts'

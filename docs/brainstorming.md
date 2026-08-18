@@ -30,7 +30,7 @@ Paola no es “una página de motoclub más”. Es la casa digital de un parche 
 - No es un clon de clubes con menú genérico y cero alma.
 - No es un marketplace abierto a cualquier vendedor.
 - No es un bufete: no tramita comparendos ni representa legalmente.
-- No es una red social completa en la primera versión (amigos y chat propios vienen después; WhatsApp cubre el parche vivo).
+- No es una red social completa en la **primera versión** — el horizonte **sí** incluye red social en la web (fases **36–44** en [`roadmap.md`](./roadmap.md)). WhatsApp sigue como canal paralelo, no sustituto.
 - No mezcla la marca Paola con logos de aliados en el mismo producto. Las alianzas apoyan el parche; no se disfrazan de marca propia.
 
 ### Por qué esto y no “otra web de club”
@@ -268,6 +268,8 @@ Esta pestaña es el ethos de la fundadora. No un “about us” de empresa.
 
 Tono: Paola Armargura puede hablar aquí sin disculparse. Moto Loigca pone los datos de contacto. Cámara Incauta puede ser el video.
 
+**Copy cerrado** (razón / quién / por qué / para qué): [`paola.md`](./paola.md). Contacto, redes y video siguen pendientes.
+
 ---
 
 ## 6. Lógica de negocio (cómo se sostiene)
@@ -316,12 +318,14 @@ Tres sombreros. Una persona puede ser los tres.
 | Sombrero | Qué es | Qué necesita el producto |
 |----------|--------|---------------------------|
 | **Integrante** | Parte del parche (Así va el parche, WhatsApp) | Consentimiento para salir en fotos / ficha |
-| **Usuario** | Cuenta en el sitio | Panel, historial de compras, tickets. Amigos y chat: **después** |
+| **Usuario** | Cuenta en el sitio | Panel, tickets, compras; luego comunidades, feed y chat web (**28–44**) |
 | **Cliente** | Compra producto o servicio | Entrega Bogotá/Soacha, garantía de fabricación, pago Paola o pasarela |
 
-**Decisión MVP de cuenta:** se puede mirar el sitio sin login. Login aparece cuando hay ticket a tu nombre, pedido, o para publicar denuncia. Amigos y chat internos no se construyen hasta que WhatsApp se quede corto.
+**Decisión MVP de cuenta:** se puede mirar el sitio sin login. Login cuando hay ticket, pedido o denuncia. Amigos/chat/feed **no** en el primer corte; sí planificados en la hoja de ruta.
 
-**Panel de usuario (cuando exista):** mis tickets, mis compras, mis datos, mis km si los quiere ver. No un feed social.
+**Decisión Paola — dos canales (2026):** la web será **otro canal** donde viven comunidades persistentes, memoria y conversación moderada. **WhatsApp no se apaga:** Únete, urgencias de rodada y soporte humano siguen ahí. Ver fase **25** del roadmap.
+
+**Panel de usuario (cuando exista):** tickets, compras, datos, km; luego comunidades seguidas y feed (**39**). Inicio no se convierte en scroll infinito (**42**).
 
 ---
 
@@ -372,7 +376,7 @@ Orden para no ahogar a una sola persona y para respetar privacidad.
 - Panel de usuario, compras, tickets en cuenta.
 - Pasarela.
 - Membresías con beneficio escrito.
-- Amigos y chat **solo si** el parche lo pide y WhatsApp no alcanza.
+- Red social web (**28–44**): comunidades, chat y feed planificados; WhatsApp canal paralelo (fase **25**).
 
 El contador de ejemplo del repo no es producto. Se retira cuando exista el primer módulo real (Inicio o Rodadas).
 
@@ -429,16 +433,16 @@ Los módulos **no se importan entre sí**. Si Inicio necesita “próxima rodada
 - Entrega gratis solo Bogotá y Soacha al inicio.
 - Garantía solo defectos de fabricación.
 - Pago: primero Paola; pasarela después.
-- Amigos y chat: después de WhatsApp.
+- Comunidades y social web: fases **36–44**; WhatsApp sigue para Únete y calor del parche.
 - Visual: tríada + mascota 360 animada + recorte Paper Mario + textura orgánica.
 - Sitio browsable sin login; cuenta cuando haya ticket, pedido o denuncia.
 
 ### Pendiente (sí o sí hay que preguntar o definir más adelante)
 
-1. **Link real** de WhatsApp, correo, redes y el “video relevante”.
+1. **Link real** de WhatsApp, redes y el “video relevante”. Correo: `contacto@paolabiker.com`. Dominio: `paolabiker.com`.
 2. **Membresía:** precio, qué incluye, si es mensual o por temporada.
 3. **¿Las rodadas se cobran o son gratis** (o mixto)?
-4. **Razón / quién / por qué / para qué:** texto final en primera persona de Paola (aquí hay estructura, no su biografía).
+4. ~~**Razón / quién / por qué / para qué**~~ — cerrado en [`paola.md`](./paola.md). WhatsApp, redes y video siguen pendientes.
 5. **NIT / quién factura** si la tienda deja de ser de afición (tema legal de Paola).
 6. **Dibujo de la mascota** (quién la ilustra).
 7. **Lista real de integrantes y aliados** (hoy “personas: ninguno” y alianzas aún no nombradas).

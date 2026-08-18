@@ -1,0 +1,18 @@
+---
+description: Reglas fundamentales de construcción de Paola (visión, fases, arquitectura)
+alwaysApply: true
+---
+
+# Construcción
+
+Obedece `AGENTS.md` en la raíz. Producto: `docs/brainstorming.md`. Fases: `docs/roadmap.md`. Diseño: `docs/visual.md`. Relato en primera persona: `docs/paola.md`.
+
+- Una fase de la hoja de ruta a la vez. No construyas lo que la fase dice que no incluye.
+- Paola es Paola (persona, marca, producto). No uses otro nombre de pila.
+- Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `bootstrap.ts` cablea adapters.
+- Marca propia sin mezclar con alianzas. Tickets propios. Pago: WhatsApp/Paola primero.
+- Entrega solo Bogotá/Soacha. Garantía solo defectos de fabricación.
+- No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Red social completa no en MVP; horizonte **36–44** (web + WA paralelo, fase **25**).
+- Commits en español, sin `Co-authored-by: Cursor`.
+- No inventes biografía, precios, integrantes, aliados ni links reales. Dominio `paolabiker.com` y correo `contacto@paolabiker.com` sí están definidos.
+- Hostinger: front y back en el mismo hosting. Credenciales MySQL solo en `.env`.

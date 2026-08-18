@@ -1,0 +1,5 @@
+export { MOTION, type MotionTokens } from '@shared/motion/tokens.ts'
+export { initPaolaCursorSmoke, type PaolaCursorSmokeOptions } from '@shared/motion/paolaCursorSmoke.ts'
+export { prefersReducedMotion } from '@shared/motion/prefersReducedMotion.ts'
+export { staggerReveal, type StaggerRevealOptions } from '@shared/motion/staggerReveal.ts'
+export { usePaolaGsap } from '@shared/motion/usePaolaGsap.ts'

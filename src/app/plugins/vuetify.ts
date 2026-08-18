@@ -1,10 +1,8 @@
-import '@fontsource/roboto/400.css'
-import '@fontsource/roboto/500.css'
-import '@fontsource/roboto/700.css'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import { es } from 'vuetify/locale'
+import { PAOLA_COLORS } from '@shared/theme/colors.ts'
 
 export const createVuetifyPlugin = () =>
   createVuetify({
@@ -13,13 +11,22 @@ export const createVuetifyPlugin = () =>
       messages: { es },
     },
     theme: {
-      defaultTheme: 'light',
+      defaultTheme: 'paolaDark',
       themes: {
-        light: {
+        paolaDark: {
+          dark: true,
           colors: {
-            primary: '#0F766E',
-            secondary: '#1C1917',
-            surface: '#FFFDF8',
+            background: PAOLA_COLORS.black,
+            surface: PAOLA_COLORS.surface,
+            primary: PAOLA_COLORS.blue,
+            secondary: PAOLA_COLORS.navy,
+            error: PAOLA_COLORS.danger,
+            success: PAOLA_COLORS.ok,
+            warning: PAOLA_COLORS.warn,
+            info: PAOLA_COLORS.cyan,
+            'on-background': PAOLA_COLORS.white,
+            'on-surface': PAOLA_COLORS.white,
+            'on-primary': PAOLA_COLORS.white,
           },
         },
       },

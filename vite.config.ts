@@ -18,4 +18,9 @@ export default defineConfig({
       '@modules': fileURLToPath(new URL('./src/modules', import.meta.url)),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://127.0.0.1:8787',
+    },
+  },
 })

@@ -46,10 +46,45 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 | Membresías | 21 |
 | Publicidad / alianzas (sin popups, sin venta de datos) | 4, 22 |
 | Eventos con ticket pago (si aplica) | 9, 22 |
-| Amigos y chat | 25 |
+| Comentarios en memorias (moderados) | 28 |
+| Reacciones y compartir memoria | 29 |
+| Notificaciones comunitarias (panel) | 30 |
+| Perfil parcero público (opcional) | 31 |
+| Amigos (vínculo simple) | 32 |
+| Chat básico | 33 |
+| Hilos por rodada / grupo | 34 |
+| Actividad en Parchese | 35 |
+| Dos canales web + WhatsApp (estrategia) | 25 |
+| Comunidades persistentes en web | 36 |
+| Enlace dual comunidad web ↔ WhatsApp | 37 |
+| Seguir comunidades y voces | 38 |
+| Feed personal (cronológico) | 39 |
+| Seguir parceros (unidireccional) | 40 |
+| Roles en comunidad (moderación delegada) | 41 |
+| Pulso comunitario en Inicio | 42 |
+| Chat y posts enriquecidos | 43 |
+| Red social Paola integrada | 44 |
 | Admin para una sola operadora | 24 |
 | SEO, 404, vacíos, accesibilidad, deploy, tests | 26 |
 | Voces en copy de todo el sitio | 1, 27 |
+
+---
+
+## Decisión de producto — dos canales (Paola, 2026)
+
+**Horizonte acordado:** el portal **sí** evoluciona a **red social del parche** en la web. No reemplaza WhatsApp: conviven.
+
+| Canal | Rol | No es |
+|-------|-----|--------|
+| **WhatsApp** | Parche vivo, caliente, Únete, soporte, cobro humano | El único hogar de la comunidad para siempre |
+| **Web** | Memoria, cupo, tienda, Tu voz — y **comunidades persistentes** enlazadas al parche | Clon de un motoclub genérico ni feed adictivo |
+
+**Reglas de convivencia (vinculantes en fases 25 y 37):**
+
+- WhatsApp **no se apaga** cuando crezca la web social.
+- Cada comunidad web puede tener **enlace opcional** al grupo WA; la ficha vive en el sitio.
+- El MVP sigue sin red social completa; las fases **28–44** van en orden, sin saltar candados técnicos.
+- Una operadora (Paola) hasta que una fase futura diga lo contrario por escrito.
 
 ---
 
@@ -59,21 +94,23 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 **Contenido de Paola**
 
-- [ ] Dominio o subdominio donde va a vivir (aunque sea después).
-- [ ] Correo que se usará de contacto (aunque el texto largo de “quién soy” aún no exista).
+- [x] Dominio: `paolabiker.com` (hoy puede vivir en un dominio temporal).
+- [x] Correo de contacto: `contacto@paolabiker.com`.
 
 **Código**
 
-- [ ] Quitar el módulo `counter` de ejemplo.
-- [ ] Instalar Vue Router.
-- [ ] Layout vacío: barra, área principal, pie.
-- [ ] Rutas huecas de las 5 pestañas: `/` `/parchese` `/tu-voz` `/tienda` `/paola`.
-- [ ] Mantener arquitectura modular (puertos, `index.ts`, `bootstrap.ts`).
-- [ ] Confirmar `npm run dev` y `npm run build`.
+- [x] Quitar el módulo `counter` de ejemplo.
+- [x] Instalar Vue Router.
+- [x] Layout vacío: barra, área principal, pie.
+- [x] Rutas huecas de las 5 pestañas: `/` `/parchese` `/tu-voz` `/tienda` `/paola`.
+- [x] Mantener arquitectura modular (puertos, `index.ts`, `bootstrap.ts`).
+- [x] Confirmar `npm run dev` y `npm run build`.
 
 **Queda lista cuando:** no hay contador; se navega entre 5 URLs aunque digan “próximamente”.
 
-**No incluye:** diseño final, CMS, API.
+**No incluye:** diseño final, CMS, API de producto (tickets/pedidos). El cascarón `server/` + MySQL en `.env` sí: front y back salen juntos en Hostinger.
+
+**Hosting (Paola):** un solo Hostinger. Local: `iniciar.bat`. Producción: `npm start` (estáticos + `/api`). Claves de MySQL nunca van al git.
 
 ---
 
@@ -121,11 +158,13 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 **Contenido de Paola (obligatorio para publicar esta fase)**
 
-- [ ] Texto: la razón.
-- [ ] Texto: ¿quién es Paola?
-- [ ] Texto: ¿por qué lo hago?
-- [ ] Texto: ¿para qué lo hago?
-- [ ] Correo.
+Fuente: [`paola.md`](./paola.md).
+
+- [x] Texto: la razón.
+- [x] Texto: ¿quién es Paola?
+- [x] Texto: ¿por qué lo hago?
+- [x] Texto: ¿para qué lo hago?
+- [x] Correo: `contacto@paolabiker.com`.
 - [ ] WhatsApp (número o wa.me).
 - [ ] Links de redes.
 - [ ] Video relevante (URL). Si aún no hay video: bloque “próximamente” explícito, no un hueco mudo.
@@ -506,20 +545,358 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 ---
 
-## Fase 25 — Amigos y chat
+## Fase 25 — Dos canales: web + WhatsApp
 
-**Para qué:** solo si WhatsApp se queda corto. Por defecto **no se construye**.
+**Para qué:** fijar la estrategia antes de acelerar **32–44**. Paola decidió que la web será **otro canal** de comunidad; WhatsApp sigue como alternativa cercana.
 
-**Abrir solo si**
+**Contenido de Paola**
 
-- [ ] El parche lo pide con claridad.
-- [ ] WhatsApp ya no da abasto.
+- [ ] Copy oficial: qué va en web vs qué va en WhatsApp (Únete, rodada urgente, soporte pedido).
+- [ ] Reglas de anuncios duplicados: qué se cross-postea y qué es exclusivo de cada canal.
+- [ ] Enlace del grupo WA en `/parchese` / Únete **sigue visible**.
 
-**Si se abre**
+**Código**
 
-- [ ] Amigos (vínculo simple).
-- [ ] Chat básico.
-- [ ] Sin convertir el portal en red social ni en el Inicio.
+- [ ] Página o bloque **“Dónde hablamos”**: web (cuenta, comunidades, tickets) vs WhatsApp (parche vivo).
+- [ ] En admin: campo opcional `whatsapp_grupo` por comunidad (fase 36) o por rodada.
+- [ ] Métricas mínimas: no vender datos; solo operación Paola.
+
+**Queda lista cuando:** un parcero entiende dónde apuntarse, dónde chatear y dónde queda la memoria — sin confusión.
+
+**No incluye:** apagar WhatsApp, sync automático bidireccional WA↔web (fase 37 lo aborda simple).
+
+---
+
+## Fase 28 — Comentarios en memorias (comunidad MVP)
+
+**Para qué:** conversación **moderada** sobre lo rodado, sin red social.
+
+**Candado:** fases **15** (legal), **10** (memorias publicadas), **19** (cuenta para comentar).
+
+**Contenido / reglas**
+
+- [ ] Normas visibles: respeto, no doxxing, no menores identificables, constancia comunitaria.
+- [ ] Paola puede fijar comentario con reglas del parche.
+
+**Código**
+
+- [ ] Módulo `community` (o extensión de memorias): hilo por memoria publicada.
+- [ ] Composer: texto, límite de caracteres, login obligado.
+- [ ] Estados: enviado → en revisión → publicado / rechazado (autor ve su pendiente).
+- [ ] Respuestas **un nivel** (comentario → respuesta, no árbol infinito).
+- [ ] Acciones: reportar, responder; Paola: fijar, ocultar, eliminar (admin fase 24).
+- [ ] Denuncias publicadas: comentarios **cerrados** o desactivados (solo lectura).
+- [ ] Tests: no publicar sin moderación si así se configuró; no datos de terceros en campos libres obvios.
+
+**Queda lista cuando:** en una memoria real se comenta, Paola modera, y no parece foro abierto ni chat.
+
+**No incluye:** @menciones con notificación masiva, MD rico, adjuntos en comentario (fase posterior si hace falta).
+
+---
+
+## Fase 29 — Reacciones y compartir
+
+**Para qué:** engagement ligero en memorias sin gamificación tóxica.
+
+**Candado:** fase **28** o memorias estables; **15** legal (qué se cuenta, si aplica).
+
+**Código**
+
+- [ ] Barra de reacciones (iconos SVG propios, no emoji sistema obligatorio).
+- [ ] Conteo visible pero discreto; sin ranking “más popular”.
+- [ ] Compartir: enlace a memoria `#comentarios`, botón WhatsApp.
+- [ ] Preview OG al compartir (coherente con fase 26).
+- [ ] Una persona = una reacción por tipo (o toggle), no bots.
+
+**Queda lista cuando:** se puede reaccionar y compartir una memoria sin popup ni tracker invasivo.
+
+**No incluye:** stories, reels, feed de reacciones.
+
+---
+
+## Fase 30 — Notificaciones comunitarias (panel)
+
+**Para qué:** avisos útiles en cuenta, no campana infinita.
+
+**Candado:** fase **19** (panel usuario).
+
+**Código**
+
+- [ ] Lista en panel: “tu comentario fue publicado”, “Paola respondió”, “memoria nueva del parche” (opt-in).
+- [ ] Preferencias: activar/desactivar por tipo (sin venta de datos).
+- [ ] **No** push en tiempo real agresivo al inicio (correo o badge en panel basta).
+- [ ] Sin notificar cada reacción a menos que Paola lo pida por escrito.
+
+**Queda lista cuando:** el usuario ve lo relevante en su panel sin instalar app de chat.
+
+**No incluye:** notificaciones marketing, popups.
+
+---
+
+## Fase 31 — Perfil parcero público (opcional)
+
+**Para qué:** alias humano en comentarios y km, no perfil de influencer.
+
+**Candado:** fase **19**; consentimiento explícito para aparecer.
+
+**Contenido de Paola**
+
+- [ ] Qué campos son públicos: alias, avatar, km opcional, moto opcional.
+- [ ] Qué **nunca** es público: WhatsApp, correo, documento.
+
+**Código**
+
+- [ ] Ficha `/parcero/:alias` mínima o modal desde comentario.
+- [ ] Badge “integrante” vs visita si aplica (distinto de membresía paga, fase 21).
+- [ ] Integrante del club (fase 5) ≠ perfil de cuenta; el copy lo aclara.
+
+**Queda lista cuando:** un comentario muestra alias coherente y no filtra contacto privado.
+
+**No incluye:** seguidores, biografía larga, feed personal.
+
+---
+
+## Fase 32 — Amigos (vínculo simple)
+
+**Para qué:** vínculo mutual entre parceros en la web (red social en crecimiento).
+
+**Candado:** fases **28–31** estables; **25** (dos canales) documentada.
+
+**Código**
+
+- [ ] Solicitud / aceptar / bloquear (bloqueo mutuo silencioso).
+- [ ] Lista en cuenta o Parchese; no exponer número WA.
+- [ ] Coexiste con grupo WA: copy claro “también nos vemos en WhatsApp”.
+
+**Queda lista cuando:** dos parceros se vinculan en web sin obligar a dejar el grupo WA.
+
+**No incluye:** scraping de contactos del teléfono.
+
+---
+
+## Fase 33 — Chat básico
+
+**Para qué:** mensajería en portal como **canal web**, paralela a WA.
+
+**Candado:** **25**, **32** o comunidad con chat (fase 36+).
+
+**Código**
+
+- [ ] Hilos 1:1 y grupos; texto + foto moderada.
+- [ ] Reportar mensaje; Paola silencia hilo.
+- [ ] Copy: chat web + WA son complementos; emergencias = líneas oficiales.
+
+**Queda lista cuando:** un hilo web funciona y el grupo WA puede seguir activo sin conflicto.
+
+**No incluye:** videollamada, E2E fingido.
+
+---
+
+## Fase 34 — Hilos por rodada / grupo
+
+**Para qué:** coordinación post-apunte en web (persistente en la ficha de la salida).
+
+**Candado:** **9**, **25**, preferible **33**.
+
+**Código**
+
+- [ ] Hilo por salida para quien tiene ticket; enlace desde ticket y comunidad.
+- [ ] Solo lectura tras `realizado`; archivo en memoria.
+- [ ] Avisos Paola fijados (Moto Loigca); opción “también enviado al WA”.
+
+**Queda lista cuando:** cupo + chat web + WA conviven con reglas claras.
+
+**No incluye:** GPS en vivo.
+
+---
+
+## Fase 35 — Actividad en Parchese
+
+**Para qué:** pulso del parche en web antes del feed personal completo.
+
+**Candado:** **28–29**; **25**.
+
+**Código**
+
+- [ ] Pestaña **Actividad** en Parchese: cronológico, destacados manuales Paola.
+- [ ] Mezcla memorias, rodadas, comunidades (cuando existan).
+- [ ] Sin algoritmo “para ti” opaco.
+
+**Queda lista cuando:** Parchese es el centro social inicial de la web.
+
+**No incluye:** feed infinito en Inicio (eso es fase 42 con reglas).
+
+---
+
+## Fase 36 — Comunidades persistentes (web)
+
+**Para qué:** grupos con **hogar en el sitio** — no solo hilos efímeros de rodada.
+
+**Candado:** **25**, **31**, **35**.
+
+**Contenido de Paola**
+
+- [ ] Primeras comunidades reales (ej. parche general, servicio cascos, ruta Anapoima alumni) — nombres y reglas por definir.
+
+**Código**
+
+- [ ] Entidad `Community`: slug, nombre, descripción, reglas, portada.
+- [ ] Unirse / salir; directorio en Parchese.
+- [ ] Vincular rodadas, memorias y tips a una comunidad.
+- [ ] Módulo `communities` desacoplado (puertos en bootstrap).
+
+**Queda lista cuando:** una comunidad tiene URL propia y contenido enlazado.
+
+**No incluye:** comunidades privadas de pago (membresía fase 21 puede acoplarse después).
+
+---
+
+## Fase 37 — Enlace dual web ↔ WhatsApp
+
+**Para qué:** la misma comunidad, **dos entradas**; web como registro, WA como calor.
+
+**Candado:** **36**.
+
+**Código**
+
+- [ ] Ficha comunidad: botón “Grupo WhatsApp” (link real cuando exista) + “Quedarse en la web”.
+- [ ] Bloque copy: no es obligatorio estar en ambos; sí recomendado para rodadas urgentes.
+- [ ] Admin: publicar aviso en web con checkbox “recordar en WA” (manual, no bot al inicio).
+
+**Queda lista cuando:** desde la ficha web se entiende y se llega al WA sin perder la memoria en sitio.
+
+**No incluye:** sincronización automática de todos los mensajes WA→web.
+
+---
+
+## Fase 38 — Seguir comunidades y voces
+
+**Para qué:** suscripción ligera sin amistad mutual.
+
+**Candado:** **36**.
+
+**Código**
+
+- [ ] Seguir / dejar de seguir comunidad.
+- [ ] Seguir canal “voces” (tips Loigca, memorias Incauta) si Paola los separa.
+- [ ] Lista “Mis comunidades” en panel.
+
+**Queda lista cuando:** el feed (fase 39) puede filtrar por suscripciones.
+
+**No incluye:** notificar cada post por push agresivo.
+
+---
+
+## Fase 39 — Feed personal (cronológico)
+
+**Para qué:** **red social en web** — timeline de lo que seguís.
+
+**Candado:** **38**, **32** opcional.
+
+**Código**
+
+- [ ] Ruta `/feed` o pestaña en cuenta: posts de comunidades + amigos + Paola.
+- [ ] Orden cronológico con paginación; destacados manuales Paola.
+- [ ] Crear post corto en comunidad (texto + foto moderada) — no solo comentarios en memoria.
+
+**Queda lista cuando:** un parcero ve actividad relevante sin scrollear WA.
+
+**No incluye:** algoritmo viral, publicidad, trending opaco.
+
+---
+
+## Fase 40 — Seguir parceros (unidireccional)
+
+**Para qué:** seguir alias públicos sin ser “amigos”.
+
+**Candado:** **31**, **39**.
+
+**Código**
+
+- [ ] Seguir / silenciar parcero (perfil fase 31).
+- [ ] Privacidad: ocultar perfil, solo amigos ven km, etc.
+- [ ] Aparece en feed solo si es público o amigo.
+
+**Queda lista cuando:** seguir no expone WhatsApp ni datos sensibles.
+
+**No incluye:** verificación azul pagada, influencers externos.
+
+---
+
+## Fase 41 — Roles en comunidad
+
+**Para qué:** escalar moderación sin equipo 24/7 — delegados de confianza.
+
+**Candado:** **36**, **24** (admin).
+
+**Contenido de Paola**
+
+- [ ] Quién puede ser moderador delegado (lista corta, revocable).
+
+**Código**
+
+- [ ] Rol `moderador` por comunidad: ocultar post, pin, no ban global.
+- [ ] Paola mantiene ban global y denuncias Tu voz.
+- [ ] Log de acciones moderación.
+
+**Queda lista cuando:** una comunidad activa no depende solo del chat WA para orden.
+
+**No incluye:** tribunal comunitario, expulsión permanente automática.
+
+---
+
+## Fase 42 — Pulso comunitario en Inicio
+
+**Para qué:** Inicio muestra **módulo** del parche social, sin convertirse en TikTok.
+
+**Candado:** **39**, **11** (Inicio vivo).
+
+**Código**
+
+- [ ] Widget “De tus comunidades”: 3–5 ítems recientes + enlace al feed.
+- [ ] Tablero del día (rodada, km, Paola) **sigue primero**.
+- [ ] Sin autoplay video infinito.
+
+**Queda lista cuando:** Inicio integra lo social sin perder el resumen del día.
+
+**No incluye:** feed infinito como pantalla principal.
+
+---
+
+## Fase 43 — Chat y posts enriquecidos
+
+**Para qué:** profundizar chat web y publicaciones (voz, álbum, respuestas anidadas).
+
+**Candado:** **33**, **39**.
+
+**Código**
+
+- [ ] Notas de voz cortas en chat (moderadas).
+- [ ] Álbum en post de comunidad; hilos de respuesta en posts (más de un nivel, con límite).
+- [ ] Reacciones en posts (reuse fase 29).
+
+**Queda lista cuando:** la web cubre conversación rica sin mandar todo a WA.
+
+**No incluye:** stories 24h, live streaming.
+
+---
+
+## Fase 44 — Red social Paola integrada
+
+**Para qué:** cierre del arco social — auditoría, módulo, marca.
+
+**Candado:** **36–43**; repetir checklist **27** en contexto social.
+
+**Código**
+
+- [ ] Módulo `social` (o composición en bootstrap): communities, feed, chat, friends — **desacoplados**, cableados en bootstrap.
+- [ ] Tests: moderación, bloqueo, no filtrar WA en API pública.
+- [ ] Privacidad actualizada (fase 15 revision): datos de chat, retención, exportar cuenta.
+- [ ] Auditoría: ¿sigue sintiéndose Paola y no Facebook motero?
+
+**Queda lista cuando:** la web es canal social completo del parche y WhatsApp sigue como alternativa documentada.
+
+**No incluye:** GPS en vivo, envío nacional, marketplace.
 
 ---
 
@@ -574,14 +951,25 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
                  ↓
             19 → 20 → 21 → 22
                  ↓
-            23 → 24 → 26 → 27
+            23 → 24 → 25
                  ↓
-            25 solo si hace falta
+     Comunidad web (MVP social):
+            28 → 29 → 30 → 31
+                 ↓
+     Social en crecimiento:
+            32 → 33 → 34 → 35
+                 ↓
+            26 → 27
+                 ↓
+     Red social Paola (horizonte acordado):
+            36 → 37 → 38 → 39 → 40 → 41 → 42 → 43 → 44
 ```
 
-- **15** es candado de **18** y **20**.
-- **21** está candada por contenido (precio y beneficios).
-- **25** está candada por necesidad real.
+- **15** candado de **18** y **20**.
+- **21** candada por contenido (precio y beneficios).
+- **28** candado: **15**, **10**, **19**.
+- **25** documenta **dos canales** (web + WhatsApp); WA **no se apaga**.
+- **36–44** es el camino a red social en web; **no** es MVP inicial.
 
 ---
 
@@ -591,7 +979,9 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 - Marketplace de terceros.
 - Trámite o representación de comparendos.
 - Envío nacional (hasta nueva regla).
-- Red social completa en el MVP.
-- Equipo de moderación 24/7.
+- Red social completa **en el primer corte** (MVP); el horizonte **36–44** está planificado.
+- Comentarios públicos sin moderación ni legal (**28** exige **15**).
+- Apagar WhatsApp cuando exista la web social.
+- Equipo de moderación 24/7 (salvo fase **41** delegada y acotada).
 
 Cuando algo de esa lista se vuelva sí, se añade **fase nueva** aquí; no se cuela en una fase ya tachada.
