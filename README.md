@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Build de producción: `npm run build`. En Hostinger el proceso único es `npm start` (sirve `front/dist/` + `/api`).
+Build de producción: `npm run build` → carpeta `dist/` en la raíz. En Hostinger el proceso único es `npm start` (sirve `dist/` + `/api`).
 
 Copia `.env.example` a `.env` y completa MySQL. **No subas `.env`.** Para conectar desde el PC, en Hostinger agrega tu IP en acceso remoto MySQL.
 

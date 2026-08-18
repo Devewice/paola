@@ -7,7 +7,7 @@ export default defineConfig({
   root: fileURLToPath(new URL('.', import.meta.url)),
   publicDir: 'public',
   build: {
-    outDir: 'dist',
+    outDir: '../dist',
     emptyOutDir: true,
   },
   plugins: [

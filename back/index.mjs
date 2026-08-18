@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 dotenv.config({ path: join(fileURLToPath(new URL('.', import.meta.url)), '..', '.env') })
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
-const dist = join(root, 'front', 'dist')
+const dist = join(root, 'dist')
 const port = Number(process.env.PORT) || 8787
 
 const mime = {
