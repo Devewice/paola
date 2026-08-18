@@ -15,6 +15,8 @@ Fuentes (carpeta `docs/resoruces/`):
 
 La visión de producto sigue en [`brainstorming.md`](./brainstorming.md). Paper Mario / mascota 360 no pisan esta marca.
 
+Mascota (fase 1): fotos en `public/mascota/` copiadas de `docs/resoruces/mascota camara 360/`. Default de vacío: `en-pie.png`.
+
 ---
 
 ## 1. Personalidad de la interfaz

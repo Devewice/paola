@@ -1,0 +1,221 @@
+:root {
+  --paola-black: #05070c;
+  --paola-ink: #000814;
+  --paola-navy: #001028;
+  --paola-navy-mid: #003060;
+  --paola-blue: #0088f8;
+  --paola-blue-deep: #0068c8;
+  --paola-cyan: #48b4fc;
+  --paola-cyan-soft: #70c0f8;
+  --paola-white: #f7fafc;
+  --paola-muted: #8b9bb0;
+  --paola-line: #1a2a40;
+  --paola-surface: #0b1018;
+  --paola-space: 8px;
+  --paola-loigca: #0088f8;
+  --paola-incauta: #e2e8f0;
+  --paola-armargura: #c878b4;
+  --paola-font-ui: 'Montserrat', sans-serif;
+  --paola-font-display: 'Oswald', sans-serif;
+}
+
+html,
+body,
+#app,
+.v-application {
+  background: var(--paola-black);
+  color: var(--paola-white);
+  font-family: var(--paola-font-ui);
+}
+
+body {
+  background-color: var(--paola-black);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(0, 136, 248, 0.08), transparent 42%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.18) 3px,
+      rgba(0, 0, 0, 0.18) 4px
+    );
+}
+
+a {
+  color: var(--paola-cyan);
+}
+
+h1,
+h2,
+.type-display {
+  font-family: var(--paola-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+
+.paola-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-family: var(--paola-font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.paola-btn--primary {
+  background: var(--paola-blue);
+  color: var(--paola-white);
+}
+
+.paola-btn--primary:hover {
+  background: var(--paola-cyan);
+  box-shadow: 0 0 20px rgba(72, 180, 252, 0.35);
+  color: var(--paola-white);
+}
+
+.paola-btn--primary:active {
+  background: var(--paola-blue-deep);
+}
+
+.paola-btn--ghost {
+  background: transparent;
+  border-color: var(--paola-cyan);
+  color: var(--paola-white);
+}
+
+.paola-btn--ghost:hover {
+  background: rgba(0, 136, 248, 0.16);
+  color: var(--paola-white);
+}
+
+.paola-cutout {
+  background: var(--paola-surface);
+  border: 2px solid var(--paola-white);
+  border-radius: 2px 14px 4px 10px;
+  box-shadow:
+    5px 5px 0 var(--paola-blue),
+    9px 9px 0 var(--paola-navy);
+  padding: calc(var(--paola-space) * 4);
+}
+
+.paola-empty {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: calc(var(--paola-space) * 6) calc(var(--paola-space) * 3);
+}
+
+.paola-empty__mascot-hole {
+  display: grid;
+  place-items: center;
+  margin: 0 auto calc(var(--paola-space) * 3);
+  width: 200px;
+  height: 220px;
+  border: 2px dashed var(--paola-cyan);
+  border-radius: 46% 54% 42% 58% / 48% 42% 58% 52%;
+  background: var(--paola-ink);
+}
+
+.paola-empty__mascot {
+  width: 150px;
+  height: auto;
+  mix-blend-mode: lighten;
+  filter: drop-shadow(0 0 18px rgba(72, 180, 252, 0.28));
+}
+
+.paola-empty__kicker {
+  font-family: var(--paola-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paola-muted);
+  margin: 0 0 8px;
+}
+
+.paola-empty__title {
+  margin: 0 0 12px;
+  font-size: 32px;
+}
+
+.paola-empty__copy {
+  margin: 0 0 24px;
+  color: var(--paola-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.paola-voices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+
+.voice-badge {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid var(--paola-line);
+  background: var(--paola-ink);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.voice-badge strong {
+  font-family: var(--paola-font-display);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.voice-badge--loigca {
+  border-color: var(--paola-loigca);
+  color: var(--paola-cyan);
+}
+
+.voice-badge--incauta {
+  border-color: var(--paola-incauta);
+  color: var(--paola-incauta);
+}
+
+.voice-badge--armargura {
+  border-color: var(--paola-armargura);
+  color: var(--paola-armargura);
+}
+
+.paola-shell-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.paola-nav .v-btn {
+  font-family: var(--paola-font-ui);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paola-btn {
+    transition: none;
+  }
+}

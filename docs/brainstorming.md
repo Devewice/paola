@@ -84,6 +84,14 @@ Tres voces fijas. No son tres sitios web: son tres maneras de hablar, personific
 
 Nombres tal cual la lluvia: **Paola Armargura / Cámara Incauta / moto Loigca**. Son apodos de oficio, no hay que “corregirlos” en producto; el público puede verlos como personajes.
 
+**Frase de tono (fase 1)** — tres a cinco palabras, para copy y badges, no para cambiar de fuente:
+
+| Voz | Frase |
+|-----|--------|
+| **Moto Loigca** | Dato, cupo, porqué. |
+| **Cámara Incauta** | Yo estuve ahí. |
+| **Paola Armargura** | Nombro lo injusto. |
+
 **Cómo se usa en contenido (regla práctica):**
 
 - Una **rodada anunciada** la explica Moto Loigca (fecha, punto, cupo, qué llevar).
@@ -92,13 +100,11 @@ Nombres tal cual la lluvia: **Paola Armargura / Cámara Incauta / moto Loigca**.
 
 ### 4.2 Mascota: cámara 360
 
-Referente: Insta360, pero **versión dibujos animados**, no un render de producto.
+Referente: Insta360. El horizonte sigue siendo **versión dibujos animados**; el primer lote (fase 1) son las fotos de la cámara sobre negro.
 
-Es la cara visible de **Cámara Incauta**: una cámara 360 con cuerpo de mascota que “rueda” con el parche. Sirve para:
+Archivos en `public/mascota/` (copia de `docs/resoruces/mascota camara 360/`): `en-pie.png` (vacío), `lente.png`, `x5.png`, `tumbada.png`.
 
-- Recorrer el inicio y las memorias sin stock photos genéricas.
-- Marcar contenido “visto / grabado en rodada”.
-- Guiar (tooltips, estados vacíos) sin caer en ilustración corporativa.
+No sustituyen al logo. En UI es el objeto con **volumen**; los marcos van recortados (Paper Mario). Sirve para recorrer inicio y memorias, marcar lo grabado en rodada y guiar estados vacíos, sin stock de motoclub.
 
 ### 4.3 Paper Mario (el juego)
 

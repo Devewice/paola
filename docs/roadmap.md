@@ -120,15 +120,15 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 **Contenido de Paola**
 
-- [ ] Primer dibujo de la mascota cámara 360 (aunque sea boceto).
-- [ ] 3–5 palabras de tono: cómo habla Armargura, Incauta y Loigca (una frase cada una).
+- [x] Primer dibujo de la mascota cámara 360 (aunque sea boceto). Fotos en `public/mascota/` (origen: `docs/resoruces/mascota camara 360/`).
+- [x] 3–5 palabras de tono: Loigca «Dato, cupo, porqué.» · Incauta «Yo estuve ahí.» · Armargura «Nombro lo injusto.»
 
 **Código / diseño**
 
-- [ ] Paleta, tipo, textura (papel, asfalto, recorte) — no dashboard frío.
-- [ ] Componentes base: botón, tarjeta, título, estado vacío con hueco para la mascota.
-- [ ] Regla: marcos tipo recorte (Paper Mario); la mascota puede tener más volumen.
-- [ ] No usar ilustración stock de “motoclub corporativo”.
+- [x] Paleta, tipo, textura (papel, asfalto, recorte) — no dashboard frío.
+- [x] Componentes base: botón, tarjeta, título, estado vacío con hueco para la mascota.
+- [x] Regla: marcos tipo recorte (Paper Mario); la mascota puede tener más volumen.
+- [x] No usar ilustración stock de “motoclub corporativo”.
 
 **Queda lista cuando:** una pantalla vacía ya se siente Paola, no Vuetify por defecto.
 

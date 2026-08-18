@@ -10,6 +10,11 @@ export const createVuetifyPlugin = () =>
       locale: 'es',
       messages: { es },
     },
+    defaults: {
+      VBtn: {
+        rounded: '0',
+      },
+    },
     theme: {
       defaultTheme: 'paolaDark',
       themes: {
