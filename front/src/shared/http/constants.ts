@@ -17,14 +17,27 @@ export const API = {
   OUTINGS: '/api/outings',
   MEMORIES: '/api/memories',
   TIPS: '/api/tips',
+  FINES: '/api/fines',
+  REPORTS: '/api/reports',
+  USERS_REGISTER: '/api/users/register',
+  USERS_LOGIN: '/api/users/login',
+  ME_PANEL: '/api/me/panel',
+  COMMUNITIES: '/api/communities',
+  FEED: '/api/feed',
   PRODUCTS: '/api/products',
+  SERVICES: '/api/services',
   ALLIANCES: '/api/alliances',
   MEMBERS: '/api/members',
+  ORDERS: '/api/orders',
   OPERAR_OUTINGS: '/api/operar/outings',
   OPERAR_ALLIANCES: '/api/operar/alliances',
   OPERAR_MEMBERS: '/api/operar/members',
   OPERAR_MEMORIES: '/api/operar/memories',
   OPERAR_PRODUCTS: '/api/operar/products',
+  OPERAR_SERVICES: '/api/operar/services',
+  OPERAR_ORDERS: '/api/operar/orders',
+  OPERAR_FINES: '/api/operar/fines',
+  OPERAR_REPORT_STATUS: '/api/operar/reports',
 } as const
 
 export function apiOutingTickets(id: string): string {
@@ -43,8 +56,15 @@ export const APP_PATHS = {
   PAOLA: '/paola',
   KIT: '/kit',
   OPERAR: '/operar',
+  PRIVACIDAD: '/privacidad',
+  CUENTA: '/cuenta',
+  FEED: '/feed',
 } as const
 
 export function appTiendaFicha(id: string): string {
-  return `${APP_PATHS.TIENDA}/${id}`
+  return `${APP_PATHS.TIENDA}/${encodeURIComponent(id)}`
+}
+
+export function appTiendaServicio(id: string): string {
+  return `${APP_PATHS.TIENDA}/servicio/${encodeURIComponent(id)}`
 }

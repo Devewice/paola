@@ -26,13 +26,35 @@ function openOuting(capacity = 2): { catalog: InMemoryOutingCatalog; outing: Out
   return { catalog, outing: published.value }
 }
 
+function claimDraft(
+  over: Partial<{ name: string; whatsapp: string; moto: string; privacyAccepted: boolean }> = {},
+) {
+  return {
+    name: 'Ana',
+    whatsapp: '3123136679',
+    privacyAccepted: true,
+    ...over,
+  }
+}
+
 describe('ClaimSpot', () => {
+  it('no reserva sin leer el aviso', () => {
+    const { catalog, outing } = openOuting()
+    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(
+      outing.id,
+      claimDraft({ privacyAccepted: false }),
+    )
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error.message).toMatch(/aviso/)
+    expect(catalog.listTickets(outing.id)).toHaveLength(0)
+  })
+
   it('no reserva sin nombre', () => {
     const { catalog, outing } = openOuting()
-    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, {
-      name: ' ',
-      whatsapp: '3123136679',
-    })
+    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(
+      outing.id,
+      claimDraft({ name: ' ' }),
+    )
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.error.message).toMatch(/nombre/)
     expect(catalog.listTickets(outing.id)).toHaveLength(0)
@@ -40,10 +62,10 @@ describe('ClaimSpot', () => {
 
   it('no reserva sin WhatsApp', () => {
     const { catalog, outing } = openOuting()
-    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, {
-      name: 'Ana',
-      whatsapp: '123',
-    })
+    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(
+      outing.id,
+      claimDraft({ whatsapp: '123' }),
+    )
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.error.message).toMatch(/WhatsApp/)
     expect(catalog.listTickets(outing.id)).toHaveLength(0)
@@ -51,10 +73,10 @@ describe('ClaimSpot', () => {
 
   it('anota el cupo y deja moto opcional', () => {
     const { catalog, outing } = openOuting()
-    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, {
-      name: 'Ana',
-      whatsapp: '+57 312 313 6679',
-    })
+    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(
+      outing.id,
+      claimDraft({ whatsapp: '+57 312 313 6679' }),
+    )
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value.ticket.moto).toBe('')
@@ -66,17 +88,14 @@ describe('ClaimSpot', () => {
 
   it('no hay overbooking: al llenarse pasa a lleno y el siguiente no entra', () => {
     const { catalog, outing } = openOuting(1)
-    const first = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, {
-      name: 'Ana',
-      whatsapp: '3123136679',
-    })
+    const first = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, claimDraft())
     expect(first.ok).toBe(true)
     if (first.ok) expect(first.value.outing.status).toBe('lleno')
 
-    const second = new ClaimSpot(catalog, () => 'cupo-2').execute(outing.id, {
-      name: 'Luis',
-      whatsapp: '3100000000',
-    })
+    const second = new ClaimSpot(catalog, () => 'cupo-2').execute(
+      outing.id,
+      claimDraft({ name: 'Luis', whatsapp: '3100000000' }),
+    )
     expect(second.ok).toBe(false)
     if (!second.ok) {
       expect(second.error.code).toBe('CONFLICT')
@@ -88,10 +107,7 @@ describe('ClaimSpot', () => {
   it('no vende si está cerrada', () => {
     const { catalog, outing } = openOuting()
     new SetOutingStatus(catalog).execute(outing.id, 'cerrado')
-    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, {
-      name: 'Ana',
-      whatsapp: '3123136679',
-    })
+    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, claimDraft())
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.error.message).toMatch(/cerrada/)
   })
@@ -99,10 +115,7 @@ describe('ClaimSpot', () => {
   it('no vende si está realizada', () => {
     const { catalog, outing } = openOuting()
     new SetOutingStatus(catalog).execute(outing.id, 'realizado')
-    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, {
-      name: 'Ana',
-      whatsapp: '3123136679',
-    })
+    const result = new ClaimSpot(catalog, () => 'cupo-1').execute(outing.id, claimDraft())
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.error.message).toMatch(/rodó/)
   })

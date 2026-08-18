@@ -129,7 +129,7 @@ back/modules/<nombre-en-inglés>/
   index.ts          rutas del módulo
 ```
 
-Módulos de API hoy: `health`, `rides`, `club`, `memories`, `voice`, `shop`. Tablas MySQL y rutas `/api` en inglés (`outings`, `tickets`, `alliances`, `members`, `memories`, `memory_photos`, `tips`, `products`).
+Módulos de API hoy: `health`, `rides`, `club`, `memories`, `voice`, `shop`. Tablas MySQL y rutas `/api` en inglés (`outings`, `tickets`, `alliances`, `members`, `memories`, `memory_photos`, `tips`, `products`, `services`).
 
 Módulos de producto (dejan el placeholder cuando tienen tabla + API): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.
 Inicio no importa `rides` por dentro: se cablea en bootstrap. Inventario nuevo: MySQL vía Knex, no JSON en el front.

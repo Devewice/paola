@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { LEGAL_COPY } from '@app/constants/legal.ts'
 import { SHOP_COPY } from '@modules/shop/constants/copy.ts'
 import type { ShopModule } from '@modules/shop/index.ts'
 import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
-import { appTiendaFicha } from '@shared/http/constants.ts'
+import { APP_PATHS, appTiendaFicha, appTiendaServicio } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
 import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
@@ -19,10 +20,13 @@ const props = defineProps<{
 }>()
 
 const shelves = computed(() => props.module.getShelves())
+const services = computed(() => props.module.getServices())
 const contact = computed(() => props.module.getContact())
 const bindReveal = usePageReveal()
 const copy = SHOP_COPY
+const legal = LEGAL_COPY
 const mascot = MASCOT
+const privacyPath = `${APP_PATHS.PRIVACIDAD}`
 </script>
 
 <template>
@@ -49,6 +53,32 @@ const mascot = MASCOT
       </div>
       <PaolaAlert tone="info">{{ shelves.deliveryCopy }}</PaolaAlert>
       <PaolaAlert tone="warn">{{ shelves.warrantyCopy }}</PaolaAlert>
+      <p class="paola-page__copy">
+        <router-link class="shop-page__legal" :to="privacyPath">{{ legal.shopLink }}</router-link>
+      </p>
+    </section>
+
+    <section class="paola-page__block" :aria-label="copy.serviceAria" data-reveal>
+      <PaolaVoiceBadge voice="loigca" />
+      <h2 class="paola-page__heading type-display">{{ copy.serviceHeading }}</h2>
+      <div v-if="services.items.length" class="shop-page__shelf">
+        <PaolaProductCard
+          v-for="item in services.items"
+          :key="item.id"
+          :title="item.title"
+          :price="formatProductPrice(item.priceCop)"
+          :media-label="copy.serviceMediaLabel"
+          :to="appTiendaServicio(item.id)"
+        />
+      </div>
+      <PaolaEmpty
+        v-else
+        compact
+        hide-cta
+        :title="copy.serviceEmptyTitle"
+        :copy="services.emptyCopy"
+        :mascot-src="mascot.TUMBADA"
+      />
     </section>
 
     <section class="paola-page__block" :aria-label="copy.ownAria" data-reveal>
@@ -114,6 +144,12 @@ const mascot = MASCOT
 .shop-page__shelf {
   display: grid;
   gap: 12px;
+}
+
+.shop-page__legal {
+  color: var(--paola-cyan, #48b4fc);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 @media (min-width: 640px) {

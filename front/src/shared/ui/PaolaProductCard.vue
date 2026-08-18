@@ -10,10 +10,12 @@ withDefaults(
     to?: string
     href?: string
     ctaLabel?: string
+    mediaLabel?: string
   }>(),
   {
     href: 'mailto:contacto@paolabiker.com',
     ctaLabel: 'Escribirle a Paola',
+    mediaLabel: 'Producto',
   },
 )
 </script>
@@ -22,7 +24,7 @@ withDefaults(
   <article class="paola-product" :class="{ 'paola-product--collab': collab }">
     <div class="paola-product__media">
       <img v-if="photoSrc" class="paola-product__photo" :src="photoSrc" :alt="title" />
-      <template v-else>{{ collab ? 'Collab' : 'Producto' }}</template>
+      <template v-else>{{ collab ? 'Collab' : mediaLabel }}</template>
     </div>
     <div class="paola-product__body">
       <h3 class="paola-product__title">{{ title }}</h3>

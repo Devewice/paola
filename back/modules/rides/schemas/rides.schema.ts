@@ -23,6 +23,9 @@ import type {
 } from '../interfaces/rides.interface.js'
 
 export function parseClaimSpot(draft: Record<string, unknown>): Parsed<ClaimSpotDto> {
+  if (draft.privacyAccepted !== true) {
+    return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.PRIVACY_REQUIRED)
+  }
   const name = String(draft.name ?? '').trim()
   const whatsapp = String(draft.whatsapp ?? '').replace(WHATSAPP_NON_DIGIT, '')
   const moto = String(draft.moto ?? '').trim()

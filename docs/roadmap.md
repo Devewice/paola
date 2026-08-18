@@ -39,6 +39,7 @@ Ya hay MySQL en Hostinger y `back/` con **Knex** (migraciones y consultas), cont
 - `memories` + `memory_photos` — fase 10 (`GET /api/memories`, alta en `/operar`)
 - `tips` — fase 11 (`GET /api/tips`; alta en `/operar` en fase 16)
 - `products` — fase 12 (`GET /api/products`, alta en `/operar`)
+- `services` — fase 13 (`GET /api/services`, alta en `/operar`)
 
 Tabla vacía = hueco honesto. El primer aliado o integrante real se publica en `/operar`, no se pega en el front.
 
@@ -403,11 +404,13 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código / contenido**
 
-- [ ] Ficha de servicio en MySQL (tabla `services` o `products` con tipo `lavado`): qué incluye, cómo se entrega el casco, tiempo. No un bloque fijo eterno en el `.vue` salvo copy de reglas.
-- [ ] Garantía de servicio: “si quedó mal, se corrige” (distinta a la de producto).
-- [ ] CTA WhatsApp / correo.
+- [x] Ficha de servicio en MySQL (tabla `services`): qué incluye, cómo se entrega el casco, tiempo. No un bloque fijo eterno en el `.vue` salvo copy de reglas.
+- [x] Garantía de servicio: “si quedó mal, se corrige” (distinta a la de producto).
+- [x] CTA WhatsApp / correo.
 
 **Queda lista cuando:** se puede pedir el lavado sin confundirlo con una gorra.
+
+**Contenido de Paola:** la ficha real se publica en `/operar`. Hoy la tabla puede estar vacía; Tienda muestra el hueco honesto y las reglas del servicio.
 
 ---
 
@@ -432,17 +435,19 @@ Fuente: [`paola.md`](./paola.md).
 
 **Contenido (con Paola / asesor si hace falta)**
 
-- [ ] Política de privacidad (qué datos, para qué, WhatsApp, fotos).
-- [ ] Aviso: denuncias no sustituyen autoridad.
-- [ ] Aviso: comparendos no son asesoría jurídica.
-- [ ] Criterio corto de moderación (linchamiento, menores, venganza = no se publica).
+- [x] Política de privacidad (qué datos, para qué, WhatsApp, fotos).
+- [x] Aviso: denuncias no sustituyen autoridad.
+- [x] Aviso: comparendos no son asesoría jurídica.
+- [x] Criterio corto de moderación (linchamiento, menores, venganza = no se publica).
 
 **Código**
 
-- [ ] Páginas `/privacidad` y avisos enlazados en pie y en Tu voz / Tienda.
-- [ ] Checkbox de “leí el aviso” donde se vaya a subir foto o dato personal.
+- [x] Páginas `/privacidad` y avisos enlazados en pie y en Tu voz / Tienda.
+- [x] Checkbox de “leí el aviso” donde se vaya a subir foto o dato personal.
 
 **Queda lista cuando:** no se pide dato sensible sin aviso a la vista.
+
+**Contenido de Paola:** la política vive en copy de producto (`front/src/app/constants/legal.ts`). Es aviso del portal, no asesoría jurídica profunda ni un dictamen de abogado. Dominio y correo sí: `paolabiker.com` / `contacto@paolabiker.com`. Sin NIT inventado.
 
 ---
 
@@ -470,7 +475,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código / contenido**
 
-- [ ] Tabla `comparendos` (o `tips` con tipo `comparendo`): guía, enlace oficial, disclaimer. `GET` público.
+- [ ] Tabla `fines` (o `tips` con tipo `fine`): guía, enlace oficial, disclaimer. `GET` público.
 - [ ] Guías de comparendos frecuentes en moto (filas reales, no un artículo único hardcodeado para siempre).
 - [ ] Enlaces a consulta/pago **oficial**.
 - [ ] Disclaimer fijo en cada ficha.
@@ -486,7 +491,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [ ] Tabla `denuncias` (qué, dónde, cuándo, evidencia, estado de moderación). `POST /api/denuncias`; cola en `/operar`.
+- [ ] Tabla `reports` (qué, dónde, cuándo, evidencia, estado de moderación). `POST /api/reports`; cola en `/operar`.
 - [ ] Formulario: qué pasó, dónde, cuándo, evidencia (foto).
 - [ ] Copy Armargura + evidencia Incauta + (opcional) nota Loigca.
 - [ ] Cola de moderación: Paola publica / oculta / rechaza (update en MySQL).
@@ -790,7 +795,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [ ] Tabla `comunidades` (slug, nombre, descripción, reglas, portada). `GET /api/comunidades`. Entidad `Community` en el módulo.
+- [ ] Tabla `communities` (slug, nombre, descripción, reglas, portada). `GET /api/communities`. Entidad `Community` en el módulo.
 - [ ] Unirse / salir (tabla de membresía a comunidad); directorio en Parchese.
 - [ ] Vincular rodadas, memorias y tips a una comunidad (FK, no listas en JSON).
 - [ ] Módulo `communities` desacoplado (puertos en bootstrap).

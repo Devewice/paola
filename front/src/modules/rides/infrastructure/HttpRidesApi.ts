@@ -1,4 +1,5 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
+import { requirePrivacyNotice } from '@core/requirePrivacyNotice.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
 import { buildOutingNotice } from '@modules/rides/application/buildOutingNotice.ts'
@@ -31,6 +32,9 @@ export class HttpRidesApi implements RidesApiPort {
   }
 
   async claim(outingId: string, draft: TicketDraft) {
+    const privacy = requirePrivacyNotice(draft.privacyAccepted, RIDES_MESSAGES.PRIVACY_REQUIRED)
+    if (!privacy.ok) return privacy
+
     const response = await fetch(apiOutingTickets(outingId), {
       method: 'POST',
       headers: JSON_HEADERS,

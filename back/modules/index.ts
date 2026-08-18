@@ -5,6 +5,8 @@ import { memoriesRoutes } from './memories/index.js'
 import { ridesRoutes } from './rides/index.js'
 import { shopRoutes } from './shop/index.js'
 import { voiceRoutes } from './voice/index.js'
+import { ordersRoutes } from './orders/index.js'
+import { socialRoutes } from './social/index.js'
 
 export const apiRoutes: readonly Route[] = [
   ...healthRoutes,
@@ -13,4 +15,6 @@ export const apiRoutes: readonly Route[] = [
   ...voiceRoutes,
   ...shopRoutes,
   ...clubRoutes,
+  ...ordersRoutes,
+  ...socialRoutes,
 ]

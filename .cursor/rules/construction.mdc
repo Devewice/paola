@@ -12,7 +12,7 @@ Obedece `AGENTS.md` en la raíz. Producto: `docs/brainstorming.md`. Fases: `docs
 - Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `front/src/app/bootstrap.ts` cablea adapters.
 - Repo en `front/` + `back/`; kit Vue en `front/src/shared/ui/` (`@ui`).
 - Marca propia sin mezclar con alianzas. Tickets propios. Pago: WhatsApp/Paola primero.
-- Entrega solo Bogotá/Soacha. Garantía solo defectos de fabricación.
+- Entrega solo Bogotá/Soacha. Garantía de producto: solo defectos de fabricación. Servicio de cascos: si quedó mal, se corrige.
 - No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Red social completa no en MVP; horizonte **36–44** (web + WA paralelo, fase **25**).
 - Commits en español, sin `Co-authored-by: Cursor`.
 - No inventes biografía, precios, integrantes, aliados ni links reales. Dominio `paolabiker.com` y correo `contacto@paolabiker.com` sí están definidos.

@@ -35,6 +35,7 @@ export const RIDES_AGENDA_COPY = {
 } as const
 
 export const RIDES_MESSAGES = {
+  PRIVACY_REQUIRED: 'Necesitas leer el aviso de privacidad para continuar.',
   NAME_REQUIRED: 'El cupo necesita un nombre.',
   WHATSAPP_REQUIRED: 'El cupo necesita un WhatsApp (mínimo 10 dígitos).',
   NOT_FOUND: 'Esa salida no está.',

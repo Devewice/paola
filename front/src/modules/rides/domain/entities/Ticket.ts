@@ -4,6 +4,7 @@ export type TicketDraft = {
   readonly name: string
   readonly whatsapp: string
   readonly moto?: string
+  readonly privacyAccepted: boolean
 }
 
 export type Ticket = {

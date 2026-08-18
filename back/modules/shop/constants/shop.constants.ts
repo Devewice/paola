@@ -12,11 +12,14 @@ export const SHOP_LIMITS = {
 
 export const SHOP_TABLES = {
   PRODUCTS: 'products',
+  SERVICES: 'services',
 } as const
 
 export const SHOP_ROUTES = {
   LIST: '/api/products',
   CREATE: '/api/operar/products',
+  SERVICES: '/api/services',
+  CREATE_SERVICE: '/api/operar/services',
 } as const
 
 export const SHOP_MESSAGES = {
@@ -25,4 +28,8 @@ export const SHOP_MESSAGES = {
   KIND_INVALID: 'Elige estantería: propia o colaboración.',
   PRICE_INVALID: 'El precio es un entero en pesos, o vacío para preguntar.',
   STOCK_INVALID: 'El stock es un entero ≥ 0, o vacío si no aplica.',
+  SERVICE_TITLE_REQUIRED: 'El lavado necesita un nombre.',
+  INCLUDES_REQUIRED: 'Di qué incluye el lavado.',
+  HANDOVER_REQUIRED: 'Di cómo se entrega el casco.',
+  TURNAROUND_REQUIRED: 'Di cuánto tarda el trabajo.',
 } as const

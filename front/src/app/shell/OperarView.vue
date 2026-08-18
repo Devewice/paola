@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
 import type { OperatorBoardOuting, OutingKind } from '@modules/rides/index.ts'
-import type { ProductKind } from '@modules/shop/index.ts'
+import type { ProductKind, ServiceOrder } from '@modules/shop/index.ts'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
 import PaolaChoice from '@ui/PaolaChoice.vue'
@@ -18,6 +18,7 @@ const clave = ref('')
 const error = ref('')
 const notice = ref('')
 const board = ref<readonly OperatorBoardOuting[] | null>(null)
+const orders = ref<readonly ServiceOrder[] | null>(null)
 const busy = ref(false)
 
 const outingTitle = ref('')
@@ -51,6 +52,22 @@ const productPrice = ref('')
 const productStock = ref('')
 const productPhoto = ref('')
 
+const serviceTitle = ref('')
+const serviceIncludes = ref('')
+const serviceHandover = ref('')
+const serviceTurnaround = ref('')
+const servicePrice = ref('')
+const tipTitle = ref('')
+const tipBody = ref('')
+const tipOfficialHref = ref('')
+const comparendoTitle = ref('')
+const comparendoGuide = ref('')
+const comparendoOfficialHref = ref('')
+const comparendoDisclaimer = ref('Esto orienta; la gestión es en el canal oficial.')
+const denunciaId = ref('')
+const denunciaStatus = ref<'published' | 'hidden' | 'rejected'>('published')
+const denunciaNote = ref('')
+
 const kindOptions: { value: string; label: string }[] = [
   { value: 'rodada', label: 'Rodada' },
   { value: 'actividad', label: 'Actividad' },
@@ -80,6 +97,13 @@ async function load(): Promise<void> {
     return
   }
   board.value = result.value
+
+  const ordersResult = await shop.listOperatorOrders(clave.value)
+  if (ordersResult.ok) {
+    orders.value = ordersResult.value
+  } else {
+    orders.value = []
+  }
 }
 
 async function setStatus(id: string, status: 'cerrado' | 'realizado'): Promise<void> {
@@ -254,6 +278,112 @@ async function publishProduct(): Promise<void> {
   await refreshInventory()
   notice.value = `${result.value.title} ya está en Tienda, en su estantería.`
 }
+
+async function publishService(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const priceRaw = servicePrice.value.trim()
+  const result = await shop.publishService(
+    {
+      title: serviceTitle.value,
+      includesText: serviceIncludes.value,
+      handoverText: serviceHandover.value,
+      turnaroundText: serviceTurnaround.value,
+      priceCop: priceRaw === '' ? null : Number(priceRaw),
+    },
+    clave.value,
+  )
+  busy.value = false
+  if (!result.ok) {
+    error.value = result.error.message
+    return
+  }
+  serviceTitle.value = ''
+  serviceIncludes.value = ''
+  serviceHandover.value = ''
+  serviceTurnaround.value = ''
+  servicePrice.value = ''
+  await refreshInventory()
+  notice.value = `${result.value.title} ya está en Tienda, como lavado — no como gorra.`
+}
+
+async function publishTip(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const response = await fetch('/api/operar/tips', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      clave: clave.value,
+      title: tipTitle.value,
+      body: tipBody.value,
+      officialHref: tipOfficialHref.value.trim() || undefined,
+    }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo publicar tip.'
+    return
+  }
+  tipTitle.value = ''
+  tipBody.value = ''
+  tipOfficialHref.value = ''
+  notice.value = 'Tip publicado en Tu voz.'
+}
+
+async function publishComparendo(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const response = await fetch('/api/operar/fines', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      clave: clave.value,
+      title: comparendoTitle.value,
+      guide: comparendoGuide.value,
+      officialHref: comparendoOfficialHref.value,
+      disclaimer: comparendoDisclaimer.value,
+    }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo publicar comparendo.'
+    return
+  }
+  comparendoTitle.value = ''
+  comparendoGuide.value = ''
+  comparendoOfficialHref.value = ''
+  notice.value = 'Guía de comparendo publicada.'
+}
+
+async function moderateDenuncia(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const response = await fetch(`/api/operar/reports/${encodeURIComponent(denunciaId.value)}/status`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      clave: clave.value,
+      status: denunciaStatus.value,
+      note: denunciaNote.value.trim() || undefined,
+    }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo moderar denuncia.'
+    return
+  }
+  denunciaId.value = ''
+  denunciaNote.value = ''
+  notice.value = 'Denuncia moderada.'
+}
 </script>
 
 <template>
@@ -262,7 +392,7 @@ async function publishProduct(): Promise<void> {
       <p class="paola-empty__kicker">Paola · operadora</p>
       <h1 class="paola-afiche__title type-display">Operar</h1>
       <p class="paola-afiche__lead">
-        Salidas, memorias, cupos, aliados, integrantes y productos. No es el panel gordo.
+        Salidas, memorias, cupos, aliados, integrantes, productos y lavado de cascos. No es el panel gordo.
       </p>
     </header>
 
@@ -397,6 +527,91 @@ async function publishProduct(): Promise<void> {
     </section>
 
     <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Lavado de cascos</h2>
+      <p class="paola-page__copy paola-page__copy--muted">
+        Servicio, no producto. Precio vacío = preguntar. Garantía: si quedó mal, se corrige.
+      </p>
+      <form class="operar-clave" @submit.prevent="publishService">
+        <PaolaField label="Nombre">
+          <PaolaInput v-model="serviceTitle" placeholder="Cómo se pide" />
+        </PaolaField>
+        <PaolaField label="Qué incluye">
+          <PaolaTextarea v-model="serviceIncludes" placeholder="Qué cubre el trabajo" />
+        </PaolaField>
+        <PaolaField label="Cómo se entrega el casco">
+          <PaolaTextarea v-model="serviceHandover" placeholder="Dónde y cómo se deja o se recoge" />
+        </PaolaField>
+        <PaolaField label="Tiempo">
+          <PaolaInput v-model="serviceTurnaround" placeholder="Cuánto tarda" />
+        </PaolaField>
+        <PaolaField label="Precio en pesos (vacío = preguntar)">
+          <PaolaInput v-model="servicePrice" type="number" placeholder="" />
+        </PaolaField>
+        <PaolaButton type="submit" :disabled="busy">Publicar lavado</PaolaButton>
+      </form>
+    </section>
+
+    <section class="operar-orders">
+      <h2 class="paola-page__heading type-display">Pedidos por Paola</h2>
+      <p class="paola-page__copy paola-page__copy--muted">
+        Pedidos registrados desde la ficha de lavado. Paola decide entrega/garantía y responde por WhatsApp.
+      </p>
+      <ul v-if="orders && orders.length" class="operar-list">
+        <li v-for="order in orders" :key="order.id">
+          <strong>Pedido #{order.id.slice(0, 8)}</strong>
+          · {{ order.itemTitle }}
+          · Zona: {{ order.deliveryZone }}
+          <span v-if="order.size"> · Talla: {{ order.size }}</span>
+          <br />
+          <span class="paola-page__copy paola-page__copy--muted">
+            {{ order.customerName }} · {{ order.customerWhatsapp }}
+          </span>
+        </li>
+      </ul>
+      <p v-else class="paola-page__copy paola-page__copy--muted">Aún no hay pedidos registrados.</p>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Tu voz · Tip</h2>
+      <form class="operar-clave" @submit.prevent="publishTip">
+        <PaolaField label="Título"><PaolaInput v-model="tipTitle" /></PaolaField>
+        <PaolaField label="Contenido"><PaolaTextarea v-model="tipBody" /></PaolaField>
+        <PaolaField label="Enlace oficial (opcional)"><PaolaInput v-model="tipOfficialHref" /></PaolaField>
+        <PaolaButton type="submit" :disabled="busy">Publicar tip</PaolaButton>
+      </form>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Tu voz · Comparendo</h2>
+      <form class="operar-clave" @submit.prevent="publishComparendo">
+        <PaolaField label="Título"><PaolaInput v-model="comparendoTitle" /></PaolaField>
+        <PaolaField label="Guía"><PaolaTextarea v-model="comparendoGuide" /></PaolaField>
+        <PaolaField label="Enlace oficial"><PaolaInput v-model="comparendoOfficialHref" /></PaolaField>
+        <PaolaField label="Disclaimer"><PaolaTextarea v-model="comparendoDisclaimer" /></PaolaField>
+        <PaolaButton type="submit" :disabled="busy">Publicar guía</PaolaButton>
+      </form>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Tu voz · Moderar denuncia</h2>
+      <form class="operar-clave" @submit.prevent="moderateDenuncia">
+        <PaolaField label="ID denuncia"><PaolaInput v-model="denunciaId" /></PaolaField>
+        <PaolaField label="Estado">
+          <PaolaSelect
+            v-model="denunciaStatus"
+            :options="[
+              { value: 'published', label: 'Publicar' },
+              { value: 'hidden', label: 'Ocultar' },
+              { value: 'rejected', label: 'Rechazar' },
+            ]"
+          />
+        </PaolaField>
+        <PaolaField label="Nota (opcional)"><PaolaTextarea v-model="denunciaNote" /></PaolaField>
+        <PaolaButton type="submit" :disabled="busy">Guardar moderación</PaolaButton>
+      </form>
+    </section>
+
+    <section class="operar-publish">
       <h2 class="paola-page__heading type-display">Producto</h2>
       <p class="paola-page__copy paola-page__copy--muted">
         Marca propia o colaboración. Precio vacío = preguntar. El collab no se mezcla con lo propio.
@@ -482,6 +697,13 @@ async function publishProduct(): Promise<void> {
 .operar-outing {
   padding-top: calc(var(--paola-space) * 3);
   border-top: 1px solid var(--paola-line);
+}
+
+.operar-orders {
+  padding-top: calc(var(--paola-space) * 3);
+  border-top: 1px solid var(--paola-line);
+  display: grid;
+  gap: 12px;
 }
 
 .operar-list {

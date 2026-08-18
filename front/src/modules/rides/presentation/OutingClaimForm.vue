@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { LEGAL_COPY } from '@app/constants/legal.ts'
 import type { AppError } from '@core/errors/AppError.ts'
 import type { Result } from '@core/result.ts'
+import { RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
 import type { ClaimedSpot, OutingNotice, TicketDraft } from '@modules/rides/index.ts'
+import { APP_PATHS } from '@shared/http/constants.ts'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
 import PaolaField from '@ui/PaolaField.vue'
 import PaolaInput from '@ui/PaolaInput.vue'
+import PaolaPrivacyCheck from '@ui/PaolaPrivacyCheck.vue'
 import PaolaTicketCard from '@ui/PaolaTicketCard.vue'
 
 const props = defineProps<{
@@ -21,18 +25,26 @@ const emit = defineEmits<{
 const name = ref('')
 const whatsapp = ref('')
 const moto = ref('')
+const privacyAccepted = ref(false)
 const sending = ref(false)
 const error = ref('')
 const done = ref<(ClaimedSpot & { notice: OutingNotice }) | null>(null)
+const copy = LEGAL_COPY
+const privacyPath = APP_PATHS.PRIVACIDAD
 
 async function submit(): Promise<void> {
   if (sending.value) return
+  if (!privacyAccepted.value) {
+    error.value = RIDES_MESSAGES.PRIVACY_REQUIRED
+    return
+  }
   sending.value = true
   error.value = ''
   const result = await props.claim({
     name: name.value,
     whatsapp: whatsapp.value,
     moto: moto.value,
+    privacyAccepted: privacyAccepted.value,
   })
   sending.value = false
   if (!result.ok) {
@@ -58,6 +70,12 @@ async function submit(): Promise<void> {
     <PaolaAlert v-if="paid" tone="info">
       Es de pago. El cupo queda anotado; el cobro se habla con Paola por WhatsApp.
     </PaolaAlert>
+    <PaolaPrivacyCheck
+      v-model="privacyAccepted"
+      :label="copy.checkboxLabel"
+      :to="privacyPath"
+      :link-label="copy.checkboxLink"
+    />
     <PaolaField label="Nombre" :error="error && !name.trim() ? error : undefined">
       <PaolaInput v-model="name" placeholder="Tu nombre" :invalid="Boolean(error)" />
     </PaolaField>
@@ -68,7 +86,7 @@ async function submit(): Promise<void> {
       <PaolaInput v-model="moto" placeholder="Si vas en moto" />
     </PaolaField>
     <PaolaAlert v-if="error" tone="bad">{{ error }}</PaolaAlert>
-    <PaolaButton type="submit" :disabled="sending">Apúntese pa rodar</PaolaButton>
+    <PaolaButton type="submit" :disabled="sending || !privacyAccepted">Apúntese pa rodar</PaolaButton>
   </form>
 </template>
 

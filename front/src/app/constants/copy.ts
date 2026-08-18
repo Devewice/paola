@@ -8,7 +8,11 @@ export const ROUTE_TITLES = {
   TU_VOZ: 'Tu voz',
   TIENDA: 'Tienda',
   FICHA: 'Ficha',
+  LAVADO: 'Lavado',
   PAOLA: 'Paola',
   KIT: 'Kit visual',
   OPERAR: 'Cupos',
+  PRIVACIDAD: 'Privacidad',
+  CUENTA: 'Cuenta',
+  FEED: 'Feed',
 } as const

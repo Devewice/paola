@@ -9,3 +9,12 @@ export interface Product {
   stock: number | null
   photoSrc?: string
 }
+
+export interface ShopService {
+  id: string
+  title: string
+  includesText: string
+  handoverText: string
+  turnaroundText: string
+  priceCop: number | null
+}

@@ -5,6 +5,7 @@ import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
 import AlliancesStrip from '@app/shell/AlliancesStrip.vue'
 import PaolaBrushDefs from '@ui/PaolaBrushDefs.vue'
+import { APP_PATHS } from '@shared/http/constants.ts'
 
 const route = useRoute()
 const { paola } = getAppDependencies()
@@ -48,7 +49,9 @@ const shellWide = computed(() => route.path === '/kit' || route.path === '/opera
         <img class="paola-footer__logo" src="/logo.png" alt="" width="32" height="32" />
         <p class="paola-footer__slogan">Rodando con propósito</p>
         <div class="paola-footer__row">
-          <router-link class="paola-footer__link" to="/paola">Paola</router-link>
+          <router-link class="paola-footer__link" :to="APP_PATHS.PAOLA">Paola</router-link>
+          <span class="paola-footer__dot" aria-hidden="true">·</span>
+          <router-link class="paola-footer__link" :to="APP_PATHS.PRIVACIDAD">Privacidad</router-link>
           <span class="paola-footer__dot" aria-hidden="true">·</span>
           <a
             class="paola-footer__link"

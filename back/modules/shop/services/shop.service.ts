@@ -1,8 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import type { Fail } from '../../../http/types.js'
-import type { Product } from '../interfaces/shop.interface.js'
-import { findProducts, insertProduct } from '../providers/shop.provider.js'
-import { parseCreateProduct } from '../schemas/shop.schema.js'
+import type { Product, ShopService } from '../interfaces/shop.interface.js'
+import {
+  findProducts,
+  findServices,
+  insertProduct,
+  insertService,
+} from '../providers/shop.provider.js'
+import { parseCreateProduct, parseCreateService } from '../schemas/shop.schema.js'
 
 export async function listProducts(): Promise<Product[]> {
   return findProducts()
@@ -25,4 +30,26 @@ export async function createProduct(
   }
   await insertProduct(product)
   return { ok: true, product }
+}
+
+export async function listServices(): Promise<ShopService[]> {
+  return findServices()
+}
+
+export async function createService(
+  draft: Record<string, unknown>,
+): Promise<Fail | { ok: true; service: ShopService }> {
+  const parsed = parseCreateService(draft)
+  if (!parsed.ok) return parsed
+
+  const service: ShopService = {
+    id: randomUUID(),
+    title: parsed.value.title,
+    includesText: parsed.value.includesText,
+    handoverText: parsed.value.handoverText,
+    turnaroundText: parsed.value.turnaroundText,
+    priceCop: parsed.value.priceCop,
+  }
+  await insertService(service)
+  return { ok: true, service }
 }

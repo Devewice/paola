@@ -8,3 +8,11 @@ export interface CreateProductDto {
   stock: number | null
   photoSrc?: string
 }
+
+export interface CreateServiceDto {
+  title: string
+  includesText: string
+  handoverText: string
+  turnaroundText: string
+  priceCop: number | null
+}

@@ -24,11 +24,16 @@ import { InMemoryOutingCatalog } from '@modules/rides/infrastructure/InMemoryOut
 import {
   createShopModule,
   HttpShopApi,
+  HttpShopOrdersApi,
   loadProductCatalog,
+  loadServiceCatalog,
   InMemoryProductCatalog,
+  InMemoryServiceCatalog,
+  InMemoryServiceOrderApi,
   type ShopModule,
 } from '@modules/shop/index.ts'
 import type { ProductCatalogPort } from '@modules/shop/domain/ports/ProductCatalogPort.ts'
+import type { ServiceCatalogPort } from '@modules/shop/domain/ports/ServiceCatalogPort.ts'
 import {
   createVoiceModule,
   loadTipCatalog,
@@ -58,6 +63,8 @@ function wire(
   clubContent: ClubContentPort,
   tipCatalog: TipCatalogPort,
   productCatalog: ProductCatalogPort,
+  serviceCatalog: ServiceCatalogPort,
+  ordersMode: 'http' | 'memory',
 ): AppDependencies {
   const paola = createPaolaModule()
   const contact = paola.getPage().contact
@@ -71,10 +78,20 @@ function wire(
     }),
   )
   const voice = createVoiceModule(tipCatalog)
-  const shop = createShopModule(productCatalog, new HttpShopApi(), {
-    email: contact.email,
-    whatsappHref: contact.whatsapp.href,
-  })
+  const ordersApi =
+    ordersMode === 'http'
+      ? new HttpShopOrdersApi({ whatsappHref: contact.whatsapp.href })
+      : new InMemoryServiceOrderApi({ whatsappHref: contact.whatsapp.href })
+  const shop = createShopModule(
+    productCatalog,
+    serviceCatalog,
+    new HttpShopApi(),
+    ordersApi,
+    {
+      email: contact.email,
+      whatsappHref: contact.whatsapp.href,
+    },
+  )
   const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, voice, paola))
   dependencies = { paola, club, rides, voice, shop, home }
   return dependencies
@@ -86,27 +103,31 @@ function emptyClub(paola: PaolaModule): ClubContentPort {
 
 export async function createAppDependencies(): Promise<AppDependencies> {
   const join = joinFromPaola(createPaolaModule())
-  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog] = await Promise.all([
-    loadOutingCatalog(),
-    loadMemoryCatalog(),
-    loadClubCatalog(join),
-    loadTipCatalog(),
-    loadProductCatalog(),
-  ])
-  return wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog)
+  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog] =
+    await Promise.all([
+      loadOutingCatalog(),
+      loadMemoryCatalog(),
+      loadClubCatalog(join),
+      loadTipCatalog(),
+      loadProductCatalog(),
+      loadServiceCatalog(),
+    ])
+  return wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog, 'http')
 }
 
 /** Recarga inventario desde la API (Inicio, Parchese, Tienda). */
 export async function refreshInventory(): Promise<void> {
   const join = joinFromPaola(createPaolaModule())
-  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog] = await Promise.all([
-    loadOutingCatalog(),
-    loadMemoryCatalog(),
-    loadClubCatalog(join),
-    loadTipCatalog(),
-    loadProductCatalog(),
-  ])
-  wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog)
+  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog] =
+    await Promise.all([
+      loadOutingCatalog(),
+      loadMemoryCatalog(),
+      loadClubCatalog(join),
+      loadTipCatalog(),
+      loadProductCatalog(),
+      loadServiceCatalog(),
+    ])
+  wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog, 'http')
 }
 
 export function getAppDependencies(): AppDependencies {
@@ -118,6 +139,8 @@ export function getAppDependencies(): AppDependencies {
       emptyClub(paola),
       new InMemoryTipCatalog(),
       new InMemoryProductCatalog(),
+      new InMemoryServiceCatalog(),
+      'memory',
     )
   }
   return dependencies

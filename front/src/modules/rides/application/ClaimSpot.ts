@@ -1,4 +1,5 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
+import { requirePrivacyNotice } from '@core/requirePrivacyNotice.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { RIDES_LIMITS, RIDES_MESSAGES, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
 import type { ClaimedSpot, Ticket, TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
@@ -17,6 +18,9 @@ export class ClaimSpot {
   }
 
   execute(outingId: string, draft: TicketDraft): Result<ClaimedSpot, AppError> {
+    const privacy = requirePrivacyNotice(draft.privacyAccepted, RIDES_MESSAGES.PRIVACY_REQUIRED)
+    if (!privacy.ok) return privacy
+
     const name = draft.name.trim()
     const whatsapp = digitsOnly(draft.whatsapp)
     const moto = (draft.moto ?? '').trim()

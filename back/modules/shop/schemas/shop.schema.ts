@@ -8,8 +8,8 @@ import {
   SHOP_LIMITS,
   SHOP_MESSAGES,
 } from '../constants/shop.constants.js'
-import type { CreateProductDto } from '../dtos/shop.dto.js'
-import type { Product, ProductKind } from '../interfaces/shop.interface.js'
+import type { CreateProductDto, CreateServiceDto } from '../dtos/shop.dto.js'
+import type { Product, ProductKind, ShopService } from '../interfaces/shop.interface.js'
 
 function parseOptionalCount(
   value: unknown,
@@ -59,6 +59,41 @@ export function parseCreateProduct(draft: Record<string, unknown>): Parsed<Creat
   }
 }
 
+export function parseCreateService(draft: Record<string, unknown>): Parsed<CreateServiceDto> {
+  const title = String(draft.title ?? '').trim()
+  const includesText = String(draft.includesText ?? '').trim()
+  const handoverText = String(draft.handoverText ?? '').trim()
+  const turnaroundText = String(draft.turnaroundText ?? '').trim()
+  const price = parseOptionalCount(draft.priceCop)
+
+  if (title.length < SHOP_LIMITS.TITLE_MIN) {
+    return fail(HTTP_STATUS.BAD_REQUEST, SHOP_MESSAGES.SERVICE_TITLE_REQUIRED)
+  }
+  if (includesText.length < SHOP_LIMITS.DESCRIPTION_MIN) {
+    return fail(HTTP_STATUS.BAD_REQUEST, SHOP_MESSAGES.INCLUDES_REQUIRED)
+  }
+  if (handoverText.length < SHOP_LIMITS.DESCRIPTION_MIN) {
+    return fail(HTTP_STATUS.BAD_REQUEST, SHOP_MESSAGES.HANDOVER_REQUIRED)
+  }
+  if (turnaroundText.length < SHOP_LIMITS.DESCRIPTION_MIN) {
+    return fail(HTTP_STATUS.BAD_REQUEST, SHOP_MESSAGES.TURNAROUND_REQUIRED)
+  }
+  if (!price.ok) {
+    return fail(HTTP_STATUS.BAD_REQUEST, SHOP_MESSAGES.PRICE_INVALID)
+  }
+
+  return {
+    ok: true,
+    value: {
+      title,
+      includesText,
+      handoverText,
+      turnaroundText,
+      priceCop: price.value,
+    },
+  }
+}
+
 export function toProduct(row: Record<string, unknown>): Product {
   const rawKind = String(row.kind)
   const price = row.price_cop
@@ -71,5 +106,17 @@ export function toProduct(row: Record<string, unknown>): Product {
     priceCop: price === null || price === undefined ? null : Number(price),
     stock: stock === null || stock === undefined ? null : Number(stock),
     photoSrc: optionalText(row.photo_src),
+  }
+}
+
+export function toService(row: Record<string, unknown>): ShopService {
+  const price = row.price_cop
+  return {
+    id: String(row.id),
+    title: String(row.title),
+    includesText: String(row.includes_text),
+    handoverText: String(row.handover_text),
+    turnaroundText: String(row.turnaround_text),
+    priceCop: price === null || price === undefined ? null : Number(price),
   }
 }
