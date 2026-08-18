@@ -386,6 +386,119 @@
   background: rgba(61, 220, 151, 0.08);
 }
 
+.paola-wa__body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.paola-wa__title {
+  margin: 0;
+  font-family: var(--paola-font-display);
+  text-transform: uppercase;
+  font-size: 20px;
+}
+
+.paola-wa__cta {
+  margin-top: 4px;
+}
+
+.paola-member {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--paola-ink);
+  border: 1px solid var(--paola-line);
+}
+
+.paola-member__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--paola-navy);
+  border: 2px solid rgba(72, 180, 252, 0.3);
+  display: grid;
+  place-items: center;
+  font-family: var(--paola-font-display);
+  font-size: 20px;
+  text-transform: uppercase;
+  color: var(--paola-cyan);
+  flex: none;
+}
+
+.paola-member__alias {
+  margin: 0;
+  font-family: var(--paola-font-display);
+  text-transform: uppercase;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.paola-member__meta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--paola-muted);
+}
+
+.paola-member__ig {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paola-cyan);
+  text-decoration: none;
+}
+
+.paola-agenda {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--paola-ink);
+  border: 1px solid var(--paola-line);
+}
+
+.paola-agenda.is-past {
+  opacity: 0.55;
+}
+
+.paola-agenda__date {
+  margin: 0;
+  text-align: center;
+  font-family: var(--paola-font-display);
+}
+
+.paola-agenda__date strong {
+  display: block;
+  font-size: 18px;
+}
+
+.paola-agenda__date span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paola-muted);
+}
+
+.paola-agenda__title {
+  margin: 0;
+  font-family: var(--paola-font-display);
+  text-transform: uppercase;
+  font-size: 16px;
+}
+
+.paola-agenda__meta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--paola-muted);
+}
+
 .paola-gallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

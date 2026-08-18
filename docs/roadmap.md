@@ -187,15 +187,15 @@ Fuente: [`paola.md`](./paola.md).
 
 **Contenido de Paola**
 
-- [ ] Link real de la comunidad WhatsApp.
-- [ ] Lista de alianzas (nombre, qué apoyan, logo o frase). Si no hay ninguna: texto honesto “aún estamos armando el apoyo”, no logos inventados.
+- [x] Link de WhatsApp para Únete: número de Paola (`wa.me/573123136679`). El **grupo** de comunidad aún no está publicado — el copy lo dice y el botón abre chat con ella.
+- [x] Lista de alianzas: vacía a propósito. Texto honesto “aún estamos armando el apoyo”; cero logos inventados.
 
 **Código**
 
-- [ ] En Parchese: bloque **Únete**.
-- [ ] En Parchese: bloque **Alianzas**.
-- [ ] La misma lista alimenta la **franja global**.
-- [ ] Aliado ≠ producto Paola (no hay CTA de “comprar” del aliado en Tienda).
+- [x] En Parchese: bloque **Únete**.
+- [x] En Parchese: bloque **Alianzas**.
+- [x] La misma lista alimenta la **franja global**.
+- [x] Aliado ≠ producto Paola (no hay CTA de “comprar” del aliado en Tienda).
 
 **Queda lista cuando:** Únete abre WhatsApp y la franja muestra el mismo set que Parchese.
 
@@ -207,14 +207,14 @@ Fuente: [`paola.md`](./paola.md).
 
 **Contenido de Paola**
 
-- [ ] Quién sale en público (alias, foto o avatar, moto opcional, Instagram opcional).
-- [ ] Quién **no** sale (queda fuera; no hay lista oculta en el HTML).
+- [x] Quién sale en público: **nadie aún** (lista vacía). Alias, foto, moto e Instagram entran cuando Paola publique consentimiento.
+- [x] Quién **no** sale: no hay nombres ocultos en el HTML.
 
 **Código**
 
-- [ ] Módulo `club`: listado de integrantes.
-- [ ] Ficha simple, humana, no Excel.
-- [ ] Sin Instagram no se inventa ícono vacío agresivo.
+- [x] Módulo `club`: listado de integrantes.
+- [x] Ficha simple, humana, no Excel.
+- [x] Sin Instagram no se inventa ícono vacío agresivo.
 
 **Queda lista cuando:** el parche se ve; nadie aparece sin haber dicho que sí.
 
@@ -226,13 +226,13 @@ Fuente: [`paola.md`](./paola.md).
 
 **Contenido de Paola**
 
-- [ ] Al menos una actividad o rodada futura **o** un mensaje claro de “ahora mismo no hay fecha; el parche vive en WhatsApp”.
+- [x] Mensaje claro: ahora mismo no hay fecha; el parche vive en WhatsApp. (Sin rodadas inventadas.)
 
 **Código**
 
-- [ ] Vista Agenda: fecha, título, tipo (rodada / actividad), punto.
-- [ ] Una actividad puede ser lavado grupal, no solo rodada.
-- [ ] Estados visuales: próxima / pasada (las pasadas aún sin memoria rica).
+- [x] Vista Agenda: fecha, título, tipo (rodada / actividad), punto.
+- [x] Una actividad puede ser lavado grupal, no solo rodada (el tipo `actividad` está en dominio y en el kit).
+- [x] Estados visuales: próxima / pasada (las pasadas aún sin memoria rica).
 
 **Queda lista cuando:** se entiende el calendario aunque no se pueda reservar.
 
@@ -246,11 +246,11 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código / contenido**
 
-- [ ] Próxima rodada o actividad + CTA a Parchese / Apúntese (aunque Apúntese aún diga “por WhatsApp”).
-- [ ] Destello de memoria o km (número provisional o “vamos contando”).
-- [ ] Hueco de Tu voz (tip o frase; si no hay, no se fuerza denuncia).
-- [ ] Una frase de quién es Paola + enlace a `/paola`.
-- [ ] Tienda: solo si hay algo real que empujar; si no, no hay banner de shop.
+- [x] Próxima rodada o actividad + CTA a Parchese / Apúntese (hoy: vacío honesto + WhatsApp; cuando haya fecha, se lee de Agenda).
+- [x] Destello de memoria o km: “vamos contando” (sin número inventado).
+- [x] Hueco de Tu voz (sin tip aún; no se fuerza denuncia).
+- [x] Una frase de quién es Paola + enlace a `/paola`.
+- [x] Tienda: no hay banner (nada real que empujar).
 
 **Queda lista cuando:** Inicio no es un welcome genérico; es un tablero del parche.
 

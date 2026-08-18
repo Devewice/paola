@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import PaolaAccordion from '@ui/PaolaAccordion.vue'
 import PaolaActionBar from '@ui/PaolaActionBar.vue'
+import PaolaAgendaItem from '@ui/PaolaAgendaItem.vue'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaAllianceStrip from '@ui/PaolaAllianceStrip.vue'
 import PaolaBanner from '@ui/PaolaBanner.vue'
@@ -32,6 +33,7 @@ import PaolaKpiStrip from '@ui/PaolaKpiStrip.vue'
 import PaolaList from '@ui/PaolaList.vue'
 import PaolaMapBlock from '@ui/PaolaMapBlock.vue'
 import PaolaMemoriaHero from '@ui/PaolaMemoriaHero.vue'
+import PaolaMemberCard from '@ui/PaolaMemberCard.vue'
 import PaolaOrderSummary from '@ui/PaolaOrderSummary.vue'
 import PaolaPager from '@ui/PaolaPager.vue'
 import PaolaProductCard from '@ui/PaolaProductCard.vue'
@@ -250,7 +252,27 @@ const iconos = [
 
     <section>
       <h2 class="type-display">Alianzas (aparte de tienda)</h2>
-      <PaolaAllianceStrip />
+      <PaolaAllianceStrip
+        :alliances="{
+          items: [],
+          emptyCopy: 'Aún estamos armando el apoyo. No logos inventados.',
+        }"
+      />
+      <PaolaMemberCard alias="Kit" moto="Ficha de ejemplo · no es integrante" />
+      <PaolaAgendaItem
+        date="2026-08-17"
+        title="Rodada de ejemplo"
+        kind="rodada"
+        point="Punto de kit · no es fecha real"
+        when="proxima"
+      />
+      <PaolaAgendaItem
+        date="2026-06-01"
+        title="Lavado grupal de cascos"
+        kind="actividad"
+        point="Actividad de kit · no es fecha real"
+        when="pasada"
+      />
     </section>
 
     <section>

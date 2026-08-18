@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ComingSoonView from '@app/shell/ComingSoonView.vue'
+import HomeRoute from '@app/shell/HomeRoute.vue'
 import KitView from '@app/shell/KitView.vue'
 import PaolaRoute from '@app/shell/PaolaRoute.vue'
+import ParcheseRoute from '@app/shell/ParcheseRoute.vue'
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', name: 'inicio', component: ComingSoonView, meta: { title: 'Inicio' } },
-  { path: '/parchese', name: 'parchese', component: ComingSoonView, meta: { title: 'Parchese' } },
+  { path: '/', name: 'inicio', component: HomeRoute, meta: { title: 'Inicio' } },
+  { path: '/parchese', name: 'parchese', component: ParcheseRoute, meta: { title: 'Parchese' } },
   { path: '/tu-voz', name: 'tu-voz', component: ComingSoonView, meta: { title: 'Tu voz' } },
   { path: '/tienda', name: 'tienda', component: ComingSoonView, meta: { title: 'Tienda' } },
   { path: '/paola', name: 'paola', component: PaolaRoute, meta: { title: 'Paola' } },

@@ -273,6 +273,35 @@ h2,
   color: var(--paola-muted);
 }
 
+.paola-alliances__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.paola-alliances__item {
+  display: grid;
+  gap: 4px;
+}
+
+.paola-alliances__item strong,
+.paola-alliances__item a {
+  color: var(--paola-white);
+  font-size: 14px;
+}
+
+.paola-alliances__item a:hover {
+  color: var(--paola-cyan);
+}
+
+.paola-alliances__item span {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--paola-muted);
+}
+
 .paola-footer {
   border-top: 1px solid var(--paola-line);
   padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
