@@ -7,9 +7,12 @@ withDefaults(
     size?: 'sm' | 'md' | 'lg'
     disabled?: boolean
     type?: 'button' | 'submit'
+    target?: '_blank' | '_self'
   }>(),
   { variant: 'primary', size: 'md', type: 'button' },
 )
+
+const relFor = (target?: '_blank' | '_self') => (target === '_blank' ? 'noopener noreferrer' : undefined)
 </script>
 
 <template>
@@ -24,6 +27,8 @@ withDefaults(
   <a
     v-else-if="href"
     :href="href"
+    :target="target"
+    :rel="relFor(target)"
     class="paola-btn"
     :class="[`paola-btn--${variant}`, size !== 'md' ? `paola-btn--${size}` : '']"
   >

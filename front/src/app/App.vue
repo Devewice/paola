@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { TABS } from '@app/navigation.ts'
+import { getAppDependencies } from '@app/bootstrap.ts'
 import AlliancesStrip from '@app/shell/AlliancesStrip.vue'
 import PaolaBrushDefs from '@ui/PaolaBrushDefs.vue'
 
 const route = useRoute()
+const { paola } = getAppDependencies()
+const whatsapp = paola.getPage().contact.whatsapp
 </script>
 
 <template>
@@ -41,7 +44,12 @@ const route = useRoute()
       <div class="paola-footer__row">
         <router-link class="paola-footer__link" to="/paola">Paola</router-link>
         <span class="paola-footer__dot" aria-hidden="true">·</span>
-        <span class="paola-footer__wa">WhatsApp · próximamente</span>
+        <a
+          class="paola-footer__link"
+          :href="whatsapp.href"
+          target="_blank"
+          rel="noopener noreferrer"
+        >{{ whatsapp.label }}</a>
         <span class="paola-footer__dot" aria-hidden="true">·</span>
         <span>paolabiker.com</span>
       </div>

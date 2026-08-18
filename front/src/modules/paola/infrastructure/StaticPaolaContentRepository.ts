@@ -1,6 +1,12 @@
 import type { PaolaContentPort } from '@modules/paola/domain/ports/PaolaContentPort.ts'
 import type { PaolaPage } from '@modules/paola/domain/entities/PaolaPage.ts'
 
+const youtube = {
+  id: 'youtube',
+  label: 'YouTube',
+  href: 'https://www.youtube.com/@5.paola.3',
+} as const
+
 /** Contenido estático de docs/paola.md — no se reescribe desde código. */
 export class StaticPaolaContentRepository implements PaolaContentPort {
   getPage(): PaolaPage {
@@ -30,9 +36,21 @@ export class StaticPaolaContentRepository implements PaolaContentPort {
       contact: {
         email: 'contacto@paolabiker.com',
         domain: 'paolabiker.com',
-        whatsapp: { status: 'pending', label: 'WhatsApp · próximamente' },
-        social: { status: 'pending', label: 'Redes · próximamente' },
-        video: { status: 'pending', label: 'Video · próximamente' },
+        whatsapp: {
+          href: 'https://wa.me/573123136679',
+          label: 'WhatsApp',
+        },
+        social: [
+          { id: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/5.paola.3/' },
+          {
+            id: 'facebook',
+            label: 'Facebook',
+            href: 'https://www.facebook.com/profile.php?id=61583096126464',
+          },
+          { id: 'tiktok', label: 'TikTok', href: 'https://www.tiktok.com/@5.paola3' },
+          youtube,
+        ],
+        youtube,
       },
     }
   }

@@ -19,7 +19,18 @@ npm install
 npm run dev
 ```
 
-Build de producción: `npm run build` → carpeta `dist/` en la raíz. En Hostinger el proceso único es `npm start` (sirve `dist/` + `/api`).
+Build de producción: `npm run build` → carpeta `dist/` en la raíz.
+
+En Hostinger (Node, un solo hosting):
+
+| Campo | Valor |
+|-------|--------|
+| Tipo | **Aplicación Node.js** (no sitio estático) |
+| Build | `npm run build` |
+| Directorio de salida | `dist` |
+| Arranque | `npm start` |
+
+`npm start` sirve `dist/` y `/api` juntos. Las variables MySQL van en `.env` del hosting, no en git.
 
 Copia `.env.example` a `.env` y completa MySQL. **No subas `.env`.** Para conectar desde el PC, en Hostinger agrega tu IP en acceso remoto MySQL.
 

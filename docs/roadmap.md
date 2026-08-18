@@ -167,9 +167,9 @@ Fuente: [`paola.md`](./paola.md).
 - [x] Texto: ¿por qué lo hago?
 - [x] Texto: ¿para qué lo hago?
 - [x] Correo: `contacto@paolabiker.com`.
-- [ ] WhatsApp (número o wa.me).
-- [ ] Links de redes.
-- [ ] Video relevante (URL). Bloque **próximamente** explícito en UI ✓; falta URL real.
+- [x] WhatsApp (número o wa.me).
+- [x] Links de redes.
+- [x] Video relevante (URL): canal YouTube `@5.paola.3` (aún no hay un video suelto para embeber).
 
 **Código**
 
