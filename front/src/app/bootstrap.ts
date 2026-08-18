@@ -1,9 +1,21 @@
-/**
- * Composición: aquí se cablean adapters cuando nazca el primer módulo de producto.
- * Fase 0: el cascarón vive en el router; aún no hay dominio que inyectar.
- */
-export type AppDependencies = Record<string, never>
+import { createPaolaModule, type PaolaModule } from '@modules/paola/index.ts'
+
+export type AppDependencies = {
+  paola: PaolaModule
+}
+
+let dependencies: AppDependencies | null = null
 
 export function createAppDependencies(): AppDependencies {
-  return {}
+  dependencies = {
+    paola: createPaolaModule(),
+  }
+  return dependencies
+}
+
+export function getAppDependencies(): AppDependencies {
+  if (!dependencies) {
+    return createAppDependencies()
+  }
+  return dependencies
 }

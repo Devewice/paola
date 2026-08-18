@@ -169,13 +169,13 @@ Fuente: [`paola.md`](./paola.md).
 - [x] Correo: `contacto@paolabiker.com`.
 - [ ] WhatsApp (número o wa.me).
 - [ ] Links de redes.
-- [ ] Video relevante (URL). Si aún no hay video: bloque “próximamente” explícito, no un hueco mudo.
+- [ ] Video relevante (URL). Bloque **próximamente** explícito en UI ✓; falta URL real.
 
 **Código**
 
-- [ ] Módulo `paola`: página con esos bloques.
-- [ ] Botones de escribir (WhatsApp / correo) visibles.
-- [ ] Tono Armargura en el relato; Loigca en los datos de contacto.
+- [x] Módulo `paola`: página con esos bloques.
+- [x] Botones de escribir (WhatsApp / correo) visibles.
+- [x] Tono Armargura en el relato; Loigca en los datos de contacto.
 
 **Queda lista cuando:** alguien extraño entiende quién es y puede escribirle en menos de un minuto.
 
