@@ -1,7 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { APP } from '../constants.js'
+import { HTTP_METHOD } from './constants.js'
 import type { RouteHandler, RouteParams } from './types.js'
 
-type Route = {
+export type Route = {
   method: string
   path: string
   handler: RouteHandler
@@ -13,8 +15,8 @@ type Route = {
  */
 export function createRouter(routes: readonly Route[]) {
   return async (request: IncomingMessage, response: ServerResponse) => {
-    const url = new URL(request.url ?? '/', 'http://localhost')
-    const method = request.method ?? 'GET'
+    const url = new URL(request.url ?? '/', APP.URL_BASE)
+    const method = request.method ?? HTTP_METHOD.GET
     for (const item of routes) {
       if (item.method !== method) continue
       const params = matchPath(item.path, url.pathname)

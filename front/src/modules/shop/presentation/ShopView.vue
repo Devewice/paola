@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { SHOP_COPY } from '@modules/shop/constants/copy.ts'
 import type { ShopModule } from '@modules/shop/index.ts'
 import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
+import { appTiendaFicha } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
+import { MASCOT } from '@shared/ui/mascot.ts'
 import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
@@ -18,25 +21,27 @@ const props = defineProps<{
 const shelves = computed(() => props.module.getShelves())
 const contact = computed(() => props.module.getContact())
 const bindReveal = usePageReveal()
+const copy = SHOP_COPY
+const mascot = MASCOT
 </script>
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <PaolaAficheHero kicker="Oficio" title="Tienda" plate="Tienda" data-reveal>
+    <PaolaAficheHero :kicker="copy.kicker" :title="copy.title" :plate="copy.plate" data-reveal>
       <template #lead>
-        Piezas propias y colaboraciones en estanterías distintas. Sin checkout: se le escribe a Paola.
+        {{ copy.lead }}
       </template>
       <template #actions>
         <PaolaButton variant="hero" :href="contact.whatsappHref" target="_blank">
-          Escribirle a Paola
+          {{ copy.writeCta }}
         </PaolaButton>
-        <PaolaButton variant="ghost" :href="`mailto:${contact.email}`">Correo</PaolaButton>
+        <PaolaButton variant="ghost" :href="`mailto:${contact.email}`">{{ copy.mailCta }}</PaolaButton>
       </template>
     </PaolaAficheHero>
 
-    <section class="paola-page__block" aria-label="Reglas" data-reveal>
+    <section class="paola-page__block" :aria-label="copy.rulesAria" data-reveal>
       <PaolaVoiceBadge voice="loigca" />
-      <h2 class="paola-page__heading type-display">Reglas</h2>
+      <h2 class="paola-page__heading type-display">{{ copy.rulesHeading }}</h2>
       <div class="shop-page__zones">
         <PaolaZoneBadge zone="bogota" />
         <PaolaZoneBadge zone="soacha" />
@@ -46,9 +51,9 @@ const bindReveal = usePageReveal()
       <PaolaAlert tone="warn">{{ shelves.warrantyCopy }}</PaolaAlert>
     </section>
 
-    <section class="paola-page__block" aria-label="Marca propia" data-reveal>
+    <section class="paola-page__block" :aria-label="copy.ownAria" data-reveal>
       <PaolaVoiceBadge voice="loigca" />
-      <h2 class="paola-page__heading type-display">Marca propia</h2>
+      <h2 class="paola-page__heading type-display">{{ copy.ownHeading }}</h2>
       <div v-if="shelves.own.length" class="shop-page__shelf">
         <PaolaProductCard
           v-for="item in shelves.own"
@@ -56,24 +61,24 @@ const bindReveal = usePageReveal()
           :title="item.title"
           :price="formatProductPrice(item.priceCop)"
           :photo-src="item.photoSrc"
-          :to="`/tienda/${item.id}`"
+          :to="appTiendaFicha(item.id)"
         />
       </div>
       <PaolaEmpty
         v-else
         compact
         hide-cta
-        title="Sin piezas propias"
+        :title="copy.ownEmptyTitle"
         :copy="shelves.emptyOwnCopy"
-        mascot-src="/mascota/tumbada.png"
+        :mascot-src="mascot.TUMBADA"
       />
     </section>
 
-    <section class="paola-page__block" aria-label="Colaboraciones" data-reveal>
+    <section class="paola-page__block" :aria-label="copy.collabAria" data-reveal>
       <PaolaVoiceBadge voice="incauta" />
-      <h2 class="paola-page__heading type-display">Colaboraciones</h2>
+      <h2 class="paola-page__heading type-display">{{ copy.collabHeading }}</h2>
       <p class="paola-page__copy paola-page__copy--muted">
-        Estantería aparte. Nunca en la misma ficha que lo propio.
+        {{ copy.collabNote }}
       </p>
       <div v-if="shelves.collab.length" class="shop-page__shelf">
         <PaolaProductCard
@@ -82,7 +87,7 @@ const bindReveal = usePageReveal()
           :title="item.title"
           :price="formatProductPrice(item.priceCop)"
           :photo-src="item.photoSrc"
-          :to="`/tienda/${item.id}`"
+          :to="appTiendaFicha(item.id)"
           collab
         />
       </div>
@@ -90,9 +95,9 @@ const bindReveal = usePageReveal()
         v-else
         compact
         hide-cta
-        title="Sin collab"
+        :title="copy.collabEmptyTitle"
         :copy="shelves.emptyCollabCopy"
-        mascot-src="/mascota/en-pie.png"
+        :mascot-src="mascot.EN_PIE"
       />
     </section>
   </article>

@@ -7,7 +7,7 @@ export type MemoryPhoto = {
 /** Recuento de una salida realizada. Solo entra con permiso y fotos reales. */
 export type Memory = {
   readonly id: string
-  readonly salidaId: string
+  readonly outingId: string
   readonly title: string
   readonly date: string
   readonly km: number
@@ -24,11 +24,8 @@ export type MemoryList = {
   readonly emptyCopy: string
 }
 
-export const MEMORIES_EMPTY_COPY =
-  'Vamos contando. Aún no hay kilómetros publicados de una memoria realizada.'
-
 export type MemoryDraft = {
-  readonly salidaId: string
+  readonly outingId: string
   readonly km: number
   readonly closingText: string
   readonly credit: string

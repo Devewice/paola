@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { SHOP_COPY, SHOP_EMPTY_FICHA, SHOP_KIND, shopStockCopy } from '@modules/shop/constants/copy.ts'
 import type { ShopModule } from '@modules/shop/index.ts'
-import { SHOP_EMPTY_FICHA } from '@modules/shop/index.ts'
 import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
+import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
+import { MASCOT } from '@shared/ui/mascot.ts'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
 import PaolaCard from '@ui/PaolaCard.vue'
@@ -20,18 +22,21 @@ const product = computed(() => props.module.getProduct(props.productId))
 const shelves = computed(() => props.module.getShelves())
 const contact = computed(() => props.module.getContact())
 const bindReveal = usePageReveal()
-const collab = computed(() => product.value?.kind === 'colaboracion')
+const collab = computed(() => product.value?.kind === SHOP_KIND.COLLAB)
+const copy = SHOP_COPY
+const mascot = MASCOT
+const shopPath = APP_PATHS.TIENDA
 </script>
 
 <template>
   <article :ref="bindReveal" class="paola-page">
     <template v-if="product">
       <PaolaVoiceBadge :voice="collab ? 'incauta' : 'loigca'" />
-      <p class="paola-empty__kicker">{{ collab ? 'Colaboración' : 'Marca propia' }}</p>
+      <p class="paola-empty__kicker">{{ collab ? copy.kindCollab : copy.kindOwn }}</p>
       <h1 class="paola-afiche__title type-display">{{ product.title }}</h1>
       <p class="paola-product__price">{{ formatProductPrice(product.priceCop) }}</p>
       <p v-if="product.stock !== null" class="paola-page__copy paola-page__copy--muted">
-        {{ product.stock }} en stock
+        {{ shopStockCopy(product.stock) }}
       </p>
 
       <PaolaCard v-if="product.photoSrc" class="shop-ficha__media">
@@ -40,7 +45,7 @@ const collab = computed(() => product.value?.kind === 'colaboracion')
 
       <p class="paola-page__copy">{{ product.description }}</p>
 
-      <section class="paola-page__block" aria-label="Entrega y garantía">
+      <section class="paola-page__block" :aria-label="copy.deliveryAria">
         <div class="shop-page__zones">
           <PaolaZoneBadge zone="bogota" />
           <PaolaZoneBadge zone="soacha" />
@@ -52,10 +57,10 @@ const collab = computed(() => product.value?.kind === 'colaboracion')
 
       <div class="shop-ficha__cta">
         <PaolaButton variant="hero" :href="contact.whatsappHref" target="_blank">
-          Escribirle a Paola
+          {{ copy.writeCta }}
         </PaolaButton>
-        <PaolaButton variant="ghost" :href="`mailto:${contact.email}`">Correo</PaolaButton>
-        <PaolaButton variant="ghost" to="/tienda">Volver a Tienda</PaolaButton>
+        <PaolaButton variant="ghost" :href="`mailto:${contact.email}`">{{ copy.mailCta }}</PaolaButton>
+        <PaolaButton variant="ghost" :to="shopPath">{{ copy.backCta }}</PaolaButton>
       </div>
     </template>
 
@@ -63,12 +68,12 @@ const collab = computed(() => product.value?.kind === 'colaboracion')
       v-else
       compact
       hide-cta
-      title="Sin ficha"
+      :title="copy.fichaEmptyTitle"
       :copy="SHOP_EMPTY_FICHA"
-      mascot-src="/mascota/tumbada.png"
+      :mascot-src="mascot.TUMBADA"
     />
     <p v-if="!product" class="shop-ficha__cta">
-      <PaolaButton variant="ghost" to="/tienda">Volver a Tienda</PaolaButton>
+      <PaolaButton variant="ghost" :to="shopPath">{{ copy.backCta }}</PaolaButton>
     </p>
   </article>
 </template>

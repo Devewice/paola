@@ -1,5 +1,5 @@
 export type { Memory, MemoryDraft, MemoryList, MemoryPhoto } from '@modules/rides/domain/entities/Memory.ts'
-export { MEMORIES_EMPTY_COPY } from '@modules/rides/domain/entities/Memory.ts'
+export { MEMORIES_EMPTY_COPY } from '@modules/rides/constants/copy.ts'
 export type { Agenda, AgendaItem, AgendaKind, AgendaWhen } from '@modules/rides/domain/entities/Agenda.ts'
 export type {
   OperatorOutingStatus,

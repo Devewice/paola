@@ -1,21 +1,23 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
+import { SHOP_API_MESSAGES } from '@modules/shop/constants/copy.ts'
 import type { ProductDraft } from '@modules/shop/domain/entities/Product.ts'
 import type { ShopWritePort } from '@modules/shop/domain/ports/ShopWritePort.ts'
 import { parseProduct } from '@modules/shop/infrastructure/parseProduct.ts'
+import { API, API_FAIL_FALLBACK, HTTP_STATUS, JSON_HEADERS } from '@shared/http/constants.ts'
 
 export class HttpShopApi implements ShopWritePort {
   async publish(draft: ProductDraft, clave: string) {
-    const response = await fetch('/api/operar/productos', {
+    const response = await fetch(API.OPERAR_PRODUCTS, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: JSON_HEADERS,
       body: JSON.stringify({ ...draft, clave }),
     })
     const body = await readBody(response)
     if (!response.ok) return fail(response.status, body)
     const product = parseProduct(body.product)
     if (!product) {
-      return err(appError('INFRASTRUCTURE', 'La API devolvió un producto que no se entiende.'))
+      return err(appError('INFRASTRUCTURE', SHOP_API_MESSAGES.PARSE_FAIL))
     }
     return ok(product)
   }
@@ -32,7 +34,9 @@ async function readBody(response: Response): Promise<Record<string, unknown>> {
 }
 
 function fail(status: number, body: Record<string, unknown>): Result<never, AppError> {
-  const detail = typeof body.detail === 'string' ? body.detail : 'No se pudo completar.'
-  if (status === 400 || status === 403) return err(appError('VALIDATION', detail))
+  const detail = typeof body.detail === 'string' ? body.detail : API_FAIL_FALLBACK
+  if (status === HTTP_STATUS.BAD_REQUEST || status === HTTP_STATUS.FORBIDDEN) {
+    return err(appError('VALIDATION', detail))
+  }
   return err(appError('INFRASTRUCTURE', detail))
 }

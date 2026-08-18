@@ -29,9 +29,6 @@ export type OutingDraft = {
   readonly paid: boolean
 }
 
-export const AGENDA_EMPTY_COPY =
-  'Ahora mismo no hay fecha. El parche vive en WhatsApp: escríbele a Paola y te avisa la próxima.'
-
 export function remainingSpots(outing: Outing): number {
   return Math.max(0, outing.capacity - outing.taken)
 }

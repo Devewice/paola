@@ -3,7 +3,7 @@ import { parseMemory, parseMemoryPhoto } from '@modules/rides/infrastructure/par
 
 const valid = {
   id: 'm1',
-  salidaId: 's1',
+  outingId: 's1',
   title: 'Usme',
   date: '2026-09-01',
   km: 42,

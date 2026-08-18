@@ -62,7 +62,7 @@ const productKindOptions: { value: string; label: string }[] = [
 ]
 
 const realizadaOptions = computed(() => {
-  const remembered = new Set(rides.getMemories().items.map((item) => item.salidaId))
+  const remembered = new Set(rides.getMemories().items.map((item) => item.outingId))
   return (board.value ?? [])
     .filter((outing) => outing.status === 'realizado' && !remembered.has(outing.id))
     .map((outing) => ({ value: outing.id, label: `${outing.title} · ${outing.date}` }))
@@ -151,7 +151,7 @@ async function publishMemory(): Promise<void> {
     .filter((row) => row.src && row.alt)
   const result = await rides.publishMemory(
     {
-      salidaId: memorySalidaId.value,
+      outingId: memorySalidaId.value,
       km: Number(memoryKm.value),
       closingText: memoryClosing.value,
       credit: memoryCredit.value,

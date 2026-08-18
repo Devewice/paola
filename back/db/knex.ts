@@ -1,5 +1,9 @@
 import knex, { type Knex } from 'knex'
+import { APP_MESSAGES } from '../constants.js'
+import { MYSQL_PING } from './constants.js'
 import config from './knexfile.js'
+
+export type DbClient = Knex | Knex.Transaction
 
 let db: Knex | undefined
 
@@ -23,10 +27,10 @@ export function rowsOf(result: unknown): Record<string, unknown>[] {
 
 export async function pingDb(): Promise<{ ok: boolean; detail: string }> {
   try {
-    await getDb().raw('SELECT 1')
-    return { ok: true, detail: 'mysql ok' }
+    await getDb().raw(MYSQL_PING)
+    return { ok: true, detail: APP_MESSAGES.MYSQL_OK }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'error mysql'
+    const message = error instanceof Error ? error.message : APP_MESSAGES.MYSQL_ERROR
     return { ok: false, detail: message }
   }
 }

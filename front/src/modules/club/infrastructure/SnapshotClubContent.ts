@@ -2,7 +2,7 @@ import type { Alliance, AllianceList } from '@modules/club/domain/entities/Allia
 import type { JoinChannel } from '@modules/club/domain/entities/JoinChannel.ts'
 import type { Member, MemberList } from '@modules/club/domain/entities/Member.ts'
 import type { ClubContentPort } from '@modules/club/domain/ports/ClubContentPort.ts'
-import { ALLIANCES_EMPTY_COPY, MEMBERS_EMPTY_COPY } from '@modules/club/infrastructure/clubEmptyCopy.ts'
+import { ALLIANCES_EMPTY_COPY, MEMBERS_EMPTY_COPY } from '@modules/club/constants/copy.ts'
 
 /** Snapshot de MySQL. Tabla vacía o API caída = hueco honesto, no JSON de respaldo. */
 export class SnapshotClubContent implements ClubContentPort {

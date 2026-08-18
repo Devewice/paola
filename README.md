@@ -43,11 +43,10 @@ front/                    Vue + Vite + Vuetify
   src/shared/             theme, motion, ui (`@ui`)
   src/modules/            Módulos de producto (fases)
   public/                 logo, mascota, fuentes
-back/                     HTTP TypeScript: health, salidas, cupos, alianzas, integrantes; estáticos en prod
+back/                     HTTP TypeScript; estáticos en prod
   db/                     Knex (MySQL): migraciones + consultas
   http/                   Router y middleware
-  controllers/            Health, salidas, club
-  providers/              Consultas a las tablas
+  modules/                Un módulo por recurso, nombre en inglés (controller, service, provider, schema, middleware, interface, dto, constants)
 docs/                     visión, fases, visual, relato
 package.json              Scripts dev/build/start en la raíz
 ```
@@ -65,8 +64,9 @@ package.json              Scripts dev/build/start en la raíz
 
 ## Cómo añadir un módulo
 
-1. Crea `front/src/modules/nombre/` (`domain`, `application`, `infrastructure`, `presentation`).
+1. Crea `front/src/modules/nombre/` (`domain`, `application`, `infrastructure`, `presentation`, `constants`).
 2. Define el puerto en `domain/ports`.
 3. Implementa el caso de uso y un adapter.
 4. Expón una fábrica en `composition.ts` y una vista `.vue`.
 5. Cablea en `front/src/app/bootstrap.ts` y enruta en `router.ts`.
+6. Si hay API: `back/modules/<nombre-en-inglés>/` (controller, service, provider, schema, middleware, interface, dto, constants). Textos y límites en `constants/`, no pegados.

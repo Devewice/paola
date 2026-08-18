@@ -8,3 +8,7 @@ export type RouteHandler = (
   url: URL,
   params: RouteParams,
 ) => void | Promise<void>
+
+export type Fail = { ok: false; status: number; detail: string }
+
+export type Parsed<T> = Fail | { ok: true; value: T }

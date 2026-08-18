@@ -92,7 +92,10 @@ front/                  Vue + Vuetify + Vite
   src/core/
   src/shared/           theme, motion, ui (`@ui`)
   src/modules/
-back/                   HTTP TypeScript: health, salidas, cupos, alianzas, integrantes; estáticos en prod
+back/                   HTTP TypeScript; estáticos en prod
+  db/                   Knex (MySQL): migraciones + consultas
+  http/                 Router, middleware, guards
+  modules/              Un módulo por recurso, nombre en inglés
 docs/                   visión, fases, visual, relato
 ```
 
@@ -106,9 +109,27 @@ front/src/modules/<nombre>/
   application/      casos de uso
   infrastructure/   adapters
   presentation/     .vue
+  constants/        textos, límites, mensajes (no pegados en código)
   composition.ts    fábrica
   index.ts          API pública
 ```
+
+### Cómo nace un módulo de API (`back/`)
+
+```
+back/modules/<nombre-en-inglés>/
+  controllers/
+  services/
+  providers/
+  schemas/
+  middlewares/
+  interfaces/
+  dtos/
+  constants/        textos, rutas, límites, tablas (no pegados en código)
+  index.ts          rutas del módulo
+```
+
+Módulos de API hoy: `health`, `rides`, `club`, `memories`, `voice`, `shop`. Tablas MySQL y rutas `/api` en inglés (`outings`, `tickets`, `alliances`, `members`, `memories`, `memory_photos`, `tips`, `products`).
 
 Módulos de producto (dejan el placeholder cuando tienen tabla + API): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.
 Inicio no importa `rides` por dentro: se cablea en bootstrap. Inventario nuevo: MySQL vía Knex, no JSON en el front.
@@ -120,7 +141,8 @@ Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Cat
 - Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia.**
 - Vue Router al haber las 5 pestañas.
 - **Hostinger:** el front y el back viven **en el mismo hosting**, un solo despliegue. No hay API en otro proveedor. En local, `iniciar.bat` / `npm run dev` levantan los dos procesos; en producción `npm start` sirve el build y el `/api` juntos.
-- API en `back/` (health, salidas, cupos, alianzas, integrantes, memorias, tips, productos; cada fase de inventario suma tabla + endpoint). No Express dentro de un `.vue`.
+- API en `back/modules/` (`health`, `rides`, `club`, `memories`, `voice`, `shop`; cada fase de inventario suma tabla + endpoint). No Express dentro de un `.vue`.
+- Textos, rutas, límites y variables de mensaje van en `constants/`, no hardcodeados en controller, provider ni vista.
 - Credenciales MySQL solo en `.env` (gitignored). Nunca en docs ni en el front.
 - Pagos: puerto `PaymentPort` — adapter WhatsApp primero, pasarela después.
 - Tests primero en **casos de uso** (cupo, km, pedido, estados de salida).

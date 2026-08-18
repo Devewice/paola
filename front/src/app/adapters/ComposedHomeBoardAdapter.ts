@@ -1,8 +1,11 @@
 import type { ClubModule } from '@modules/club/index.ts'
+import { HOME_JOIN_LABEL } from '@modules/home/constants/copy.ts'
 import type { HomeBoard, HomeBoardPort } from '@modules/home/index.ts'
+import { PAOLA_QUIEN_FALLBACK } from '@modules/paola/constants/copy.ts'
 import type { PaolaModule } from '@modules/paola/index.ts'
 import type { RidesModule } from '@modules/rides/index.ts'
 import type { VoiceModule } from '@modules/voice/index.ts'
+import { APP_PATHS } from '@shared/http/constants.ts'
 
 /** Cablea Inicio con club, rides, voice y paola. Vive en app/, no dentro de un módulo. */
 export class ComposedHomeBoardAdapter implements HomeBoardPort {
@@ -40,7 +43,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
       nextEmptyCopy: agenda.emptyCopy,
       join: {
         href: join.href,
-        label: 'Apúntese por WhatsApp',
+        label: HOME_JOIN_LABEL,
       },
       totalKm: memories.items.length > 0 ? memories.totalKm : null,
       memory: latest
@@ -64,20 +67,19 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
             }
           : null,
         emptyCopy: tips.emptyCopy,
-        to: '/tu-voz',
+        to: APP_PATHS.TU_VOZ,
       },
       paola: {
         phrase: firstSentence(quien?.body),
-        to: '/paola',
+        to: APP_PATHS.PAOLA,
       },
     }
   }
 }
 
 function firstSentence(body: string | undefined): string {
-  const fallback = 'Soy Paola, creadora de contenido, motociclista y mujer de Usme.'
-  if (!body) return fallback
+  if (!body) return PAOLA_QUIEN_FALLBACK
   const first = body.split('. ')[0]
-  if (!first) return fallback
+  if (!first) return PAOLA_QUIEN_FALLBACK
   return first.endsWith('.') ? first : `${first}.`
 }

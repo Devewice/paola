@@ -1,5 +1,6 @@
+import { AGENDA_EMPTY_COPY, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
 import type { Agenda, AgendaItem } from '@modules/rides/domain/entities/Agenda.ts'
-import { AGENDA_EMPTY_COPY, type Outing } from '@modules/rides/domain/entities/Outing.ts'
+import type { Outing } from '@modules/rides/domain/entities/Outing.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
 
 export class GetAgenda {
@@ -29,7 +30,7 @@ export class GetAgenda {
 }
 
 function toAgendaItem(outing: Outing, today: string): AgendaItem {
-  const past = outing.status === 'realizado' || outing.date < today
+  const past = outing.status === RIDES_STATUS.REALIZADO || outing.date < today
   return {
     id: outing.id,
     date: outing.date,

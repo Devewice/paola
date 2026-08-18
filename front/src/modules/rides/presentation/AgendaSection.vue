@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RIDES_AGENDA_COPY, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
 import type { Outing } from '@modules/rides/domain/entities/Outing.ts'
 import type { ClaimedSpot, RidesModule } from '@modules/rides/index.ts'
 import OutingClaimForm from '@modules/rides/presentation/OutingClaimForm.vue'
+import { MASCOT } from '@shared/ui/mascot.ts'
 import PaolaEmpty from '@ui/PaolaEmpty.vue'
 import PaolaOutingCard from '@ui/PaolaOutingCard.vue'
 import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
@@ -13,28 +15,29 @@ const props = defineProps<{
 
 const agenda = props.module.getAgenda()
 const outings = ref<Outing[]>([...props.module.listOutings()])
+const copy = RIDES_AGENDA_COPY
 
 function onClaimed(spot: ClaimedSpot): void {
   outings.value = outings.value.map((item) => (item.id === spot.outing.id ? spot.outing : item))
 }
 
 function statusCopy(status: Outing['status']): string {
-  if (status === 'lleno') return 'Cupo lleno. Ya no se anota más gente.'
-  if (status === 'cerrado') return 'Inscripción cerrada.'
-  if (status === 'realizado') return 'Ya se rodó. Esta salida pasa a memorias cuando haya recuento.'
+  if (status === RIDES_STATUS.LLENO) return copy.full
+  if (status === RIDES_STATUS.CERRADO) return copy.closed
+  if (status === RIDES_STATUS.REALIZADO) return copy.done
   return ''
 }
 </script>
 
 <template>
-  <section class="parchese-page__agenda" aria-label="Agenda">
+  <section class="parchese-page__agenda" :aria-label="copy.aria">
     <PaolaVoiceBadge voice="loigca" />
-    <h2 class="paola-page__heading type-display">Agenda</h2>
+    <h2 class="paola-page__heading type-display">{{ copy.heading }}</h2>
     <div v-if="outings.length" class="parchese-page__dates">
       <PaolaOutingCard
         v-for="(outing, index) in outings"
         :key="outing.id"
-        :class="{ 'paola-outing--featured': index === 0 && outing.status !== 'realizado' }"
+        :class="{ 'paola-outing--featured': index === 0 && outing.status !== RIDES_STATUS.REALIZADO }"
         :title="outing.title"
         :date="outing.date"
         :kind="outing.kind"
@@ -47,7 +50,7 @@ function statusCopy(status: Outing['status']): string {
         :paid="outing.paid"
       >
         <OutingClaimForm
-          v-if="outing.status === 'abierto'"
+          v-if="outing.status === RIDES_STATUS.ABIERTO"
           :paid="outing.paid"
           :claim="(draft) => module.claimSpot(outing.id, draft)"
           @claimed="onClaimed"
@@ -59,9 +62,9 @@ function statusCopy(status: Outing['status']): string {
       v-else
       compact
       hide-cta
-      title="Sin fecha"
+      :title="copy.emptyTitle"
       :copy="agenda.emptyCopy"
-      mascot-src="/mascota/tumbada.png"
+      :mascot-src="MASCOT.TUMBADA"
     />
   </section>
 </template>

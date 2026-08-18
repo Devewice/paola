@@ -1,11 +1,12 @@
 import type { ProductCatalogPort } from '@modules/shop/domain/ports/ProductCatalogPort.ts'
+import type { ShopShelves } from '@modules/shop/domain/entities/Product.ts'
 import {
   SHOP_DELIVERY_COPY,
   SHOP_EMPTY_COLLAB,
   SHOP_EMPTY_OWN,
+  SHOP_KIND,
   SHOP_WARRANTY_COPY,
-  type ShopShelves,
-} from '@modules/shop/domain/entities/Product.ts'
+} from '@modules/shop/constants/copy.ts'
 
 export class ListShelves {
   private readonly catalog: ProductCatalogPort
@@ -17,8 +18,8 @@ export class ListShelves {
   execute(): ShopShelves {
     const items = this.catalog.list()
     return {
-      own: items.filter((item) => item.kind === 'propia'),
-      collab: items.filter((item) => item.kind === 'colaboracion'),
+      own: items.filter((item) => item.kind === SHOP_KIND.OWN),
+      collab: items.filter((item) => item.kind === SHOP_KIND.COLLAB),
       emptyOwnCopy: SHOP_EMPTY_OWN,
       emptyCollabCopy: SHOP_EMPTY_COLLAB,
       deliveryCopy: SHOP_DELIVERY_COPY,

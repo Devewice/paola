@@ -1,5 +1,5 @@
 import type { TipList } from '@modules/voice/domain/entities/Tip.ts'
-import { TIPS_EMPTY_COPY } from '@modules/voice/domain/entities/Tip.ts'
+import { TIPS_EMPTY_COPY } from '@modules/voice/constants/copy.ts'
 import type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
 
 export class InMemoryTipCatalog implements TipCatalogPort {

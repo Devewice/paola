@@ -1,17 +1,13 @@
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
 import { InMemoryOutingCatalog } from '@modules/rides/infrastructure/InMemoryOutingCatalog.ts'
 import { parseOuting } from '@modules/rides/infrastructure/parseOuting.ts'
+import { abortAfter } from '@shared/http/abortAfter.ts'
+import { API, FETCH_TIMEOUT_MS } from '@shared/http/constants.ts'
 
-function abortAfter(ms: number): AbortSignal {
-  const controller = new AbortController()
-  window.setTimeout(() => controller.abort(), ms)
-  return controller.signal
-}
-
-/** Origen único: MySQL vía `GET /api/salidas`. Si falla, lista vacía — no hay JSON. */
+/** Origen único: MySQL vía `GET /api/outings`. Si falla, lista vacía — no hay JSON. */
 export async function loadOutingCatalog(): Promise<OutingCatalogPort> {
   try {
-    const response = await fetch('/api/salidas', { signal: abortAfter(2500) })
+    const response = await fetch(API.OUTINGS, { signal: abortAfter(FETCH_TIMEOUT_MS) })
     if (!response.ok) return new InMemoryOutingCatalog()
     const body: unknown = await response.json()
     if (!body || typeof body !== 'object' || !('outings' in body)) {

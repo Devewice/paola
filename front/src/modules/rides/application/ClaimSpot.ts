@@ -1,8 +1,11 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
+import { RIDES_LIMITS, RIDES_MESSAGES, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
 import type { ClaimedSpot, Ticket, TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
 import type { OutingStatus } from '@modules/rides/domain/entities/Outing.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
+
+const WHATSAPP_NON_DIGIT = /\D/g
 
 export class ClaimSpot {
   private readonly catalog: OutingCatalogPort
@@ -18,35 +21,38 @@ export class ClaimSpot {
     const whatsapp = digitsOnly(draft.whatsapp)
     const moto = (draft.moto ?? '').trim()
 
-    if (name.length < 2) {
-      return err(appError('VALIDATION', 'El cupo necesita un nombre.'))
+    if (name.length < RIDES_LIMITS.NAME_MIN) {
+      return err(appError('VALIDATION', RIDES_MESSAGES.NAME_REQUIRED))
     }
 
-    if (whatsapp.length < 10 || whatsapp.length > 15) {
-      return err(appError('VALIDATION', 'El cupo necesita un WhatsApp (mínimo 10 dígitos).'))
+    if (
+      whatsapp.length < RIDES_LIMITS.WHATSAPP_MIN ||
+      whatsapp.length > RIDES_LIMITS.WHATSAPP_MAX
+    ) {
+      return err(appError('VALIDATION', RIDES_MESSAGES.WHATSAPP_REQUIRED))
     }
 
     const outing = this.catalog.get(outingId)
     if (!outing) {
-      return err(appError('NOT_FOUND', 'Esa salida no está.'))
+      return err(appError('NOT_FOUND', RIDES_MESSAGES.NOT_FOUND))
     }
 
-    if (outing.status === 'realizado') {
-      return err(appError('CONFLICT', 'Esa salida ya se rodó. Ya no hay cupos.'))
+    if (outing.status === RIDES_STATUS.REALIZADO) {
+      return err(appError('CONFLICT', RIDES_MESSAGES.ALREADY_RODE))
     }
 
-    if (outing.status === 'cerrado') {
-      return err(appError('CONFLICT', 'La inscripción está cerrada.'))
+    if (outing.status === RIDES_STATUS.CERRADO) {
+      return err(appError('CONFLICT', RIDES_MESSAGES.CLOSED))
     }
 
-    if (outing.status !== 'abierto') {
-      return err(appError('CONFLICT', 'Ese cupo ya está lleno.'))
+    if (outing.status !== RIDES_STATUS.ABIERTO) {
+      return err(appError('CONFLICT', RIDES_MESSAGES.FULL))
     }
 
     const taken = this.catalog.listTickets(outingId).length
     if (taken >= outing.capacity) {
-      this.catalog.save({ ...outing, status: 'lleno', taken: outing.capacity })
-      return err(appError('CONFLICT', 'Ese cupo ya está lleno.'))
+      this.catalog.save({ ...outing, status: RIDES_STATUS.LLENO, taken: outing.capacity })
+      return err(appError('CONFLICT', RIDES_MESSAGES.FULL))
     }
 
     const ticket: Ticket = {
@@ -59,7 +65,7 @@ export class ClaimSpot {
     this.catalog.addTicket(ticket)
 
     const nextTaken = taken + 1
-    const status: OutingStatus = nextTaken >= outing.capacity ? 'lleno' : outing.status
+    const status: OutingStatus = nextTaken >= outing.capacity ? RIDES_STATUS.LLENO : outing.status
     const updated = {
       ...outing,
       taken: nextTaken,
@@ -71,5 +77,5 @@ export class ClaimSpot {
 }
 
 function digitsOnly(value: string): string {
-  return value.replace(/\D/g, '')
+  return value.replace(WHATSAPP_NON_DIGIT, '')
 }

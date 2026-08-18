@@ -25,20 +25,20 @@ Ya hay MySQL en Hostinger y `back/` con **Knex** (migraciones y consultas), cont
 **Cómo se construye una pieza nueva**
 
 1. Knex: archivo con timestamp en `back/db/migrations/` (`npm run migrate:make nombre`).
-2. Provider + controller en `back/` (`GET` público mínimo; `POST`/`PATCH` con clave de `/operar` o admin).
+2. Provider + controller en `back/modules/<nombre-en-inglés>/` (`GET` público mínimo; `POST`/`PATCH` con clave de `/operar` o admin). Textos y límites en `constants/`. Schemas, services, middlewares e interfaces en el mismo módulo.
 3. Puerto en el módulo; adapter HTTP; bootstrap cablea. El dominio no conoce `fetch` ni SQL.
 4. Paola escribe filas desde `/operar` (y el panel de la fase 24). No se pide un deploy para publicar una rodada, un tip o un producto.
 5. **Prohibido:** `*.json` de catálogo en `front/`, listas hardcodeadas de integrantes/aliados/productos/tips, segundo origen “por si acaso”.
 
 **Ya está en base**
 
-- `salidas` — fase 8 (`GET /api/salidas`, alta en `/operar`)
-- `cupos` — fase 9 (`POST /api/salidas/:id/cupos`, lista en `/operar`)
-- `alianzas` — fase 4 (`GET /api/alianzas`, alta en `/operar`)
-- `integrantes` — fase 5 (`GET /api/integrantes`, alta en `/operar`)
-- `memorias` + `memoria_fotos` — fase 10 (`GET /api/memorias`, alta en `/operar`)
+- `outings` — fase 8 (`GET /api/outings`, alta en `/operar`)
+- `tickets` — fase 9 (`POST /api/outings/:id/tickets`, lista en `/operar`)
+- `alliances` — fase 4 (`GET /api/alliances`, alta en `/operar`)
+- `members` — fase 5 (`GET /api/members`, alta en `/operar`)
+- `memories` + `memory_photos` — fase 10 (`GET /api/memories`, alta en `/operar`)
 - `tips` — fase 11 (`GET /api/tips`; alta en `/operar` en fase 16)
-- `productos` — fase 12 (`GET /api/productos`, alta en `/operar`)
+- `products` — fase 12 (`GET /api/products`, alta en `/operar`)
 
 Tabla vacía = hueco honesto. El primer aliado o integrante real se publica en `/operar`, no se pega en el front.
 
@@ -232,7 +232,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Queda lista cuando:** Únete abre WhatsApp y la franja muestra el mismo set que Parchese.
 
-**Datos:** tabla `alianzas` + `GET /api/alianzas` (misma lista en Parchese y franja). Publica en `/operar`. Lista vacía = hueco honesto.
+**Datos:** tabla `alliances` + `GET /api/alliances` (misma lista en Parchese y franja). Publica en `/operar`. Lista vacía = hueco honesto.
 
 ---
 
@@ -253,7 +253,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Queda lista cuando:** el parche se ve; nadie aparece sin haber dicho que sí.
 
-**Datos:** tabla `integrantes` + `GET /api/integrantes`. Publica en `/operar` con consentimiento. Nadie se hardcodea en el front.
+**Datos:** tabla `members` + `GET /api/members`. Publica en `/operar` con consentimiento. Nadie se hardcodea en el front.
 
 ---
 
@@ -283,7 +283,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código / contenido**
 
-- [x] Próxima rodada o actividad + CTA a Parchese / Apúntese (lee Agenda / `GET /api/salidas`; vacío honesto + WhatsApp si no hay fecha).
+- [x] Próxima rodada o actividad + CTA a Parchese / Apúntese (lee Agenda / `GET /api/outings`; vacío honesto + WhatsApp si no hay fecha).
 - [x] Destello de memoria o km: “vamos contando” (sin número inventado; km real en fase 10).
 - [x] Hueco de Tu voz (sin tip aún; no se fuerza denuncia).
 - [x] Una frase de quién es Paola + enlace a `/paola`.
@@ -299,12 +299,12 @@ Fuente: [`paola.md`](./paola.md).
 
 **Contenido / reglas**
 
-- [x] Campos en entidad `Outing`: fecha, punto, ruta en texto, cupo máximo, qué llevar, rodada/actividad, gratis o de pago (cobro por WhatsApp). Origen: MySQL `salidas` (vacía hoy).
+- [x] Campos en entidad `Outing`: fecha, punto, ruta en texto, cupo máximo, qué llevar, rodada/actividad, gratis o de pago (cobro por WhatsApp). Origen: MySQL `outings` (vacía hoy).
 
 **Código**
 
 - [x] Módulo `rides`: entidad salida + estados `abierto` / `lleno` / `cerrado` / `realizado`.
-- [x] Publicación: tabla MySQL `salidas` (`GET /api/salidas`, `POST /api/operar/salidas` desde `/operar`). No hay JSON de respaldo. No hace falta CMS gordo.
+- [x] Publicación: tabla MySQL `outings` (`GET /api/outings`, `POST /api/operar/outings` desde `/operar`). No hay JSON de respaldo. No hace falta CMS gordo.
 - [x] Agenda y “próxima salida” leen esta entidad.
 - [x] Tests de caso de uso: no se publica sin fecha ni cupo (`npm test`).
 
@@ -320,7 +320,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [x] Formulario: nombre, WhatsApp, moto (opcional). `POST /api/salidas/:id/cupos` → tabla `cupos`.
+- [x] Formulario: nombre, WhatsApp, moto (opcional). `POST /api/outings/:id/tickets` → tabla `tickets`.
 - [x] Descontar cupo; al llenarse → `lleno`.
 - [x] Aviso a Paola (WhatsApp, correo o lista en `/operar`).
 - [x] Cerrar inscripción (`cerrado`) a mano (`POST /api/operar/salidas/:id/estado`).
@@ -346,7 +346,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [x] Tabla `memorias` ligada a `salidas` (`realizado`): km, texto de cierre, crédito. Tabla `memoria_fotos` (ruta/archivo + alt). `GET /api/memorias`. Alta desde `/operar`, no JSON.
+- [x] Tabla `memories` ligada a `outings` (`realizado`): km, texto de cierre, crédito. Tabla `memory_photos` (ruta/archivo + alt). `GET /api/memories`. Alta desde `/operar`, no JSON.
 - [x] Km de la salida + **km acumulado del parche** (suma SQL, no un número en el `.vue`).
 - [x] Galería simple; crédito / link de redes, sin scrapear Instagram.
 - [x] Cámara Incauta en el recuento visual; Armargura puede cerrar con un párrafo.
@@ -363,7 +363,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [x] Inicio lee APIs: próxima `salida`, último destello de `memorias`, km del parche, frase Paola, un tip de `tips` si hay fila.
+- [x] Inicio lee APIs: próxima salida (`outings`), último destello de `memories`, km del parche, frase Paola, un tip de `tips` si hay fila.
 - [x] Si no hay próxima salida: estado vacío con mascota + Únete (como ahora).
 - [x] Tabla `tips` + `GET /api/tips`. Módulo `voice` mínimo. `refreshInventory()` al entrar a Inicio y tras publicar en `/operar`.
 
@@ -386,7 +386,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [x] Tabla `productos` (propia vs colaboración, precio o “preguntar”, stock opcional). `GET /api/productos`. Alta en `/operar`.
+- [x] Tabla `products` (propia vs colaboración, precio o “preguntar”, stock opcional). `GET /api/products`. Alta en `/operar`.
 - [x] Módulo `shop`: catálogo y ficha desde la API; dos estanterías (propia / colaboración) **sin mezclar filas**.
 - [x] CTA: escribir a Paola (aún no pasarela).
 - [x] Franja de alianzas sigue fuera de la ficha.
@@ -403,7 +403,7 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código / contenido**
 
-- [ ] Ficha de servicio en MySQL (tabla `servicios` o `productos` con tipo `lavado`): qué incluye, cómo se entrega el casco, tiempo. No un bloque fijo eterno en el `.vue` salvo copy de reglas.
+- [ ] Ficha de servicio en MySQL (tabla `services` o `products` con tipo `lavado`): qué incluye, cómo se entrega el casco, tiempo. No un bloque fijo eterno en el `.vue` salvo copy de reglas.
 - [ ] Garantía de servicio: “si quedó mal, se corrige” (distinta a la de producto).
 - [ ] CTA WhatsApp / correo.
 
@@ -506,7 +506,7 @@ Fuente: [`paola.md`](./paola.md).
 **Código**
 
 - [ ] Tablas `usuarios` (y sesión). Registro / login. No JSON de cuentas.
-- [ ] Panel: mis tickets (`cupos` a su nombre), mis pedidos, mis datos — lecturas SQL, no lista local.
+- [ ] Panel: mis tickets (`tickets` a su nombre), mis pedidos, mis datos — lecturas SQL, no lista local.
 - [ ] Km personal **opcional** (si la persona quiere; columna o tabla, no un número pintado).
 - [ ] El sitio sigue siendo browsable sin cuenta.
 - [ ] Login exigido para: ticket a tu nombre, pedido en historial, publicar denuncia (si se decide así).
@@ -558,8 +558,8 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código / contenido**
 
-- [ ] Una salida puede ser gratis o de pago (precio en la ficha / columna en `salidas`, no un texto suelto en la vista).
-- [ ] Pago de ticket: WhatsApp y/o pasarela según fases 14/20; rastro en `cupos` / `pedidos`.
+- [ ] Una salida puede ser gratis o de pago (precio en la ficha / columna en `outings`, no un texto suelto en la vista).
+- [ ] Pago de ticket: WhatsApp y/o pasarela según fases 14/20; rastro en `tickets` / `pedidos`.
 - [ ] Publicidad = alianzas en Parchese / franja. **Cero popups. Cero venta de datos.**
 - [ ] Un aliado no se convierte en producto Paola.
 
@@ -573,8 +573,8 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [ ] Mapa embebido o imagen del recorrido previsto (campo en `salidas` o tabla `salida_ruta`; no un mapa inventado en el front).
-- [ ] Punto de encuentro claro (ya en `salidas.meeting_point`).
+- [ ] Mapa embebido o imagen del recorrido previsto (campo en `outings` o tabla `outing_routes`; no un mapa inventado en el front).
+- [ ] Punto de encuentro claro (ya en `outings.meeting_point`).
 - [ ] Sin GPS en vivo.
 
 **Queda lista cuando:** quien no conoce la zona entiende dónde juntarse y por dónde se piensa ir.

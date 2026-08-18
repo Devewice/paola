@@ -1,9 +1,8 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
+import { RIDES_ISO_DATE, RIDES_KIND, RIDES_LIMITS, RIDES_MESSAGES, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
 import type { Outing, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
-
-const DATE = /^\d{4}-\d{2}-\d{2}$/
 
 export class PublishOuting {
   private readonly catalog: OutingCatalogPort
@@ -21,24 +20,24 @@ export class PublishOuting {
     const whatToBring = draft.whatToBring.trim()
     const date = draft.date.trim()
 
-    if (!DATE.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00`))) {
-      return err(appError('VALIDATION', 'No se publica una salida sin fecha válida.'))
+    if (!RIDES_ISO_DATE.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00`))) {
+      return err(appError('VALIDATION', RIDES_MESSAGES.DATE_INVALID))
     }
 
-    if (!Number.isInteger(draft.capacity) || draft.capacity < 1) {
-      return err(appError('VALIDATION', 'No se publica una salida sin cupo máximo (entero ≥ 1).'))
+    if (!Number.isInteger(draft.capacity) || draft.capacity < RIDES_LIMITS.CAPACITY_MIN) {
+      return err(appError('VALIDATION', RIDES_MESSAGES.CAPACITY_INVALID))
     }
 
     if (!title) {
-      return err(appError('VALIDATION', 'No se publica una salida sin título.'))
+      return err(appError('VALIDATION', RIDES_MESSAGES.TITLE_REQUIRED))
     }
 
-    if (draft.kind !== 'rodada' && draft.kind !== 'actividad') {
-      return err(appError('VALIDATION', 'La salida es rodada o actividad.'))
+    if (draft.kind !== RIDES_KIND.RODADA && draft.kind !== RIDES_KIND.ACTIVIDAD) {
+      return err(appError('VALIDATION', RIDES_MESSAGES.KIND_INVALID))
     }
 
     if (!meetingPoint) {
-      return err(appError('VALIDATION', 'No se publica una salida sin punto de encuentro.'))
+      return err(appError('VALIDATION', RIDES_MESSAGES.MEETING_REQUIRED))
     }
 
     const outing: Outing = {
@@ -52,7 +51,7 @@ export class PublishOuting {
       taken: 0,
       whatToBring,
       paid: draft.paid,
-      status: 'abierto',
+      status: RIDES_STATUS.ABIERTO,
     }
 
     this.catalog.save(outing)

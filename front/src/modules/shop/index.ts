@@ -5,12 +5,13 @@ export type {
   ShopShelves,
 } from '@modules/shop/domain/entities/Product.ts'
 export {
+  SHOP_COPY,
   SHOP_DELIVERY_COPY,
   SHOP_EMPTY_COLLAB,
   SHOP_EMPTY_FICHA,
   SHOP_EMPTY_OWN,
   SHOP_WARRANTY_COPY,
-} from '@modules/shop/domain/entities/Product.ts'
+} from '@modules/shop/constants/copy.ts'
 export type { ShopContact } from '@modules/shop/domain/entities/ShopContact.ts'
 export type { ProductCatalogPort } from '@modules/shop/domain/ports/ProductCatalogPort.ts'
 export type { ShopWritePort } from '@modules/shop/domain/ports/ShopWritePort.ts'

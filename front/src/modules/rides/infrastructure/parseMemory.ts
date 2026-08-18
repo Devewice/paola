@@ -1,5 +1,5 @@
 import type { Memory, MemoryList, MemoryPhoto } from '@modules/rides/domain/entities/Memory.ts'
-import { MEMORIES_EMPTY_COPY } from '@modules/rides/domain/entities/Memory.ts'
+import { MEMORIES_EMPTY_COPY } from '@modules/rides/constants/copy.ts'
 
 function optionalHref(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
@@ -20,7 +20,7 @@ export function parseMemory(raw: unknown): Memory | null {
   if (!raw || typeof raw !== 'object') return null
   const row = raw as Record<string, unknown>
   if (typeof row.id !== 'string' || !row.id) return null
-  if (typeof row.salidaId !== 'string' || !row.salidaId) return null
+  if (typeof row.outingId !== 'string' || !row.outingId) return null
   if (typeof row.title !== 'string' || !row.title.trim()) return null
   if (typeof row.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(row.date)) return null
   const km = Number(row.km)
@@ -36,7 +36,7 @@ export function parseMemory(raw: unknown): Memory | null {
 
   return {
     id: row.id,
-    salidaId: row.salidaId,
+    outingId: row.outingId,
     title: row.title.trim(),
     date: row.date,
     km,
