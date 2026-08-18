@@ -7,8 +7,15 @@ export type HomeNextOuting = {
   readonly point: string
 }
 
+export type HomeVoiceTip = {
+  readonly title: string
+  readonly body: string
+  readonly officialHref?: string
+}
+
 export type HomeVoiceHole = {
-  readonly copy: string
+  readonly tip: HomeVoiceTip | null
+  readonly emptyCopy: string
   readonly to: '/tu-voz'
 }
 

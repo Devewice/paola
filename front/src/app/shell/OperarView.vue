@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { getAppDependencies } from '@app/bootstrap.ts'
+import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
 import type { OperatorBoardOuting, OutingKind } from '@modules/rides/index.ts'
+import type { ProductKind } from '@modules/shop/index.ts'
 import PaolaAlert from '@ui/PaolaAlert.vue'
 import PaolaButton from '@ui/PaolaButton.vue'
 import PaolaChoice from '@ui/PaolaChoice.vue'
@@ -11,7 +12,7 @@ import PaolaSelect from '@ui/PaolaSelect.vue'
 import PaolaTextarea from '@ui/PaolaTextarea.vue'
 import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
 
-const { rides, club } = getAppDependencies()
+const { rides, club, shop } = getAppDependencies()
 
 const clave = ref('')
 const error = ref('')
@@ -43,9 +44,21 @@ const memberAlias = ref('')
 const memberMoto = ref('')
 const memberInstagram = ref('')
 
+const productTitle = ref('')
+const productDescription = ref('')
+const productKind = ref<ProductKind>('propia')
+const productPrice = ref('')
+const productStock = ref('')
+const productPhoto = ref('')
+
 const kindOptions: { value: string; label: string }[] = [
   { value: 'rodada', label: 'Rodada' },
   { value: 'actividad', label: 'Actividad' },
+]
+
+const productKindOptions: { value: string; label: string }[] = [
+  { value: 'propia', label: 'Marca propia' },
+  { value: 'colaboracion', label: 'Colaboración (estantería aparte)' },
 ]
 
 const realizadaOptions = computed(() => {
@@ -112,7 +125,8 @@ async function publishOuting(): Promise<void> {
   outingCapacity.value = '12'
   outingBring.value = ''
   outingPaid.value = false
-  notice.value = `${result.value.title} ya está en la base. Recarga el sitio para verla en Agenda.`
+  await refreshInventory()
+  notice.value = `${result.value.title} ya está en la base. Inicio y Parchese leen la API al entrar.`
   if (clave.value) await load()
 }
 
@@ -159,7 +173,8 @@ async function publishMemory(): Promise<void> {
   memoryParticipants.value = ''
   memoryInstagram.value = ''
   memoryPhotos.value = [{ src: '', alt: '' }]
-  notice.value = `${result.value.title} ya tiene memoria. Recarga el sitio para verla en Parchese e Inicio.`
+  await refreshInventory()
+  notice.value = `${result.value.title} ya tiene memoria. Inicio y Parchese leen la API al entrar.`
 }
 
 async function publishAlliance(): Promise<void> {
@@ -207,6 +222,38 @@ async function publishMember(): Promise<void> {
   memberInstagram.value = ''
   notice.value = `${result.value.alias} ya está en la base. Recarga el sitio para verlo en Parchese.`
 }
+
+async function publishProduct(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const priceRaw = productPrice.value.trim()
+  const stockRaw = productStock.value.trim()
+  const result = await shop.publishProduct(
+    {
+      title: productTitle.value,
+      description: productDescription.value,
+      kind: productKind.value === 'colaboracion' ? 'colaboracion' : 'propia',
+      priceCop: priceRaw === '' ? null : Number(priceRaw),
+      stock: stockRaw === '' ? null : Number(stockRaw),
+      photoSrc: productPhoto.value.trim() || undefined,
+    },
+    clave.value,
+  )
+  busy.value = false
+  if (!result.ok) {
+    error.value = result.error.message
+    return
+  }
+  productTitle.value = ''
+  productDescription.value = ''
+  productKind.value = 'propia'
+  productPrice.value = ''
+  productStock.value = ''
+  productPhoto.value = ''
+  await refreshInventory()
+  notice.value = `${result.value.title} ya está en Tienda, en su estantería.`
+}
 </script>
 
 <template>
@@ -215,7 +262,7 @@ async function publishMember(): Promise<void> {
       <p class="paola-empty__kicker">Paola · operadora</p>
       <h1 class="paola-afiche__title type-display">Operar</h1>
       <p class="paola-afiche__lead">
-        Salidas, memorias, cupos, aliados e integrantes. No es el panel gordo.
+        Salidas, memorias, cupos, aliados, integrantes y productos. No es el panel gordo.
       </p>
     </header>
 
@@ -346,6 +393,34 @@ async function publishMember(): Promise<void> {
           <PaolaInput v-model="memberInstagram" placeholder="https://instagram.com/..." />
         </PaolaField>
         <PaolaButton type="submit" :disabled="busy">Publicar integrante</PaolaButton>
+      </form>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Producto</h2>
+      <p class="paola-page__copy paola-page__copy--muted">
+        Marca propia o colaboración. Precio vacío = preguntar. El collab no se mezcla con lo propio.
+      </p>
+      <form class="operar-clave" @submit.prevent="publishProduct">
+        <PaolaField label="Nombre">
+          <PaolaInput v-model="productTitle" placeholder="Qué se vende" />
+        </PaolaField>
+        <PaolaField label="Qué es">
+          <PaolaTextarea v-model="productDescription" placeholder="Uso real, no catálogo infinito" />
+        </PaolaField>
+        <PaolaField label="Estantería">
+          <PaolaSelect v-model="productKind" :options="productKindOptions" />
+        </PaolaField>
+        <PaolaField label="Precio en pesos (vacío = preguntar)">
+          <PaolaInput v-model="productPrice" type="number" placeholder="45000" />
+        </PaolaField>
+        <PaolaField label="Stock (opcional)">
+          <PaolaInput v-model="productStock" type="number" placeholder="3" />
+        </PaolaField>
+        <PaolaField label="Foto (enlace, opcional)">
+          <PaolaInput v-model="productPhoto" placeholder="https://..." />
+        </PaolaField>
+        <PaolaButton type="submit" :disabled="busy">Publicar producto</PaolaButton>
       </form>
     </section>
 

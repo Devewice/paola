@@ -1,0 +1,8 @@
+export type { Tip, TipList } from '@modules/voice/domain/entities/Tip.ts'
+export { TIPS_EMPTY_COPY } from '@modules/voice/domain/entities/Tip.ts'
+export type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
+export { GetTips } from '@modules/voice/application/GetTips.ts'
+export { createVoiceModule, type VoiceModule } from '@modules/voice/composition.ts'
+export { loadTipCatalog } from '@modules/voice/infrastructure/loadTipCatalog.ts'
+export { InMemoryTipCatalog } from '@modules/voice/infrastructure/InMemoryTipCatalog.ts'
+export { parseTip, parseTipList } from '@modules/voice/infrastructure/parseTip.ts'

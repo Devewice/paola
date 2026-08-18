@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
-import HomeView from '@modules/home/presentation/HomeView.vue'
+import ProductView from '@modules/shop/presentation/ProductView.vue'
 
+const route = useRoute()
 const stamp = ref(0)
 
 onMounted(async () => {
@@ -12,10 +14,12 @@ onMounted(async () => {
 
 const module = computed(() => {
   stamp.value
-  return getAppDependencies().home
+  return getAppDependencies().shop
 })
+
+const productId = computed(() => String(route.params.id ?? ''))
 </script>
 
 <template>
-  <HomeView :module="module" />
+  <ProductView :module="module" :product-id="productId" />
 </template>

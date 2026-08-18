@@ -21,11 +21,28 @@ import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalo
 import { InMemoryMemoryCatalog } from '@modules/rides/infrastructure/InMemoryMemoryCatalog.ts'
 import { HttpRidesApi } from '@modules/rides/infrastructure/HttpRidesApi.ts'
 import { InMemoryOutingCatalog } from '@modules/rides/infrastructure/InMemoryOutingCatalog.ts'
+import {
+  createShopModule,
+  HttpShopApi,
+  loadProductCatalog,
+  InMemoryProductCatalog,
+  type ShopModule,
+} from '@modules/shop/index.ts'
+import type { ProductCatalogPort } from '@modules/shop/domain/ports/ProductCatalogPort.ts'
+import {
+  createVoiceModule,
+  loadTipCatalog,
+  InMemoryTipCatalog,
+  type VoiceModule,
+} from '@modules/voice/index.ts'
+import type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
 
 export type AppDependencies = {
   paola: PaolaModule
   club: ClubModule
   rides: RidesModule
+  voice: VoiceModule
+  shop: ShopModule
   home: HomeModule
 }
 
@@ -39,6 +56,8 @@ function wire(
   catalog: OutingCatalogPort,
   memoryCatalog: MemoryCatalogPort,
   clubContent: ClubContentPort,
+  tipCatalog: TipCatalogPort,
+  productCatalog: ProductCatalogPort,
 ): AppDependencies {
   const paola = createPaolaModule()
   const contact = paola.getPage().contact
@@ -51,8 +70,13 @@ function wire(
       whatsappHref: contact.whatsapp.href,
     }),
   )
-  const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, paola))
-  dependencies = { paola, club, rides, home }
+  const voice = createVoiceModule(tipCatalog)
+  const shop = createShopModule(productCatalog, new HttpShopApi(), {
+    email: contact.email,
+    whatsappHref: contact.whatsapp.href,
+  })
+  const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, voice, paola))
+  dependencies = { paola, club, rides, voice, shop, home }
   return dependencies
 }
 
@@ -62,17 +86,39 @@ function emptyClub(paola: PaolaModule): ClubContentPort {
 
 export async function createAppDependencies(): Promise<AppDependencies> {
   const join = joinFromPaola(createPaolaModule())
-  const [catalog, memoryCatalog, clubContent] = await Promise.all([
+  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog] = await Promise.all([
     loadOutingCatalog(),
     loadMemoryCatalog(),
     loadClubCatalog(join),
+    loadTipCatalog(),
+    loadProductCatalog(),
   ])
-  return wire(catalog, memoryCatalog, clubContent)
+  return wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog)
+}
+
+/** Recarga inventario desde la API (Inicio, Parchese, Tienda). */
+export async function refreshInventory(): Promise<void> {
+  const join = joinFromPaola(createPaolaModule())
+  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog] = await Promise.all([
+    loadOutingCatalog(),
+    loadMemoryCatalog(),
+    loadClubCatalog(join),
+    loadTipCatalog(),
+    loadProductCatalog(),
+  ])
+  wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog)
 }
 
 export function getAppDependencies(): AppDependencies {
   if (!dependencies) {
-    return wire(new InMemoryOutingCatalog(), new InMemoryMemoryCatalog(), emptyClub(createPaolaModule()))
+    const paola = createPaolaModule()
+    return wire(
+      new InMemoryOutingCatalog(),
+      new InMemoryMemoryCatalog(),
+      emptyClub(paola),
+      new InMemoryTipCatalog(),
+      new InMemoryProductCatalog(),
+    )
   }
   return dependencies
 }

@@ -37,6 +37,8 @@ Ya hay MySQL en Hostinger y `back/` con **Knex** (migraciones y consultas), cont
 - `alianzas` — fase 4 (`GET /api/alianzas`, alta en `/operar`)
 - `integrantes` — fase 5 (`GET /api/integrantes`, alta en `/operar`)
 - `memorias` + `memoria_fotos` — fase 10 (`GET /api/memorias`, alta en `/operar`)
+- `tips` — fase 11 (`GET /api/tips`; alta en `/operar` en fase 16)
+- `productos` — fase 12 (`GET /api/productos`, alta en `/operar`)
 
 Tabla vacía = hueco honesto. El primer aliado o integrante real se publica en `/operar`, no se pega en el front.
 
@@ -361,10 +363,13 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [ ] Inicio lee APIs: próxima `salida`, último destello de `memorias`, km del parche, frase Paola, un tip de `tips` si hay fila.
-- [ ] Si no hay próxima salida: estado vacío con mascota + Únete (como ahora).
+- [x] Inicio lee APIs: próxima `salida`, último destello de `memorias`, km del parche, frase Paola, un tip de `tips` si hay fila.
+- [x] Si no hay próxima salida: estado vacío con mascota + Únete (como ahora).
+- [x] Tabla `tips` + `GET /api/tips`. Módulo `voice` mínimo. `refreshInventory()` al entrar a Inicio y tras publicar en `/operar`.
 
 **Queda lista cuando:** publicar o editar una fila (rodada, memoria, km) actualiza Inicio sin tocar la vista.
+
+**Contenido de Paola:** tips en MySQL entran en fase 16 (alta en `/operar`). Hoy la tabla puede estar vacía; Inicio muestra el hueco honesto.
 
 ---
 
@@ -376,17 +381,19 @@ Fuente: [`paola.md`](./paola.md).
 
 - [ ] Piezas propias (accesorios / ropa) con precio o “preguntar”.
 - [ ] Si hay collab: **estantería aparte**, nunca en la misma ficha que lo propio.
-- [ ] Copy fijo: entrega gratis **solo Bogotá y Soacha**; fuera “aún no”.
-- [ ] Copy fijo: garantía **solo defectos de fabricación**.
+- [x] Copy fijo: entrega gratis **solo Bogotá y Soacha**; fuera “aún no”.
+- [x] Copy fijo: garantía **solo defectos de fabricación**.
 
 **Código**
 
-- [ ] Tabla `productos` (propia vs colaboración, precio o “preguntar”, stock opcional). `GET /api/productos`. Alta en `/operar`.
-- [ ] Módulo `shop`: catálogo y ficha desde la API; dos estanterías (propia / colaboración) **sin mezclar filas**.
-- [ ] CTA: escribir a Paola (aún no pasarela).
-- [ ] Franja de alianzas sigue fuera de la ficha.
+- [x] Tabla `productos` (propia vs colaboración, precio o “preguntar”, stock opcional). `GET /api/productos`. Alta en `/operar`.
+- [x] Módulo `shop`: catálogo y ficha desde la API; dos estanterías (propia / colaboración) **sin mezclar filas**.
+- [x] CTA: escribir a Paola (aún no pasarela).
+- [x] Franja de alianzas sigue fuera de la ficha.
 
 **Queda lista cuando:** se entiende qué se vende, dónde llega, qué cubre la garantía, y no se mezcla marca.
+
+**Contenido de Paola:** las piezas reales se publican en `/operar`. Hoy la tabla puede estar vacía; Tienda muestra el hueco honesto y las reglas.
 
 ---
 

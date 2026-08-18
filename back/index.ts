@@ -22,6 +22,11 @@ import {
   createMemoriaController,
   listMemoriasController,
 } from './controllers/memorias.controller.js'
+import { listTipsController } from './controllers/tips.controller.js'
+import {
+  createProductoController,
+  listProductosController,
+} from './controllers/productos.controller.js'
 import { withErrors } from './http/middleware/errors.js'
 import { createRouter } from './http/router.js'
 import { sendJson } from './http/send.js'
@@ -71,6 +76,8 @@ const api = createRouter([
   { method: 'GET', path: '/api/salidas', handler: withErrors(listSalidasController) },
   { method: 'POST', path: '/api/salidas/:id/cupos', handler: withErrors(claimCupoController) },
   { method: 'GET', path: '/api/memorias', handler: withErrors(listMemoriasController) },
+  { method: 'GET', path: '/api/tips', handler: withErrors(listTipsController) },
+  { method: 'GET', path: '/api/productos', handler: withErrors(listProductosController) },
   { method: 'GET', path: '/api/alianzas', handler: withErrors(listAlianzasController) },
   { method: 'GET', path: '/api/integrantes', handler: withErrors(listIntegrantesController) },
   { method: 'GET', path: '/api/operar/salidas', handler: withErrors(listOperatorBoardController) },
@@ -87,6 +94,7 @@ const api = createRouter([
     handler: withErrors(createIntegranteController),
   },
   { method: 'POST', path: '/api/operar/memorias', handler: withErrors(createMemoriaController) },
+  { method: 'POST', path: '/api/operar/productos', handler: withErrors(createProductoController) },
 ])
 
 const server = createServer(async (request, response) => {

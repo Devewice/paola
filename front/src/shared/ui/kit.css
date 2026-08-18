@@ -285,6 +285,13 @@
   border-color: var(--paola-muted);
 }
 
+.paola-product__photo {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
 .paola-ride__media,
 .paola-product__media,
 .paola-memoria {

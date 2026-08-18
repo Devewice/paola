@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HomeModule } from '@modules/home/index.ts'
+import { computed } from 'vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
 import PaolaAgendaItem from '@ui/PaolaAgendaItem.vue'
@@ -17,9 +18,9 @@ const props = defineProps<{
   module: HomeModule
 }>()
 
-const board = props.module.getBoard()
+const board = computed(() => props.module.getBoard())
 const bindReveal = usePageReveal()
-const photoCount = board.memory?.photos.length ?? 0
+const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
 </script>
 
 <template>
@@ -103,7 +104,22 @@ const photoCount = board.memory?.photos.length ?? 0
       <section class="paola-page__block" aria-label="Tu voz">
         <PaolaVoiceBadge voice="loigca" />
         <h2 class="paola-page__heading type-display">Tu voz</h2>
-        <PaolaAlert tone="info">{{ board.voice.copy }}</PaolaAlert>
+        <PaolaAlert tone="info">
+          <template v-if="board.voice.tip">
+            <strong>{{ board.voice.tip.title }}</strong>
+            — {{ board.voice.tip.body }}
+            <a
+              v-if="board.voice.tip.officialHref"
+              class="home-page__official"
+              :href="board.voice.tip.officialHref"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Norma oficial
+            </a>
+          </template>
+          <template v-else>{{ board.voice.emptyCopy }}</template>
+        </PaolaAlert>
         <PaolaButton variant="ghost" size="sm" :to="board.voice.to">Tu voz</PaolaButton>
       </section>
 
@@ -149,5 +165,12 @@ const photoCount = board.memory?.photos.length ?? 0
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
+}
+
+.home-page__official {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--paola-cian);
+  text-decoration: underline;
 }
 </style>

@@ -120,7 +120,7 @@ Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Cat
 - Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia.**
 - Vue Router al haber las 5 pestañas.
 - **Hostinger:** el front y el back viven **en el mismo hosting**, un solo despliegue. No hay API en otro proveedor. En local, `iniciar.bat` / `npm run dev` levantan los dos procesos; en producción `npm start` sirve el build y el `/api` juntos.
-- API en `back/` (health, salidas, cupos, alianzas, integrantes, memorias; cada fase de inventario suma tabla + endpoint). No Express dentro de un `.vue`.
+- API en `back/` (health, salidas, cupos, alianzas, integrantes, memorias, tips, productos; cada fase de inventario suma tabla + endpoint). No Express dentro de un `.vue`.
 - Credenciales MySQL solo en `.env` (gitignored). Nunca en docs ni en el front.
 - Pagos: puerto `PaymentPort` — adapter WhatsApp primero, pasarela después.
 - Tests primero en **casos de uso** (cupo, km, pedido, estados de salida).
