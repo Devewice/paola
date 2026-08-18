@@ -108,7 +108,7 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 
 **Queda lista cuando:** no hay contador; se navega entre 5 URLs aunque digan “próximamente”.
 
-**No incluye:** diseño final, CMS, API de producto (tickets/pedidos). El cascarón `server/` + MySQL en `.env` sí: front y back salen juntos en Hostinger.
+**No incluye:** diseño final, CMS, API de producto (tickets/pedidos). El cascarón `back/` + MySQL en `.env` sí: front y back salen juntos en Hostinger.
 
 **Hosting (Paola):** un solo Hostinger. Local: `iniciar.bat`. Producción: `npm start` (estáticos + `/api`). Claves de MySQL nunca van al git.
 
@@ -149,6 +149,8 @@ Todo lo de la visión tiene fase. Si no está aquí, no está cubierto.
 - [x] La franja **no** se mete dentro de fichas de tienda.
 
 **Queda lista cuando:** en cualquier pestaña se ve dónde estás y dónde están los aliados.
+
+**Kit visual (antes de fase 3):** componentes Vue en `front/src/shared/ui/` (`@ui`), catálogo en `/kit`. Referencia HTML: `docs/index.html`.
 
 ---
 

@@ -101,7 +101,7 @@ Tono de copy, **no** font-family. Badges: `.voice-badge--loigca` · `--incauta` 
 
 **Regla:** `--danger` (#E23B4A) es error UI; **Armargura** es violeta emocional, sin estética policial. Formulario denuncia: `.denuncia-form` + borde `--armargura`.
 
-**Implementación:** kit HTML usa `--black`, `--blue`, etc.; aliases `--paola-*` en `:root`. Vue: `src/shared/theme/colors.ts` + tema Vuetify `paolaDark`.
+**Implementación:** kit HTML usa `--black`, `--blue`, etc.; aliases `--paola-*` en `:root`. Vue: `front/src/shared/theme/colors.ts` + tema Vuetify `paolaDark`.
 
 **Regla:** el color de marca es el **azul**. El verde/rojo del casco del logo no se vuelven paleta (el verde WA es **canal**, no rebranding).
 
@@ -119,7 +119,7 @@ Tono de copy, **no** font-family. Badges: `.voice-badge--loigca` · `--incauta` 
 
 ### Tema Vuetify (obligatorio al implementar)
 
-Tema **`paolaDark`** en `src/app/plugins/vuetify.ts` — valores desde `src/shared/theme/colors.ts`:
+Tema **`paolaDark`** en `front/src/app/plugins/vuetify.ts` — valores desde `front/src/shared/theme/colors.ts`:
 
 ```
 primary:    #0088F8
@@ -468,7 +468,7 @@ Una sola stack en ambos entornos — no cambiar de librería al pasar del kit al
 | Modales / sheets | **Vuetify** | Transiciones Material en overlays |
 | Mascota / ilustración | **fotos Insta360** (Lottie opcional, no UI base) | Vacíos narrativos — no es animación 360 del sitio |
 
-**Tokens compartidos:** `src/shared/motion/tokens.ts` — mismos valores en `docs/index.html#motion`.
+**Tokens compartidos:** `front/src/shared/motion/tokens.ts` — mismos valores en `docs/index.html#motion`.
 
 | Token | Valor | Uso |
 |-------|-------|-----|

@@ -398,7 +398,7 @@ El código ya nace modular (Vue 3, Vuetify, puertos y adapters). El dominio **no
 |------|----------|---------|
 | Frontend | Vue 3 + Vuetify + Vite, como está | Ya es la base |
 | API | Aún no. Contenido puede ser estático o JSON local. Cuando haya tickets/pedidos de verdad: **API REST** | Una sola operadora; GraphQL no aporta aún |
-| Dónde vive la API | Mismo producto, carpeta aparte cuando toque (`server/` o repo de API). No mezclar Express dentro de un componente Vue | Desacoplado |
+| Dónde vive la API | Mismo producto, carpeta `back/` (no mezclar Express dentro de un componente Vue) | Desacoplado |
 | Auth | Fase 4. Antes: WhatsApp + publicación a mano | Menos superficie, más parche |
 | Estado UI | Props / composición. Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia** | Ya acordado en el repo |
 | Router | Vue Router al nacer la segunda pantalla real (las 5 pestañas) | Inicio ya no cabe en un solo widget |

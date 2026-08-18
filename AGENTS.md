@@ -73,21 +73,35 @@ Visual: obedecer [`docs/visual.md`](docs/visual.md). Logo oficial = `docs/resoru
 ## 4. Arquitectura de código
 
 Stack: **Vue 3 + Vuetify + Vite + TypeScript**.  
-`src/app/bootstrap.ts` es **composición** (cablear adapters). No es Bootstrap CSS.
+`front/src/app/bootstrap.ts` es **composición** (cablear adapters). No es Bootstrap CSS.
 
 ### Desacoplamiento
 
 1. Un módulo **no importa** de otro módulo.
 2. `domain` no conoce Vue, Vuetify, HTTP ni storage.
 3. Casos de uso dependen de **puertos**, no de adapters.
-4. Solo `bootstrap.ts` elige implementaciones concretas.
+4. Solo `front/src/app/bootstrap.ts` elige implementaciones concretas.
 5. Las vistas reciben el módulo ya cableado por **props** (o el puerto que bootstrap inyectó).
 6. El resto entra al módulo por su `index.ts`.
+
+### Carpetas del repo
+
+```
+front/                  Vue + Vuetify + Vite
+  src/app/              cascarón, router, bootstrap
+  src/core/
+  src/shared/           theme, motion, ui (`@ui`)
+  src/modules/
+back/                   cascarón HTTP (health + estáticos en prod)
+docs/                   visión, fases, visual, relato
+```
+
+No mezclar front y back en la raíz. `package.json` en la raíz orquesta los dos.
 
 ### Cómo nace un módulo
 
 ```
-src/modules/<nombre>/
+front/src/modules/<nombre>/
   domain/           entidades + ports
   application/      casos de uso
   infrastructure/   adapters
@@ -99,12 +113,14 @@ src/modules/<nombre>/
 Módulos de producto (cuando dejen de ser estáticos): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.  
 Inicio no importa `rides` por dentro: se cablea en bootstrap.
 
+Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Catálogo en `/kit` (no es pestaña de producto). El kit HTML `docs/index.html` es referencia, no el portal.
+
 ### Más
 
 - Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia.**
 - Vue Router al haber las 5 pestañas.
 - **Hostinger:** el front y el back viven **en el mismo hosting**, un solo despliegue. No hay API en otro proveedor. En local, `iniciar.bat` / `npm run dev` levantan los dos procesos; en producción `npm start` sirve el build y el `/api` juntos.
-- API de producto: no hasta tickets/pedidos de verdad; entonces **REST** en `server/`. Hoy el `server/` es cascarón (health + estáticos). No Express dentro de un `.vue`.
+- API de producto: no hasta tickets/pedidos de verdad; entonces **REST** en `back/`. Hoy el `back/` es cascarón (health + estáticos). No Express dentro de un `.vue`.
 - Credenciales MySQL solo en `.env` (gitignored). Nunca en docs ni en el front.
 - Pagos: puerto `PaymentPort` — adapter WhatsApp primero, pasarela después.
 - Tests primero en **casos de uso** (cupo, km, pedido, estados de salida).

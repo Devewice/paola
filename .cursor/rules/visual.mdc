@@ -14,5 +14,6 @@ Obedece `docs/visual.md`. Piezas en `docs/resoruces/`.
 - Iconos de dato: trazo en círculo, azul o blanco.
 - Escala de espacio 8px. Portal oscuro. Afiches pueden usar brocha; formularios no.
 - Capa brocha: Brush King (`type-brush-dry`) + Rock Salt + Bebas/Anton + Caveat; filtros SVG en manchas/separadores. Ver `docs/visual.md`.
-- Motion: GSAP + AutoAnimate (tokens en `src/shared/motion/`); CSS para hovers. Lottie opcional, no sustituye a la Insta360.
+- Motion: GSAP + AutoAnimate (tokens en `front/src/shared/motion/`); CSS para hovers. Lottie opcional, no sustituye a la Insta360.
+- Componentes visuales: `front/src/shared/ui/` (`@ui`); catálogo en `/kit`.
 - Insta360 / Paper Mario no cambian paleta ni reemplazan el logo.

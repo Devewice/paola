@@ -9,7 +9,8 @@ Obedece `AGENTS.md` en la raíz. Producto: `docs/brainstorming.md`. Fases: `docs
 
 - Una fase de la hoja de ruta a la vez. No construyas lo que la fase dice que no incluye.
 - Paola es Paola (persona, marca, producto). No uses otro nombre de pila.
-- Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `bootstrap.ts` cablea adapters.
+- Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `front/src/app/bootstrap.ts` cablea adapters.
+- Repo en `front/` + `back/`; kit Vue en `front/src/shared/ui/` (`@ui`).
 - Marca propia sin mezclar con alianzas. Tickets propios. Pago: WhatsApp/Paola primero.
 - Entrega solo Bogotá/Soacha. Garantía solo defectos de fabricación.
 - No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Red social completa no en MVP; horizonte **36–44** (web + WA paralelo, fase **25**).

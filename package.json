@@ -5,12 +5,12 @@
   "type": "module",
   "description": "Portal Paola Biker — Vue + Vuetify, arquitectura modular",
   "scripts": {
-    "dev": "concurrently -k -n front,back -c cyan,magenta \"vite\" \"node server/index.mjs\"",
-    "dev:front": "vite",
-    "dev:back": "node server/index.mjs",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "start": "node server/index.mjs"
+    "dev": "concurrently -k -n front,back -c cyan,magenta \"npm run dev:front\" \"npm run dev:back\"",
+    "dev:front": "vite --config front/vite.config.ts",
+    "dev:back": "node back/index.mjs",
+    "build": "vue-tsc --noEmit -p front/tsconfig.json && vite build --config front/vite.config.ts",
+    "preview": "vite preview --config front/vite.config.ts",
+    "start": "node back/index.mjs"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",

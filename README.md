@@ -12,48 +12,46 @@ En Windows, doble clic o desde la carpeta del repo:
 iniciar.bat
 ```
 
-Eso instala dependencias si hace falta y levanta **front y back juntos** (como en Hostinger: no son dos hostings).
+Eso instala dependencias si hace falta y levanta **front y back juntos** (mismo Hostinger: no son dos hostings).
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build de producción: `npm run build`. En Hostinger el proceso único es `npm start` (sirve `dist/` + `/api`).
+Build de producción: `npm run build`. En Hostinger el proceso único es `npm start` (sirve `front/dist/` + `/api`).
 
 Copia `.env.example` a `.env` y completa MySQL. **No subas `.env`.** Para conectar desde el PC, en Hostinger agrega tu IP en acceso remoto MySQL.
 
 ## Cómo está organizado
 
 ```
-src/
-  main.ts                 # Punto de entrada Vue
-  app/                    # Cascarón, router y composición
-    App.vue               # Barra, área, pie
-    bootstrap.ts          # Cablea adapters (aún sin módulos de producto)
-    router.ts             # 5 pestañas
-    navigation.ts
-    plugins/
-    shell/ComingSoonView.vue
-  core/                   # Núcleo compartido (Result, errores). Sin I/O.
-  shared/                 # Infra transversal (storage, motion, theme)
-  modules/                # Módulos de producto (vacío en fase 0)
-  server/                 # Cascarón del back (health + estáticos). REST de producto después.
+front/                    Vue + Vite + Vuetify
+  src/app/                Cascarón, router, bootstrap
+  src/core/               Result, errores (sin I/O)
+  src/shared/             theme, motion, ui (`@ui`)
+  src/modules/            Módulos de producto (fases)
+  public/                 logo, mascota, fuentes
+back/                     Cascarón HTTP (health + estáticos en prod)
+docs/                     visión, fases, visual, relato
+package.json              Scripts dev/build/start en la raíz
 ```
+
+**Kit visual:** en local, abre `/kit` para ver todos los componentes Vue importables desde `@ui`.
 
 ## Reglas de desacoplamiento
 
 1. Un módulo **no importa** de otro módulo.
 2. `domain` no conoce Vue, Vuetify, HTTP ni almacenamiento.
 3. Los casos de uso dependen de **puertos**, no de implementaciones.
-4. Solo `src/app/bootstrap.ts` elige adapters concretos.
+4. Solo `front/src/app/bootstrap.ts` elige adapters concretos.
 5. Las vistas reciben el módulo ya cableado por props.
 6. El resto del código entra a un módulo por su `index.ts`.
 
 ## Cómo añadir un módulo
 
-1. Crea `src/modules/nombre/` (`domain`, `application`, `infrastructure`, `presentation`).
+1. Crea `front/src/modules/nombre/` (`domain`, `application`, `infrastructure`, `presentation`).
 2. Define el puerto en `domain/ports`.
 3. Implementa el caso de uso y un adapter.
 4. Expón una fábrica en `composition.ts` y una vista `.vue`.
-5. Cablea en `src/app/bootstrap.ts` y enruta en `router.ts`.
+5. Cablea en `front/src/app/bootstrap.ts` y enruta en `router.ts`.
