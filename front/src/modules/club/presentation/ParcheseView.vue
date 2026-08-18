@@ -12,6 +12,7 @@ import PaolaWaStrip from '@ui/PaolaWaStrip.vue'
 
 const props = defineProps<{
   module: ClubModule
+  hasMemories?: boolean
 }>()
 
 const join = props.module.getJoinChannel()
@@ -37,16 +38,24 @@ const bindReveal = usePageReveal()
       <h2 class="paola-page__heading type-display">El ciclo</h2>
       <PaolaTimeline
         :steps="[
-          { label: 'Creada', done: false },
-          { label: 'Cupo' },
-          { label: 'Rodar' },
-          { label: 'Memoria' },
+          { label: 'Creada', done: true },
+          { label: 'Cupo', done: true },
+          { label: 'Rodar', done: true },
+          { label: 'Memoria', done: props.hasMemories },
         ]"
       />
       <p class="paola-page__copy paola-page__copy--muted">
-        La entidad de salida ya existe. Cupo, rodada y memoria entran en las fases que siguen.
+        {{
+          props.hasMemories
+            ? 'Hay recuento publicado. Lo rodado no se evapora.'
+            : 'Cuando Paola marque realizada y publique el recuento, la memoria entra aquí.'
+        }}
       </p>
     </section>
+
+    <div data-reveal>
+      <slot name="memorias" />
+    </div>
 
     <section class="paola-page__block" aria-label="Así va el parche" data-reveal>
       <PaolaVoiceBadge voice="incauta" />

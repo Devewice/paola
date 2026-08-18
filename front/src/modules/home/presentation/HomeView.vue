@@ -9,6 +9,7 @@ import PaolaCard from '@ui/PaolaCard.vue'
 import PaolaEmpty from '@ui/PaolaEmpty.vue'
 import PaolaGallery from '@ui/PaolaGallery.vue'
 import PaolaIcon from '@ui/PaolaIcon.vue'
+import PaolaMemoriaHero from '@ui/PaolaMemoriaHero.vue'
 import PaolaStatGrid from '@ui/PaolaStatGrid.vue'
 import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
 
@@ -18,6 +19,7 @@ const props = defineProps<{
 
 const board = props.module.getBoard()
 const bindReveal = usePageReveal()
+const photoCount = board.memory?.photos.length ?? 0
 </script>
 
 <template>
@@ -39,10 +41,19 @@ const bindReveal = usePageReveal()
     <div class="paola-page__split" data-reveal>
       <PaolaCard class="home-page__visual" aria-hidden="true">
         <div class="paola-empty__mascot-hole">
-          <img class="paola-empty__mascot" src="/mascota/en-pie.png" alt="" />
+          <img
+            v-if="board.memory?.photoSrc"
+            class="home-page__memory-photo"
+            :src="board.memory.photoSrc"
+            alt=""
+          />
+          <img v-else class="paola-empty__mascot" src="/mascota/en-pie.png" alt="" />
         </div>
         <p class="paola-empty__kicker">Cámara Incauta</p>
-        <p class="paola-afiche__lead">Foto de rodada cuando haya memoria. Hoy el hueco queda.</p>
+        <p v-if="board.memory" class="paola-afiche__lead">
+          {{ board.memory.title }} · {{ board.memory.date }}
+        </p>
+        <p v-else class="paola-afiche__lead">Foto de rodada cuando haya memoria. Hoy el hueco queda.</p>
       </PaolaCard>
 
       <section class="paola-page__block" aria-label="Próxima salida">
@@ -71,15 +82,21 @@ const bindReveal = usePageReveal()
     <section class="paola-page__block" aria-label="Kilómetros" data-reveal>
       <PaolaVoiceBadge voice="incauta" />
       <h2 class="paola-page__heading type-display">Memoria</h2>
-      <PaolaGallery :count="6" />
+      <PaolaMemoriaHero
+        v-if="board.memory"
+        :title="board.memory.title"
+        :meta="`${board.memory.date} · ${board.memory.km} km · ${board.memory.credit}`"
+      />
+      <PaolaGallery :photos="board.memory?.photos" />
       <PaolaStatGrid
         :items="[
-          { value: '—', label: 'Km' },
-          { value: '—', label: 'Fotos' },
-          { value: '—', label: 'Gente' },
+          { value: board.totalKm !== null ? String(board.totalKm) : '—', label: 'Km del parche' },
+          { value: board.memory ? String(photoCount) : '—', label: 'Fotos' },
+          { value: board.memory ? '1+' : '—', label: 'Rodadas' },
         ]"
       />
-      <p class="paola-page__copy paola-page__copy--muted">{{ board.kmCopy }}</p>
+      <p v-if="board.memory" class="paola-page__copy paola-page__copy--muted">{{ board.memory.closingText }}</p>
+      <p v-else class="paola-page__copy paola-page__copy--muted">{{ board.memoryEmptyCopy }}</p>
     </section>
 
     <div class="paola-page__split" data-reveal>
@@ -108,6 +125,13 @@ const bindReveal = usePageReveal()
 <style scoped>
 .home-page__visual {
   text-align: center;
+}
+
+.home-page__memory-photo {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .home-page__next {

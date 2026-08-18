@@ -36,6 +36,7 @@ Ya hay MySQL en Hostinger y `back/` con **Knex** (migraciones y consultas), cont
 - `cupos` — fase 9 (`POST /api/salidas/:id/cupos`, lista en `/operar`)
 - `alianzas` — fase 4 (`GET /api/alianzas`, alta en `/operar`)
 - `integrantes` — fase 5 (`GET /api/integrantes`, alta en `/operar`)
+- `memorias` + `memoria_fotos` — fase 10 (`GET /api/memorias`, alta en `/operar`)
 
 Tabla vacía = hueco honesto. El primer aliado o integrante real se publica en `/operar`, no se pega en el front.
 
@@ -343,12 +344,14 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [ ] Tabla `memorias` ligada a `salidas` (`realizado`): km, texto de cierre, crédito. Tabla `memoria_fotos` (ruta/archivo + alt). `GET /api/memorias`. Alta desde `/operar`, no JSON.
-- [ ] Km de la salida + **km acumulado del parche** (suma SQL, no un número en el `.vue`).
-- [ ] Galería simple; crédito / link de redes, sin scrapear Instagram.
-- [ ] Cámara Incauta en el recuento visual; Armargura puede cerrar con un párrafo.
+- [x] Tabla `memorias` ligada a `salidas` (`realizado`): km, texto de cierre, crédito. Tabla `memoria_fotos` (ruta/archivo + alt). `GET /api/memorias`. Alta desde `/operar`, no JSON.
+- [x] Km de la salida + **km acumulado del parche** (suma SQL, no un número en el `.vue`).
+- [x] Galería simple; crédito / link de redes, sin scrapear Instagram.
+- [x] Cámara Incauta en el recuento visual; Armargura puede cerrar con un párrafo.
 
 **Queda lista cuando:** hay al menos una memoria completa en MySQL y el km del parche no es un número inventado en el Inicio.
+
+**Contenido de Paola:** los puntos de arriba se marcan cuando Paola publique la primera memoria real (km, fotos con enlace, permiso). El código ya está; la tabla puede estar vacía.
 
 ---
 

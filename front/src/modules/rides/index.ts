@@ -1,3 +1,5 @@
+export type { Memory, MemoryDraft, MemoryList, MemoryPhoto } from '@modules/rides/domain/entities/Memory.ts'
+export { MEMORIES_EMPTY_COPY } from '@modules/rides/domain/entities/Memory.ts'
 export type { Agenda, AgendaItem, AgendaKind, AgendaWhen } from '@modules/rides/domain/entities/Agenda.ts'
 export type {
   OperatorOutingStatus,
@@ -24,3 +26,6 @@ export { ListOutings } from '@modules/rides/application/ListOutings.ts'
 export { InMemoryOutingCatalog } from '@modules/rides/infrastructure/InMemoryOutingCatalog.ts'
 export { HttpRidesApi } from '@modules/rides/infrastructure/HttpRidesApi.ts'
 export { loadOutingCatalog } from '@modules/rides/infrastructure/loadOutingCatalog.ts'
+export { GetMemories } from '@modules/rides/application/GetMemories.ts'
+export { InMemoryMemoryCatalog } from '@modules/rides/infrastructure/InMemoryMemoryCatalog.ts'
+export { loadMemoryCatalog } from '@modules/rides/infrastructure/loadMemoryCatalog.ts'

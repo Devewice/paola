@@ -4,6 +4,8 @@ import { buildOutingNotice } from '@modules/rides/application/buildOutingNotice.
 import type { OperatorOutingStatus, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
 import type { Ticket, TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
 import type { OperatorBoardOuting, RidesApiPort } from '@modules/rides/domain/ports/RidesApiPort.ts'
+import type { MemoryDraft } from '@modules/rides/domain/entities/Memory.ts'
+import { parseMemory } from '@modules/rides/infrastructure/parseMemory.ts'
 import { parseOuting } from '@modules/rides/infrastructure/parseOuting.ts'
 
 type Contact = {
@@ -61,6 +63,21 @@ export class HttpRidesApi implements RidesApiPort {
       return err(appError('INFRASTRUCTURE', 'La API devolvió una salida que no se entiende.'))
     }
     return ok(outing)
+  }
+
+  async publishMemory(draft: MemoryDraft, clave: string) {
+    const response = await fetch('/api/operar/memorias', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...draft, clave }),
+    })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    const memory = parseMemory(body.memory)
+    if (!memory) {
+      return err(appError('INFRASTRUCTURE', 'La API devolvió una memoria que no se entiende.'))
+    }
+    return ok(memory)
   }
 
   async listBoard(clave: string) {

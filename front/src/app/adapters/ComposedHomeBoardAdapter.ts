@@ -17,9 +17,11 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
 
   getBoard(): HomeBoard {
     const agenda = this.rides.getAgenda()
+    const memories = this.rides.getMemories()
     const upcoming = agenda.items.find((item) => item.when === 'proxima')
     const join = this.club.getJoinChannel()
     const quien = this.paola.getPage().narrative.find((section) => section.id === 'quien')
+    const latest = memories.items[0] ?? null
 
     return {
       next: upcoming
@@ -35,7 +37,19 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
         href: join.href,
         label: 'Apúntese por WhatsApp',
       },
-      kmCopy: 'Vamos contando. Aún no hay kilómetros publicados de una memoria.',
+      totalKm: memories.items.length > 0 ? memories.totalKm : null,
+      memory: latest
+        ? {
+            title: latest.title,
+            date: latest.date,
+            km: latest.km,
+            credit: latest.credit,
+            photoSrc: latest.photos[0]?.src,
+            closingText: latest.closingText,
+            photos: latest.photos,
+          }
+        : null,
+      memoryEmptyCopy: memories.emptyCopy,
       voice: {
         copy: 'Todavía no hay un tip publicado. El hueco queda; no se fuerza una denuncia.',
         to: '/tu-voz',

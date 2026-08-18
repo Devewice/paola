@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getAppDependencies } from '@app/bootstrap.ts'
 import type { OperatorBoardOuting, OutingKind } from '@modules/rides/index.ts'
 import PaolaAlert from '@ui/PaolaAlert.vue'
@@ -28,6 +28,14 @@ const outingCapacity = ref('12')
 const outingBring = ref('')
 const outingPaid = ref(false)
 
+const memorySalidaId = ref('')
+const memoryKm = ref('')
+const memoryClosing = ref('')
+const memoryCredit = ref('')
+const memoryParticipants = ref('')
+const memoryInstagram = ref('')
+const memoryPhotos = ref([{ src: '', alt: '' }])
+
 const allianceName = ref('')
 const allianceSupport = ref('')
 const allianceHref = ref('')
@@ -39,6 +47,13 @@ const kindOptions: { value: string; label: string }[] = [
   { value: 'rodada', label: 'Rodada' },
   { value: 'actividad', label: 'Actividad' },
 ]
+
+const realizadaOptions = computed(() => {
+  const remembered = new Set(rides.getMemories().items.map((item) => item.salidaId))
+  return (board.value ?? [])
+    .filter((outing) => outing.status === 'realizado' && !remembered.has(outing.id))
+    .map((outing) => ({ value: outing.id, label: `${outing.title} · ${outing.date}` }))
+})
 
 async function load(): Promise<void> {
   busy.value = true
@@ -101,6 +116,52 @@ async function publishOuting(): Promise<void> {
   if (clave.value) await load()
 }
 
+function addPhotoRow(): void {
+  memoryPhotos.value.push({ src: '', alt: '' })
+}
+
+function removePhotoRow(index: number): void {
+  if (memoryPhotos.value.length <= 1) {
+    memoryPhotos.value[0] = { src: '', alt: '' }
+    return
+  }
+  memoryPhotos.value.splice(index, 1)
+}
+
+async function publishMemory(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const photos = memoryPhotos.value
+    .map((row) => ({ src: row.src.trim(), alt: row.alt.trim() }))
+    .filter((row) => row.src && row.alt)
+  const result = await rides.publishMemory(
+    {
+      salidaId: memorySalidaId.value,
+      km: Number(memoryKm.value),
+      closingText: memoryClosing.value,
+      credit: memoryCredit.value,
+      participantsText: memoryParticipants.value,
+      instagramHref: memoryInstagram.value.trim() || undefined,
+      photos,
+    },
+    clave.value,
+  )
+  busy.value = false
+  if (!result.ok) {
+    error.value = result.error.message
+    return
+  }
+  memorySalidaId.value = ''
+  memoryKm.value = ''
+  memoryClosing.value = ''
+  memoryCredit.value = ''
+  memoryParticipants.value = ''
+  memoryInstagram.value = ''
+  memoryPhotos.value = [{ src: '', alt: '' }]
+  notice.value = `${result.value.title} ya tiene memoria. Recarga el sitio para verla en Parchese e Inicio.`
+}
+
 async function publishAlliance(): Promise<void> {
   busy.value = true
   error.value = ''
@@ -154,7 +215,7 @@ async function publishMember(): Promise<void> {
       <p class="paola-empty__kicker">Paola · operadora</p>
       <h1 class="paola-afiche__title type-display">Operar</h1>
       <p class="paola-afiche__lead">
-        Salidas, cupos, aliados e integrantes. No es el panel gordo.
+        Salidas, memorias, cupos, aliados e integrantes. No es el panel gordo.
       </p>
     </header>
 
@@ -198,6 +259,55 @@ async function publishMember(): Promise<void> {
         </PaolaField>
         <PaolaChoice v-model="outingPaid" label="De pago (se cobra por WhatsApp)" />
         <PaolaButton type="submit" :disabled="busy">Publicar salida</PaolaButton>
+      </form>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Memoria</h2>
+      <p class="paola-page__copy paola-page__copy--muted">
+        Solo salidas marcadas como realizadas. Km, fotos con enlace, crédito y quién salió.
+      </p>
+      <form class="operar-clave" @submit.prevent="publishMemory">
+        <PaolaField label="Salida realizada">
+          <PaolaSelect
+            v-model="memorySalidaId"
+            :options="realizadaOptions.length ? realizadaOptions : [{ value: '', label: 'Primero marca realizada y recarga lista' }]"
+          />
+        </PaolaField>
+        <PaolaField label="Kilómetros">
+          <PaolaInput v-model="memoryKm" type="number" placeholder="42" />
+        </PaolaField>
+        <PaolaField label="Crédito de fotos">
+          <PaolaInput v-model="memoryCredit" placeholder="Quién tomó las fotos" />
+        </PaolaField>
+        <PaolaField label="Quién salió (con permiso)">
+          <PaolaTextarea v-model="memoryParticipants" placeholder="Alias · moto" />
+        </PaolaField>
+        <PaolaField label="Cierre (Armargura)">
+          <PaolaTextarea v-model="memoryClosing" placeholder="Párrafo de cierre" />
+        </PaolaField>
+        <PaolaField label="Instagram (opcional)">
+          <PaolaInput v-model="memoryInstagram" placeholder="https://instagram.com/..." />
+        </PaolaField>
+        <div v-for="(photo, index) in memoryPhotos" :key="index" class="operar-photo-row">
+          <PaolaField :label="`Foto ${index + 1} — enlace`">
+            <PaolaInput v-model="photo.src" placeholder="https://..." />
+          </PaolaField>
+          <PaolaField label="Texto alterno">
+            <PaolaInput v-model="photo.alt" placeholder="Qué se ve" />
+          </PaolaField>
+          <PaolaButton
+            v-if="memoryPhotos.length > 1"
+            type="button"
+            size="sm"
+            variant="ghost"
+            @click="removePhotoRow(index)"
+          >
+            Quitar foto
+          </PaolaButton>
+        </div>
+        <PaolaButton type="button" size="sm" variant="ghost" @click="addPhotoRow">Otra foto</PaolaButton>
+        <PaolaButton type="submit" :disabled="busy">Publicar memoria</PaolaButton>
       </form>
     </section>
 
@@ -279,6 +389,13 @@ async function publishMember(): Promise<void> {
 </template>
 
 <style scoped>
+.operar-photo-row {
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--paola-line);
+}
+
 .operar-clave,
 .operar-outing,
 .operar-actions {

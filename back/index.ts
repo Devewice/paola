@@ -18,6 +18,10 @@ import {
   listAlianzasController,
   listIntegrantesController,
 } from './controllers/club.controller.js'
+import {
+  createMemoriaController,
+  listMemoriasController,
+} from './controllers/memorias.controller.js'
 import { withErrors } from './http/middleware/errors.js'
 import { createRouter } from './http/router.js'
 import { sendJson } from './http/send.js'
@@ -66,6 +70,7 @@ const api = createRouter([
   { method: 'GET', path: '/api/health', handler: withErrors(healthController) },
   { method: 'GET', path: '/api/salidas', handler: withErrors(listSalidasController) },
   { method: 'POST', path: '/api/salidas/:id/cupos', handler: withErrors(claimCupoController) },
+  { method: 'GET', path: '/api/memorias', handler: withErrors(listMemoriasController) },
   { method: 'GET', path: '/api/alianzas', handler: withErrors(listAlianzasController) },
   { method: 'GET', path: '/api/integrantes', handler: withErrors(listIntegrantesController) },
   { method: 'GET', path: '/api/operar/salidas', handler: withErrors(listOperatorBoardController) },
@@ -81,6 +86,7 @@ const api = createRouter([
     path: '/api/operar/integrantes',
     handler: withErrors(createIntegranteController),
   },
+  { method: 'POST', path: '/api/operar/memorias', handler: withErrors(createMemoriaController) },
 ])
 
 const server = createServer(async (request, response) => {
