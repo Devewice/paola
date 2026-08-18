@@ -72,7 +72,7 @@ Visual: obedecer [`docs/visual.md`](docs/visual.md). Logo oficial = `docs/resoru
 
 ## 4. Arquitectura de código
 
-Stack: **Vue 3 + Vuetify + Vite + TypeScript**.  
+Stack: **Vue 3 + Vuetify + Vite + TypeScript** en `front/`. API en `back/` también TypeScript.  
 `front/src/app/bootstrap.ts` es **composición** (cablear adapters). No es Bootstrap CSS.
 
 ### Desacoplamiento
@@ -92,7 +92,7 @@ front/                  Vue + Vuetify + Vite
   src/core/
   src/shared/           theme, motion, ui (`@ui`)
   src/modules/
-back/                   HTTP: health, salidas, cupos, estáticos en prod
+back/                   HTTP TypeScript: health, salidas, cupos, alianzas, integrantes; estáticos en prod
 docs/                   visión, fases, visual, relato
 ```
 
@@ -110,8 +110,8 @@ front/src/modules/<nombre>/
   index.ts          API pública
 ```
 
-Módulos de producto (cuando dejen de ser estáticos): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.  
-Inicio no importa `rides` por dentro: se cablea en bootstrap.
+Módulos de producto (dejan el placeholder cuando tienen tabla + API): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.
+Inicio no importa `rides` por dentro: se cablea en bootstrap. Inventario nuevo: MySQL vía Knex, no JSON en el front.
 
 Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Catálogo en `/kit` (no es pestaña de producto). El kit HTML `docs/index.html` es referencia, no el portal.
 
@@ -120,7 +120,7 @@ Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Cat
 - Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia.**
 - Vue Router al haber las 5 pestañas.
 - **Hostinger:** el front y el back viven **en el mismo hosting**, un solo despliegue. No hay API en otro proveedor. En local, `iniciar.bat` / `npm run dev` levantan los dos procesos; en producción `npm start` sirve el build y el `/api` juntos.
-- API de tickets/pedidos: fase 9+ en `back/` (`GET /api/salidas`, `POST /api/salidas/:id/cupos`, lista de cupos en `/operar`). No Express dentro de un `.vue`.
+- API en `back/` (health, salidas, cupos, alianzas, integrantes; cada fase de inventario suma tabla + endpoint). No Express dentro de un `.vue`.
 - Credenciales MySQL solo en `.env` (gitignored). Nunca en docs ni en el front.
 - Pagos: puerto `PaymentPort` — adapter WhatsApp primero, pasarela después.
 - Tests primero en **casos de uso** (cupo, km, pedido, estados de salida).

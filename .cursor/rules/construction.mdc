@@ -16,4 +16,5 @@ Obedece `AGENTS.md` en la raíz. Producto: `docs/brainstorming.md`. Fases: `docs
 - No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Red social completa no en MVP; horizonte **36–44** (web + WA paralelo, fase **25**).
 - Commits en español, sin `Co-authored-by: Cursor`.
 - No inventes biografía, precios, integrantes, aliados ni links reales. Dominio `paolabiker.com` y correo `contacto@paolabiker.com` sí están definidos.
+- Datos de producto: **MySQL vía Knex en `back/`** (migrate, provider, controller). Adapter HTTP en el módulo. Tabla vacía = hueco honesto. Prohibido catálogo JSON en `front/` o listados inventariados en un `.vue`.
 - Hostinger: front y back en el mismo hosting. Credenciales MySQL solo en `.env`.

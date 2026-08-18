@@ -6,16 +6,20 @@
   "description": "Portal Paola Biker — Vue + Vuetify, arquitectura modular",
   "scripts": {
     "dev": "concurrently -k -n front,back -c cyan,magenta \"npm run dev:front\" \"npm run dev:back\"",
+    "dev:back": "tsx watch back/index.ts",
     "dev:front": "vite --config front/vite.config.ts",
-    "dev:back": "node back/index.mjs",
-    "build": "vue-tsc --noEmit -p front/tsconfig.json && vite build --config front/vite.config.ts",
+    "build": "vue-tsc --noEmit -p front/tsconfig.json && vite build --config front/vite.config.ts && tsc -p back/tsconfig.json",
     "test": "vitest run --config front/vite.config.ts",
     "preview": "vite preview --config front/vite.config.ts",
-    "start": "node back/index.mjs"
+    "migrate": "tsx node_modules/knex/bin/cli.js migrate:latest --knexfile back/db/knexfile.ts",
+    "migrate:make": "tsx node_modules/knex/bin/cli.js migrate:make --knexfile back/db/knexfile.ts -x ts",
+    "start": "node back/dist/index.js"
   },
   "devDependencies": {
+    "@types/node": "^26.2.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "concurrently": "^10.0.5",
+    "tsx": "^4.23.12",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vite-plugin-vuetify": "^2.1.3",
@@ -29,6 +33,7 @@
     "@mdi/font": "^7.4.47",
     "dotenv": "^17.4.2",
     "gsap": "^3.15.0",
+    "knex": "^3.3.0",
     "mysql2": "^3.23.3",
     "vue": "^3.5.41",
     "vue-router": "^5.2.0",

@@ -1,5 +1,13 @@
 import { ComposedHomeBoardAdapter } from '@app/adapters/ComposedHomeBoardAdapter.ts'
-import { createClubModule, type ClubModule } from '@modules/club/index.ts'
+import {
+  buildJoinChannel,
+  createClubModule,
+  HttpClubApi,
+  loadClubCatalog,
+  SnapshotClubContent,
+  type ClubContentPort,
+  type ClubModule,
+} from '@modules/club/index.ts'
 import { createHomeModule, type HomeModule } from '@modules/home/index.ts'
 import { createPaolaModule, type PaolaModule } from '@modules/paola/index.ts'
 import { createRidesModule, loadOutingCatalog, type RidesModule } from '@modules/rides/index.ts'
@@ -16,10 +24,14 @@ export type AppDependencies = {
 
 let dependencies: AppDependencies | null = null
 
-function wire(catalog: OutingCatalogPort): AppDependencies {
+function joinFromPaola(paola: PaolaModule) {
+  return buildJoinChannel(paola.getPage().contact.whatsapp.href)
+}
+
+function wire(catalog: OutingCatalogPort, clubContent: ClubContentPort): AppDependencies {
   const paola = createPaolaModule()
   const contact = paola.getPage().contact
-  const club = createClubModule()
+  const club = createClubModule(clubContent, new HttpClubApi())
   const rides = createRidesModule(
     catalog,
     new HttpRidesApi({
@@ -32,17 +44,19 @@ function wire(catalog: OutingCatalogPort): AppDependencies {
   return dependencies
 }
 
+function emptyClub(paola: PaolaModule): ClubContentPort {
+  return new SnapshotClubContent([], [], joinFromPaola(paola))
+}
+
 export async function createAppDependencies(): Promise<AppDependencies> {
-  try {
-    return wire(await loadOutingCatalog())
-  } catch {
-    return wire(new InMemoryOutingCatalog())
-  }
+  const join = joinFromPaola(createPaolaModule())
+  const [catalog, clubContent] = await Promise.all([loadOutingCatalog(), loadClubCatalog(join)])
+  return wire(catalog, clubContent)
 }
 
 export function getAppDependencies(): AppDependencies {
   if (!dependencies) {
-    return wire(new InMemoryOutingCatalog())
+    return wire(new InMemoryOutingCatalog(), emptyClub(createPaolaModule()))
   }
   return dependencies
 }

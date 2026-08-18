@@ -14,6 +14,7 @@ export type {
   TicketDraft,
 } from '@modules/rides/domain/entities/Ticket.ts'
 export type { OperatorBoardOuting } from '@modules/rides/domain/ports/RidesApiPort.ts'
+export type { RidesModule } from '@modules/rides/composition.ts'
 export { createRidesModule } from '@modules/rides/composition.ts'
 export { PublishOuting } from '@modules/rides/application/PublishOuting.ts'
 export { ClaimSpot } from '@modules/rides/application/ClaimSpot.ts'

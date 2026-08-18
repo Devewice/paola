@@ -1,6 +1,6 @@
 import { GetAgenda } from '@modules/rides/application/GetAgenda.ts'
 import { ListOutings } from '@modules/rides/application/ListOutings.ts'
-import type { OperatorOutingStatus } from '@modules/rides/domain/entities/Outing.ts'
+import type { OperatorOutingStatus, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
 import type { TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
 import type { RidesApiPort } from '@modules/rides/domain/ports/RidesApiPort.ts'
@@ -17,6 +17,7 @@ export type RidesModule = {
     clave: string,
   ) => ReturnType<RidesApiPort['setStatus']>
   listOperatorBoard: RidesApiPort['listBoard']
+  publishOuting: RidesApiPort['publish']
 }
 
 export function createRidesModule(catalog: OutingCatalogPort, api: RidesApiPort): RidesModule {
@@ -29,5 +30,6 @@ export function createRidesModule(catalog: OutingCatalogPort, api: RidesApiPort)
     claimSpot: (outingId, draft: TicketDraft) => api.claim(outingId, draft),
     setOutingStatus: (outingId, status, clave) => api.setStatus(outingId, status, clave),
     listOperatorBoard: (clave) => api.listBoard(clave),
+    publishOuting: (draft: OutingDraft, clave) => api.publish(draft, clave),
   }
 }

@@ -1,7 +1,7 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { buildOutingNotice } from '@modules/rides/application/buildOutingNotice.ts'
-import type { OperatorOutingStatus } from '@modules/rides/domain/entities/Outing.ts'
+import type { OperatorOutingStatus, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
 import type { Ticket, TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
 import type { OperatorBoardOuting, RidesApiPort } from '@modules/rides/domain/ports/RidesApiPort.ts'
 import { parseOuting } from '@modules/rides/infrastructure/parseOuting.ts'
@@ -45,6 +45,21 @@ export class HttpRidesApi implements RidesApiPort {
     if (!response.ok) return fail(response.status, body)
     const outing = parseOuting(body.outing)
     if (!outing) return err(appError('INFRASTRUCTURE', 'La API devolvió una salida que no se entiende.'))
+    return ok(outing)
+  }
+
+  async publish(draft: OutingDraft, clave: string) {
+    const response = await fetch('/api/operar/salidas', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...draft, clave }),
+    })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    const outing = parseOuting(body.outing)
+    if (!outing) {
+      return err(appError('INFRASTRUCTURE', 'La API devolvió una salida que no se entiende.'))
+    }
     return ok(outing)
   }
 

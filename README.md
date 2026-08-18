@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Build de producción: `npm run build` → carpeta `dist/` en la raíz.
+Build de producción: `npm run build` → `dist/` (front) y `back/dist/` (API compilada).
 
 En Hostinger (Node, un solo hosting):
 
@@ -43,11 +43,11 @@ front/                    Vue + Vite + Vuetify
   src/shared/             theme, motion, ui (`@ui`)
   src/modules/            Módulos de producto (fases)
   public/                 logo, mascota, fuentes
-back/                     HTTP: health, salidas, cupos, estáticos en prod
-  db/                     Pool MySQL + migrate
+back/                     HTTP TypeScript: health, salidas, cupos, alianzas, integrantes; estáticos en prod
+  db/                     Knex (MySQL): migraciones + consultas
   http/                   Router y middleware
-  controllers/            Health y salidas
-  providers/              Consultas a la tabla
+  controllers/            Health, salidas, club
+  providers/              Consultas a las tablas
 docs/                     visión, fases, visual, relato
 package.json              Scripts dev/build/start en la raíz
 ```

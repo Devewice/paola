@@ -397,17 +397,17 @@ El código ya nace modular (Vue 3, Vuetify, puertos y adapters). El dominio **no
 | Tema | Decisión | Por qué |
 |------|----------|---------|
 | Frontend | Vue 3 + Vuetify + Vite, como está | Ya es la base |
-| API | Aún no. Contenido puede ser estático o JSON local. Cuando haya tickets/pedidos de verdad: **API REST** | Una sola operadora; GraphQL no aporta aún |
+| API | **REST en `back/`** + MySQL vía Knex. Ya hay `salidas`, `cupos`, `alianzas` e `integrantes`. Lo que se publique de aquí en adelante es tabla + endpoint, no JSON en el front | Una sola operadora; GraphQL no aporta |
 | Dónde vive la API | Mismo producto, carpeta `back/` (no mezclar Express dentro de un componente Vue) | Desacoplado |
-| Auth | Fase 4. Antes: WhatsApp + publicación a mano | Menos superficie, más parche |
+| Auth | Fase 19. Antes: WhatsApp + `/operar` con clave | Menos superficie, más parche |
 | Estado UI | Props / composición. Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia** | Ya acordado en el repo |
 | Router | Vue Router al nacer la segunda pantalla real (las 5 pestañas) | Inicio ya no cabe en un solo widget |
 | Tests | Primero unitarios de casos de uso (cupo, km, pedido) | El dominio se puede testear sin Vuetify |
 | Tickets | Módulo propio `rides` / `tickets` | Sin proveedor externo al inicio |
 | Pagos | Puerto `PaymentPort`: adapter “WhatsApp/Paola” primero; adapter pasarela después | Misma regla de negocio, distinto tubo |
-| Fotos | Archivos en storage (después); al inicio Paola sube a mano | Operación realista |
+| Fotos | Archivos en storage + filas en MySQL; Paola sube desde `/operar` / admin | Operación realista |
 
-### 9.2 Módulos de producto (cuando dejen de ser estáticos)
+### 9.2 Módulos de producto (cuando tienen tabla + API)
 
 Cada uno sigue `domain / application / infrastructure / presentation`.
 

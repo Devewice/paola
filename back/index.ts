@@ -1,23 +1,34 @@
 import dotenv from 'dotenv'
 import { createReadStream, existsSync, statSync } from 'node:fs'
-import { createServer } from 'node:http'
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { extname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { migrate } from './db/migrate.mjs'
-import { pingPool } from './db/pool.mjs'
-import { healthController } from './controllers/health.controller.mjs'
-import { listSalidasController, claimCupoController, listOperatorBoardController, setSalidaStatusController } from './controllers/salidas.controller.mjs'
-import { withErrors } from './http/middleware/errors.mjs'
-import { createRouter } from './http/router.mjs'
-import { sendJson } from './http/send.mjs'
+import { migrate } from './db/migrate.js'
+import { pingDb } from './db/knex.js'
+import { healthController } from './controllers/health.controller.js'
+import {
+  claimCupoController,
+  createSalidaController,
+  listOperatorBoardController,
+  listSalidasController,
+  setSalidaStatusController,
+} from './controllers/salidas.controller.js'
+import {
+  createAlianzaController,
+  createIntegranteController,
+  listAlianzasController,
+  listIntegrantesController,
+} from './controllers/club.controller.js'
+import { withErrors } from './http/middleware/errors.js'
+import { createRouter } from './http/router.js'
+import { sendJson } from './http/send.js'
 
-dotenv.config({ path: join(fileURLToPath(new URL('.', import.meta.url)), '..', '.env') })
+const root = process.cwd()
+dotenv.config({ path: join(root, '.env') })
 
-const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
 const dist = join(root, 'dist')
 const port = Number(process.env.PORT) || 8787
 
-const mime = {
+const mime: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -29,7 +40,7 @@ const mime = {
   '.woff2': 'font/woff2',
 }
 
-function serveStatic(request, response) {
+function serveStatic(request: IncomingMessage, response: ServerResponse): void {
   const url = new URL(request.url ?? '/', 'http://localhost')
   let relative = decodeURIComponent(url.pathname)
   if (relative === '/') relative = '/index.html'
@@ -41,7 +52,7 @@ function serveStatic(request, response) {
       sendJson(response, 404, { ok: false, detail: 'sin build; corre npm run build' })
       return
     }
-    response.writeHead(200, { 'content-type': mime['.html'] })
+    response.writeHead(200, { 'content-type': mime['.html'] ?? 'text/html; charset=utf-8' })
     createReadStream(fallback).pipe(response)
     return
   }
@@ -55,11 +66,20 @@ const api = createRouter([
   { method: 'GET', path: '/api/health', handler: withErrors(healthController) },
   { method: 'GET', path: '/api/salidas', handler: withErrors(listSalidasController) },
   { method: 'POST', path: '/api/salidas/:id/cupos', handler: withErrors(claimCupoController) },
+  { method: 'GET', path: '/api/alianzas', handler: withErrors(listAlianzasController) },
+  { method: 'GET', path: '/api/integrantes', handler: withErrors(listIntegrantesController) },
   { method: 'GET', path: '/api/operar/salidas', handler: withErrors(listOperatorBoardController) },
+  { method: 'POST', path: '/api/operar/salidas', handler: withErrors(createSalidaController) },
   {
     method: 'POST',
     path: '/api/operar/salidas/:id/estado',
     handler: withErrors(setSalidaStatusController),
+  },
+  { method: 'POST', path: '/api/operar/alianzas', handler: withErrors(createAlianzaController) },
+  {
+    method: 'POST',
+    path: '/api/operar/integrantes',
+    handler: withErrors(createIntegranteController),
   },
 ])
 
@@ -85,15 +105,14 @@ const server = createServer(async (request, response) => {
   })
 })
 
-async function start() {
-  const ping = await pingPool().catch((error) => ({
+async function start(): Promise<void> {
+  const ping = await pingDb().catch((error: unknown) => ({
     ok: false,
     detail: error instanceof Error ? error.message : 'mysql',
   }))
   if (ping.ok) {
     try {
       await migrate()
-      console.log('Paola MySQL: migrado (tablas salidas, cupos)')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'migración'
       console.warn(`Paola MySQL: no se pudo migrar (${message})`)
@@ -107,4 +126,4 @@ async function start() {
   })
 }
 
-start()
+void start()

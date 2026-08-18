@@ -1,9 +1,18 @@
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { RouteHandler, RouteParams } from './types.js'
+
+type Route = {
+  method: string
+  path: string
+  handler: RouteHandler
+}
+
 /**
  * Router mínimo (sin Express). `path` admite `:param`.
  * Orden: primer match gana.
  */
-export function createRouter(routes) {
-  return async (request, response) => {
+export function createRouter(routes: readonly Route[]) {
+  return async (request: IncomingMessage, response: ServerResponse) => {
     const url = new URL(request.url ?? '/', 'http://localhost')
     const method = request.method ?? 'GET'
     for (const item of routes) {
@@ -17,15 +26,15 @@ export function createRouter(routes) {
   }
 }
 
-function matchPath(pattern, pathname) {
-  const keys = []
-  const source = pattern.replace(/:([A-Za-z]+)/g, (_, key) => {
+function matchPath(pattern: string, pathname: string): RouteParams | null {
+  const keys: string[] = []
+  const source = pattern.replace(/:([A-Za-z]+)/g, (_, key: string) => {
     keys.push(key)
     return '([^/]+)'
   })
   const match = pathname.match(new RegExp(`^${source}$`))
   if (!match) return null
-  const params = {}
+  const params: RouteParams = {}
   keys.forEach((key, index) => {
     params[key] = decodeURIComponent(match[index + 1] ?? '')
   })
