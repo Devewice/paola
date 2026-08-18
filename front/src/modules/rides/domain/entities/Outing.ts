@@ -1,7 +1,8 @@
 export type OutingKind = 'rodada' | 'actividad'
 export type OutingStatus = 'abierto' | 'lleno' | 'cerrado' | 'realizado'
+export type OperatorOutingStatus = Extract<OutingStatus, 'cerrado' | 'realizado'>
 
-/** Salida publicada (fase 8). Sin tickets aún; cobro, si hay, se avisa por WhatsApp. */
+/** Salida publicada. `taken` es cuántos cupos ya están a nombre de alguien. */
 export type Outing = {
   readonly id: string
   readonly title: string
@@ -11,6 +12,7 @@ export type Outing = {
   readonly meetingPoint: string
   readonly routeText: string
   readonly capacity: number
+  readonly taken: number
   readonly whatToBring: string
   readonly paid: boolean
   readonly status: OutingStatus
@@ -29,3 +31,7 @@ export type OutingDraft = {
 
 export const AGENDA_EMPTY_COPY =
   'Ahora mismo no hay fecha. El parche vive en WhatsApp: escríbele a Paola y te avisa la próxima.'
+
+export function remainingSpots(outing: Outing): number {
+  return Math.max(0, outing.capacity - outing.taken)
+}

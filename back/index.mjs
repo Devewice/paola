@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { migrate } from './db/migrate.mjs'
 import { pingPool } from './db/pool.mjs'
 import { healthController } from './controllers/health.controller.mjs'
-import { listSalidasController } from './controllers/salidas.controller.mjs'
+import { listSalidasController, claimCupoController, listOperatorBoardController, setSalidaStatusController } from './controllers/salidas.controller.mjs'
 import { withErrors } from './http/middleware/errors.mjs'
 import { createRouter } from './http/router.mjs'
 import { sendJson } from './http/send.mjs'
@@ -54,6 +54,13 @@ function serveStatic(request, response) {
 const api = createRouter([
   { method: 'GET', path: '/api/health', handler: withErrors(healthController) },
   { method: 'GET', path: '/api/salidas', handler: withErrors(listSalidasController) },
+  { method: 'POST', path: '/api/salidas/:id/cupos', handler: withErrors(claimCupoController) },
+  { method: 'GET', path: '/api/operar/salidas', handler: withErrors(listOperatorBoardController) },
+  {
+    method: 'POST',
+    path: '/api/operar/salidas/:id/estado',
+    handler: withErrors(setSalidaStatusController),
+  },
 ])
 
 const server = createServer(async (request, response) => {
@@ -86,7 +93,7 @@ async function start() {
   if (ping.ok) {
     try {
       await migrate()
-      console.log('Paola MySQL: migrado (tabla salidas)')
+      console.log('Paola MySQL: migrado (tablas salidas, cupos)')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'migración'
       console.warn(`Paola MySQL: no se pudo migrar (${message})`)

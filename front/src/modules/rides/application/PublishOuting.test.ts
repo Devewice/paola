@@ -87,6 +87,7 @@ describe('GetAgenda', () => {
         meetingPoint: 'Soacha',
         routeText: 'Lavado grupal de cascos',
         capacity: 8,
+        taken: 0,
         whatToBring: 'Casco',
         paid: false,
         status: 'realizado',

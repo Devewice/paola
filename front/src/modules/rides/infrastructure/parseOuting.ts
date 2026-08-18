@@ -18,6 +18,9 @@ export function parseOuting(raw: unknown): Outing | null {
   if (typeof row.paid !== 'boolean') return null
   if (typeof row.status !== 'string' || !STATUSES.has(row.status as OutingStatus)) return null
 
+  const taken = Number(row.taken ?? 0)
+  if (!Number.isInteger(taken) || taken < 0) return null
+
   return {
     id: row.id,
     title: row.title,
@@ -26,6 +29,7 @@ export function parseOuting(raw: unknown): Outing | null {
     meetingPoint: row.meetingPoint,
     routeText: row.routeText,
     capacity,
+    taken,
     whatToBring: row.whatToBring,
     paid: row.paid,
     status: row.status as OutingStatus,

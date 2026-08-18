@@ -18,12 +18,16 @@ export function staggerReveal(
     return null
   }
 
-  return gsap.from(targets, {
-    y: options?.y ?? MOTION.offset.y,
-    opacity: 0,
-    duration: options?.duration ?? MOTION.duration.reveal,
-    stagger: options?.stagger ?? MOTION.stagger.cards,
-    delay: options?.delay ?? 0,
-    ease: MOTION.ease.enter,
-  })
+  return gsap.fromTo(
+    targets,
+    { y: options?.y ?? MOTION.offset.y, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: options?.duration ?? MOTION.duration.reveal,
+      stagger: options?.stagger ?? MOTION.stagger.cards,
+      delay: options?.delay ?? 0,
+      ease: MOTION.ease.enter,
+    },
+  )
 }

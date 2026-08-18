@@ -92,7 +92,7 @@ front/                  Vue + Vuetify + Vite
   src/core/
   src/shared/           theme, motion, ui (`@ui`)
   src/modules/
-back/                   HTTP: health, GET salidas (MySQL), estáticos en prod
+back/                   HTTP: health, salidas, cupos, estáticos en prod
 docs/                   visión, fases, visual, relato
 ```
 
@@ -120,7 +120,7 @@ Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Cat
 - Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia.**
 - Vue Router al haber las 5 pestañas.
 - **Hostinger:** el front y el back viven **en el mismo hosting**, un solo despliegue. No hay API en otro proveedor. En local, `iniciar.bat` / `npm run dev` levantan los dos procesos; en producción `npm start` sirve el build y el `/api` juntos.
-- API de tickets/pedidos: no hasta la fase 9. `back/` ya sirve `GET /api/health` y `GET /api/salidas` (tabla MySQL). No Express dentro de un `.vue`.
+- API de tickets/pedidos: fase 9+ en `back/` (`GET /api/salidas`, `POST /api/salidas/:id/cupos`, lista de cupos en `/operar`). No Express dentro de un `.vue`.
 - Credenciales MySQL solo en `.env` (gitignored). Nunca en docs ni en el front.
 - Pagos: puerto `PaymentPort` — adapter WhatsApp primero, pasarela después.
 - Tests primero en **casos de uso** (cupo, km, pedido, estados de salida).

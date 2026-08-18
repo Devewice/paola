@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ComingSoonView from '@app/shell/ComingSoonView.vue'
 import HomeRoute from '@app/shell/HomeRoute.vue'
 import KitView from '@app/shell/KitView.vue'
+import OperarView from '@app/shell/OperarView.vue'
 import PaolaRoute from '@app/shell/PaolaRoute.vue'
 import ParcheseRoute from '@app/shell/ParcheseRoute.vue'
 
@@ -12,6 +13,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/tienda', name: 'tienda', component: ComingSoonView, meta: { title: 'Tienda' } },
   { path: '/paola', name: 'paola', component: PaolaRoute, meta: { title: 'Paola' } },
   { path: '/kit', name: 'kit', component: KitView, meta: { title: 'Kit visual' } },
+  { path: '/operar', name: 'operar', component: OperarView, meta: { title: 'Cupos' } },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

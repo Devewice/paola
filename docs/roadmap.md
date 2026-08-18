@@ -283,12 +283,12 @@ Fuente: [`paola.md`](./paola.md).
 
 **Código**
 
-- [ ] Formulario: nombre, WhatsApp, moto (opcional).
-- [ ] Descontar cupo; al llenarse → `lleno`.
-- [ ] Aviso a Paola (WhatsApp, correo o lista que ella ve).
-- [ ] Cerrar inscripción (`cerrado`) a mano.
-- [ ] Al marcar `realizado`, ya no se venden cupos.
-- [ ] Tests: no hay overbooking.
+- [x] Formulario: nombre, WhatsApp, moto (opcional).
+- [x] Descontar cupo; al llenarse → `lleno`.
+- [x] Aviso a Paola (WhatsApp, correo o lista que ella ve).
+- [x] Cerrar inscripción (`cerrado`) a mano.
+- [x] Al marcar `realizado`, ya no se venden cupos.
+- [x] Tests: no hay overbooking.
 
 **Queda lista cuando:** una persona reserva, Paola se entera, y el cupo no se pasa.
 

@@ -52,6 +52,9 @@ const shareUrl = `https://${page.contact.domain}/paola`
         <a :href="`mailto:${page.contact.email}`">{{ page.contact.email }}</a>
       </p>
       <PaolaShareRow :url="shareUrl" />
+      <p class="paola-page__copy paola-page__copy--muted">
+        <router-link to="/operar">Si eres Paola: lista de cupos</router-link>
+      </p>
     </section>
 
     <section class="paola-page__media" aria-label="Video y redes" data-reveal>

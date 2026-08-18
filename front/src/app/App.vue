@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
@@ -9,6 +10,7 @@ const route = useRoute()
 const { paola } = getAppDependencies()
 const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
+const shellWide = computed(() => route.path === '/kit' || route.path === '/operar')
 </script>
 
 <template>
@@ -33,11 +35,11 @@ const whatsapp = page.contact.whatsapp
     </v-app-bar>
 
     <v-main>
-      <div class="paola-shell" :class="{ 'paola-shell--kit': route.path === '/kit' }">
+      <div class="paola-shell" :class="{ 'paola-shell--kit': shellWide }">
         <div class="paola-shell__page">
           <router-view />
         </div>
-        <AlliancesStrip v-if="route.path !== '/kit'" />
+        <AlliancesStrip v-if="!shellWide" />
       </div>
     </v-main>
 

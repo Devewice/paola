@@ -1,5 +1,5 @@
 import gsap from 'gsap'
-import { onMounted, onUnmounted, type Ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, type Ref } from 'vue'
 
 /** Contexto GSAP con cleanup al desmontar — equivalente al useGSAP de React. */
 export function usePaolaGsap(
@@ -7,12 +7,17 @@ export function usePaolaGsap(
   scope?: Ref<Element | null | undefined>,
 ): void {
   let ctx: gsap.Context | undefined
+  let cancelled = false
 
   onMounted(() => {
-    ctx = gsap.context(setup, scope?.value ?? undefined)
+    void nextTick(() => {
+      if (cancelled) return
+      ctx = gsap.context(setup, scope?.value ?? undefined)
+    })
   })
 
   onUnmounted(() => {
+    cancelled = true
     ctx?.revert()
   })
 }

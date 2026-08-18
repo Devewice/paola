@@ -49,6 +49,7 @@ export class PublishOuting {
       meetingPoint,
       routeText,
       capacity: draft.capacity,
+      taken: 0,
       whatToBring,
       paid: draft.paid,
       status: 'abierto',

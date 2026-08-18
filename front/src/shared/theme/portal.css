@@ -27,6 +27,7 @@ html,
 body,
 #app,
 .v-application {
+  min-height: 100%;
   background: var(--paola-black);
   color: var(--paola-white);
   font-family: var(--paola-font-ui);

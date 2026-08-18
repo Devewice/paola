@@ -2,19 +2,25 @@ import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalo
 import { InMemoryOutingCatalog } from '@modules/rides/infrastructure/InMemoryOutingCatalog.ts'
 import { parseOuting } from '@modules/rides/infrastructure/parseOuting.ts'
 
-/** Origen único: MySQL vía `GET /api/salidas`. */
+function abortAfter(ms: number): AbortSignal {
+  const controller = new AbortController()
+  window.setTimeout(() => controller.abort(), ms)
+  return controller.signal
+}
+
+/** Origen único: MySQL vía `GET /api/salidas`. Si falla, lista vacía — no hay JSON. */
 export async function loadOutingCatalog(): Promise<OutingCatalogPort> {
-  const response = await fetch('/api/salidas')
-  if (!response.ok) {
-    throw new Error('No se pudo leer /api/salidas')
+  try {
+    const response = await fetch('/api/salidas', { signal: abortAfter(2500) })
+    if (!response.ok) return new InMemoryOutingCatalog()
+    const body: unknown = await response.json()
+    if (!body || typeof body !== 'object' || !('outings' in body)) {
+      return new InMemoryOutingCatalog()
+    }
+    const raw = (body as { outings: unknown }).outings
+    if (!Array.isArray(raw)) return new InMemoryOutingCatalog()
+    return new InMemoryOutingCatalog(raw.map(parseOuting).filter((item) => item !== null))
+  } catch {
+    return new InMemoryOutingCatalog()
   }
-  const body: unknown = await response.json()
-  if (!body || typeof body !== 'object' || !('outings' in body)) {
-    throw new Error('La respuesta de /api/salidas no es válida')
-  }
-  const raw = (body as { outings: unknown }).outings
-  if (!Array.isArray(raw)) {
-    throw new Error('La respuesta de /api/salidas no es válida')
-  }
-  return new InMemoryOutingCatalog(raw.map(parseOuting).filter((item) => item !== null))
 }

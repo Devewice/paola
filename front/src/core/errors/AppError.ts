@@ -1,6 +1,7 @@
 export type AppErrorCode =
   | 'NOT_FOUND'
   | 'VALIDATION'
+  | 'CONFLICT'
   | 'INFRASTRUCTURE'
   | 'UNKNOWN'
 
