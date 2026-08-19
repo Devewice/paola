@@ -1,0 +1,10 @@
+---
+description: Antes de abrir componentes de @ui, lee el índice COMPONENTES.md
+alwaysApply: true
+---
+
+# Kit visual (`@ui`)
+
+Antes de escanear `.vue` en `front/src/shared/ui/`, lee `front/src/shared/ui/COMPONENTES.md`.
+
+Ahí está para qué sirve cada pieza, cómo armar una vista (hero full-bleed + `.wrap`) y cuáles son solo demo del catálogo `/admin/ui`.

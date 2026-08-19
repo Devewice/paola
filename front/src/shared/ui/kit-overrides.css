@@ -111,7 +111,7 @@ body:not(:has(.html-kit-page)) section {
 
 .kit-hero--page {
   min-height: 0;
-  padding-block: 48px 56px;
+  padding-block: calc(64px + 24px) 56px;
 }
 
 .kit-hero--page .kit-hero__photo {

@@ -193,7 +193,9 @@ h2,
 .paola-page {
   display: grid;
   gap: calc(var(--paola-space) * 6);
-  padding: calc(var(--paola-space) * 2) 0 calc(var(--paola-space) * 6);
+  width: min(var(--paola-content-max), calc(100% - 2 * var(--paola-gutter)));
+  margin-inline: auto;
+  padding: calc(64px + var(--paola-space) * 2) 0 calc(var(--paola-space) * 6);
 }
 
 .paola-afiche {
@@ -325,6 +327,26 @@ h2,
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-size: 12px;
+}
+
+.paola-main.v-main {
+  --v-layout-top: 0px;
+  padding: 0 !important;
+}
+
+.wrap.paola-franja {
+  padding-top: 0;
+  padding-bottom: 48px;
+}
+
+.v-application .top > a {
+  display: flex;
+  flex: none;
+  text-decoration: none;
+}
+
+.v-application .top nav a.router-link-exact-active {
+  color: var(--cyan);
 }
 
 .paola-shell {
@@ -511,6 +533,12 @@ h2,
   box-shadow: inset 0 2px 0 var(--paola-blue);
 }
 
+@media (max-width: 959px) {
+  .v-application .top nav {
+    display: none !important;
+  }
+}
+
 @media (min-width: 960px) {
   .paola-nav--desktop {
     display: flex;
@@ -518,14 +546,6 @@ h2,
 
   .paola-bottom-nav {
     display: none;
-  }
-
-  .paola-shell {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 240px);
-    align-items: start;
-    gap: calc(var(--paola-space) * 3);
-    padding-bottom: calc(var(--paola-space) * 4);
   }
 
   .paola-footer {

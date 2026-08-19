@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, useSlots } from 'vue'
 import Icon from '@ui/Icon.vue'
 import BrushSplash from '@ui/BrushSplash.vue'
 import BrushButton from '@ui/BrushButton.vue'
@@ -11,18 +12,28 @@ const chips = [
   { href: '#motion', label: 'Motion' },
 ] as const
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     heroId: string
     variant?: 'classic' | 'portal'
     scrollHref: string
     scrollLabel: string
     tagline?: string
+    kicker?: string
+    photoSrc?: string
+    logoSrc?: string
   }>(),
   {
     variant: 'classic',
     tagline: 'Kit de UI · portal en construcción · placeholders honestos',
+    kicker: 'por el parche',
+    logoSrc: '/kit-assets/logo.png',
   },
+)
+
+const slots = useSlots()
+const photoStyle = computed(() =>
+  props.photoSrc ? { backgroundImage: `url("${props.photoSrc}")` } : undefined,
 )
 </script>
 
@@ -34,7 +45,7 @@ withDefaults(
     :aria-label="variant === 'portal' ? 'Paola Biker — hero portal' : 'Paola Biker — hero clásico'"
   >
     <div class="kit-hero__bg" aria-hidden="true">
-      <div class="kit-hero__photo" />
+      <div class="kit-hero__photo" :style="photoStyle" />
       <div class="kit-hero__veil" />
     </div>
     <div class="kit-hero__glow" aria-hidden="true" />
@@ -58,9 +69,9 @@ withDefaults(
       <div :class="variant === 'portal' ? 'kit-hero__grid' : undefined">
         <div :class="variant === 'portal' ? 'kit-hero__main' : undefined">
           <div class="kit-hero__top">
-            <img class="kit-hero__logo kit-hero__anim" src="/kit-assets/logo.png" width="120" height="120" alt="Paola — Rodando con propósito" />
+            <img class="kit-hero__logo kit-hero__anim" :src="logoSrc" width="120" height="120" alt="Paola — Rodando con propósito" />
             <div class="kit-hero__titles">
-              <p class="type-brush-script kit-hero__anim">por el parche</p>
+              <p class="type-brush-script kit-hero__anim">{{ kicker }}</p>
               <div class="kit-hero__brush-line">
                 <p class="type-brush-dry type-brush-dry--sm kit-hero__anim">Paola</p>
                 <p class="type-brush-dry type-brush-dry--blue type-brush-dry--sm kit-hero__anim">Biker</p>
@@ -81,18 +92,24 @@ withDefaults(
 
           <p class="kit-hero__tagline kit-hero__anim">{{ tagline }}</p>
 
-          <nav class="kit-hero__chips kit-hero__anim" aria-label="Secciones del kit">
-            <a v-for="chip in chips" :key="chip.href" class="kit-hero__chip" :href="chip.href">{{ chip.label }}</a>
-          </nav>
-
-          <div class="kit-hero__actions kit-hero__anim">
-            <BrushButton href="#marca">Explorar marca</BrushButton>
-            <a class="btn btn-ghost" href="#brocha">Capa afiche</a>
-            <span class="label-brush">Ride · Respect · Enjoy</span>
-          </div>
+          <template v-if="slots.actions">
+            <div class="kit-hero__actions kit-hero__anim">
+              <slot name="actions" />
+            </div>
+          </template>
+          <template v-else>
+            <nav class="kit-hero__chips kit-hero__anim" aria-label="Secciones del kit">
+              <a v-for="chip in chips" :key="chip.href" class="kit-hero__chip" :href="chip.href">{{ chip.label }}</a>
+            </nav>
+            <div class="kit-hero__actions kit-hero__anim">
+              <BrushButton href="#marca">Explorar marca</BrushButton>
+              <a class="btn btn-ghost" href="#brocha">Capa afiche</a>
+              <span class="label-brush">Ride · Respect · Enjoy</span>
+            </div>
+          </template>
         </div>
 
-        <aside v-if="variant === 'portal'" class="kit-hero__panel kit-hero__anim kit-hero__anim--panel" aria-label="Corte del día — placeholder">
+        <aside v-if="variant === 'portal'" class="kit-hero__panel kit-hero__anim kit-hero__anim--panel" aria-label="Corte del día">
           <slot name="panel" />
         </aside>
       </div>

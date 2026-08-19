@@ -8,14 +8,15 @@ export const HOME_PULSE_COPY = {
 } as const
 
 export const HOME_BOARD_COPY = {
-  kicker: 'El corte del día',
-  title: 'Paola Biker',
-  plate: 'Rodando',
-  lead: 'Qué hay hoy: próxima rodada, kilómetros y un recorte de Paola.',
-  nextHeading: 'Próxima',
-  nextCta: 'Ver en Parchese',
+  kicker: 'por el parche',
+  tagline: 'Qué hay hoy: próxima rodada, kilómetros y un recorte de Paola.',
+  scrollLabel: 'Tablero',
+  panelLabel: 'Corte del día · Parchese',
+  panelEmptyMedia: 'Todavía no hay foto de una rodada publicada',
+  panelTitle: 'Rodada',
+  splashSoon: 'Próximamente',
+  nextCta: 'Ver Parchese',
   parcheseCta: 'Parchese',
-  emptyNextTitle: 'Sin fecha',
   kmHeading: 'Km del parche',
   kmLabel: 'Kilómetros rodados',
   memoryHeading: 'Memoria',
@@ -25,6 +26,10 @@ export const HOME_BOARD_COPY = {
   paolaHeading: 'Paola',
   paolaCite: 'Paola',
   paolaCta: 'Conocer a Paola',
+  stamp: '¡Nos vemos en la ruta!',
+  kpiRodadas: 'rodadas',
+  kpiKm: 'km acumulados',
+  kpiIntegrantes: 'integrantes',
   channelWa: 'El chat del día a día. No se apaga cuando existe la web.',
   channelWeb: 'Aquí quedan las rodadas, el cupo, la tienda, Tu voz y las comunidades.',
 } as const

@@ -3,21 +3,25 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
-import AlliancesStrip from '@app/shell/AlliancesStrip.vue'
 import BrushDefs from '@ui/BrushDefs.vue'
+import KitAllianceStrip from '@ui/KitAllianceStrip.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
 const route = useRoute()
-const { paola } = getAppDependencies()
+const { paola, club } = getAppDependencies()
 const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
+const alliances = computed(() => club.getAlliances())
+const allianceNames = computed(() => alliances.value.items.map((item) => item.name))
 const isKitCatalog = computed(
   () =>
     route.path === APP_PATHS.ADMIN_UI ||
     route.path === `${APP_PATHS.ADMIN}/ui-test` ||
     route.path === APP_PATHS.KIT,
 )
-const shellWide = computed(() => route.path.startsWith(APP_PATHS.ADMIN) || route.path === APP_PATHS.KIT)
+const showFranja = computed(
+  () => !isKitCatalog.value && !route.path.startsWith(APP_PATHS.ADMIN),
+)
 </script>
 
 <template>
@@ -26,30 +30,21 @@ const shellWide = computed(() => route.path.startsWith(APP_PATHS.ADMIN) || route
     <router-view />
   </div>
   <v-app v-else>
-    <v-app-bar color="background" flat>
-      <router-link to="/" class="d-flex align-center px-2" aria-label="Paola, inicio">
-        <img class="paola-shell-logo" src="/logo.png" alt="Paola — Rodando con propósito" />
+    <header class="top">
+      <router-link to="/" aria-label="Paola, inicio">
+        <img src="/logo.png" alt="Paola — Rodando con propósito" />
       </router-link>
-      <v-spacer />
-      <nav class="paola-nav paola-nav--desktop" aria-label="Pestañas">
-        <v-btn
-          v-for="tab in TABS"
-          :key="tab.to"
-          :to="tab.to"
-          :variant="route.path === tab.to ? 'tonal' : 'text'"
-          size="small"
-        >
-          {{ tab.label }}
-        </v-btn>
+      <nav aria-label="Pestañas">
+        <router-link v-for="tab in TABS" :key="tab.to" :to="tab.to">{{ tab.label }}</router-link>
       </nav>
-    </v-app-bar>
+    </header>
 
-    <v-main>
-      <div class="paola-shell" :class="{ 'paola-shell--kit': shellWide }">
-        <div class="paola-shell__page">
-          <router-view />
-        </div>
-        <AlliancesStrip v-if="!shellWide" />
+    <v-main class="paola-main">
+      <router-view />
+      <div v-if="showFranja" class="wrap paola-franja">
+        <p class="meta" style="margin: 0 0 8px">Alianzas</p>
+        <KitAllianceStrip v-if="allianceNames.length" :items="allianceNames" />
+        <p v-else class="meta">{{ alliances.emptyCopy }}</p>
       </div>
     </v-main>
 
