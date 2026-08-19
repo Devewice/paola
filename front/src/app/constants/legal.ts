@@ -15,7 +15,7 @@ export const LEGAL_COPY = {
   finesDisclaimer:
     'Esto no es asesoría jurídica. Paola no tramita comparendos, no representa y no “te lo arregla”. Si hay consulta o pago, el canal es el oficial.',
   reportsDisclaimer:
-    'Esto es constancia comunitaria. No sustituye una denuncia ante la autoridad ni un proceso penal. Si hay delito o urgencia, ve al canal oficial.',
+    'Esto es un reporte del parche. No sustituye una denuncia ante la Policía ni un proceso penal. Si hay delito o urgencia, ve al canal oficial.',
   moderationShort:
     'Linchamiento, menores identificables, doxxing o venganza personal: no se publica. Paola decide qué se ve.',
   contactLine: `Dudas o borrar un dato: ${LEGAL_EMAIL} · ${LEGAL_DOMAIN}`,
@@ -32,7 +32,7 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
     id: 'datos',
     title: 'Qué datos pedimos',
     paragraphs: [
-      'Cupo de rodada (Apúntese): nombre, WhatsApp y moto si la dices.',
+      'Cupo de rodada: nombre, WhatsApp y moto si la dices.',
       'Pedido de lavado: nombre, WhatsApp, talla si aplica y zona (Bogotá, Soacha u “fuera”).',
       'Cuenta: correo, alias y clave. El sitio se mira sin login; la cuenta es para lo que quede a tu nombre.',
       'Constancia comunitaria: qué pasó, dónde, cuándo, y una foto o enlace de evidencia si la subes.',
@@ -101,6 +101,15 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
     paragraphs: [
       'No se publica linchamiento, dato de menores, doxxing ni venganza personal.',
       'Paola puede publicar, ocultar o rechazar. Eso no convierte el portal en autoridad.',
+    ],
+  },
+  {
+    id: 'social',
+    title: 'Cuenta, chat y comunidades',
+    paragraphs: [
+      'La cuenta, el feed y el chat web son otro canal del parche. WhatsApp no se apaga.',
+      'En API pública no sale tu WhatsApp ni tu correo. Alias y, si tú lo aceptas, km o moto.',
+      'Paola puede silenciar un hilo. Los mensajes no se venden. Si quieres borrar la cuenta, escríbele a contacto@paolabiker.com.',
     ],
   },
 ]

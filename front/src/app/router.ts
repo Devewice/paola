@@ -4,8 +4,10 @@ import CuentaRoute from '@app/shell/CuentaRoute.vue'
 import FeedRoute from '@app/shell/FeedRoute.vue'
 import HomeRoute from '@app/shell/HomeRoute.vue'
 import KitView from '@app/shell/KitView.vue'
+import NotFoundView from '@app/shell/NotFoundView.vue'
 import OperarView from '@app/shell/OperarView.vue'
 import PaolaRoute from '@app/shell/PaolaRoute.vue'
+import ParceroRoute from '@app/shell/ParceroRoute.vue'
 import ParcheseRoute from '@app/shell/ParcheseRoute.vue'
 import ProductRoute from '@app/shell/ProductRoute.vue'
 import ServiceRoute from '@app/shell/ServiceRoute.vue'
@@ -32,12 +34,22 @@ const routes: RouteRecordRaw[] = [
     meta: { title: ROUTE_TITLES.FICHA },
   },
   { path: APP_PATHS.PAOLA, name: 'paola', component: PaolaRoute, meta: { title: ROUTE_TITLES.PAOLA } },
-  { path: APP_PATHS.KIT, name: 'kit', component: KitView, meta: { title: ROUTE_TITLES.KIT } },
-  { path: APP_PATHS.OPERAR, name: 'operar', component: OperarView, meta: { title: ROUTE_TITLES.OPERAR } },
+  { path: APP_PATHS.ADMIN, name: 'admin', component: OperarView, meta: { title: ROUTE_TITLES.ADMIN } },
+  { path: APP_PATHS.ADMIN_UI, name: 'admin-ui', component: KitView, meta: { title: ROUTE_TITLES.KIT } },
+  { path: `${APP_PATHS.ADMIN}/ui-test`, redirect: APP_PATHS.ADMIN_UI },
+  { path: APP_PATHS.KIT, redirect: APP_PATHS.ADMIN_UI },
+  { path: APP_PATHS.OPERAR, redirect: APP_PATHS.ADMIN },
+  { path: `${APP_PATHS.OPERAR}/ui-test`, redirect: APP_PATHS.ADMIN_UI },
   { path: APP_PATHS.PRIVACIDAD, name: 'privacidad', component: PrivacyView, meta: { title: ROUTE_TITLES.PRIVACIDAD } },
   { path: APP_PATHS.CUENTA, name: 'cuenta', component: CuentaRoute, meta: { title: ROUTE_TITLES.CUENTA } },
   { path: APP_PATHS.FEED, name: 'feed', component: FeedRoute, meta: { title: ROUTE_TITLES.FEED } },
-  { path: '/:pathMatch(.*)*', redirect: APP_PATHS.INICIO },
+  {
+    path: `${APP_PATHS.PARCERO}/:alias`,
+    name: 'parcero',
+    component: ParceroRoute,
+    meta: { title: ROUTE_TITLES.PARCERO },
+  },
+  { path: '/:pathMatch(.*)*', name: 'no-encontrado', component: NotFoundView, meta: { title: ROUTE_TITLES.NOT_FOUND } },
 ]
 
 export const router = createRouter({

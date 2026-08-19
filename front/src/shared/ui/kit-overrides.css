@@ -1,0 +1,199 @@
+/* Gana a Vuetify y al fondo rayado del portal. El kit HTML es la fuente. */
+
+@font-face {
+  font-family: 'Brush King';
+  src:
+    url('/fonts/BrushKing.otf') format('opentype'),
+    url('/kit-assets/BrushKing.otf') format('opentype'),
+    url('/fonts/Brush%20King.otf') format('opentype'),
+    url('/kit-assets/Brush%20King.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+html:has(.html-kit-page),
+body:has(.html-kit-page) {
+  background: #05070c !important;
+  background-image: none !important;
+  color: #f7fafc;
+}
+
+body:not(:has(.html-kit-page)) {
+  background-color: var(--paola-black, #05070c);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(0, 136, 248, 0.08), transparent 42%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.18) 3px,
+      rgba(0, 0, 0, 0.18) 4px
+    );
+}
+
+:root {
+  --paola-gutter: clamp(16px, 4.5vw, 80px);
+  --paola-content-max: 85rem;
+  --paola-card-min: 17rem;
+}
+
+.html-kit-page {
+  background: #05070c;
+  color: #f7fafc;
+  font: 16px/1.5 Montserrat, var(--ui), sans-serif;
+  min-height: 100vh;
+}
+
+.v-application,
+.v-application .v-main {
+  font-family: Montserrat, var(--ui), sans-serif !important;
+  background: #05070c !important;
+  color: #f7fafc !important;
+}
+
+.v-application p {
+  margin-bottom: 0;
+}
+
+.v-btn {
+  font-family: Montserrat, var(--ui), sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 10px !important;
+}
+
+.v-application section,
+body:not(:has(.html-kit-page)) section {
+  margin-bottom: 0;
+}
+
+.v-theme--paolaDark {
+  --v-theme-background: 5, 7, 12;
+  --v-theme-surface: 11, 16, 24;
+  --v-theme-primary: 0, 136, 248;
+  --v-theme-secondary: 0, 16, 40;
+  --v-theme-info: 72, 180, 252;
+}
+
+.v-application .type-brush-dry,
+.html-kit-page .type-brush-dry,
+.type-brush-dry {
+  font-family: 'Brush King', system-ui, sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  text-transform: uppercase;
+  filter: none;
+}
+
+.v-application .type-brush-script,
+.html-kit-page .type-brush-script,
+.type-brush-script {
+  font-family: Caveat, 'Sedgwick Ave', cursive !important;
+}
+
+.v-application .type-condensed,
+.html-kit-page .type-condensed,
+.type-condensed,
+.v-application .type-stamped,
+.html-kit-page .type-stamped,
+.type-stamped {
+  font-family: 'Bebas Neue', Anton, sans-serif !important;
+}
+
+.kit-hero__photo {
+  background-image: url('/kit-assets/Primera%20rodada.webp');
+}
+
+.kit-hero--classic .kit-hero__photo {
+  background-image: url('/kit-assets/Rodada%20anapoimap.png');
+}
+
+.kit-hero--page {
+  min-height: 0;
+  padding-block: 48px 56px;
+}
+
+.kit-hero--page .kit-hero__photo {
+  background-image: none;
+  background-color: var(--navy, #001028);
+}
+
+.kit-hero--page.has-photo .kit-hero__photo {
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+}
+
+.wrap {
+  width: min(var(--paola-content-max), calc(100% - 2 * var(--paola-gutter)));
+  container-type: inline-size;
+  container-name: paola;
+}
+
+.kit-hero {
+  padding-inline: var(--paola-gutter);
+}
+
+.kit-hero__inner,
+.kit-hero--classic .kit-hero__inner,
+.kit-hero--portal .kit-hero__inner {
+  width: min(var(--paola-content-max), 100%);
+  container-type: inline-size;
+  container-name: paola;
+}
+
+.kit-hero__logo {
+  width: clamp(72px, 11vw, 128px);
+  width: clamp(72px, 11cqw, 128px);
+}
+
+.html-kit-page .type-brush-dry,
+.kit-hero .type-brush-dry,
+.paola-shell .type-brush-dry {
+  font-size: clamp(38px, 7.2vw, 72px);
+  font-size: clamp(38px, 7.2cqw, 72px);
+}
+
+.html-kit-page .type-brush-dry--sm,
+.kit-hero .type-brush-dry--sm,
+.paola-shell .type-brush-dry--sm {
+  font-size: clamp(26px, 4.8vw, 44px);
+  font-size: clamp(26px, 4.8cqw, 44px);
+}
+
+.html-kit-page .type-brush-dry--xs,
+.kit-hero .type-brush-dry--xs,
+.paola-shell .type-brush-dry--xs {
+  font-size: clamp(22px, 4vw, 36px);
+  font-size: clamp(22px, 4cqw, 36px);
+}
+
+.html-kit-page .display {
+  font-size: clamp(32px, 5.5vw, 52px);
+  font-size: clamp(32px, 5.5cqw, 52px);
+}
+
+.html-kit-page .btn {
+  height: 48px;
+  font-size: clamp(13px, 1.5vw, 15px);
+  font-size: clamp(13px, 1.5cqw, 15px);
+  padding-inline: clamp(20px, 3vw, 28px);
+}
+
+.html-kit-page .grid-2,
+.html-kit-page .arsenal-grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--paola-card-min)), 1fr));
+}
+
+.html-kit-page .grid-3,
+.html-kit-page .arsenal-grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-hero__anim,
+  .kit-hero__anim--panel {
+    opacity: 1 !important;
+  }
+}

@@ -45,6 +45,14 @@ export async function insertFine(item: FineGuide): Promise<void> {
   })
 }
 
+export async function findAllReports(): Promise<Report[]> {
+  const table = await resolveVoiceTable(VOICE_TABLES.REPORTS, VOICE_TABLES.LEGACY_DENUNCIAS)
+  const rows = await getDb()(table)
+    .select('id', 'title', 'what_happened', 'where_text', 'happened_at', 'evidence_src', 'moderation_status', 'moderation_note')
+    .orderBy('created_at', 'desc')
+  return rows.map((row) => toReport(row as Record<string, unknown>))
+}
+
 export async function findPublicReports(): Promise<Report[]> {
   const table = await resolveVoiceTable(VOICE_TABLES.REPORTS, VOICE_TABLES.LEGACY_DENUNCIAS)
   const rows = await getDb()(table)

@@ -6,8 +6,8 @@ import { TIPS_EMPTY_COPY } from '@modules/voice/index.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
-import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
-import PaolaEmpty from '@ui/PaolaEmpty.vue'
+import AficheHero from '@ui/AficheHero.vue'
+import Empty from '@ui/Empty.vue'
 
 const route = useRoute()
 const bindReveal = usePageReveal()
@@ -21,9 +21,9 @@ const copy = computed(() => {
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <PaolaAficheHero :kicker="title" :title="title" :plate="COMING_SOON_PLATE" data-reveal>
+    <AficheHero :kicker="title" :title="title" :plate="COMING_SOON_PLATE" data-reveal>
       <template #lead>{{ copy }}</template>
-    </PaolaAficheHero>
-    <PaolaEmpty compact data-reveal :title="title" :copy="copy" :mascot-src="MASCOT.LENTE" />
+    </AficheHero>
+    <Empty compact data-reveal :title="title" :copy="copy" :mascot-src="MASCOT.LENTE" />
   </article>
 </template>

@@ -7,13 +7,13 @@ import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
 import { APP_PATHS, appTiendaFicha, appTiendaServicio } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
-import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
-import PaolaAlert from '@ui/PaolaAlert.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaEmpty from '@ui/PaolaEmpty.vue'
-import PaolaProductCard from '@ui/PaolaProductCard.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
-import PaolaZoneBadge from '@ui/PaolaZoneBadge.vue'
+import AficheHero from '@ui/AficheHero.vue'
+import Alert from '@ui/Alert.vue'
+import Button from '@ui/Button.vue'
+import Empty from '@ui/Empty.vue'
+import ProductCard from '@ui/ProductCard.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
+import ZoneBadge from '@ui/ZoneBadge.vue'
 
 const props = defineProps<{
   module: ShopModule
@@ -31,38 +31,38 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <PaolaAficheHero :kicker="copy.kicker" :title="copy.title" :plate="copy.plate" data-reveal>
+    <AficheHero :kicker="copy.kicker" :title="copy.title" :plate="copy.plate" data-reveal>
       <template #lead>
         {{ copy.lead }}
       </template>
       <template #actions>
-        <PaolaButton variant="hero" :href="contact.whatsappHref" target="_blank">
+        <Button variant="hero" :href="contact.whatsappHref" target="_blank">
           {{ copy.writeCta }}
-        </PaolaButton>
-        <PaolaButton variant="ghost" :href="`mailto:${contact.email}`">{{ copy.mailCta }}</PaolaButton>
+        </Button>
+        <Button variant="ghost" :href="`mailto:${contact.email}`">{{ copy.mailCta }}</Button>
       </template>
-    </PaolaAficheHero>
+    </AficheHero>
 
     <section class="paola-page__block" :aria-label="copy.rulesAria" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
+      <VoiceBadge voice="loigca" />
       <h2 class="paola-page__heading type-display">{{ copy.rulesHeading }}</h2>
       <div class="shop-page__zones">
-        <PaolaZoneBadge zone="bogota" />
-        <PaolaZoneBadge zone="soacha" />
-        <PaolaZoneBadge zone="fuera" />
+        <ZoneBadge zone="bogota" />
+        <ZoneBadge zone="soacha" />
+        <ZoneBadge zone="fuera" />
       </div>
-      <PaolaAlert tone="info">{{ shelves.deliveryCopy }}</PaolaAlert>
-      <PaolaAlert tone="warn">{{ shelves.warrantyCopy }}</PaolaAlert>
+      <Alert tone="info">{{ shelves.deliveryCopy }}</Alert>
+      <Alert tone="warn">{{ shelves.warrantyCopy }}</Alert>
       <p class="paola-page__copy">
         <router-link class="shop-page__legal" :to="privacyPath">{{ legal.shopLink }}</router-link>
       </p>
     </section>
 
     <section class="paola-page__block" :aria-label="copy.serviceAria" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
+      <VoiceBadge voice="loigca" />
       <h2 class="paola-page__heading type-display">{{ copy.serviceHeading }}</h2>
       <div v-if="services.items.length" class="shop-page__shelf">
-        <PaolaProductCard
+        <ProductCard
           v-for="item in services.items"
           :key="item.id"
           :title="item.title"
@@ -71,7 +71,7 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
           :to="appTiendaServicio(item.id)"
         />
       </div>
-      <PaolaEmpty
+      <Empty
         v-else
         compact
         hide-cta
@@ -82,10 +82,10 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
     </section>
 
     <section class="paola-page__block" :aria-label="copy.ownAria" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
+      <VoiceBadge voice="loigca" />
       <h2 class="paola-page__heading type-display">{{ copy.ownHeading }}</h2>
       <div v-if="shelves.own.length" class="shop-page__shelf">
-        <PaolaProductCard
+        <ProductCard
           v-for="item in shelves.own"
           :key="item.id"
           :title="item.title"
@@ -94,7 +94,7 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
           :to="appTiendaFicha(item.id)"
         />
       </div>
-      <PaolaEmpty
+      <Empty
         v-else
         compact
         hide-cta
@@ -105,13 +105,13 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
     </section>
 
     <section class="paola-page__block" :aria-label="copy.collabAria" data-reveal>
-      <PaolaVoiceBadge voice="incauta" />
+      <VoiceBadge voice="incauta" />
       <h2 class="paola-page__heading type-display">{{ copy.collabHeading }}</h2>
       <p class="paola-page__copy paola-page__copy--muted">
         {{ copy.collabNote }}
       </p>
       <div v-if="shelves.collab.length" class="shop-page__shelf">
-        <PaolaProductCard
+        <ProductCard
           v-for="item in shelves.collab"
           :key="item.id"
           :title="item.title"
@@ -121,7 +121,7 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
           collab
         />
       </div>
-      <PaolaEmpty
+      <Empty
         v-else
         compact
         hide-cta
@@ -154,7 +154,13 @@ const privacyPath = `${APP_PATHS.PRIVACIDAD}`
 
 @media (min-width: 640px) {
   .shop-page__shelf {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .shop-page__shelf {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>

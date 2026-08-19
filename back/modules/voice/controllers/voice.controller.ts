@@ -8,6 +8,7 @@ import {
   createReport,
   createTip,
   listFines,
+  listOperatorReports,
   listReports,
   listTips,
   moderateReport,
@@ -58,6 +59,17 @@ export const createFineController: RouteHandler = async (request, response) => {
 export const listReportsController: RouteHandler = async (_request, response) => {
   try {
     const reports = await listReports()
+    sendJson(response, HTTP_STATUS.OK, { ok: true, reports, denuncias: reports })
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : HTTP_MESSAGES.MYSQL_FALLBACK
+    sendJson(response, HTTP_STATUS.OK, { ok: true, reports: [], denuncias: [], detail })
+  }
+}
+
+export const listOperatorReportsController: RouteHandler = async (request, response) => {
+  if (!requireOperador(request, response)) return
+  try {
+    const reports = await listOperatorReports()
     sendJson(response, HTTP_STATUS.OK, { ok: true, reports, denuncias: reports })
   } catch (error) {
     const detail = error instanceof Error ? error.message : HTTP_MESSAGES.MYSQL_FALLBACK

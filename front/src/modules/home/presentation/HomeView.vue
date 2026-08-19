@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import type { HomeModule } from '@modules/home/index.ts'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { HOME_PULSE_COPY } from '@modules/home/constants/copy.ts'
+import { parsePublicPost, type PublicPost } from '@app/parsePublicPost.ts'
+import { API, APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
-import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
-import PaolaAgendaItem from '@ui/PaolaAgendaItem.vue'
-import PaolaAlert from '@ui/PaolaAlert.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaCard from '@ui/PaolaCard.vue'
-import PaolaEmpty from '@ui/PaolaEmpty.vue'
-import PaolaGallery from '@ui/PaolaGallery.vue'
-import PaolaIcon from '@ui/PaolaIcon.vue'
-import PaolaMemoriaHero from '@ui/PaolaMemoriaHero.vue'
-import PaolaStatGrid from '@ui/PaolaStatGrid.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
+import AficheHero from '@ui/AficheHero.vue'
+import AgendaItem from '@ui/AgendaItem.vue'
+import Alert from '@ui/Alert.vue'
+import Button from '@ui/Button.vue'
+import Card from '@ui/Card.vue'
+import Empty from '@ui/Empty.vue'
+import FeedPost from '@ui/FeedPost.vue'
+import Gallery from '@ui/Gallery.vue'
+import Icon from '@ui/Icon.vue'
+import MemoriaHero from '@ui/MemoriaHero.vue'
+import StatGrid from '@ui/StatGrid.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
 
 const props = defineProps<{
   module: HomeModule
@@ -21,26 +25,51 @@ const props = defineProps<{
 const board = computed(() => props.module.getBoard())
 const bindReveal = usePageReveal()
 const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
+const pulse = ref<readonly PublicPost[]>([])
+const pulseCopy = HOME_PULSE_COPY
+
+onMounted(async () => {
+  try {
+    const response = await fetch(API.FEED)
+    if (!response.ok) return
+    const body = await response.json()
+    const posts = Array.isArray(body.posts) ? body.posts : []
+    pulse.value = posts
+      .map((row: unknown) => parsePublicPost(row))
+      .filter((item: PublicPost | null): item is PublicPost => item !== null)
+      .slice(0, 5)
+  } catch {
+    pulse.value = []
+  }
+})
 </script>
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <PaolaAficheHero kicker="El corte del día" title="Paola Biker" plate="Rodando" logo data-reveal>
-      <template #lead>Un tablero del parche, no un welcome genérico.</template>
+    <AficheHero
+      kicker="El corte del día"
+      title="Paola Biker"
+      plate="Rodando"
+      logo
+      :photo-src="board.memory?.photoSrc"
+      data-reveal
+    >
+      <template #lead>Qué hay hoy: próxima rodada, kilómetros y un recorte de Paola.</template>
       <template #actions>
-        <PaolaButton v-if="board.next" variant="hero" to="/parchese">Ver próxima salida</PaolaButton>
-        <PaolaButton v-else variant="hero" :href="board.join.href" target="_blank">
+        <Button v-if="board.next" variant="hero" to="/parchese">Ver próxima salida</Button>
+        <Button v-else variant="hero" :href="board.join.href" target="_blank">
           {{ board.join.label }}
-        </PaolaButton>
-        <PaolaButton v-if="board.next" variant="ghost" :href="board.join.href" target="_blank">
+        </Button>
+        <Button v-if="board.next" variant="ghost" :href="board.join.href" target="_blank">
           {{ board.join.label }}
-        </PaolaButton>
-        <PaolaButton v-else variant="ghost" to="/parchese">Parchese</PaolaButton>
+        </Button>
+        <Button v-else variant="ghost" to="/parchese">Parchese</Button>
+        <Button variant="ghost" to="/feed">Feed</Button>
       </template>
-    </PaolaAficheHero>
+    </AficheHero>
 
     <div class="paola-page__split" data-reveal>
-      <PaolaCard class="home-page__visual" aria-hidden="true">
+      <Card class="home-page__visual" aria-hidden="true">
         <div class="paola-empty__mascot-hole">
           <img
             v-if="board.memory?.photoSrc"
@@ -54,14 +83,14 @@ const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
         <p v-if="board.memory" class="paola-afiche__lead">
           {{ board.memory.title }} · {{ board.memory.date }}
         </p>
-        <p v-else class="paola-afiche__lead">Foto de rodada cuando haya memoria. Hoy el hueco queda.</p>
-      </PaolaCard>
+        <p v-else class="paola-afiche__lead">Todavía no hay foto de una rodada publicada.</p>
+      </Card>
 
       <section class="paola-page__block" aria-label="Próxima salida">
-        <PaolaVoiceBadge voice="loigca" />
+        <VoiceBadge voice="loigca" />
         <h2 class="paola-page__heading type-display">Próxima</h2>
         <div v-if="board.next" class="paola-ride paola-ride--featured home-page__next">
-          <PaolaAgendaItem
+          <AgendaItem
             :date="board.next.date"
             :title="board.next.title"
             :kind="board.next.kind"
@@ -69,7 +98,7 @@ const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
             when="proxima"
           />
         </div>
-        <PaolaEmpty
+        <Empty
           v-else
           compact
           hide-cta
@@ -81,15 +110,15 @@ const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
     </div>
 
     <section class="paola-page__block" aria-label="Kilómetros" data-reveal>
-      <PaolaVoiceBadge voice="incauta" />
+      <VoiceBadge voice="incauta" />
       <h2 class="paola-page__heading type-display">Memoria</h2>
-      <PaolaMemoriaHero
+      <MemoriaHero
         v-if="board.memory"
         :title="board.memory.title"
         :meta="`${board.memory.date} · ${board.memory.km} km · ${board.memory.credit}`"
       />
-      <PaolaGallery :photos="board.memory?.photos" />
-      <PaolaStatGrid
+      <Gallery :photos="board.memory?.photos" />
+      <StatGrid
         :items="[
           { value: board.totalKm !== null ? String(board.totalKm) : '—', label: 'Km del parche' },
           { value: board.memory ? String(photoCount) : '—', label: 'Fotos' },
@@ -102,9 +131,9 @@ const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
 
     <div class="paola-page__split" data-reveal>
       <section class="paola-page__block" aria-label="Tu voz">
-        <PaolaVoiceBadge voice="loigca" />
+        <VoiceBadge voice="loigca" />
         <h2 class="paola-page__heading type-display">Tu voz</h2>
-        <PaolaAlert tone="info">
+        <Alert tone="info">
           <template v-if="board.voice.tip">
             <strong>{{ board.voice.tip.title }}</strong>
             — {{ board.voice.tip.body }}
@@ -119,22 +148,39 @@ const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
             </a>
           </template>
           <template v-else>{{ board.voice.emptyCopy }}</template>
-        </PaolaAlert>
-        <PaolaButton variant="ghost" size="sm" :to="board.voice.to">Tu voz</PaolaButton>
+        </Alert>
+        <Button variant="ghost" size="sm" :to="board.voice.to">Tu voz</Button>
       </section>
 
       <section class="paola-page__block" aria-label="Paola">
-        <PaolaVoiceBadge voice="armargura" />
-        <PaolaCard>
+        <VoiceBadge voice="armargura" />
+        <Card>
           <div class="home-page__paola-row">
-            <PaolaIcon name="heart" tone="white" />
+            <Icon name="heart" tone="white" />
             <h2 class="paola-page__heading type-display">Paola</h2>
           </div>
           <p class="paola-page__copy">{{ board.paola.phrase }}</p>
-          <PaolaButton variant="ghost" size="sm" :to="board.paola.to">Conocer a Paola</PaolaButton>
-        </PaolaCard>
+          <Button variant="ghost" size="sm" :to="board.paola.to">Conocer a Paola</Button>
+        </Card>
       </section>
     </div>
+
+    <section class="paola-page__block" aria-label="Pulso" data-reveal>
+      <VoiceBadge voice="incauta" />
+      <h2 class="paola-page__heading type-display">{{ pulseCopy.heading }}</h2>
+      <p class="paola-page__copy paola-page__copy--muted">{{ pulseCopy.lead }}</p>
+      <div v-if="pulse.length" class="home-page__pulse">
+        <FeedPost
+          v-for="item in pulse"
+          :key="item.id"
+          :author="item.authorAlias"
+          :body="item.body"
+          :meta="item.createdAt"
+        />
+      </div>
+      <p v-else class="paola-page__copy paola-page__copy--muted">{{ pulseCopy.empty }}</p>
+      <Button variant="ghost" size="sm" :to="APP_PATHS.FEED">{{ pulseCopy.cta }}</Button>
+    </section>
   </article>
 </template>
 
@@ -172,5 +218,10 @@ const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
   margin-top: 8px;
   color: var(--paola-cian);
   text-decoration: underline;
+}
+
+.home-page__pulse {
+  display: grid;
+  gap: 12px;
 }
 </style>

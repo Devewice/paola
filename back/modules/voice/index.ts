@@ -6,6 +6,7 @@ import {
   createReportController,
   createTipController,
   listFinesController,
+  listOperatorReportsController,
   listReportsController,
   listTipsController,
   moderateReportController,
@@ -29,6 +30,12 @@ export const voiceRoutes: readonly Route[] = [
   },
   { method: HTTP_METHOD.GET, path: VOICE_ROUTES.LIST_REPORTS, handler: withVoiceErrors(listReportsController) },
   { method: HTTP_METHOD.GET, path: VOICE_ROUTES.LEGACY_LIST_DENUNCIAS, handler: withVoiceErrors(listReportsController) },
+  { method: HTTP_METHOD.GET, path: VOICE_ROUTES.OPERAR_REPORTS, handler: withVoiceErrors(listOperatorReportsController) },
+  {
+    method: HTTP_METHOD.GET,
+    path: VOICE_ROUTES.LEGACY_OPERAR_DENUNCIAS,
+    handler: withVoiceErrors(listOperatorReportsController),
+  },
   { method: HTTP_METHOD.POST, path: VOICE_ROUTES.CREATE_REPORT, handler: withVoiceErrors(createReportController) },
   { method: HTTP_METHOD.POST, path: VOICE_ROUTES.LEGACY_CREATE_DENUNCIA, handler: withVoiceErrors(createReportController) },
   {

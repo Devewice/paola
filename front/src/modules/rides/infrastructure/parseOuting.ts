@@ -33,5 +33,6 @@ export function parseOuting(raw: unknown): Outing | null {
     whatToBring: row.whatToBring,
     paid: row.paid,
     status: row.status as OutingStatus,
+    mapHref: typeof row.mapHref === 'string' && row.mapHref ? row.mapHref : undefined,
   }
 }

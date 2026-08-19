@@ -1,16 +1,8 @@
 # AGENTS.md — reglas fundamentales de construcción
 
-Este archivo es **vinculante**. Si una instrucción de chat choca con esto, gana esto, salvo que Paola lo cambie por escrito en `docs/`.
+Este archivo es **vinculante**. Si una instrucción de chat choca con esto, gana esto, salvo que Paola lo cambie por escrito.
 
-| Documento | Para qué | No es |
-|-----------|----------|--------|
-| Este archivo | Cómo construir y qué no romper | Lluvia de ideas |
-| [`docs/brainstorming.md`](docs/brainstorming.md) | Visión, marca, mapa del producto | Tareas sueltas |
-| [`docs/roadmap.md`](docs/roadmap.md) | Orden de fases y cobertura | Licencia para saltarse fases |
-| [`docs/visual.md`](docs/visual.md) | Identidad, color, tipo, botones, espacio | Moodboard suelto |
-| [`docs/paola.md`](docs/paola.md) | Razón, quién, por qué, para qué (primera persona) | Bio inventada |
-
-Antes de implementar: lee la **fase actual** de la hoja de ruta. No abras la siguiente si la actual no cumple su “queda lista cuando”.
+El destino es el **portal completo** (horizonte 44). No construyas un paso intermedio que una pieza posterior va a tirar. Comprime: deja el estado final.
 
 ---
 
@@ -23,22 +15,26 @@ Antes de implementar: lee la **fase actual** de la hoja de ruta. No abras la sig
 
 ---
 
-## 2. Orden de trabajo
+## 2. Cómo se construye
 
-- Una fase a la vez (`docs/roadmap.md`).
-- No construyas lo que la fase marca **No incluye**.
-- Candados: fase **15** (legal) antes de denuncias (18) y pasarela (20). Membresías (21) solo con precio y beneficios definidos. Comunidad web: **28–31** → **32–35** → red social **36–44** (decisión Paola: web otro canal; WhatsApp paralelo). Fase **25** fija reglas dos canales.
-- El módulo `counter` no es producto: quítalo al entrar el primer módulo real (fase 0).
+- El mapa de fases es **cobertura** (qué tiene que existir), no una cola de sprints. Se puede sacar **todo de una vez**.
+- Si un paso intermedio se pisa o se borra en una pieza posterior, **no lo implementes**: deja ya el estado final.
+- Los “No incluye” de fases tempranas no bloquean lo que el horizonte **sí** pide (cuenta, feed, chat, comunidades). El “No incluye” que **sí** vale es el de la hoja al final (GPS, marketplace, trámites, envío nacional).
+- Membresías (21): sin precio y beneficios definidos por Paola, **no se inventan**. Hueco honesto.
+- Pasarela (20): el camino WhatsApp/Paola **no se apaga**. Sin credenciales reales, no se finge cobro en línea.
+- WhatsApp **no se apaga** cuando exista la web social. Dos canales, no reemplazo.
+- El módulo `counter` no es producto: quítalo al entrar el primer módulo real.
 
-### Fuera de alcance hasta que una fase nueva lo diga
+### Fuera de alcance (hasta regla nueva por escrito)
 
 - GPS en vivo.
 - Marketplace de terceros.
 - Trámite o representación de comparendos.
 - Envío nacional.
-- Red social completa en el **MVP inicial** (horizonte **36–44** en `docs/roadmap.md`).
-- Eventbrite u otro proveedor de tickets al inicio.
+- Eventbrite u otro proveedor de tickets.
 - Popups de publicidad o venta de datos.
+- Equipo de moderación 24/7.
+- Sincronizar automáticamente todos los mensajes de WhatsApp a la web.
 
 ---
 
@@ -66,7 +62,7 @@ Antes de implementar: lee la **fase actual** de la hoja de ruta. No abras la sig
 | **Cámara Incauta** | Fotos, memorias, evidencia, Insta360 |
 | **Paola Armargura** | Relato personal, denuncias, cierre emocional |
 
-Visual: obedecer [`docs/visual.md`](docs/visual.md). Logo oficial = `docs/resoruces/logo.png` (PNG del escudo, no una cursiva). Paleta negro + blanco + azul eléctrico (`#0088F8`). Fuentes Oswald + Montserrat. Botones radio 10px, CTA mayúsculas. Paper Mario / Insta360 no sustituyen esta marca.
+Visual: logo oficial = escudo PNG (no una cursiva). Paleta negro + blanco + azul eléctrico (`#0088F8`). Fuentes Oswald + Montserrat. Botones radio 10px, CTA mayúsculas. Paper Mario / Insta360 no sustituyen esta marca.
 
 ---
 
@@ -96,7 +92,6 @@ back/                   HTTP TypeScript; estáticos en prod
   db/                   Knex (MySQL): migraciones + consultas
   http/                 Router, middleware, guards
   modules/              Un módulo por recurso, nombre en inglés
-docs/                   visión, fases, visual, relato
 ```
 
 No mezclar front y back en la raíz. `package.json` en la raíz orquesta los dos.
@@ -129,12 +124,12 @@ back/modules/<nombre-en-inglés>/
   index.ts          rutas del módulo
 ```
 
-Módulos de API hoy: `health`, `rides`, `club`, `memories`, `voice`, `shop`. Tablas MySQL y rutas `/api` en inglés (`outings`, `tickets`, `alliances`, `members`, `memories`, `memory_photos`, `tips`, `products`, `services`).
+
 
 Módulos de producto (dejan el placeholder cuando tienen tabla + API): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.
 Inicio no importa `rides` por dentro: se cablea en bootstrap. Inventario nuevo: MySQL vía Knex, no JSON en el front.
 
-Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Catálogo en `/kit` (no es pestaña de producto). El kit HTML `docs/index.html` es referencia, no el portal.
+Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Catálogo vivo en `/admin/ui`.
 
 ### Más
 
@@ -164,4 +159,4 @@ Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Cat
 
 No rellenes biografía, precios de membresía, lista de integrantes, aliados, links de WhatsApp/redes/video, ni NIT. Correo y dominio sí: `contacto@paolabiker.com` / `paolabiker.com`. Usa placeholders honestos para lo demás.
 
-Si una decisión de producto no está en `docs/brainstorming.md` ni en la hoja de ruta, **no la des por hecha**: o cabe en la fase, o se pregunta.
+Si una decisión de producto no está en la hoja de ruta, **no la des por hecha**: o cabe en la fase, o se pregunta.

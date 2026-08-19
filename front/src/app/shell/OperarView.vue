@@ -3,22 +3,35 @@ import { computed, ref } from 'vue'
 import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
 import type { OperatorBoardOuting, OutingKind } from '@modules/rides/index.ts'
 import type { ProductKind, ServiceOrder } from '@modules/shop/index.ts'
-import PaolaAlert from '@ui/PaolaAlert.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaChoice from '@ui/PaolaChoice.vue'
-import PaolaField from '@ui/PaolaField.vue'
-import PaolaInput from '@ui/PaolaInput.vue'
-import PaolaSelect from '@ui/PaolaSelect.vue'
-import PaolaTextarea from '@ui/PaolaTextarea.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
+import { API, APP_PATHS, OPERADOR_CLAVE_HEADER, apiOperarCommunityModerators, apiOperarOutingChatPin, apiOperarPostHighlight, apiOperarReportStatus } from '@shared/http/constants.ts'
+import { OPERAR_REPORTS_COPY } from '@app/constants/cuenta.ts'
+import { ADMIN_COPY } from '@app/constants/kit.ts'
+import { SOCIAL_COPY } from '@app/constants/social.ts'
+import { parsePublicPost, type PublicPost } from '@app/parsePublicPost.ts'
+import Alert from '@ui/Alert.vue'
+import Button from '@ui/Button.vue'
+import Choice from '@ui/Choice.vue'
+import Field from '@ui/Field.vue'
+import Input from '@ui/Input.vue'
+import Select from '@ui/Select.vue'
+import Textarea from '@ui/Textarea.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
 
 const { rides, club, shop } = getAppDependencies()
+
+type OperatorReport = {
+  id: string
+  title: string
+  whatHappened: string
+  moderationStatus: string
+}
 
 const clave = ref('')
 const error = ref('')
 const notice = ref('')
 const board = ref<readonly OperatorBoardOuting[] | null>(null)
 const orders = ref<readonly ServiceOrder[] | null>(null)
+const reports = ref<readonly OperatorReport[]>([])
 const busy = ref(false)
 
 const outingTitle = ref('')
@@ -64,9 +77,17 @@ const comparendoTitle = ref('')
 const comparendoGuide = ref('')
 const comparendoOfficialHref = ref('')
 const comparendoDisclaimer = ref('Esto orienta; la gestión es en el canal oficial.')
-const denunciaId = ref('')
-const denunciaStatus = ref<'published' | 'hidden' | 'rejected'>('published')
 const denunciaNote = ref('')
+const communityName = ref('')
+const communityDescription = ref('')
+const communityRules = ref('')
+const communityWhatsapp = ref('')
+const pinDrafts = ref<Record<string, string>>({})
+const feedPosts = ref<readonly PublicPost[]>([])
+const moderatorAlias = ref('')
+const moderatorCommunity = ref('')
+const moderatorRevoke = ref(false)
+const communityOptions = ref<{ value: string; label: string }[]>([])
 
 const kindOptions: { value: string; label: string }[] = [
   { value: 'rodada', label: 'Rodada' },
@@ -103,6 +124,46 @@ async function load(): Promise<void> {
     orders.value = ordersResult.value
   } else {
     orders.value = []
+  }
+
+  try {
+    const response = await fetch(API.OPERAR_REPORTS, {
+      headers: { [OPERADOR_CLAVE_HEADER]: clave.value },
+    })
+    const body = (await response.json()) as Record<string, unknown>
+    reports.value = Array.isArray(body.reports) ? (body.reports as OperatorReport[]) : []
+  } catch {
+    reports.value = []
+  }
+
+  try {
+    const response = await fetch(API.FEED)
+    const body = (await response.json()) as Record<string, unknown>
+    const posts = Array.isArray(body.posts) ? body.posts : []
+    feedPosts.value = posts
+      .map((row: unknown) => parsePublicPost(row))
+      .filter((item: PublicPost | null): item is PublicPost => item !== null)
+  } catch {
+    feedPosts.value = []
+  }
+
+  try {
+    const body = (await (await fetch(API.COMMUNITIES)).json()) as Record<string, unknown>
+    const list = Array.isArray(body.communities) ? body.communities : []
+    if (!moderatorCommunity.value && list[0] && typeof list[0] === 'object') {
+      const first = list[0] as Record<string, unknown>
+      if (typeof first.id === 'string') moderatorCommunity.value = first.id
+    }
+    communityOptions.value = list
+      .map((row) => {
+        if (!row || typeof row !== 'object') return null
+        const item = row as Record<string, unknown>
+        if (typeof item.id !== 'string' || typeof item.name !== 'string') return null
+        return { value: item.id, label: item.name }
+      })
+      .filter((item): item is { value: string; label: string } => item !== null)
+  } catch {
+    communityOptions.value = []
   }
 }
 
@@ -361,51 +422,152 @@ async function publishComparendo(): Promise<void> {
   notice.value = 'Guía de comparendo publicada.'
 }
 
-async function moderateDenuncia(): Promise<void> {
+async function moderateDenuncia(id: string, status: 'published' | 'hidden' | 'rejected'): Promise<void> {
   busy.value = true
   error.value = ''
   notice.value = ''
-  const response = await fetch(`/api/operar/reports/${encodeURIComponent(denunciaId.value)}/status`, {
+  const response = await fetch(apiOperarReportStatus(id), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       clave: clave.value,
-      status: denunciaStatus.value,
+      status,
       note: denunciaNote.value.trim() || undefined,
     }),
   })
   busy.value = false
   if (!response.ok) {
     const body = (await response.json()) as Record<string, unknown>
-    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo moderar denuncia.'
+    error.value = typeof body.detail === 'string' ? body.detail : OPERAR_REPORTS_COPY.fail
     return
   }
-  denunciaId.value = ''
   denunciaNote.value = ''
-  notice.value = 'Denuncia moderada.'
+  notice.value = OPERAR_REPORTS_COPY.ok
+  if (clave.value) await load()
+}
+
+async function publishCommunity(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const response = await fetch(API.OPERAR_COMMUNITIES, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      clave: clave.value,
+      name: communityName.value,
+      description: communityDescription.value,
+      rules: communityRules.value,
+      whatsappGroupHref: communityWhatsapp.value.trim() || undefined,
+    }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo publicar la comunidad.'
+    return
+  }
+  communityName.value = ''
+  communityDescription.value = ''
+  communityRules.value = ''
+  communityWhatsapp.value = ''
+  notice.value = 'Comunidad publicada. Vive en web; el enlace de WhatsApp es opcional y paralelo.'
+}
+
+function setPinDraft(id: string, value: string): void {
+  pinDrafts.value = { ...pinDrafts.value, [id]: value }
+}
+
+async function pinOutingNotice(outingId: string): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const response = await fetch(apiOperarOutingChatPin(outingId), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      clave: clave.value,
+      body: pinDrafts.value[outingId] ?? '',
+    }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo fijar el aviso.'
+    return
+  }
+  pinDrafts.value = { ...pinDrafts.value, [outingId]: '' }
+  notice.value = SOCIAL_COPY.pinOutingOk
+}
+
+async function highlightFeedPost(id: string): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  const response = await fetch(apiOperarPostHighlight(id), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ clave: clave.value }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo destacar.'
+    return
+  }
+  notice.value = SOCIAL_COPY.highlightOk
+  if (clave.value) await load()
+}
+
+async function setModerator(): Promise<void> {
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  if (!moderatorCommunity.value) {
+    busy.value = false
+    error.value = 'Elige la comunidad.'
+    return
+  }
+  const response = await fetch(apiOperarCommunityModerators(moderatorCommunity.value), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      clave: clave.value,
+      alias: moderatorAlias.value,
+      revoke: moderatorRevoke.value,
+    }),
+  })
+  busy.value = false
+  if (!response.ok) {
+    const body = (await response.json()) as Record<string, unknown>
+    error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo actualizar el rol.'
+    return
+  }
+  moderatorAlias.value = ''
+  moderatorRevoke.value = false
+  notice.value = SOCIAL_COPY.moderatorOk
 }
 </script>
 
 <template>
   <article class="paola-page">
     <header>
-      <p class="paola-empty__kicker">Paola · operadora</p>
-      <h1 class="paola-afiche__title type-display">Operar</h1>
-      <p class="paola-afiche__lead">
-        Salidas, memorias, cupos, aliados, integrantes, productos y lavado de cascos. No es el panel gordo.
-      </p>
+      <p class="paola-empty__kicker">{{ ADMIN_COPY.kicker }}</p>
+      <h1 class="paola-afiche__title type-display">{{ ADMIN_COPY.title }}</h1>
+      <p class="paola-afiche__lead">{{ ADMIN_COPY.lead }}</p>
+      <Button :to="APP_PATHS.ADMIN_UI" variant="ghost" size="sm">{{ ADMIN_COPY.kitCta }}</Button>
     </header>
 
     <form class="operar-clave" @submit.prevent="load">
-      <PaolaVoiceBadge voice="loigca" />
-      <PaolaField label="Clave">
-        <PaolaInput v-model="clave" type="password" placeholder="OPERADOR_CLAVE" />
-      </PaolaField>
-      <PaolaButton type="submit" :disabled="busy">Ver lista de cupos</PaolaButton>
+      <VoiceBadge voice="loigca" />
+      <Field label="Clave">
+        <Input v-model="clave" type="password" placeholder="OPERADOR_CLAVE" />
+      </Field>
+      <Button type="submit" :disabled="busy">Ver lista de cupos</Button>
     </form>
 
-    <PaolaAlert v-if="error" tone="bad">{{ error }}</PaolaAlert>
-    <PaolaAlert v-if="notice" tone="ok">{{ notice }}</PaolaAlert>
+    <Alert v-if="error" tone="bad">{{ error }}</Alert>
+    <Alert v-if="notice" tone="ok">{{ notice }}</Alert>
 
     <section class="operar-publish">
       <h2 class="paola-page__heading type-display">Salida</h2>
@@ -413,29 +575,29 @@ async function moderateDenuncia(): Promise<void> {
         Rodada o actividad. El cobro, si hay, sigue por WhatsApp.
       </p>
       <form class="operar-clave" @submit.prevent="publishOuting">
-        <PaolaField label="Título">
-          <PaolaInput v-model="outingTitle" placeholder="Nombre de la salida" />
-        </PaolaField>
-        <PaolaField label="Fecha">
-          <PaolaInput v-model="outingDate" type="date" />
-        </PaolaField>
-        <PaolaField label="Tipo">
-          <PaolaSelect v-model="outingKind" :options="kindOptions" />
-        </PaolaField>
-        <PaolaField label="Punto de encuentro">
-          <PaolaInput v-model="outingPoint" placeholder="Dónde se juntan" />
-        </PaolaField>
-        <PaolaField label="Ruta (texto)">
-          <PaolaTextarea v-model="outingRoute" placeholder="Por dónde van, o por definir" />
-        </PaolaField>
-        <PaolaField label="Cupo máximo">
-          <PaolaInput v-model="outingCapacity" type="number" placeholder="12" />
-        </PaolaField>
-        <PaolaField label="Qué llevar">
-          <PaolaTextarea v-model="outingBring" placeholder="Casco, agua…" />
-        </PaolaField>
-        <PaolaChoice v-model="outingPaid" label="De pago (se cobra por WhatsApp)" />
-        <PaolaButton type="submit" :disabled="busy">Publicar salida</PaolaButton>
+        <Field label="Título">
+          <Input v-model="outingTitle" placeholder="Nombre de la salida" />
+        </Field>
+        <Field label="Fecha">
+          <Input v-model="outingDate" type="date" />
+        </Field>
+        <Field label="Tipo">
+          <Select v-model="outingKind" :options="kindOptions" />
+        </Field>
+        <Field label="Punto de encuentro">
+          <Input v-model="outingPoint" placeholder="Dónde se juntan" />
+        </Field>
+        <Field label="Ruta (texto)">
+          <Textarea v-model="outingRoute" placeholder="Por dónde van, o por definir" />
+        </Field>
+        <Field label="Cupo máximo">
+          <Input v-model="outingCapacity" type="number" placeholder="12" />
+        </Field>
+        <Field label="Qué llevar">
+          <Textarea v-model="outingBring" placeholder="Casco, agua…" />
+        </Field>
+        <Choice v-model="outingPaid" label="De pago (se cobra por WhatsApp)" />
+        <Button type="submit" :disabled="busy">Publicar salida</Button>
       </form>
     </section>
 
@@ -445,35 +607,35 @@ async function moderateDenuncia(): Promise<void> {
         Solo salidas marcadas como realizadas. Km, fotos con enlace, crédito y quién salió.
       </p>
       <form class="operar-clave" @submit.prevent="publishMemory">
-        <PaolaField label="Salida realizada">
-          <PaolaSelect
+        <Field label="Salida realizada">
+          <Select
             v-model="memorySalidaId"
             :options="realizadaOptions.length ? realizadaOptions : [{ value: '', label: 'Primero marca realizada y recarga lista' }]"
           />
-        </PaolaField>
-        <PaolaField label="Kilómetros">
-          <PaolaInput v-model="memoryKm" type="number" placeholder="42" />
-        </PaolaField>
-        <PaolaField label="Crédito de fotos">
-          <PaolaInput v-model="memoryCredit" placeholder="Quién tomó las fotos" />
-        </PaolaField>
-        <PaolaField label="Quién salió (con permiso)">
-          <PaolaTextarea v-model="memoryParticipants" placeholder="Alias · moto" />
-        </PaolaField>
-        <PaolaField label="Cierre (Armargura)">
-          <PaolaTextarea v-model="memoryClosing" placeholder="Párrafo de cierre" />
-        </PaolaField>
-        <PaolaField label="Instagram (opcional)">
-          <PaolaInput v-model="memoryInstagram" placeholder="https://instagram.com/..." />
-        </PaolaField>
+        </Field>
+        <Field label="Kilómetros">
+          <Input v-model="memoryKm" type="number" placeholder="42" />
+        </Field>
+        <Field label="Crédito de fotos">
+          <Input v-model="memoryCredit" placeholder="Quién tomó las fotos" />
+        </Field>
+        <Field label="Quién salió (con permiso)">
+          <Textarea v-model="memoryParticipants" placeholder="Alias · moto" />
+        </Field>
+        <Field label="Cierre (Armargura)">
+          <Textarea v-model="memoryClosing" placeholder="Párrafo de cierre" />
+        </Field>
+        <Field label="Instagram (opcional)">
+          <Input v-model="memoryInstagram" placeholder="https://instagram.com/..." />
+        </Field>
         <div v-for="(photo, index) in memoryPhotos" :key="index" class="operar-photo-row">
-          <PaolaField :label="`Foto ${index + 1} — enlace`">
-            <PaolaInput v-model="photo.src" placeholder="https://..." />
-          </PaolaField>
-          <PaolaField label="Texto alterno">
-            <PaolaInput v-model="photo.alt" placeholder="Qué se ve" />
-          </PaolaField>
-          <PaolaButton
+          <Field :label="`Foto ${index + 1} — enlace`">
+            <Input v-model="photo.src" placeholder="https://..." />
+          </Field>
+          <Field label="Texto alterno">
+            <Input v-model="photo.alt" placeholder="Qué se ve" />
+          </Field>
+          <Button
             v-if="memoryPhotos.length > 1"
             type="button"
             size="sm"
@@ -481,10 +643,10 @@ async function moderateDenuncia(): Promise<void> {
             @click="removePhotoRow(index)"
           >
             Quitar foto
-          </PaolaButton>
+          </Button>
         </div>
-        <PaolaButton type="button" size="sm" variant="ghost" @click="addPhotoRow">Otra foto</PaolaButton>
-        <PaolaButton type="submit" :disabled="busy">Publicar memoria</PaolaButton>
+        <Button type="button" size="sm" variant="ghost" @click="addPhotoRow">Otra foto</Button>
+        <Button type="submit" :disabled="busy">Publicar memoria</Button>
       </form>
     </section>
 
@@ -494,16 +656,16 @@ async function moderateDenuncia(): Promise<void> {
         Quien banca el parche. No es un producto de la tienda.
       </p>
       <form class="operar-clave" @submit.prevent="publishAlliance">
-        <PaolaField label="Nombre">
-          <PaolaInput v-model="allianceName" placeholder="Nombre del aliado" />
-        </PaolaField>
-        <PaolaField label="Cómo apoya">
-          <PaolaTextarea v-model="allianceSupport" placeholder="Qué hace por el parche" />
-        </PaolaField>
-        <PaolaField label="Enlace (opcional)">
-          <PaolaInput v-model="allianceHref" placeholder="https://" />
-        </PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Publicar aliado</PaolaButton>
+        <Field label="Nombre">
+          <Input v-model="allianceName" placeholder="Nombre del aliado" />
+        </Field>
+        <Field label="Cómo apoya">
+          <Textarea v-model="allianceSupport" placeholder="Qué hace por el parche" />
+        </Field>
+        <Field label="Enlace (opcional)">
+          <Input v-model="allianceHref" placeholder="https://" />
+        </Field>
+        <Button type="submit" :disabled="busy">Publicar aliado</Button>
       </form>
     </section>
 
@@ -513,16 +675,16 @@ async function moderateDenuncia(): Promise<void> {
         Solo quien ya dijo que sí. Foto entra después.
       </p>
       <form class="operar-clave" @submit.prevent="publishMember">
-        <PaolaField label="Alias">
-          <PaolaInput v-model="memberAlias" placeholder="Cómo sale en público" />
-        </PaolaField>
-        <PaolaField label="Moto (opcional)">
-          <PaolaInput v-model="memberMoto" placeholder="Qué rueda" />
-        </PaolaField>
-        <PaolaField label="Instagram (opcional)">
-          <PaolaInput v-model="memberInstagram" placeholder="https://instagram.com/..." />
-        </PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Publicar integrante</PaolaButton>
+        <Field label="Alias">
+          <Input v-model="memberAlias" placeholder="Cómo sale en público" />
+        </Field>
+        <Field label="Moto (opcional)">
+          <Input v-model="memberMoto" placeholder="Qué rueda" />
+        </Field>
+        <Field label="Instagram (opcional)">
+          <Input v-model="memberInstagram" placeholder="https://instagram.com/..." />
+        </Field>
+        <Button type="submit" :disabled="busy">Publicar integrante</Button>
       </form>
     </section>
 
@@ -532,22 +694,22 @@ async function moderateDenuncia(): Promise<void> {
         Servicio, no producto. Precio vacío = preguntar. Garantía: si quedó mal, se corrige.
       </p>
       <form class="operar-clave" @submit.prevent="publishService">
-        <PaolaField label="Nombre">
-          <PaolaInput v-model="serviceTitle" placeholder="Cómo se pide" />
-        </PaolaField>
-        <PaolaField label="Qué incluye">
-          <PaolaTextarea v-model="serviceIncludes" placeholder="Qué cubre el trabajo" />
-        </PaolaField>
-        <PaolaField label="Cómo se entrega el casco">
-          <PaolaTextarea v-model="serviceHandover" placeholder="Dónde y cómo se deja o se recoge" />
-        </PaolaField>
-        <PaolaField label="Tiempo">
-          <PaolaInput v-model="serviceTurnaround" placeholder="Cuánto tarda" />
-        </PaolaField>
-        <PaolaField label="Precio en pesos (vacío = preguntar)">
-          <PaolaInput v-model="servicePrice" type="number" placeholder="" />
-        </PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Publicar lavado</PaolaButton>
+        <Field label="Nombre">
+          <Input v-model="serviceTitle" placeholder="Cómo se pide" />
+        </Field>
+        <Field label="Qué incluye">
+          <Textarea v-model="serviceIncludes" placeholder="Qué cubre el trabajo" />
+        </Field>
+        <Field label="Cómo se entrega el casco">
+          <Textarea v-model="serviceHandover" placeholder="Dónde y cómo se deja o se recoge" />
+        </Field>
+        <Field label="Tiempo">
+          <Input v-model="serviceTurnaround" placeholder="Cuánto tarda" />
+        </Field>
+        <Field label="Precio en pesos (vacío = preguntar)">
+          <Input v-model="servicePrice" type="number" placeholder="" />
+        </Field>
+        <Button type="submit" :disabled="busy">Publicar lavado</Button>
       </form>
     </section>
 
@@ -574,41 +736,93 @@ async function moderateDenuncia(): Promise<void> {
     <section class="operar-publish">
       <h2 class="paola-page__heading type-display">Tu voz · Tip</h2>
       <form class="operar-clave" @submit.prevent="publishTip">
-        <PaolaField label="Título"><PaolaInput v-model="tipTitle" /></PaolaField>
-        <PaolaField label="Contenido"><PaolaTextarea v-model="tipBody" /></PaolaField>
-        <PaolaField label="Enlace oficial (opcional)"><PaolaInput v-model="tipOfficialHref" /></PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Publicar tip</PaolaButton>
+        <Field label="Título"><Input v-model="tipTitle" /></Field>
+        <Field label="Contenido"><Textarea v-model="tipBody" /></Field>
+        <Field label="Enlace oficial (opcional)"><Input v-model="tipOfficialHref" /></Field>
+        <Button type="submit" :disabled="busy">Publicar tip</Button>
       </form>
     </section>
 
     <section class="operar-publish">
       <h2 class="paola-page__heading type-display">Tu voz · Comparendo</h2>
       <form class="operar-clave" @submit.prevent="publishComparendo">
-        <PaolaField label="Título"><PaolaInput v-model="comparendoTitle" /></PaolaField>
-        <PaolaField label="Guía"><PaolaTextarea v-model="comparendoGuide" /></PaolaField>
-        <PaolaField label="Enlace oficial"><PaolaInput v-model="comparendoOfficialHref" /></PaolaField>
-        <PaolaField label="Disclaimer"><PaolaTextarea v-model="comparendoDisclaimer" /></PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Publicar guía</PaolaButton>
+        <Field label="Título"><Input v-model="comparendoTitle" /></Field>
+        <Field label="Guía"><Textarea v-model="comparendoGuide" /></Field>
+        <Field label="Enlace oficial"><Input v-model="comparendoOfficialHref" /></Field>
+        <Field label="Disclaimer"><Textarea v-model="comparendoDisclaimer" /></Field>
+        <Button type="submit" :disabled="busy">Publicar guía</Button>
       </form>
     </section>
 
     <section class="operar-publish">
-      <h2 class="paola-page__heading type-display">Tu voz · Moderar denuncia</h2>
-      <form class="operar-clave" @submit.prevent="moderateDenuncia">
-        <PaolaField label="ID denuncia"><PaolaInput v-model="denunciaId" /></PaolaField>
-        <PaolaField label="Estado">
-          <PaolaSelect
-            v-model="denunciaStatus"
-            :options="[
-              { value: 'published', label: 'Publicar' },
-              { value: 'hidden', label: 'Ocultar' },
-              { value: 'rejected', label: 'Rechazar' },
-            ]"
-          />
-        </PaolaField>
-        <PaolaField label="Nota (opcional)"><PaolaTextarea v-model="denunciaNote" /></PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Guardar moderación</PaolaButton>
+      <h2 class="paola-page__heading type-display">{{ OPERAR_REPORTS_COPY.heading }}</h2>
+      <p class="paola-page__copy paola-page__copy--muted">{{ OPERAR_REPORTS_COPY.lead }}</p>
+      <Field :label="OPERAR_REPORTS_COPY.note"><Textarea v-model="denunciaNote" /></Field>
+      <ul v-if="reports.length" class="operar-list">
+        <li v-for="report in reports" :key="report.id" class="operar-report">
+          <strong>{{ report.title }}</strong>
+          · {{ report.moderationStatus }}
+          <p class="paola-page__copy">{{ report.whatHappened }}</p>
+          <div class="operar-actions">
+            <Button size="sm" type="button" :disabled="busy" @click="moderateDenuncia(report.id, 'published')">
+              {{ OPERAR_REPORTS_COPY.publish }}
+            </Button>
+            <Button size="sm" variant="ghost" type="button" :disabled="busy" @click="moderateDenuncia(report.id, 'hidden')">
+              {{ OPERAR_REPORTS_COPY.hide }}
+            </Button>
+            <Button size="sm" variant="ghost" type="button" :disabled="busy" @click="moderateDenuncia(report.id, 'rejected')">
+              {{ OPERAR_REPORTS_COPY.reject }}
+            </Button>
+          </div>
+        </li>
+      </ul>
+      <p v-else class="paola-page__copy paola-page__copy--muted">{{ OPERAR_REPORTS_COPY.empty }}</p>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">Comunidad web</h2>
+      <p class="paola-page__copy paola-page__copy--muted">
+        Paola publica el hogar. El parcero se une. WhatsApp es opcional y no se apaga.
+      </p>
+      <form class="operar-clave" @submit.prevent="publishCommunity">
+        <Field label="Nombre"><Input v-model="communityName" placeholder="Cómo se llama el hogar" /></Field>
+        <Field label="Qué es"><Textarea v-model="communityDescription" /></Field>
+        <Field label="Reglas"><Textarea v-model="communityRules" /></Field>
+        <Field label="Grupo WhatsApp (opcional)"><Input v-model="communityWhatsapp" placeholder="https://chat.whatsapp.com/..." /></Field>
+        <Button type="submit" :disabled="busy">Publicar comunidad</Button>
       </form>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">{{ SOCIAL_COPY.moderator }}</h2>
+      <p class="paola-page__copy paola-page__copy--muted">{{ SOCIAL_COPY.moderatorLead }}</p>
+      <form class="operar-clave" @submit.prevent="setModerator">
+        <Field :label="SOCIAL_COPY.moderatorCommunity">
+          <Select
+            v-model="moderatorCommunity"
+            :options="communityOptions.length ? communityOptions : [{ value: '', label: 'Primero publica una comunidad' }]"
+          />
+        </Field>
+        <Field :label="SOCIAL_COPY.moderatorAlias"><Input v-model="moderatorAlias" /></Field>
+        <Choice v-model="moderatorRevoke" :label="SOCIAL_COPY.moderatorRevoke" />
+        <Button type="submit" :disabled="busy">{{ SOCIAL_COPY.moderatorName }}</Button>
+      </form>
+    </section>
+
+    <section class="operar-publish">
+      <h2 class="paola-page__heading type-display">{{ SOCIAL_COPY.highlight }}</h2>
+      <p class="paola-page__copy paola-page__copy--muted">{{ SOCIAL_COPY.highlightLead }}</p>
+      <ul v-if="feedPosts.length" class="operar-list">
+        <li v-for="post in feedPosts" :key="post.id" class="operar-report">
+          <strong>{{ post.authorAlias }}</strong>
+          <span v-if="post.isHighlighted"> · {{ SOCIAL_COPY.activityHighlighted }}</span>
+          <p class="paola-page__copy">{{ post.body }}</p>
+          <Button size="sm" type="button" :disabled="busy" @click="highlightFeedPost(post.id)">
+            {{ SOCIAL_COPY.highlight }}
+          </Button>
+        </li>
+      </ul>
+      <p v-else class="paola-page__copy paola-page__copy--muted">Sin posts aún.</p>
     </section>
 
     <section class="operar-publish">
@@ -617,25 +831,25 @@ async function moderateDenuncia(): Promise<void> {
         Marca propia o colaboración. Precio vacío = preguntar. El collab no se mezcla con lo propio.
       </p>
       <form class="operar-clave" @submit.prevent="publishProduct">
-        <PaolaField label="Nombre">
-          <PaolaInput v-model="productTitle" placeholder="Qué se vende" />
-        </PaolaField>
-        <PaolaField label="Qué es">
-          <PaolaTextarea v-model="productDescription" placeholder="Uso real, no catálogo infinito" />
-        </PaolaField>
-        <PaolaField label="Estantería">
-          <PaolaSelect v-model="productKind" :options="productKindOptions" />
-        </PaolaField>
-        <PaolaField label="Precio en pesos (vacío = preguntar)">
-          <PaolaInput v-model="productPrice" type="number" placeholder="45000" />
-        </PaolaField>
-        <PaolaField label="Stock (opcional)">
-          <PaolaInput v-model="productStock" type="number" placeholder="3" />
-        </PaolaField>
-        <PaolaField label="Foto (enlace, opcional)">
-          <PaolaInput v-model="productPhoto" placeholder="https://..." />
-        </PaolaField>
-        <PaolaButton type="submit" :disabled="busy">Publicar producto</PaolaButton>
+        <Field label="Nombre">
+          <Input v-model="productTitle" placeholder="Qué se vende" />
+        </Field>
+        <Field label="Qué es">
+          <Textarea v-model="productDescription" placeholder="Uso real, no catálogo infinito" />
+        </Field>
+        <Field label="Estantería">
+          <Select v-model="productKind" :options="productKindOptions" />
+        </Field>
+        <Field label="Precio en pesos (vacío = preguntar)">
+          <Input v-model="productPrice" type="number" placeholder="45000" />
+        </Field>
+        <Field label="Stock (opcional)">
+          <Input v-model="productStock" type="number" placeholder="3" />
+        </Field>
+        <Field label="Foto (enlace, opcional)">
+          <Input v-model="productPhoto" placeholder="https://..." />
+        </Field>
+        <Button type="submit" :disabled="busy">Publicar producto</Button>
       </form>
     </section>
 
@@ -657,23 +871,29 @@ async function moderateDenuncia(): Promise<void> {
       </ul>
       <p v-else class="paola-page__copy paola-page__copy--muted">Nadie anotado aún.</p>
       <div class="operar-actions">
-        <PaolaButton
+        <Button
           size="sm"
           variant="ghost"
           :disabled="busy || outing.status === 'realizado' || outing.status === 'cerrado'"
           @click="setStatus(outing.id, 'cerrado')"
         >
           Cerrar inscripción
-        </PaolaButton>
-        <PaolaButton
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           :disabled="busy || outing.status === 'realizado'"
           @click="setStatus(outing.id, 'realizado')"
         >
           Marcar realizada
-        </PaolaButton>
+        </Button>
       </div>
+      <Field :label="SOCIAL_COPY.pinOutingLead">
+        <Textarea :model-value="pinDrafts[outing.id] ?? ''" @update:model-value="setPinDraft(outing.id, $event)" />
+      </Field>
+      <Button size="sm" type="button" :disabled="busy" @click="pinOutingNotice(outing.id)">
+        {{ SOCIAL_COPY.pinOuting }}
+      </Button>
     </section>
   </article>
 </template>
@@ -706,12 +926,9 @@ async function moderateDenuncia(): Promise<void> {
   gap: 12px;
 }
 
-.operar-list {
-  margin: 0;
-  padding-left: 1.2rem;
+.operar-report {
   display: grid;
-  gap: 6px;
-  color: var(--paola-white);
+  gap: 8px;
 }
 
 .operar-actions {

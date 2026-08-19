@@ -51,7 +51,7 @@ docs/                     visión, fases, visual, relato
 package.json              Scripts dev/build/start en la raíz
 ```
 
-**Kit visual:** en local, abre `/kit` para ver todos los componentes Vue importables desde `@ui`.
+**Kit visual:** en local, abre `/admin/ui` para ver todos los componentes Vue importables desde `@ui`. `/kit` y `/operar` redirigen a `/admin/ui` y `/admin`.
 
 ## Reglas de desacoplamiento
 

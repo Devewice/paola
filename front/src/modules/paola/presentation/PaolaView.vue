@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { PaolaModule } from '@modules/paola/index.ts'
+import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
-import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaCard from '@ui/PaolaCard.vue'
-import PaolaIcon from '@ui/PaolaIcon.vue'
-import PaolaShareRow from '@ui/PaolaShareRow.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
-import PaolaWaStrip from '@ui/PaolaWaStrip.vue'
+import AficheHero from '@ui/AficheHero.vue'
+import Button from '@ui/Button.vue'
+import Card from '@ui/Card.vue'
+import Icon from '@ui/Icon.vue'
+import ShareRow from '@ui/ShareRow.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
+import WaStrip from '@ui/WaStrip.vue'
 
 const props = defineProps<{
   module: PaolaModule
@@ -20,58 +21,58 @@ const shareUrl = `https://${page.contact.domain}/paola`
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <PaolaAficheHero kicker="Paola Armargura" title="Paola" plate="Usme" logo data-reveal>
+    <AficheHero kicker="Paola Armargura" title="Paola" plate="Usme" logo data-reveal>
       <template #lead>{{ page.contact.domain }}</template>
       <template #actions>
-        <PaolaButton variant="hero" :href="`mailto:${page.contact.email}`">Escribirle a Paola</PaolaButton>
-        <PaolaButton variant="ghost" :href="page.contact.whatsapp.href" target="_blank">
+        <Button variant="hero" :href="`mailto:${page.contact.email}`">Escribirle a Paola</Button>
+        <Button variant="ghost" :href="page.contact.whatsapp.href" target="_blank">
           {{ page.contact.whatsapp.label }}
-        </PaolaButton>
+        </Button>
       </template>
-    </PaolaAficheHero>
+    </AficheHero>
 
     <section class="paola-page__narrative" aria-label="Relato" data-reveal>
-      <PaolaVoiceBadge voice="armargura" />
-      <PaolaCard v-for="section in page.narrative" :key="section.id">
+      <VoiceBadge voice="armargura" />
+      <Card v-for="section in page.narrative" :key="section.id">
         <h2 class="paola-page__heading type-display">{{ section.title }}</h2>
         <p class="paola-page__copy">{{ section.body }}</p>
-      </PaolaCard>
+      </Card>
     </section>
 
     <section class="paola-page__block" aria-label="Contacto" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
+      <VoiceBadge voice="loigca" />
       <h2 class="paola-page__heading type-display">Escríbeme</h2>
       <p class="paola-page__copy">Correo o WhatsApp. Te responde Paola.</p>
-      <PaolaWaStrip title="WhatsApp de Paola" copy="El parche caliente vive aquí.">
-        <PaolaButton :href="page.contact.whatsapp.href" target="_blank">
+      <WaStrip title="WhatsApp de Paola" copy="El parche caliente vive aquí.">
+        <Button :href="page.contact.whatsapp.href" target="_blank">
           {{ page.contact.whatsapp.label }}
-        </PaolaButton>
-      </PaolaWaStrip>
+        </Button>
+      </WaStrip>
       <p class="paola-page__meta">
-        <PaolaIcon name="chat" size="sm" />
+        <Icon name="chat" size="sm" />
         <a :href="`mailto:${page.contact.email}`">{{ page.contact.email }}</a>
       </p>
-      <PaolaShareRow :url="shareUrl" />
+      <ShareRow :url="shareUrl" />
       <p class="paola-page__copy paola-page__copy--muted">
-        <router-link to="/operar">Si eres Paola: lista de cupos</router-link>
+        <router-link :to="APP_PATHS.ADMIN">Si eres Paola: entrar a Admin</router-link>
       </p>
     </section>
 
     <section class="paola-page__media" aria-label="Video y redes" data-reveal>
-      <PaolaCard>
-        <PaolaIcon name="camera" />
+      <Card>
+        <Icon name="camera" />
         <p class="paola-empty__kicker">Cámara Incauta</p>
         <h2 class="paola-page__heading type-display">Video</h2>
         <p class="paola-page__copy paola-page__copy--muted">
           Canal de YouTube. Un video suelto para embeber, cuando Paola lo elija.
         </p>
-        <PaolaButton size="sm" :href="page.contact.youtube.href" target="_blank">
+        <Button size="sm" :href="page.contact.youtube.href" target="_blank">
           Ver en YouTube
-        </PaolaButton>
-      </PaolaCard>
+        </Button>
+      </Card>
 
-      <PaolaCard>
-        <PaolaIcon name="share" />
+      <Card>
+        <Icon name="share" />
         <p class="paola-empty__kicker">Moto Loigca</p>
         <h2 class="paola-page__heading type-display">Redes</h2>
         <ul class="paola-page__social">
@@ -79,7 +80,7 @@ const shareUrl = `https://${page.contact.domain}/paola`
             <a :href="link.href" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
           </li>
         </ul>
-      </PaolaCard>
+      </Card>
     </section>
   </article>
 </template>

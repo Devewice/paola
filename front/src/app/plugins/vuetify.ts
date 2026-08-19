@@ -12,7 +12,7 @@ export const createVuetifyPlugin = () =>
     },
     defaults: {
       VBtn: {
-        rounded: '0',
+        elevation: 0,
       },
     },
     theme: {
@@ -23,6 +23,9 @@ export const createVuetifyPlugin = () =>
           colors: {
             background: PAOLA_COLORS.black,
             surface: PAOLA_COLORS.surface,
+            'surface-bright': PAOLA_COLORS.surface,
+            'surface-light': PAOLA_COLORS.navy,
+            'surface-variant': PAOLA_COLORS.navy,
             primary: PAOLA_COLORS.blue,
             secondary: PAOLA_COLORS.navy,
             error: PAOLA_COLORS.danger,
@@ -32,6 +35,8 @@ export const createVuetifyPlugin = () =>
             'on-background': PAOLA_COLORS.white,
             'on-surface': PAOLA_COLORS.white,
             'on-primary': PAOLA_COLORS.white,
+            'on-secondary': PAOLA_COLORS.white,
+            'on-error': PAOLA_COLORS.white,
           },
         },
       },

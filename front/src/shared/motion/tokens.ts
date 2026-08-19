@@ -1,4 +1,4 @@
-/** Tokens de movimiento Paola — misma fuente en Vue y kit HTML (`docs/index.html`). */
+/** Tokens de movimiento Paola — misma fuente en Vue (`/admin/ui`). */
 export const MOTION = {
   duration: {
     ui: 0.18,

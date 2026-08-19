@@ -1,30 +1,39 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { LEGAL_COPY } from '@app/constants/legal.ts'
 import { parseReportDraft } from '@modules/voice/application/parseReportDraft.ts'
+import { FINES_EMPTY_COPY, REPORTS_EMPTY_COPY, VOICE_COPY } from '@modules/voice/constants/copy.ts'
 import type { VoiceModule } from '@modules/voice/composition.ts'
 import { API, APP_PATHS, JSON_HEADERS } from '@shared/http/constants.ts'
-import PaolaAlert from '@ui/PaolaAlert.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaField from '@ui/PaolaField.vue'
-import PaolaInput from '@ui/PaolaInput.vue'
-import PaolaPrivacyCheck from '@ui/PaolaPrivacyCheck.vue'
-import PaolaTextarea from '@ui/PaolaTextarea.vue'
+import { usePageReveal } from '@shared/motion/usePageReveal.ts'
+import { MASCOT } from '@shared/ui/mascot.ts'
+import AficheHero from '@ui/AficheHero.vue'
+import Alert from '@ui/Alert.vue'
+import Button from '@ui/Button.vue'
+import Card from '@ui/Card.vue'
+import Empty from '@ui/Empty.vue'
+import Field from '@ui/Field.vue'
+import Input from '@ui/Input.vue'
+import PrivacyCheck from '@ui/PrivacyCheck.vue'
+import Textarea from '@ui/Textarea.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
 
-defineProps<{ module: VoiceModule }>()
+const props = defineProps<{ module: VoiceModule }>()
 
 type Fine = { id: string; title: string; guide: string; officialHref: string; disclaimer: string }
-type Report = { id: string; title: string; whatHappened: string; whereText: string; happenedAt: string; evidenceSrc?: string }
+type Report = { id: string; title: string; whatHappened: string; whereText: string; happenedAt: string }
 
-const tips = ref<readonly { id: string; title: string; body: string; officialHref?: string }[]>([])
 const fines = ref<readonly Fine[]>([])
 const reports = ref<readonly Report[]>([])
 const error = ref('')
 const notice = ref('')
 const privacyAccepted = ref(false)
 const legal = LEGAL_COPY
+const copy = VOICE_COPY
 const privacyPath = APP_PATHS.PRIVACIDAD
 const moderationPath = `${APP_PATHS.PRIVACIDAD}#moderacion`
+const bindReveal = usePageReveal()
+const tips = computed(() => props.module.getTips())
 
 const title = ref('')
 const whatHappened = ref('')
@@ -33,21 +42,25 @@ const happenedAt = ref('')
 const evidenceSrc = ref('')
 
 onMounted(async () => {
-  await Promise.all([loadTips(), loadFines(), loadReports()])
+  await Promise.all([loadFines(), loadReports()])
 })
 
-async function loadTips(): Promise<void> {
-  tips.value = (await (await fetch(API.TIPS)).json()).tips ?? []
-}
-
 async function loadFines(): Promise<void> {
-  const body = await (await fetch(API.FINES)).json()
-  fines.value = Array.isArray(body.fines) ? body.fines : Array.isArray(body.comparendos) ? body.comparendos : []
+  try {
+    const body = await (await fetch(API.FINES)).json()
+    fines.value = Array.isArray(body.fines) ? body.fines : []
+  } catch {
+    fines.value = []
+  }
 }
 
 async function loadReports(): Promise<void> {
-  const body = await (await fetch(API.REPORTS)).json()
-  reports.value = Array.isArray(body.reports) ? body.reports : Array.isArray(body.denuncias) ? body.denuncias : []
+  try {
+    const body = await (await fetch(API.REPORTS)).json()
+    reports.value = Array.isArray(body.reports) ? body.reports : []
+  } catch {
+    reports.value = []
+  }
 }
 
 async function publishDenuncia(): Promise<void> {
@@ -75,7 +88,7 @@ async function publishDenuncia(): Promise<void> {
     error.value = typeof body.detail === 'string' ? body.detail : 'No se pudo enviar.'
     return
   }
-  notice.value = 'Denuncia enviada. Paola la revisa antes de publicar.'
+  notice.value = 'Constancia enviada. Paola la revisa antes de publicar.'
   title.value = ''
   whatHappened.value = ''
   whereText.value = ''
@@ -86,78 +99,123 @@ async function publishDenuncia(): Promise<void> {
 </script>
 
 <template>
-  <article class="paola-page">
-    <header>
-      <p class="paola-empty__kicker">Tu voz · Loigca + Incauta + Armargura</p>
-      <h1 class="paola-afiche__title type-display">Tu voz</h1>
-      <p class="paola-afiche__lead">Educación vial, comparendos y constancia comunitaria sin fingir autoridad.</p>
-      <p class="paola-page__copy">
-        <router-link class="voice-legal" :to="privacyPath">{{ legal.voiceLink }}</router-link>
-      </p>
-    </header>
+  <article :ref="bindReveal" class="paola-page">
+    <AficheHero :kicker="copy.kicker" :title="copy.title" :plate="copy.plate" data-reveal>
+      <template #lead>{{ copy.lead }}</template>
+    </AficheHero>
 
-    <PaolaAlert v-if="error" tone="bad">{{ error }}</PaolaAlert>
-    <PaolaAlert v-if="notice" tone="ok">{{ notice }}</PaolaAlert>
+    <p class="paola-page__copy" data-reveal>
+      <router-link class="voice-legal" :to="privacyPath">{{ legal.voiceLink }}</router-link>
+    </p>
 
-    <section class="voice-block">
-      <h2 class="paola-page__heading type-display">Tips Loigca</h2>
-      <ul class="voice-list">
-        <li v-for="tip in tips" :key="tip.id">
-          <strong>{{ tip.title }}</strong> · {{ tip.body }}
-        </li>
-      </ul>
+    <Alert v-if="error" tone="bad">{{ error }}</Alert>
+    <Alert v-if="notice" tone="ok">{{ notice }}</Alert>
+
+    <section class="paola-page__block" data-reveal>
+      <VoiceBadge voice="loigca" />
+      <h2 class="paola-page__heading type-display">{{ copy.tipsHeading }}</h2>
+      <div v-if="tips.items.length" class="voice-cards">
+        <Card v-for="tip in tips.items" :key="tip.id">
+          <h3 class="paola-product__title">{{ tip.title }}</h3>
+          <p class="paola-page__copy">{{ tip.body }}</p>
+          <a
+            v-if="tip.officialHref"
+            class="voice-legal"
+            :href="tip.officialHref"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Norma oficial</a>
+        </Card>
+      </div>
+      <Empty
+        v-else
+        compact
+        hide-cta
+        :title="copy.tipsEmpty"
+        :copy="tips.emptyCopy"
+        :mascot-src="MASCOT.TUMBADA"
+      />
     </section>
 
-    <section class="voice-block">
-      <h2 class="paola-page__heading type-display">Comparendos básicos</h2>
-      <PaolaAlert tone="warn">{{ legal.finesDisclaimer }}</PaolaAlert>
-      <ul v-if="fines.length" class="voice-list">
-        <li v-for="item in fines" :key="item.id">
-          <strong>{{ item.title }}</strong> · {{ item.guide }}
-          <a :href="item.officialHref" target="_blank" rel="noopener noreferrer">Canal oficial</a>
+    <section class="paola-page__block" data-reveal>
+      <VoiceBadge voice="loigca" />
+      <h2 class="paola-page__heading type-display">{{ copy.finesHeading }}</h2>
+      <Alert tone="warn">{{ legal.finesDisclaimer }}</Alert>
+      <div v-if="fines.length" class="voice-cards">
+        <Card v-for="item in fines" :key="item.id">
+          <h3 class="paola-product__title">{{ item.title }}</h3>
+          <p class="paola-page__copy">{{ item.guide }}</p>
+          <a class="voice-legal" :href="item.officialHref" target="_blank" rel="noopener noreferrer">Canal oficial</a>
           <p class="paola-page__copy paola-page__copy--muted">{{ item.disclaimer }}</p>
-        </li>
-      </ul>
+        </Card>
+      </div>
+      <Empty
+        v-else
+        compact
+        hide-cta
+        :title="copy.finesEmpty"
+        :copy="FINES_EMPTY_COPY"
+        :mascot-src="MASCOT.EN_PIE"
+      />
     </section>
 
-    <section class="voice-block">
-      <h2 class="paola-page__heading type-display">Denuncia comunitaria</h2>
-      <PaolaAlert tone="warn">{{ legal.reportsDisclaimer }}</PaolaAlert>
+    <section class="paola-page__block" data-reveal>
+      <VoiceBadge voice="armargura" />
+      <h2 class="paola-page__heading type-display">{{ copy.reportsHeading }}</h2>
+      <Alert tone="warn">{{ legal.reportsDisclaimer }}</Alert>
       <p class="paola-page__copy paola-page__copy--muted">{{ legal.moderationShort }}</p>
       <p class="paola-page__copy">
         <router-link class="voice-legal" :to="moderationPath">Criterio de moderación</router-link>
       </p>
       <form class="voice-form" @submit.prevent="publishDenuncia">
-        <PaolaPrivacyCheck
+        <PrivacyCheck
           v-model="privacyAccepted"
           :label="legal.checkboxLabel"
           :to="privacyPath"
           :link-label="legal.checkboxLink"
         />
-        <PaolaField label="Qué pasó"><PaolaInput v-model="title" /></PaolaField>
-        <PaolaField label="Detalle"><PaolaTextarea v-model="whatHappened" /></PaolaField>
-        <PaolaField label="Dónde"><PaolaInput v-model="whereText" /></PaolaField>
-        <PaolaField label="Cuándo"><PaolaInput v-model="happenedAt" type="datetime-local" /></PaolaField>
-        <PaolaField label="Evidencia (foto enlace, opcional)"><PaolaInput v-model="evidenceSrc" /></PaolaField>
-        <PaolaButton type="submit" :disabled="!privacyAccepted">Enviar denuncia</PaolaButton>
+        <Field label="Qué pasó"><Input v-model="title" /></Field>
+        <Field label="Detalle"><Textarea v-model="whatHappened" /></Field>
+        <Field label="Dónde"><Input v-model="whereText" /></Field>
+        <Field label="Cuándo"><Input v-model="happenedAt" type="datetime-local" /></Field>
+        <Field label="Evidencia (foto enlace, opcional)"><Input v-model="evidenceSrc" /></Field>
+        <Button type="submit" :disabled="!privacyAccepted">{{ copy.sendCta }}</Button>
       </form>
     </section>
 
-    <section class="voice-block">
-      <h2 class="paola-page__heading type-display">Publicadas por Paola</h2>
-      <ul class="voice-list">
+    <section class="paola-page__block" data-reveal>
+      <VoiceBadge voice="incauta" />
+      <h2 class="paola-page__heading type-display">{{ copy.publishedHeading }}</h2>
+      <ul v-if="reports.length" class="voice-list">
         <li v-for="item in reports" :key="item.id">
-          <strong>{{ item.title }}</strong> · {{ item.whereText }} · {{ item.happenedAt }}
+          <strong>{{ item.title }}</strong> · {{ item.whereText }}
         </li>
       </ul>
+      <Empty
+        v-else
+        compact
+        hide-cta
+        title="Nada publicado"
+        :copy="REPORTS_EMPTY_COPY"
+        :mascot-src="MASCOT.TUMBADA"
+      />
     </section>
   </article>
 </template>
 
 <style scoped>
-.voice-block { padding-top: 24px; border-top: 1px solid var(--paola-line); display: grid; gap: 10px; }
-.voice-list { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
-.voice-form { display: grid; gap: 12px; }
+.voice-cards,
+.voice-form,
+.voice-list {
+  display: grid;
+  gap: 12px;
+}
+
+.voice-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
 .voice-legal {
   color: var(--paola-cyan, #48b4fc);
   text-decoration: underline;

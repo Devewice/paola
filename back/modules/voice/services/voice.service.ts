@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type { TipDto } from '../dtos/voice.dto.js'
 import type { FineGuide, Report } from '../interfaces/voice.interface.js'
 import {
+  findAllReports,
   findFines,
   findPublicReports,
   findTips,
@@ -38,6 +39,10 @@ export async function createFine(draft: Record<string, unknown>) {
 
 export async function listReports(): Promise<Report[]> {
   return findPublicReports()
+}
+
+export async function listOperatorReports(): Promise<Report[]> {
+  return findAllReports()
 }
 
 export async function createReport(draft: Record<string, unknown>) {

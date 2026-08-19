@@ -32,6 +32,7 @@ export const RIDES_AGENDA_COPY = {
   full: 'Cupo lleno. Ya no se anota más gente.',
   closed: 'Inscripción cerrada.',
   done: 'Ya se rodó. Esta salida pasa a memorias cuando haya recuento.',
+  outingThread: 'Hilo de la rodada',
 } as const
 
 export const RIDES_MESSAGES = {

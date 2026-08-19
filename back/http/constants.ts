@@ -16,6 +16,7 @@ export const HTTP_METHOD = {
 export const HTTP_HEADER = {
   CONTENT_TYPE: 'content-type',
   OPERADOR_CLAVE: 'x-operador-clave',
+  SESSION_ID: 'x-session-id',
 } as const
 
 export const CONTENT_TYPE_JSON = 'application/json; charset=utf-8'

@@ -14,6 +14,8 @@ import '@fontsource/montserrat/700.css'
 import '@fontsource/montserrat/800.css'
 import '@shared/theme/portal.css'
 import '@ui/kit.css'
+import '@ui/html-kit.css'
+import '@ui/kit-overrides.css'
 
 function mount(): void {
   createApp(App).use(router).use(createVuetifyPlugin()).use(createMotionPlugin()).mount('#app')

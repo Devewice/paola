@@ -5,15 +5,15 @@ alwaysApply: true
 
 # Construcción
 
-Obedece `AGENTS.md` en la raíz. Producto: `docs/brainstorming.md`. Fases: `docs/roadmap.md`. Diseño: `docs/visual.md`. Relato en primera persona: `docs/paola.md`.
+Obedece `AGENTS.md` en la raíz.
 
-- Una fase de la hoja de ruta a la vez. No construyas lo que la fase dice que no incluye.
+- El destino es el portal completo (horizonte 44). Se puede construir de una vez. No dejes pasos intermedios que luego se tiran.
 - Paola es Paola (persona, marca, producto). No uses otro nombre de pila.
 - Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `front/src/app/bootstrap.ts` cablea adapters.
-- Repo en `front/` + `back/`; kit Vue en `front/src/shared/ui/` (`@ui`).
+- Repo en `front/` + `back/`; kit Vue en `front/src/shared/ui/` (`@ui`). Catálogo vivo: `/admin/ui`.
 - Marca propia sin mezclar con alianzas. Tickets propios. Pago: WhatsApp/Paola primero.
 - Entrega solo Bogotá/Soacha. Garantía de producto: solo defectos de fabricación. Servicio de cascos: si quedó mal, se corrige.
-- No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Red social completa no en MVP; horizonte **36–44** (web + WA paralelo, fase **25**).
+- No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Web + WhatsApp en paralelo (WA no se apaga). Comunidades y feed sí van: no hay que esperar “otra fase”.
 - Commits en español, sin `Co-authored-by: Cursor`.
 - No inventes biografía, precios, integrantes, aliados ni links reales. Dominio `paolabiker.com` y correo `contacto@paolabiker.com` sí están definidos.
 - Datos de producto: **MySQL vía Knex en `back/`** (migrate, provider, controller en `back/modules/<nombre-en-inglés>/`). Adapter HTTP en el módulo. Tabla vacía = hueco honesto. Prohibido catálogo JSON en `front/` o listados inventariados en un `.vue`.

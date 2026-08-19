@@ -13,11 +13,13 @@ export const VOICE_ROUTES = {
   CREATE_REPORT: '/api/reports',
   OPERAR_CREATE_TIP: '/api/operar/tips',
   OPERAR_CREATE_FINE: '/api/operar/fines',
+  OPERAR_REPORTS: '/api/operar/reports',
   OPERAR_REPORT_STATUS: '/api/operar/reports/:id/status',
   LEGACY_LIST_COMPARENDOS: '/api/comparendos',
   LEGACY_LIST_DENUNCIAS: '/api/denuncias',
   LEGACY_CREATE_DENUNCIA: '/api/denuncias',
   LEGACY_OPERAR_CREATE_COMPARENDO: '/api/operar/comparendos',
+  LEGACY_OPERAR_DENUNCIAS: '/api/operar/denuncias',
   LEGACY_OPERAR_DENUNCIA_STATUS: '/api/operar/denuncias/:id/status',
 } as const
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { LEGAL_COPY, LEGAL_SECTIONS } from '@app/constants/legal.ts'
-import PaolaAlert from '@ui/PaolaAlert.vue'
+import Alert from '@ui/Alert.vue'
 
 const copy = LEGAL_COPY
 </script>
@@ -13,7 +13,7 @@ const copy = LEGAL_COPY
       <p class="paola-page__copy paola-page__copy--muted">{{ copy.lead }}</p>
     </header>
 
-    <PaolaAlert tone="info">{{ copy.notLegalAdvice }}</PaolaAlert>
+    <Alert tone="info">{{ copy.notLegalAdvice }}</Alert>
 
     <section
       v-for="section in LEGAL_SECTIONS"
@@ -27,7 +27,7 @@ const copy = LEGAL_COPY
       </p>
     </section>
 
-    <PaolaAlert tone="warn">{{ copy.moderationShort }}</PaolaAlert>
+    <Alert tone="warn">{{ copy.moderationShort }}</Alert>
     <p class="paola-page__copy paola-page__copy--muted">{{ copy.contactLine }}</p>
   </article>
 </template>

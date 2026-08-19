@@ -9,15 +9,15 @@ import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
-import PaolaAlert from '@ui/PaolaAlert.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaField from '@ui/PaolaField.vue'
-import PaolaInput from '@ui/PaolaInput.vue'
-import PaolaPrivacyCheck from '@ui/PaolaPrivacyCheck.vue'
-import PaolaSelect from '@ui/PaolaSelect.vue'
-import PaolaEmpty from '@ui/PaolaEmpty.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
-import PaolaZoneBadge from '@ui/PaolaZoneBadge.vue'
+import Alert from '@ui/Alert.vue'
+import Button from '@ui/Button.vue'
+import Field from '@ui/Field.vue'
+import Input from '@ui/Input.vue'
+import PrivacyCheck from '@ui/PrivacyCheck.vue'
+import Select from '@ui/Select.vue'
+import Empty from '@ui/Empty.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
+import ZoneBadge from '@ui/ZoneBadge.vue'
 
 import { LEGAL_COPY } from '@app/constants/legal.ts'
 import type { ServiceOrderDeliveryZone } from '@modules/shop/domain/entities/ServiceOrder.ts'
@@ -86,7 +86,7 @@ async function submitOrder(): Promise<void> {
 <template>
   <article :ref="bindReveal" class="paola-page">
     <template v-if="service">
-      <PaolaVoiceBadge voice="loigca" />
+      <VoiceBadge voice="loigca" />
       <p class="paola-empty__kicker">{{ copy.serviceKind }}</p>
       <h1 class="paola-afiche__title type-display">{{ service.title }}</h1>
       <p class="paola-product__price">{{ formatProductPrice(service.priceCop) }}</p>
@@ -108,12 +108,12 @@ async function submitOrder(): Promise<void> {
 
       <section class="paola-page__block" :aria-label="copy.deliveryAria">
         <div class="shop-page__zones">
-          <PaolaZoneBadge zone="bogota" />
-          <PaolaZoneBadge zone="soacha" />
-          <PaolaZoneBadge zone="fuera" />
+          <ZoneBadge zone="bogota" />
+          <ZoneBadge zone="soacha" />
+          <ZoneBadge zone="fuera" />
         </div>
-        <PaolaAlert tone="info">{{ board.zoneCopy }}</PaolaAlert>
-        <PaolaAlert tone="warn">{{ board.warrantyCopy }}</PaolaAlert>
+        <Alert tone="info">{{ board.zoneCopy }}</Alert>
+        <Alert tone="warn">{{ board.warrantyCopy }}</Alert>
       </section>
 
       <section class="shop-ficha__order">
@@ -123,51 +123,51 @@ async function submitOrder(): Promise<void> {
         </p>
 
         <form class="shop-ficha__order-form" @submit.prevent="submitOrder">
-          <PaolaPrivacyCheck
+          <PrivacyCheck
             v-model="privacyAccepted"
             :label="legal.checkboxLabel"
             :to="privacyPath"
             :link-label="legal.checkboxLink"
           />
 
-          <PaolaField label="Nombre">
-            <PaolaInput v-model="customerName" placeholder="Tu nombre" />
-          </PaolaField>
+          <Field label="Nombre">
+            <Input v-model="customerName" placeholder="Tu nombre" />
+          </Field>
 
-          <PaolaField label="WhatsApp">
-            <PaolaInput v-model="customerWhatsapp" placeholder="Número de WhatsApp" />
-          </PaolaField>
+          <Field label="WhatsApp">
+            <Input v-model="customerWhatsapp" placeholder="Número de WhatsApp" />
+          </Field>
 
-          <PaolaField label="Talla (opcional)">
-            <PaolaInput v-model="size" placeholder="Si aplica" />
-          </PaolaField>
+          <Field label="Talla (opcional)">
+            <Input v-model="size" placeholder="Si aplica" />
+          </Field>
 
-          <PaolaField label="Zona de entrega">
-            <PaolaSelect v-model="deliveryZone" :options="zoneOptions" />
-          </PaolaField>
+          <Field label="Zona de entrega">
+            <Select v-model="deliveryZone" :options="zoneOptions" />
+          </Field>
 
-          <PaolaAlert v-if="deliveryZone === 'fuera'" tone="warn">
+          <Alert v-if="deliveryZone === 'fuera'" tone="warn">
             Fuera de Bogotá/Soacha: aún no hay entrega.
-          </PaolaAlert>
+          </Alert>
 
-          <PaolaAlert v-if="error" tone="bad">{{ error }}</PaolaAlert>
+          <Alert v-if="error" tone="bad">{{ error }}</Alert>
 
-          <PaolaButton type="submit" variant="hero" :disabled="busy || !privacyAccepted">
+          <Button type="submit" variant="hero" :disabled="busy || !privacyAccepted">
             {{ copy.serviceAskCta }}
-          </PaolaButton>
+          </Button>
         </form>
 
         <div v-if="whatsappHref" class="shop-ficha__order-success">
-          <PaolaAlert tone="ok">Pedido registrado. Ahora sí: escribirle a Paola.</PaolaAlert>
-          <PaolaButton variant="hero" :href="whatsappHref" target="_blank">
+          <Alert tone="ok">Pedido registrado. Ahora sí: escribirle a Paola.</Alert>
+          <Button variant="hero" :href="whatsappHref" target="_blank">
             Abrir WhatsApp de Paola
-          </PaolaButton>
-          <PaolaButton variant="ghost" :to="shopPath">{{ copy.backCta }}</PaolaButton>
+          </Button>
+          <Button variant="ghost" :to="shopPath">{{ copy.backCta }}</Button>
         </div>
       </section>
     </template>
 
-    <PaolaEmpty
+    <Empty
       v-else
       compact
       hide-cta
@@ -176,7 +176,7 @@ async function submitOrder(): Promise<void> {
       :mascot-src="mascot.TUMBADA"
     />
     <p v-if="!service" class="shop-ficha__cta">
-      <PaolaButton variant="ghost" :to="shopPath">{{ copy.backCta }}</PaolaButton>
+      <Button variant="ghost" :to="shopPath">{{ copy.backCta }}</Button>
     </p>
   </article>
 </template>

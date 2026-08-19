@@ -14,6 +14,7 @@ export interface Outing {
   whatToBring: string
   paid: boolean
   status: OutingStatus
+  mapHref?: string
 }
 
 export interface Ticket {
@@ -22,6 +23,7 @@ export interface Ticket {
   name: string
   whatsapp: string
   moto: string
+  userId?: string
 }
 
 export interface OperatorBoardOuting extends Outing {

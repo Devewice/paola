@@ -1,4 +1,4 @@
-/** Paleta Paola — misma fuente que `docs/visual.md` y `:root` en el kit HTML. */
+/** Paleta Paola — misma fuente que `docs/visual.md` y el catálogo `/admin/ui`. */
 export const PAOLA_COLORS = {
   black: '#05070C',
   ink: '#000814',

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { getAppDependencies } from '@app/bootstrap.ts'
-import PaolaAllianceStrip from '@ui/PaolaAllianceStrip.vue'
+import AllianceStrip from '@ui/AllianceStrip.vue'
 
 const { club } = getAppDependencies()
 const alliances = club.getAlliances()
 </script>
 
 <template>
-  <PaolaAllianceStrip :alliances="alliances" />
+  <AllianceStrip :alliances="alliances" />
 </template>

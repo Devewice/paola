@@ -42,7 +42,7 @@ export const SHOP_COPY = {
   kicker: 'Oficio',
   title: 'Tienda',
   plate: 'Tienda',
-  lead: 'Piezas propias y colaboraciones en estanterías distintas. El lavado de cascos es servicio, no una gorra.',
+  lead: 'Piezas propias y colaboraciones en estanterías distintas. El lavado de cascos es servicio, no una gorra. Se le escribe a Paola; la pasarela, si entra, no apaga ese camino.',
   writeCta: 'Escribirle a Paola',
   mailCta: 'Correo',
   backCta: 'Volver a Tienda',

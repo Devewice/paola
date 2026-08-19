@@ -16,6 +16,7 @@ export type Outing = {
   readonly whatToBring: string
   readonly paid: boolean
   readonly status: OutingStatus
+  readonly mapHref?: string
 }
 
 export type OutingDraft = {

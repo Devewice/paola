@@ -50,6 +50,7 @@ export async function listOperatorBoard(): Promise<OperatorBoardOuting[]> {
 export async function claimSpot(
   outingId: string,
   draft: Record<string, unknown>,
+  userId?: string,
 ): Promise<Fail | { ok: true; ticket: Ticket; outing: Outing | null }> {
   const parsed = parseClaimSpot(draft)
   if (!parsed.ok) return parsed
@@ -85,6 +86,7 @@ export async function claimSpot(
       name: parsed.value.name,
       whatsapp: parsed.value.whatsapp,
       moto: parsed.value.moto,
+      userId,
     }
     await insertTicket(trx, ticket)
 

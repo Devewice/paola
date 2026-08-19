@@ -15,6 +15,7 @@ import {
   HTTP_STATUS,
   JSON_HEADERS,
   OPERADOR_CLAVE_HEADER,
+  SESSION_HEADER,
   apiOperarOutingStatus,
   apiOutingTickets,
 } from '@shared/http/constants.ts'
@@ -22,6 +23,7 @@ import {
 type Contact = {
   readonly email: string
   readonly whatsappHref: string
+  readonly getSessionId?: () => string
 }
 
 export class HttpRidesApi implements RidesApiPort {
@@ -35,9 +37,12 @@ export class HttpRidesApi implements RidesApiPort {
     const privacy = requirePrivacyNotice(draft.privacyAccepted, RIDES_MESSAGES.PRIVACY_REQUIRED)
     if (!privacy.ok) return privacy
 
+    const headers: Record<string, string> = { ...JSON_HEADERS }
+    const session = this.contact.getSessionId?.() ?? ''
+    if (session) headers[SESSION_HEADER] = session
     const response = await fetch(apiOutingTickets(outingId), {
       method: 'POST',
-      headers: JSON_HEADERS,
+      headers,
       body: JSON.stringify(draft),
     })
     const body = await readBody(response)

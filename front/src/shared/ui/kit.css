@@ -565,6 +565,13 @@
   border-radius: 10px;
 }
 
+.paola-gallery img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
 .paola-map {
   min-height: 160px;
   border: 1px dashed var(--paola-line);
@@ -573,6 +580,21 @@
   place-items: center;
   color: var(--paola-muted);
   font-size: 13px;
+  padding: 12px;
+  gap: 8px;
+}
+
+.paola-map__img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.paola-map__copy,
+.paola-map__route {
+  margin: 0;
+  text-align: center;
 }
 
 .paola-qty {
@@ -775,15 +797,92 @@
   border-color: var(--paola-blue);
 }
 
+.paola-chat--pinned {
+  border-color: var(--paola-cyan, #48b4fc);
+}
+
+.paola-chat__photo {
+  display: block;
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.paola-chat__voice {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.paola-feed__mod {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .paola-kit {
   display: grid;
   gap: 48px;
   padding: 24px 8px 80px;
+  width: min(var(--paola-content-max, 85rem), calc(100% - 2 * var(--paola-gutter, 32px)));
+  max-width: none;
 }
 
 .paola-kit h2 {
   margin: 0 0 16px;
   font-size: 22px;
+}
+
+.paola-kit__head {
+  display: grid;
+  gap: 12px;
+}
+
+.paola-kit__hint {
+  margin: 0;
+  color: var(--paola-muted);
+  font-size: 14px;
+}
+
+.paola-kit__toc {
+  position: sticky;
+  top: 64px;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 0;
+  background: var(--paola-black);
+  border-bottom: 1px solid var(--paola-line);
+}
+
+.paola-kit__logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.paola-kit__swatches {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.paola-kit__swatch {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.paola-kit__swatch code {
+  color: var(--paola-muted);
+}
+
+.paola-kit__chip {
+  display: block;
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid var(--paola-line);
 }
 
 .paola-kit__row {
@@ -807,6 +906,27 @@
 .paola-qty span {
   min-width: 32px;
   text-align: center;
+}
+
+.paola-file {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.paola-file__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.paola-file__name {
+  color: var(--paola-muted);
+  font-size: 14px;
 }
 
 .paola-acc__body {
@@ -864,17 +984,6 @@
   display: block;
   width: 100%;
   height: auto;
-}
-
-.paola-brush-plate,
-.type-brush-dry {
-  font-family: 'Brush King', cursive;
-  font-size: 42px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--paola-white);
-  margin: 8px 0;
-  filter: url(#paola-dry-brush);
 }
 
 .paola-notice--offline {

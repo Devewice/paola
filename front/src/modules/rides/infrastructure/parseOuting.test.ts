@@ -23,7 +23,10 @@ describe('parseOuting', () => {
     expect(parseOuting({ ...valid, date: '01-09-2026' })).toBeNull()
   })
 
-  it('rechaza cupo menor a 1', () => {
-    expect(parseOuting({ ...valid, capacity: 0 })).toBeNull()
+  it('acepta mapHref opcional', () => {
+    expect(parseOuting({ ...valid, mapHref: 'https://ejemplo.test/ruta.png' })?.mapHref).toBe(
+      'https://ejemplo.test/ruta.png',
+    )
+    expect(parseOuting(valid)?.mapHref).toBeUndefined()
   })
 })

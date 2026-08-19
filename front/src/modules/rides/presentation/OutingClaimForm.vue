@@ -6,12 +6,12 @@ import type { Result } from '@core/result.ts'
 import { RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
 import type { ClaimedSpot, OutingNotice, TicketDraft } from '@modules/rides/index.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
-import PaolaAlert from '@ui/PaolaAlert.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaField from '@ui/PaolaField.vue'
-import PaolaInput from '@ui/PaolaInput.vue'
-import PaolaPrivacyCheck from '@ui/PaolaPrivacyCheck.vue'
-import PaolaTicketCard from '@ui/PaolaTicketCard.vue'
+import Alert from '@ui/Alert.vue'
+import Button from '@ui/Button.vue'
+import Field from '@ui/Field.vue'
+import Input from '@ui/Input.vue'
+import PrivacyCheck from '@ui/PrivacyCheck.vue'
+import TicketCard from '@ui/TicketCard.vue'
 
 const props = defineProps<{
   paid: boolean
@@ -57,36 +57,36 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <PaolaTicketCard v-if="done" title="Cupo a tu nombre" :meta="done.outing.title">
-    <PaolaAlert tone="ok">El cupo quedó a tu nombre. Avísale a Paola por WhatsApp o correo para que lo vea.</PaolaAlert>
+  <TicketCard v-if="done" title="Cupo a tu nombre" :meta="done.outing.title">
+    <Alert tone="ok">El cupo quedó a tu nombre. Avísale a Paola por WhatsApp o correo para que lo vea.</Alert>
     <div class="outing-claim__actions">
-      <PaolaButton :href="done.notice.whatsappHref" target="_blank">Avisar por WhatsApp</PaolaButton>
-      <PaolaButton variant="ghost" :href="done.notice.mailtoHref">Avisar por correo</PaolaButton>
+      <Button :href="done.notice.whatsappHref" target="_blank">Avisar por WhatsApp</Button>
+      <Button variant="ghost" :href="done.notice.mailtoHref">Avisar por correo</Button>
     </div>
-  </PaolaTicketCard>
+  </TicketCard>
 
   <form v-else class="outing-claim" @submit.prevent="submit">
-    <p class="paola-empty__kicker">Apúntese pa rodar</p>
-    <PaolaAlert v-if="paid" tone="info">
+    <p class="paola-empty__kicker">Anotarse a la rodada</p>
+    <Alert v-if="paid" tone="info">
       Es de pago. El cupo queda anotado; el cobro se habla con Paola por WhatsApp.
-    </PaolaAlert>
-    <PaolaPrivacyCheck
+    </Alert>
+    <PrivacyCheck
       v-model="privacyAccepted"
       :label="copy.checkboxLabel"
       :to="privacyPath"
       :link-label="copy.checkboxLink"
     />
-    <PaolaField label="Nombre" :error="error && !name.trim() ? error : undefined">
-      <PaolaInput v-model="name" placeholder="Tu nombre" :invalid="Boolean(error)" />
-    </PaolaField>
-    <PaolaField label="WhatsApp">
-      <PaolaInput v-model="whatsapp" placeholder="312 000 0000" type="tel" :invalid="Boolean(error)" />
-    </PaolaField>
-    <PaolaField label="Moto (opcional)">
-      <PaolaInput v-model="moto" placeholder="Si vas en moto" />
-    </PaolaField>
-    <PaolaAlert v-if="error" tone="bad">{{ error }}</PaolaAlert>
-    <PaolaButton type="submit" :disabled="sending || !privacyAccepted">Apúntese pa rodar</PaolaButton>
+    <Field label="Nombre" :error="error && !name.trim() ? error : undefined">
+      <Input v-model="name" placeholder="Tu nombre" :invalid="Boolean(error)" />
+    </Field>
+    <Field label="WhatsApp">
+      <Input v-model="whatsapp" placeholder="312 000 0000" type="tel" :invalid="Boolean(error)" />
+    </Field>
+    <Field label="Moto (opcional)">
+      <Input v-model="moto" placeholder="Si vas en moto" />
+    </Field>
+    <Alert v-if="error" tone="bad">{{ error }}</Alert>
+    <Button type="submit" :disabled="sending || !privacyAccepted">Anotarse a la rodada</Button>
   </form>
 </template>
 

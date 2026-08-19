@@ -24,6 +24,7 @@ export const RIDES_LIMITS = {
 export const RIDES_TABLES = {
   OUTINGS: 'outings',
   TICKETS: 'tickets',
+  OUTING_ROUTES: 'outing_routes',
 } as const
 
 export const WHATSAPP_NON_DIGIT = /\D/g

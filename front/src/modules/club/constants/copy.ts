@@ -9,8 +9,13 @@ export const JOIN_WHATSAPP_TEXT = 'Quiero unirme al parche'
 export const JOIN_COPY = {
   cta: 'Únete',
   title: 'Únete',
-  copy: 'El parche caliente vive en WhatsApp. El grupo aún no está publicado: escríbele a Paola y ella te mete.',
+  copy: 'El grupo de WhatsApp todavía no está publicado. Escríbele a Paola y ella te mete.',
 } as const
+
+export const PARCHESE_TABS = [
+  { id: 'club', label: 'El club' },
+  { id: 'actividad', label: 'Actividad' },
+] as const
 
 export const CLUB_API_MESSAGES = {
   ALLIANCE_PARSE_FAIL: 'La API devolvió un aliado que no se entiende.',

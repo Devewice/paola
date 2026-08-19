@@ -108,6 +108,7 @@ export function toOuting(row: Record<string, unknown>): Outing {
     whatToBring: String(row.what_to_bring ?? ''),
     paid: Boolean(row.paid),
     status,
+    mapHref: row.map_href ? String(row.map_href) : undefined,
   }
 }
 
@@ -118,5 +119,6 @@ export function toTicket(row: Record<string, unknown>): Ticket {
     name: String(row.name),
     whatsapp: String(row.whatsapp),
     moto: String(row.moto ?? ''),
+    userId: row.user_id ? String(row.user_id) : undefined,
   }
 }

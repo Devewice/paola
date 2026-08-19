@@ -5,9 +5,9 @@ import type { Outing } from '@modules/rides/domain/entities/Outing.ts'
 import type { ClaimedSpot, RidesModule } from '@modules/rides/index.ts'
 import OutingClaimForm from '@modules/rides/presentation/OutingClaimForm.vue'
 import { MASCOT } from '@shared/ui/mascot.ts'
-import PaolaEmpty from '@ui/PaolaEmpty.vue'
-import PaolaOutingCard from '@ui/PaolaOutingCard.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
+import Empty from '@ui/Empty.vue'
+import OutingCard from '@ui/OutingCard.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
 
 const props = defineProps<{
   module: RidesModule
@@ -31,10 +31,10 @@ function statusCopy(status: Outing['status']): string {
 
 <template>
   <section class="parchese-page__agenda" :aria-label="copy.aria">
-    <PaolaVoiceBadge voice="loigca" />
+    <VoiceBadge voice="loigca" />
     <h2 class="paola-page__heading type-display">{{ copy.heading }}</h2>
     <div v-if="outings.length" class="parchese-page__dates">
-      <PaolaOutingCard
+      <OutingCard
         v-for="(outing, index) in outings"
         :key="outing.id"
         :class="{ 'paola-outing--featured': index === 0 && outing.status !== RIDES_STATUS.REALIZADO }"
@@ -44,6 +44,7 @@ function statusCopy(status: Outing['status']): string {
         :status="outing.status"
         :meeting-point="outing.meetingPoint"
         :route-text="outing.routeText"
+        :map-href="outing.mapHref"
         :capacity="outing.capacity"
         :taken="outing.taken"
         :what-to-bring="outing.whatToBring"
@@ -56,9 +57,10 @@ function statusCopy(status: Outing['status']): string {
           @claimed="onClaimed"
         />
         <p v-else class="paola-outing__copy">{{ statusCopy(outing.status) }}</p>
-      </PaolaOutingCard>
+        <slot name="hilo" :outing="outing" />
+      </OutingCard>
     </div>
-    <PaolaEmpty
+    <Empty
       v-else
       compact
       hide-cta
@@ -82,7 +84,13 @@ function statusCopy(status: Outing['status']): string {
 
 @media (min-width: 640px) {
   .parchese-page__dates {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .parchese-page__dates {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>

@@ -21,6 +21,9 @@
   --paola-warn: #e8a020;
   --paola-font-ui: 'Montserrat', sans-serif;
   --paola-font-display: 'Oswald', sans-serif;
+  --paola-gutter: clamp(16px, 4.5vw, 80px);
+  --paola-content-max: 85rem;
+  --paola-card-min: 17rem;
 }
 
 html,
@@ -209,7 +212,7 @@ h2,
 
 .paola-afiche__title {
   margin: 0;
-  font-size: clamp(32px, 5vw, 52px);
+  font-size: clamp(28px, 5.2cqw, 52px);
 }
 
 .paola-afiche__lead {
@@ -328,19 +331,29 @@ h2,
   display: flex;
   flex-direction: column;
   gap: calc(var(--paola-space) * 3);
-  max-width: 1120px;
+  width: min(var(--paola-content-max), calc(100% - 2 * var(--paola-gutter)));
+  max-width: none;
   margin: 0 auto;
-  padding: calc(var(--paola-space) * 2);
-  padding-bottom: calc(var(--paola-space) * 12);
+  padding: calc(var(--paola-space) * 2) 0 calc(var(--paola-space) * 12);
 }
 
-.paola-shell--kit {
-  grid-template-columns: minmax(0, 1fr);
-  max-width: 1120px;
+.html-kit-app.v-application {
+  overflow: visible;
+}
+
+.html-kit-main.v-main {
+  --v-layout-top: 0px;
+  padding: 0 !important;
+}
+
+.html-kit-page {
+  min-height: 100vh;
 }
 
 .paola-shell__page {
   min-width: 0;
+  container-type: inline-size;
+  container-name: paola;
 }
 
 .paola-alliances {
@@ -509,7 +522,7 @@ h2,
 
   .paola-shell {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 240px);
     align-items: start;
     gap: calc(var(--paola-space) * 3);
     padding-bottom: calc(var(--paola-space) * 4);

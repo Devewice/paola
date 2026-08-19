@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { ClubModule } from '@modules/club/index.ts'
+import { PARCHESE_TABS } from '@modules/club/constants/copy.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
-import PaolaAficheHero from '@ui/PaolaAficheHero.vue'
-import PaolaAllianceStrip from '@ui/PaolaAllianceStrip.vue'
-import PaolaButton from '@ui/PaolaButton.vue'
-import PaolaEmpty from '@ui/PaolaEmpty.vue'
-import PaolaMemberCard from '@ui/PaolaMemberCard.vue'
-import PaolaTimeline from '@ui/PaolaTimeline.vue'
-import PaolaVoiceBadge from '@ui/PaolaVoiceBadge.vue'
-import PaolaWaStrip from '@ui/PaolaWaStrip.vue'
+import AficheHero from '@ui/AficheHero.vue'
+import AllianceStrip from '@ui/AllianceStrip.vue'
+import Button from '@ui/Button.vue'
+import DualChannel from '@ui/DualChannel.vue'
+import Empty from '@ui/Empty.vue'
+import MemberCard from '@ui/MemberCard.vue'
+import Tabs from '@ui/Tabs.vue'
+import Timeline from '@ui/Timeline.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
+import WaStrip from '@ui/WaStrip.vue'
 
 const props = defineProps<{
   module: ClubModule
@@ -19,24 +23,31 @@ const join = props.module.getJoinChannel()
 const alliances = props.module.getAlliances()
 const members = props.module.getMembers()
 const bindReveal = usePageReveal()
+const tab = ref('club')
 </script>
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <PaolaAficheHero kicker="Parchese" title="El club" plate="Parche" data-reveal>
+    <AficheHero kicker="Parchese" title="El club" plate="Parche" data-reveal>
       <template #lead>
-        Cuándo hay algo, cómo te metes, quién banca y las caras que autorizaron salir.
+        Cuándo hay rodada, cómo unirse, quién apoya el parche y las caras que autorizaron salir.
       </template>
-    </PaolaAficheHero>
+    </AficheHero>
 
-    <div data-reveal>
+    <Tabs v-model="tab" :tabs="PARCHESE_TABS" data-reveal />
+
+    <div v-show="tab === 'club'" data-reveal>
       <slot name="agenda" />
     </div>
 
-    <section class="paola-page__block" aria-label="Ciclo de rodada" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
+    <div v-show="tab === 'actividad'" data-reveal>
+      <slot name="actividad" />
+    </div>
+
+    <section v-show="tab === 'club'" class="paola-page__block" aria-label="Ciclo de rodada" data-reveal>
+      <VoiceBadge voice="loigca" />
       <h2 class="paola-page__heading type-display">El ciclo</h2>
-      <PaolaTimeline
+      <Timeline
         :steps="[
           { label: 'Creada', done: true },
           { label: 'Cupo', done: true },
@@ -53,15 +64,15 @@ const bindReveal = usePageReveal()
       </p>
     </section>
 
-    <div data-reveal>
+    <div v-show="tab === 'club'" data-reveal>
       <slot name="memorias" />
     </div>
 
-    <section class="paola-page__block" aria-label="Así va el parche" data-reveal>
-      <PaolaVoiceBadge voice="incauta" />
+    <section v-show="tab === 'club'" class="paola-page__block" aria-label="Así va el parche" data-reveal>
+      <VoiceBadge voice="incauta" />
       <h2 class="paola-page__heading type-display">Así va el parche</h2>
       <div v-if="members.items.length" class="parchese-page__roster">
-        <PaolaMemberCard
+        <MemberCard
           v-for="member in members.items"
           :key="member.id"
           :alias="member.alias"
@@ -70,7 +81,7 @@ const bindReveal = usePageReveal()
           :instagram-href="member.instagramHref"
         />
       </div>
-      <PaolaEmpty
+      <Empty
         v-else
         compact
         title="Nadie aún"
@@ -80,16 +91,25 @@ const bindReveal = usePageReveal()
       />
     </section>
 
-    <section class="paola-page__block" aria-label="Únete" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
-      <PaolaWaStrip :title="join.title" :copy="join.copy">
-        <PaolaButton variant="hero" :href="join.href" target="_blank">{{ join.cta }}</PaolaButton>
-      </PaolaWaStrip>
+    <section v-show="tab === 'club'" class="paola-page__block" aria-label="Dónde hablamos" data-reveal>
+      <VoiceBadge voice="loigca" />
+      <h2 class="paola-page__heading type-display">Dónde hablamos</h2>
+      <DualChannel />
+      <p class="paola-page__copy">
+        <router-link class="parchese-feed" to="/feed">Actividad y comunidades en el feed</router-link>
+      </p>
     </section>
 
-    <section class="paola-page__block" aria-label="Alianzas" data-reveal>
-      <PaolaVoiceBadge voice="loigca" />
-      <PaolaAllianceStrip
+    <section v-show="tab === 'club'" class="paola-page__block" aria-label="Únete" data-reveal>
+      <VoiceBadge voice="loigca" />
+      <WaStrip :title="join.title" :copy="join.copy">
+        <Button variant="hero" :href="join.href" target="_blank">{{ join.cta }}</Button>
+      </WaStrip>
+    </section>
+
+    <section v-show="tab === 'club'" class="paola-page__block" aria-label="Alianzas" data-reveal>
+      <VoiceBadge voice="loigca" />
+      <AllianceStrip
         kicker="Alianzas"
         title="Quienes apoyan"
         :alliances="alliances"
@@ -106,11 +126,23 @@ const bindReveal = usePageReveal()
 
 @media (min-width: 640px) {
   .parchese-page__roster {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .parchese-page__roster {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 .paola-page__block :deep(.paola-alliances) {
   border-left-width: 3px;
+}
+
+.parchese-feed {
+  color: var(--paola-cyan, #48b4fc);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 </style>

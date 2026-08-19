@@ -8,6 +8,7 @@
     "dev": "concurrently -k -n front,back -c cyan,magenta \"npm run dev:front\" \"npm run dev:back\"",
     "dev:back": "tsx watch back/index.ts",
     "dev:front": "vite --config front/vite.config.ts",
+    "typecheck": "vue-tsc --noEmit -p front/tsconfig.json && tsc -p back/tsconfig.json",
     "build": "vue-tsc --noEmit -p front/tsconfig.json && vite build --config front/vite.config.ts && tsc -p back/tsconfig.json",
     "test": "vitest run --config front/vite.config.ts",
     "preview": "vite preview --config front/vite.config.ts",

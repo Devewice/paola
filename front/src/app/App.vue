@@ -4,19 +4,28 @@ import { useRoute } from 'vue-router'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
 import AlliancesStrip from '@app/shell/AlliancesStrip.vue'
-import PaolaBrushDefs from '@ui/PaolaBrushDefs.vue'
+import BrushDefs from '@ui/BrushDefs.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
 const route = useRoute()
 const { paola } = getAppDependencies()
 const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
-const shellWide = computed(() => route.path === '/kit' || route.path === '/operar')
+const isKitCatalog = computed(
+  () =>
+    route.path === APP_PATHS.ADMIN_UI ||
+    route.path === `${APP_PATHS.ADMIN}/ui-test` ||
+    route.path === APP_PATHS.KIT,
+)
+const shellWide = computed(() => route.path.startsWith(APP_PATHS.ADMIN) || route.path === APP_PATHS.KIT)
 </script>
 
 <template>
-  <v-app>
-    <PaolaBrushDefs />
+  <BrushDefs />
+  <div v-if="isKitCatalog" class="html-kit-root">
+    <router-view />
+  </div>
+  <v-app v-else>
     <v-app-bar color="background" flat>
       <router-link to="/" class="d-flex align-center px-2" aria-label="Paola, inicio">
         <img class="paola-shell-logo" src="/logo.png" alt="Paola — Rodando con propósito" />
@@ -52,6 +61,10 @@ const shellWide = computed(() => route.path === '/kit' || route.path === '/opera
           <router-link class="paola-footer__link" :to="APP_PATHS.PAOLA">Paola</router-link>
           <span class="paola-footer__dot" aria-hidden="true">·</span>
           <router-link class="paola-footer__link" :to="APP_PATHS.PRIVACIDAD">Privacidad</router-link>
+          <span class="paola-footer__dot" aria-hidden="true">·</span>
+          <router-link class="paola-footer__link" :to="APP_PATHS.CUENTA">Cuenta</router-link>
+          <span class="paola-footer__dot" aria-hidden="true">·</span>
+          <router-link class="paola-footer__link" :to="APP_PATHS.FEED">Feed</router-link>
           <span class="paola-footer__dot" aria-hidden="true">·</span>
           <a
             class="paola-footer__link"

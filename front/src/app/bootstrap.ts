@@ -1,4 +1,5 @@
 import { ComposedHomeBoardAdapter } from '@app/adapters/ComposedHomeBoardAdapter.ts'
+import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import {
   buildJoinChannel,
   createClubModule,
@@ -75,6 +76,13 @@ function wire(
     new HttpRidesApi({
       email: contact.email,
       whatsappHref: contact.whatsapp.href,
+      getSessionId: () => {
+        try {
+          return localStorage.getItem(SESSION_STORAGE_KEY) ?? ''
+        } catch {
+          return ''
+        }
+      },
     }),
   )
   const voice = createVoiceModule(tipCatalog)
