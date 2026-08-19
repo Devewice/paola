@@ -1,22 +1,43 @@
 <script setup lang="ts">
 import type { HomeModule } from '@modules/home/index.ts'
 import { computed, onMounted, ref } from 'vue'
-import { HOME_PULSE_COPY } from '@modules/home/constants/copy.ts'
+import { HOME_BOARD_COPY, HOME_PULSE_COPY } from '@modules/home/constants/copy.ts'
 import { parsePublicPost, type PublicPost } from '@app/parsePublicPost.ts'
 import { API, APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import AficheHero from '@ui/AficheHero.vue'
-import AgendaItem from '@ui/AgendaItem.vue'
-import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
-import Card from '@ui/Card.vue'
-import Empty from '@ui/Empty.vue'
+import Chip from '@ui/Chip.vue'
+import DualChannel from '@ui/DualChannel.vue'
+import DualCta from '@ui/DualCta.vue'
+import EmptyBlock from '@ui/EmptyBlock.vue'
 import FeedPost from '@ui/FeedPost.vue'
 import Gallery from '@ui/Gallery.vue'
-import Icon from '@ui/Icon.vue'
+import HomeDash from '@ui/HomeDash.vue'
+import HomeFeedWidget from '@ui/HomeFeedWidget.vue'
+import KitBrushDivider from '@ui/KitBrushDivider.vue'
+import MascotEmpty from '@ui/MascotEmpty.vue'
 import MemoriaHero from '@ui/MemoriaHero.vue'
-import StatGrid from '@ui/StatGrid.vue'
+import QuoteBlock from '@ui/QuoteBlock.vue'
+import RideListItem from '@ui/RideListItem.vue'
+import StatBig from '@ui/StatBig.vue'
 import VoiceBadge from '@ui/VoiceBadge.vue'
+import VoiceCard from '@ui/VoiceCard.vue'
+
+const MONTHS = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+] as const
 
 const props = defineProps<{
   module: HomeModule
@@ -24,9 +45,19 @@ const props = defineProps<{
 
 const board = computed(() => props.module.getBoard())
 const bindReveal = usePageReveal()
-const photoCount = computed(() => board.value.memory?.photos.length ?? 0)
 const pulse = ref<readonly PublicPost[]>([])
+const copy = HOME_BOARD_COPY
 const pulseCopy = HOME_PULSE_COPY
+
+const nextDate = computed(() => {
+  const date = board.value.next?.date
+  if (!date) return { day: '—', month: '' }
+  const [, month, day] = date.split('-')
+  const monthIndex = Number(month) - 1
+  return { day: day ?? '—', month: MONTHS[monthIndex] ?? '' }
+})
+
+const kmValue = computed(() => (board.value.totalKm !== null ? String(board.value.totalKm) : '—'))
 
 onMounted(async () => {
   try {
@@ -37,7 +68,7 @@ onMounted(async () => {
     pulse.value = posts
       .map((row: unknown) => parsePublicPost(row))
       .filter((item: PublicPost | null): item is PublicPost => item !== null)
-      .slice(0, 5)
+      .slice(0, 3)
   } catch {
     pulse.value = []
   }
@@ -47,181 +78,149 @@ onMounted(async () => {
 <template>
   <article :ref="bindReveal" class="paola-page">
     <AficheHero
-      kicker="El corte del día"
-      title="Paola Biker"
-      plate="Rodando"
+      :kicker="copy.kicker"
+      :title="copy.title"
+      :plate="copy.plate"
       logo
       :photo-src="board.memory?.photoSrc"
       data-reveal
     >
-      <template #lead>Qué hay hoy: próxima rodada, kilómetros y un recorte de Paola.</template>
+      <template #lead>{{ copy.lead }}</template>
       <template #actions>
-        <Button v-if="board.next" variant="hero" to="/parchese">Ver próxima salida</Button>
-        <Button v-else variant="hero" :href="board.join.href" target="_blank">
-          {{ board.join.label }}
-        </Button>
-        <Button v-if="board.next" variant="ghost" :href="board.join.href" target="_blank">
-          {{ board.join.label }}
-        </Button>
-        <Button v-else variant="ghost" to="/parchese">Parchese</Button>
-        <Button variant="ghost" to="/feed">Feed</Button>
+        <DualCta>
+          <Button v-if="board.next" variant="hero" :to="APP_PATHS.PARCHESE">{{ copy.nextCta }}</Button>
+          <Button v-else variant="hero" :href="board.join.href" target="_blank">{{ board.join.label }}</Button>
+          <Button v-if="board.next" variant="ghost" :href="board.join.href" target="_blank">
+            {{ board.join.label }}
+          </Button>
+          <Button v-else variant="ghost" :to="APP_PATHS.PARCHESE">{{ copy.parcheseCta }}</Button>
+        </DualCta>
       </template>
     </AficheHero>
 
-    <div class="paola-page__split" data-reveal>
-      <Card class="home-page__visual" aria-hidden="true">
-        <div class="paola-empty__mascot-hole">
-          <img
-            v-if="board.memory?.photoSrc"
-            class="home-page__memory-photo"
-            :src="board.memory.photoSrc"
-            alt=""
-          />
-          <img v-else class="paola-empty__mascot" src="/mascota/en-pie.png" alt="" />
+    <HomeDash data-reveal>
+      <template #hero>
+        <div class="stack">
+          <VoiceBadge voice="loigca" />
+          <h4>{{ copy.nextHeading }}</h4>
+          <template v-if="board.next">
+            <RideListItem
+              :day="nextDate.day"
+              :month="nextDate.month"
+              :title="board.next.title"
+              :meta="`${board.next.kind === 'rodada' ? 'Rodada' : 'Actividad'} · ${board.next.point}`"
+            >
+              <Chip tone="abierto">Próxima</Chip>
+            </RideListItem>
+            <DualCta>
+              <Button variant="hero" size="sm" :to="APP_PATHS.PARCHESE">{{ copy.nextCta }}</Button>
+              <Button variant="ghost" size="sm" :href="board.join.href" target="_blank">
+                {{ board.join.label }}
+              </Button>
+            </DualCta>
+          </template>
+          <MascotEmpty v-else :title="copy.emptyNextTitle" :copy="board.nextEmptyCopy">
+            <Button variant="ghost" size="sm" :href="board.join.href" target="_blank">
+              {{ board.join.label }}
+            </Button>
+          </MascotEmpty>
         </div>
-        <p class="paola-empty__kicker">Cámara Incauta</p>
-        <p v-if="board.memory" class="paola-afiche__lead">
-          {{ board.memory.title }} · {{ board.memory.date }}
-        </p>
-        <p v-else class="paola-afiche__lead">Todavía no hay foto de una rodada publicada.</p>
-      </Card>
+      </template>
 
-      <section class="paola-page__block" aria-label="Próxima salida">
-        <VoiceBadge voice="loigca" />
-        <h2 class="paola-page__heading type-display">Próxima</h2>
-        <div v-if="board.next" class="paola-ride paola-ride--featured home-page__next">
-          <AgendaItem
-            :date="board.next.date"
-            :title="board.next.title"
-            :kind="board.next.kind"
-            :point="board.next.point"
-            when="proxima"
-          />
+      <template #km>
+        <div class="stack">
+          <VoiceBadge voice="incauta" />
+          <h4>{{ copy.kmHeading }}</h4>
+          <StatBig :value="kmValue" :label="copy.kmLabel" />
         </div>
-        <Empty
-          v-else
-          compact
-          hide-cta
-          title="Sin fecha"
-          :copy="board.nextEmptyCopy"
-          mascot-src="/mascota/tumbada.png"
-        />
-      </section>
-    </div>
+      </template>
 
-    <section class="paola-page__block" aria-label="Kilómetros" data-reveal>
-      <VoiceBadge voice="incauta" />
-      <h2 class="paola-page__heading type-display">Memoria</h2>
-      <MemoriaHero
-        v-if="board.memory"
-        :title="board.memory.title"
-        :meta="`${board.memory.date} · ${board.memory.km} km · ${board.memory.credit}`"
-      />
-      <Gallery :photos="board.memory?.photos" />
-      <StatGrid
-        :items="[
-          { value: board.totalKm !== null ? String(board.totalKm) : '—', label: 'Km del parche' },
-          { value: board.memory ? String(photoCount) : '—', label: 'Fotos' },
-          { value: board.memory ? '1+' : '—', label: 'Rodadas' },
-        ]"
-      />
-      <p v-if="board.memory" class="paola-page__copy paola-page__copy--muted">{{ board.memory.closingText }}</p>
-      <p v-else class="paola-page__copy paola-page__copy--muted">{{ board.memoryEmptyCopy }}</p>
-    </section>
+      <template #memory>
+        <div class="stack">
+          <VoiceBadge voice="incauta" />
+          <h4>{{ copy.memoryHeading }}</h4>
+          <template v-if="board.memory">
+            <MemoriaHero
+              :title="board.memory.title"
+              :meta="`${board.memory.date} · ${board.memory.km} km · ${board.memory.credit}`"
+            />
+            <Gallery v-if="board.memory.photos.length" :photos="board.memory.photos" />
+            <p class="meta" style="margin: 0">{{ board.memory.closingText }}</p>
+          </template>
+          <EmptyBlock v-else glyph="◎" :copy="board.memoryEmptyCopy" />
+        </div>
+      </template>
 
-    <div class="paola-page__split" data-reveal>
-      <section class="paola-page__block" aria-label="Tu voz">
-        <VoiceBadge voice="loigca" />
-        <h2 class="paola-page__heading type-display">Tu voz</h2>
-        <Alert tone="info">
-          <template v-if="board.voice.tip">
+      <template #voice>
+        <div class="stack">
+          <VoiceBadge voice="loigca" />
+          <h4>{{ copy.voiceHeading }}</h4>
+          <VoiceCard v-if="board.voice.tip" voice="loigca">
             <strong>{{ board.voice.tip.title }}</strong>
             — {{ board.voice.tip.body }}
-            <a
-              v-if="board.voice.tip.officialHref"
-              class="home-page__official"
-              :href="board.voice.tip.officialHref"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Norma oficial
-            </a>
-          </template>
-          <template v-else>{{ board.voice.emptyCopy }}</template>
-        </Alert>
-        <Button variant="ghost" size="sm" :to="board.voice.to">Tu voz</Button>
-      </section>
+          </VoiceCard>
+          <EmptyBlock v-else glyph="◎" :copy="board.voice.emptyCopy" />
+          <DualCta v-if="board.voice.tip?.officialHref">
+            <Button variant="ghost" size="sm" :to="board.voice.to">{{ copy.voiceCta }}</Button>
+            <Button variant="ghost" size="sm" :href="board.voice.tip.officialHref" target="_blank">
+              {{ copy.officialCta }}
+            </Button>
+          </DualCta>
+          <Button v-else variant="ghost" size="sm" :to="board.voice.to">{{ copy.voiceCta }}</Button>
+        </div>
+      </template>
 
-      <section class="paola-page__block" aria-label="Paola">
-        <VoiceBadge voice="armargura" />
-        <Card>
-          <div class="home-page__paola-row">
-            <Icon name="heart" tone="white" />
-            <h2 class="paola-page__heading type-display">Paola</h2>
-          </div>
-          <p class="paola-page__copy">{{ board.paola.phrase }}</p>
-          <Button variant="ghost" size="sm" :to="board.paola.to">Conocer a Paola</Button>
-        </Card>
-      </section>
-    </div>
+      <template #paola>
+        <div class="stack">
+          <VoiceBadge voice="armargura" />
+          <h4>{{ copy.paolaHeading }}</h4>
+          <QuoteBlock :quote="board.paola.phrase" :cite="copy.paolaCite" />
+          <Button variant="ghost" size="sm" :to="board.paola.to">{{ copy.paolaCta }}</Button>
+        </div>
+      </template>
+    </HomeDash>
 
-    <section class="paola-page__block" aria-label="Pulso" data-reveal>
-      <VoiceBadge voice="incauta" />
-      <h2 class="paola-page__heading type-display">{{ pulseCopy.heading }}</h2>
-      <p class="paola-page__copy paola-page__copy--muted">{{ pulseCopy.lead }}</p>
-      <div v-if="pulse.length" class="home-page__pulse">
-        <FeedPost
-          v-for="item in pulse"
-          :key="item.id"
-          :author="item.authorAlias"
-          :body="item.body"
-          :meta="item.createdAt"
-        />
-      </div>
-      <p v-else class="paola-page__copy paola-page__copy--muted">{{ pulseCopy.empty }}</p>
-      <Button variant="ghost" size="sm" :to="APP_PATHS.FEED">{{ pulseCopy.cta }}</Button>
-    </section>
+    <KitBrushDivider variant="thin" data-reveal />
+
+    <HomeFeedWidget
+      :title="pulseCopy.heading"
+      :meta="pulseCopy.lead"
+      :to="APP_PATHS.FEED"
+      :link-label="pulseCopy.cta"
+      data-reveal
+    >
+      <FeedPost
+        v-for="item in pulse"
+        :key="item.id"
+        :author="item.authorAlias"
+        :body="item.body"
+        :meta="item.createdAt"
+        :photos="item.photos"
+        :pinned="item.isPinned"
+        :highlighted="item.isHighlighted"
+      />
+      <EmptyBlock v-if="!pulse.length" glyph="◎" :copy="pulseCopy.empty" />
+    </HomeFeedWidget>
+
+    <DualChannel data-reveal>
+      <template #wa>
+        <p class="meta" style="margin: 8px 0">{{ copy.channelWa }}</p>
+        <Button size="sm" :href="board.join.href" target="_blank">{{ board.join.label }}</Button>
+      </template>
+      <template #web>
+        <p class="meta" style="margin: 8px 0">{{ copy.channelWeb }}</p>
+        <Button variant="ghost" size="sm" :to="APP_PATHS.PARCHESE">{{ copy.parcheseCta }}</Button>
+      </template>
+    </DualChannel>
   </article>
 </template>
 
 <style scoped>
-.home-page__visual {
-  text-align: center;
+.paola-page :deep(.kit-hero__actions .dual-cta) {
+  width: min(100%, 28rem);
 }
 
-.home-page__memory-photo {
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.home-page__next {
-  padding: 12px;
-}
-
-.home-page__next :deep(.paola-agenda) {
-  background: transparent;
-  border: 0;
-  padding: 0;
-}
-
-.home-page__paola-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.home-page__official {
-  display: inline-block;
-  margin-top: 8px;
-  color: var(--paola-cian);
-  text-decoration: underline;
-}
-
-.home-page__pulse {
-  display: grid;
-  gap: 12px;
+.paola-page :deep(.home-dash__cell--wide .ride-list-item) {
+  background: var(--ink);
 }
 </style>
