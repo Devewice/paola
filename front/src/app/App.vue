@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
+import { SHOP_DELIVERY_COPY } from '@modules/shop/constants/copy.ts'
 import BrushDefs from '@ui/BrushDefs.vue'
+import DualChannelPills from '@ui/DualChannelPills.vue'
 import KitAllianceStrip from '@ui/KitAllianceStrip.vue'
+import MegaFooter from '@ui/MegaFooter.vue'
+import MegaHeader from '@ui/MegaHeader.vue'
+import MegaPeek from '@ui/MegaPeek.vue'
+import SiteFooter from '@ui/SiteFooter.vue'
+import ZoneBadge from '@ui/ZoneBadge.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
 const route = useRoute()
-const { paola, club } = getAppDependencies()
+const { paola, club, home } = getAppDependencies()
 const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
+const board = computed(() => home.getBoard())
 const alliances = computed(() => club.getAlliances())
 const allianceNames = computed(() => alliances.value.items.map((item) => item.name))
 const isKitCatalog = computed(
@@ -22,6 +31,23 @@ const isKitCatalog = computed(
 const showFranja = computed(
   () => !isKitCatalog.value && !route.path.startsWith(APP_PATHS.ADMIN),
 )
+
+const footerLinks = computed(() => {
+  const social = page.contact.social.map((link) => ({ label: link.label, href: link.href }))
+  return [
+    { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
+    { label: page.contact.email, href: `mailto:${page.contact.email}` },
+    { label: whatsapp.label, href: whatsapp.href },
+    ...social,
+  ]
+})
+
+const footerColumns = computed(() =>
+  MEGA_FOOTER_COLUMNS.map((col) => ({
+    title: col.title,
+    links: [...col.links],
+  })),
+)
 </script>
 
 <template>
@@ -30,14 +56,59 @@ const showFranja = computed(
     <router-view />
   </div>
   <v-app v-else>
-    <header class="top">
-      <router-link to="/" aria-label="Paola, inicio">
-        <img src="/logo.png" alt="Paola — Rodando con propósito" />
-      </router-link>
-      <nav aria-label="Pestañas">
-        <router-link v-for="tab in TABS" :key="tab.to" :to="tab.to">{{ tab.label }}</router-link>
-      </nav>
-    </header>
+    <MegaHeader
+      :items="MEGA_NAV"
+      :whatsapp="whatsapp"
+      :account-to="APP_PATHS.CUENTA"
+    >
+      <template #widget="{ item }">
+        <MegaPeek
+          v-if="item.label === 'Inicio' || item.label === 'Parchese'"
+          kicker="Próxima"
+          :title="board.next?.title ?? 'Sin fecha'"
+          :meta="board.next ? `${board.next.date} · ${board.next.point}` : board.nextEmptyCopy"
+          :value="item.label === 'Inicio' ? (board.totalKm !== null ? String(board.totalKm) : '—') : undefined"
+          :value-label="item.label === 'Inicio' ? 'km del parche' : undefined"
+          :image-src="board.memory?.photoSrc"
+          :to="APP_PATHS.PARCHESE"
+          :cta="item.cta"
+          :empty="!board.next"
+        />
+        <MegaPeek
+          v-else-if="item.label === 'Tu voz'"
+          kicker="Loigca"
+          :title="board.voice.tip?.title ?? 'Sin tip'"
+          :copy="board.voice.tip?.body ?? board.voice.emptyCopy"
+          :to="APP_PATHS.TU_VOZ"
+          :cta="item.cta"
+          :empty="!board.voice.tip"
+        />
+        <MegaPeek
+          v-else-if="item.label === 'Tienda'"
+          kicker="Entrega"
+          title="Bogotá y Soacha"
+          :copy="SHOP_DELIVERY_COPY"
+          :to="APP_PATHS.TIENDA"
+          :cta="item.cta"
+        >
+          <div class="row" style="margin-bottom: 12px">
+            <ZoneBadge zone="bogota" />
+            <ZoneBadge zone="soacha" />
+            <ZoneBadge zone="fuera" />
+          </div>
+        </MegaPeek>
+        <MegaPeek
+          v-else-if="item.label === 'Paola'"
+          kicker="Armargura"
+          title="Paola"
+          :copy="board.paola.phrase"
+          :to="APP_PATHS.PAOLA"
+          :cta="item.cta"
+        >
+          <DualChannelPills web="Web" :wa="whatsapp.label" />
+        </MegaPeek>
+      </template>
+    </MegaHeader>
 
     <v-main class="paola-main">
       <router-view />
@@ -48,38 +119,16 @@ const showFranja = computed(
       </div>
     </v-main>
 
-    <v-footer class="paola-footer px-4 py-3" color="background">
-      <div class="paola-footer__inner">
-        <img class="paola-footer__logo" src="/logo.png" alt="" width="32" height="32" />
-        <p class="paola-footer__slogan">Rodando con propósito</p>
-        <div class="paola-footer__row">
-          <router-link class="paola-footer__link" :to="APP_PATHS.PAOLA">Paola</router-link>
-          <span class="paola-footer__dot" aria-hidden="true">·</span>
-          <router-link class="paola-footer__link" :to="APP_PATHS.PRIVACIDAD">Privacidad</router-link>
-          <span class="paola-footer__dot" aria-hidden="true">·</span>
-          <router-link class="paola-footer__link" :to="APP_PATHS.CUENTA">Cuenta</router-link>
-          <span class="paola-footer__dot" aria-hidden="true">·</span>
-          <router-link class="paola-footer__link" :to="APP_PATHS.FEED">Feed</router-link>
-          <span class="paola-footer__dot" aria-hidden="true">·</span>
-          <a
-            class="paola-footer__link"
-            :href="whatsapp.href"
-            target="_blank"
-            rel="noopener noreferrer"
-          >{{ whatsapp.label }}</a>
-          <template v-for="link in page.contact.social" :key="link.id">
-            <span class="paola-footer__dot" aria-hidden="true">·</span>
-            <a
-              class="paola-footer__link"
-              :href="link.href"
-              target="_blank"
-              rel="noopener noreferrer"
-            >{{ link.label }}</a>
-          </template>
-        </div>
-        <p class="paola-footer__domain">{{ page.contact.domain }}</p>
+    <footer class="paola-site-foot">
+      <div class="wrap paola-site-foot__inner">
+        <MegaFooter :columns="footerColumns" />
+        <SiteFooter
+          logo-src="/logo.png"
+          :links="footerLinks"
+          copy="Paola Biker · Rodando con propósito"
+        />
       </div>
-    </v-footer>
+    </footer>
 
     <nav class="paola-bottom-nav" aria-label="Pestañas">
       <router-link

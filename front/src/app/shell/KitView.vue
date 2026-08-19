@@ -156,6 +156,7 @@ import MascotEmpty from '@ui/MascotEmpty.vue'
 import MemoryLayout from '@ui/MemoryLayout.vue'
 import MaintCard from '@ui/MaintCard.vue'
 import MegaFooter from '@ui/MegaFooter.vue'
+import MegaHeader from '@ui/MegaHeader.vue'
 import MemberRowCard from '@ui/MemberRowCard.vue'
 import MembershipTeaser from '@ui/MembershipTeaser.vue'
 import MemoryGalleryDemo from '@ui/MemoryGalleryDemo.vue'
@@ -573,6 +574,31 @@ const megaCols = [
   { title: 'Tienda', links: [{ label: 'Marca Paola', href: '#arsenal' }, { label: 'Collab aparte', href: '#arsenal' }] },
   { title: 'Tu voz', links: [{ label: 'Comparendos', href: '#arsenal' }, { label: 'Denuncias', href: '#arsenal' }] },
   { title: 'Legal', links: [{ label: 'Avisos', href: '#feedback' }, { label: 'Privacidad', href: '#arsenal' }] },
+] as const
+
+const kitMegaNav = [
+  {
+    label: 'Inicio',
+    to: '/admin/ui',
+    lead: 'Hero, marca, brocha y el tablero del parche.',
+    cta: 'Ver kit',
+    columns: [
+      { title: 'Marca', links: [{ label: 'Color', href: '#marca' }, { label: 'Tipo', href: '#tipo' }] },
+      { title: 'Brocha', links: [{ label: 'Afiche', href: '#brocha' }, { label: 'Botones', href: '#botones' }] },
+      { title: 'Portal', links: [{ label: 'Arsenal', href: '#arsenal' }, { label: 'Nav', href: '#nav' }] },
+    ],
+  },
+  {
+    label: 'Parchese',
+    to: '/admin/ui',
+    lead: 'Rodadas, cupo y memoria.',
+    cta: 'Ver producto',
+    columns: [
+      { title: 'Rodar', links: [{ label: 'Arsenal', href: '#arsenal' }, { label: 'Forms', href: '#forms' }] },
+      { title: 'Comunidad', links: [{ label: 'Comunidad', href: '#comunidad' }] },
+      { title: 'Nav', links: [{ label: 'Esta sección', href: '#nav' }] },
+    ],
+  },
 ] as const
 
 const membershipPlans = [
@@ -1268,6 +1294,12 @@ onMounted(async () => {
 
         <div class="row" style="margin:20px 0">
           <DropMenu :items="dropMenuItems" />
+        </div>
+
+        <h3 class="kit">Mega menú (header del portal)</h3>
+        <p class="meta" style="margin:-4px 0 12px">Logo + pestañas + panel. En el portal es sticky; aquí va embebido.</p>
+        <div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:24px">
+          <MegaHeader embed :items="kitMegaNav" />
         </div>
 
         <div class="stack">

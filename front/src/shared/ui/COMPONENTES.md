@@ -17,7 +17,8 @@ Reglas: no inventes copy/precios/aliados; tabla vacía = hueco honesto; afiche (
 
 | Componente | Para qué | Props / slots clave |
 |---|---|---|
-| `MegaHeader` | Header del portal: logo, 5 pestañas, mega menú, WhatsApp, cuenta | `items`, `whatsapp`, `accountTo` |
+| `MegaHeader` | Header del portal: logo, 5 pestañas, panel overlay (no empuja el hero) | `items`, `whatsapp`, `accountTo`, slot `widget` |
+| `MegaPeek` | Widget compacto del mega menú (próxima, tip, km, hueco honesto) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
 | `MegaFooter` | Columnas de enlaces del pie | `columns: { title, links[{ label, to?, href? }] }` |
 | `SiteFooter` | Pie corto: logo, motto, links, copy | `motto`, `links`, `note`, `copy`, `logoSrc` |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |

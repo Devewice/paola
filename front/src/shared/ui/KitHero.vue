@@ -90,23 +90,25 @@ const photoStyle = computed(() =>
 
           <BrushSplash label="paolabiker.com" class="kit-hero__url kit-hero__anim" />
 
-          <p class="kit-hero__tagline kit-hero__anim">{{ tagline }}</p>
+          <div class="kit-hero__copy">
+            <p class="kit-hero__tagline kit-hero__anim">{{ tagline }}</p>
 
-          <template v-if="slots.actions">
-            <div class="kit-hero__actions kit-hero__anim">
-              <slot name="actions" />
-            </div>
-          </template>
-          <template v-else>
-            <nav class="kit-hero__chips kit-hero__anim" aria-label="Secciones del kit">
-              <a v-for="chip in chips" :key="chip.href" class="kit-hero__chip" :href="chip.href">{{ chip.label }}</a>
-            </nav>
-            <div class="kit-hero__actions kit-hero__anim">
-              <BrushButton href="#marca">Explorar marca</BrushButton>
-              <a class="btn btn-ghost" href="#brocha">Capa afiche</a>
-              <span class="label-brush">Ride · Respect · Enjoy</span>
-            </div>
-          </template>
+            <template v-if="slots.actions">
+              <div class="kit-hero__actions kit-hero__anim">
+                <slot name="actions" />
+              </div>
+            </template>
+            <template v-else>
+              <nav class="kit-hero__chips kit-hero__anim" aria-label="Secciones del kit">
+                <a v-for="chip in chips" :key="chip.href" class="kit-hero__chip" :href="chip.href">{{ chip.label }}</a>
+              </nav>
+              <div class="kit-hero__actions kit-hero__anim">
+                <BrushButton href="#marca">Explorar marca</BrushButton>
+                <a class="btn btn-ghost" href="#brocha">Capa afiche</a>
+                <span class="label-brush">Ride · Respect · Enjoy</span>
+              </div>
+            </template>
+          </div>
         </div>
 
         <aside v-if="variant === 'portal'" class="kit-hero__panel kit-hero__anim kit-hero__anim--panel" aria-label="Corte del día">

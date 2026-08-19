@@ -149,7 +149,7 @@ body:not(:has(.html-kit-page)) section {
 }
 
 .html-kit-page .type-brush-dry,
-.kit-hero .type-brush-dry,
+.kit-hero .type-brush-dry:not(.type-brush-dry--sm):not(.type-brush-dry--xs):not(.type-brush-dry--card),
 .paola-shell .type-brush-dry {
   font-size: clamp(38px, 7.2vw, 72px);
   font-size: clamp(38px, 7.2cqw, 72px);
@@ -167,6 +167,11 @@ body:not(:has(.html-kit-page)) section {
 .paola-shell .type-brush-dry--xs {
   font-size: clamp(22px, 4vw, 36px);
   font-size: clamp(22px, 4cqw, 36px);
+}
+
+.kit-hero .type-brush-dry--card,
+.kit-hero__panel .type-brush-dry {
+  font-size: clamp(18px, 8.5cqi, 28px);
 }
 
 .html-kit-page .display {
