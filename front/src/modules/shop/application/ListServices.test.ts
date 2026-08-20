@@ -8,7 +8,7 @@ const wash: ShopService = {
   title: 'Lavado de casco',
   includesText: 'Limpieza interior y exterior.',
   handoverText: 'Se deja y se recoge en punto acordado.',
-  turnaroundText: 'Paola lo dice en la ficha.',
+  turnaroundText: 'Lo confirmamos en la ficha.',
   priceCop: null,
 }
 

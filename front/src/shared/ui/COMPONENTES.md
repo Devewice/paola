@@ -3,30 +3,31 @@
 Léete **esto** antes de abrir los `.vue` de `front/src/shared/ui/`.
 Catálogo vivo: `/admin/ui`. Estilos: `html-kit.css`. Import: `import X from '@ui/X.vue'`.
 
-Reglas: no inventes copy/precios/aliados; tabla vacía = hueco honesto; afiche (brocha) ≠ formularios; un CTA `hero` por vista.
+Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `PageVacant` / `Empty` / `EmptyBlock`.
 
 ## Cómo armar una vista
 
 1. Hero a todo el ancho: `KitHero` (Inicio portal) o `AficheHero` (páginas).
-2. Cuerpo en `.wrap` (ancho fluido del kit). Tablero: `HomeDash`.
-3. Cascarón del portal: `MegaHeader` + `MegaFooter` + `SiteFooter` (en `App.vue`, no en cada vista).
-4. Acciones: `Button` (`primary` | `hero` | `ghost` | `dark` | `danger` | `brush`). Brocha solo capa afiche.
-5. Vacío: `EmptyBlock` / `MascotEmpty` / `Empty`. No rellenes.
+2. Cuerpo en `.wrap`. Tablero: `HomeDash`.
+3. Cascarón: `MegaHeader` + `SiteFooter` en `App.vue`.
+4. Acciones: `Button` (`primary` | `hero` | `ghost` | `dark` | `danger` | `brush`).
+5. Página sin contenido: `PageVacant`. Bloques vacíos: `Empty` / `EmptyBlock`.
 
 ## Cascarón y layout
 
 | Componente | Para qué | Props / slots clave |
 |---|---|---|
 | `MegaHeader` | Header del portal: logo, 5 pestañas, panel overlay (no empuja el hero) | `items`, `whatsapp`, `accountTo`, slot `widget` |
-| `MegaPeek` | Widget compacto del mega menú (próxima, tip, km, hueco honesto) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
-| `MegaFooter` | Columnas de enlaces del pie | `columns: { title, links[{ label, to?, href? }] }` |
-| `SiteFooter` | Pie corto: logo, motto, links, copy | `motto`, `links`, `note`, `copy`, `logoSrc` |
+| `MegaPeek` | Widget del mega menú (próxima, tip, km) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
+| `MegaFooter` | Columnas de enlaces del pie (kit/demo) | `columns: { title, links[{ label, to?, href? }] }` |
+| `SiteFooter` | Pie del portal: crest, columnas, suscripción, alianzas | `columns`, `copy`, `alliances`, `subscribeMail`, … |
+| `PageVacant` | Página en construcción (mascota + CTAs) | `title`, `kicker`, `copy` |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |
 | `KitHero` | Hero full-bleed del kit. `portal`: corte del día. `panelSlides`: mazo de rodadas (dots afuera, borde con resplandor) | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, `panelSlides`, slots `voices` `panel` `footer` `actions` |
 | `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `blankMedia` |
 | `KitHeroFooter` | KPIs bajo el hero portal | `stamp`, `rodadas`, `km`, `integrantes` |
 | `AficheHero` | Hero de página (más bajo que el kit) | `kicker`, `title`, `plate`, `logo`, `photoSrc`, slots `lead` `actions` |
-| `HomeDash` | Tablero 1 ancha + 4 celdas | slots `hero` `km` `memory` `voice` `paola` |
+| `HomeDash` | Tablero Inicio: próxima + feed + columna lateral | slots `next` `pulse` `aside` |
 | `DualChannel` | WhatsApp vs web (WA no se apaga) | slots `wa` `web` |
 | `DualCta` | Dos CTAs en grid | default slot |
 | `BottomNav` | 5 pestañas móviles (kit). El portal usa `.paola-bottom-nav` | `tabs` |
@@ -68,7 +69,7 @@ Clases kit (no son Vue): `.wrap` ancho de contenido · `.stack` columna con gap 
 
 ## Club / alianzas
 
-`AllianceStrip` (listado honesto, no sidebar) · `KitAllianceStrip` (franja logos) · `AllianceCard` `AllyTile` `AllyList` · `MemberCard` `MemberRowCard` `IntegranteCard` `UneteBlock` `WaStrip` `WaHero`
+`AllianceStrip` · `KitAllianceStrip` · `AllianceCard` `AllyTile` `AllyList` · `MemberCard` `MemberRowCard` `IntegranteCard` `UneteBlock` `WaStrip` `WaHero`
 
 ## Navegación in-page
 

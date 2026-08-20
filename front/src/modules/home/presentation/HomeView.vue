@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { HomeModule } from '@modules/home/index.ts'
 import { computed, nextTick, onMounted, ref } from 'vue'
-import { HOME_BOARD_COPY, HOME_PULSE_COPY } from '@modules/home/constants/copy.ts'
+import { HOME_BOARD_COPY, HOME_PULSE_COPY, HOME_SHORTCUTS } from '@modules/home/constants/copy.ts'
 import type { KitHeroPanelSlide } from '@ui/KitHero.vue'
 import { parsePublicPost, type PublicPost } from '@app/parsePublicPost.ts'
 import { API, APP_PATHS } from '@shared/http/constants.ts'
 import { runKitHeroEntrance } from '@shared/motion/runKitHero.ts'
+import AgendaItem from '@ui/AgendaItem.vue'
+import BrushSplash from '@ui/BrushSplash.vue'
 import Button from '@ui/Button.vue'
-import DualChannel from '@ui/DualChannel.vue'
 import EmptyBlock from '@ui/EmptyBlock.vue'
 import FeedPost from '@ui/FeedPost.vue'
 import Gallery from '@ui/Gallery.vue'
@@ -15,9 +16,10 @@ import HomeDash from '@ui/HomeDash.vue'
 import Icon from '@ui/Icon.vue'
 import KitHero from '@ui/KitHero.vue'
 import KitHeroFooter from '@ui/KitHeroFooter.vue'
+import KpiStrip from '@ui/KpiStrip.vue'
+import MediaPlaceholder from '@ui/MediaPlaceholder.vue'
 import MemoriaHero from '@ui/MemoriaHero.vue'
 import QuoteBlock from '@ui/QuoteBlock.vue'
-import StatBig from '@ui/StatBig.vue'
 import VoiceBadge from '@ui/VoiceBadge.vue'
 import VoiceCard from '@ui/VoiceCard.vue'
 
@@ -37,6 +39,15 @@ const kmValue = computed(() => (board.value.totalKm !== null ? String(board.valu
 const rodadasValue = computed(() =>
   board.value.rodadas.length ? String(board.value.rodadas.length) : board.value.memory ? '1+' : '—',
 )
+const integrantesValue = computed(() =>
+  board.value.integrantesCount !== null ? String(board.value.integrantesCount) : '—',
+)
+const spotlightRodada = computed(() => board.value.rodadas[0] ?? null)
+const kpiItems = computed(() => [
+  { value: rodadasValue.value, label: copy.kpiRodadas },
+  { value: kmValue.value, label: copy.kpiKm },
+  { value: integrantesValue.value, label: copy.kpiIntegrantes },
+])
 const panelSlides = computed((): readonly KitHeroPanelSlide[] => {
   const cards = board.value.rodadas
   if (cards.length) {
@@ -123,16 +134,74 @@ onMounted(async () => {
           :stamp="copy.stamp"
           :rodadas="rodadasValue"
           :km="kmValue"
+          :integrantes="integrantesValue"
         />
       </template>
     </KitHero>
 
-    <main :id="TABLERO_ID" class="wrap">
+    <main :id="TABLERO_ID" class="wrap home-board">
+      <header class="home-board__intro stack">
+        <BrushSplash :label="copy.boardKicker" tone="blue" size="sm" style="margin: 0" />
+        <h2 class="home-board__title">{{ copy.boardTitle }}</h2>
+        <p class="meta home-board__lead">{{ copy.boardLead }}</p>
+        <KpiStrip :items="kpiItems" />
+      </header>
+
       <HomeDash>
-        <template #hero>
-          <div class="stack">
-            <h4>{{ pulseCopy.heading }}</h4>
-            <p class="meta" style="margin: 0">{{ pulseCopy.lead }}</p>
+        <template #next>
+          <section class="stack home-board__section">
+            <div>
+              <h4>{{ copy.nextHeading }}</h4>
+              <p class="meta" style="margin: 6px 0 0">{{ copy.nextLead }}</p>
+            </div>
+            <article v-if="spotlightRodada" class="home-spotlight">
+              <div class="home-spotlight__media">
+                <img
+                  v-if="spotlightRodada.mediaSrc"
+                  :src="spotlightRodada.mediaSrc"
+                  :alt="spotlightRodada.title"
+                  class="home-spotlight__photo"
+                />
+                <MediaPlaceholder v-else :label="copy.nextPhotoLabel" aspect="21 / 9" />
+              </div>
+              <div class="home-spotlight__body stack">
+                <AgendaItem
+                  :date="spotlightRodada.date"
+                  :title="spotlightRodada.title"
+                  kind="rodada"
+                  :point="spotlightRodada.point"
+                  when="proxima"
+                />
+                <div class="home-spotlight__meta row">
+                  <span class="home-spotlight__chip"><strong>{{ spotlightRodada.km }}</strong> km</span>
+                  <span class="home-spotlight__chip"><strong>{{ spotlightRodada.cupo }}</strong> cupo</span>
+                </div>
+                <Button variant="primary" size="sm" :to="APP_PATHS.PARCHESE">{{ copy.nextCtaDetail }}</Button>
+              </div>
+            </article>
+            <article v-else-if="board.next" class="home-spotlight home-spotlight--compact">
+              <MediaPlaceholder :label="copy.nextPhotoLabel" aspect="21 / 9" />
+              <div class="home-spotlight__body stack">
+                <AgendaItem
+                  :date="board.next.date"
+                  :title="board.next.title"
+                  :kind="board.next.kind"
+                  :point="board.next.point"
+                  when="proxima"
+                />
+                <Button variant="primary" size="sm" :to="APP_PATHS.PARCHESE">{{ copy.nextCtaDetail }}</Button>
+              </div>
+            </article>
+            <EmptyBlock v-else glyph="◎" :copy="board.nextEmptyCopy" />
+          </section>
+        </template>
+
+        <template #pulse>
+          <section class="stack home-board__section">
+            <div>
+              <h4>{{ pulseCopy.heading }}</h4>
+              <p class="meta" style="margin: 6px 0 0">{{ pulseCopy.lead }}</p>
+            </div>
             <FeedPost
               v-for="item in pulse"
               :key="item.id"
@@ -145,70 +214,69 @@ onMounted(async () => {
             />
             <EmptyBlock v-if="!pulse.length" glyph="◎" :copy="pulseCopy.empty" />
             <Button variant="ghost" size="sm" :to="APP_PATHS.FEED">{{ pulseCopy.cta }}</Button>
-          </div>
+          </section>
         </template>
-        <template #km>
-          <div class="stack">
-            <h4>{{ copy.kmHeading }}</h4>
-            <StatBig :value="kmValue" :label="copy.kmLabel" />
-          </div>
-        </template>
-        <template #memory>
-          <div class="stack">
+
+        <template #aside>
+          <section class="home-board__pane stack">
             <h4>{{ copy.memoryHeading }}</h4>
             <template v-if="board.memory">
               <MemoriaHero
                 :title="board.memory.title"
                 :meta="`${board.memory.date} · ${board.memory.km} km · ${board.memory.credit}`"
+                :photo-src="board.memory.photoSrc"
+                :photo-label="copy.memoryPhotoLabel"
               />
               <Gallery v-if="board.memory.photos.length" :photos="board.memory.photos" />
               <p class="meta" style="margin: 0">{{ board.memory.closingText }}</p>
             </template>
             <EmptyBlock v-else glyph="◎" :copy="board.memoryEmptyCopy" />
-          </div>
-        </template>
-        <template #voice>
-          <div class="stack">
+          </section>
+
+          <section class="home-board__pane stack">
             <h4>{{ copy.voiceHeading }}</h4>
             <VoiceCard v-if="board.voice.tip" voice="loigca">
               <strong>{{ board.voice.tip.title }}</strong>
               — {{ board.voice.tip.body }}
             </VoiceCard>
             <EmptyBlock v-else glyph="◎" :copy="board.voice.emptyCopy" />
-            <Button variant="ghost" size="sm" :to="board.voice.to">{{ copy.voiceCta }}</Button>
-            <Button
-              v-if="board.voice.tip?.officialHref"
-              variant="ghost"
-              size="sm"
-              :href="board.voice.tip.officialHref"
-              target="_blank"
-            >
-              {{ copy.officialCta }}
-            </Button>
-          </div>
-        </template>
-        <template #paola>
-          <div class="stack">
+            <div class="row">
+              <Button variant="ghost" size="sm" :to="board.voice.to">{{ copy.voiceCta }}</Button>
+              <Button
+                v-if="board.voice.tip?.officialHref"
+                variant="ghost"
+                size="sm"
+                :href="board.voice.tip.officialHref"
+                target="_blank"
+              >
+                {{ copy.officialCta }}
+              </Button>
+            </div>
+          </section>
+
+          <section class="home-board__pane stack">
             <h4>{{ copy.paolaHeading }}</h4>
             <QuoteBlock :quote="board.paola.phrase" :cite="copy.paolaCite" />
             <Button variant="ghost" size="sm" :to="board.paola.to">{{ copy.paolaCta }}</Button>
-          </div>
+          </section>
+
+          <section class="home-board__pane stack">
+            <h4>{{ copy.shortcutsHeading }}</h4>
+            <p class="meta" style="margin: 0">{{ copy.shortcutsLead }}</p>
+            <nav class="home-board__shortcuts" aria-label="Entradas del portal">
+              <Button
+                v-for="item in HOME_SHORTCUTS"
+                :key="item.id"
+                variant="ghost"
+                size="sm"
+                :to="item.to"
+              >
+                {{ item.label }}
+              </Button>
+            </nav>
+          </section>
         </template>
       </HomeDash>
-
-      <DualChannel style="margin-top: 28px">
-        <template #wa>
-          <p class="meta" style="margin: 8px 0">{{ copy.channelWa }}</p>
-          <Button size="sm" :href="board.join.href" target="_blank">
-            {{ board.join.label }}
-            <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
-          </Button>
-        </template>
-        <template #web>
-          <p class="meta" style="margin: 8px 0">{{ copy.channelWeb }}</p>
-          <Button variant="ghost" size="sm" :to="APP_PATHS.PARCHESE">{{ copy.parcheseCta }}</Button>
-        </template>
-      </DualChannel>
     </main>
   </div>
 </template>

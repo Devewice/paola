@@ -3,12 +3,14 @@
 
 <template>
   <div class="home-dash">
-    <div class="home-dash__cell home-dash__cell--wide">
-      <slot name="hero" />
+    <div class="home-dash__cell home-dash__cell--next">
+      <slot name="next" />
     </div>
-    <div class="home-dash__cell"><slot name="km" /></div>
-    <div class="home-dash__cell"><slot name="memory" /></div>
-    <div class="home-dash__cell"><slot name="voice" /></div>
-    <div class="home-dash__cell"><slot name="paola" /></div>
+    <div class="home-dash__cell home-dash__cell--pulse">
+      <slot name="pulse" />
+    </div>
+    <div class="home-dash__aside">
+      <slot name="aside" />
+    </div>
   </div>
 </template>

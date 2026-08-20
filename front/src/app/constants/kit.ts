@@ -59,7 +59,7 @@ export const KIT_SWATCHES = [
 ] as const
 
 export const ADMIN_COPY = {
-  kicker: 'Solo Paola',
+  kicker: 'Administración',
   title: 'Admin',
   lead: 'Desde aquí publicas rodadas, memorias, cupos, aliados, integrantes, tienda y moderas denuncias.',
   kitCta: 'Ver todos los componentes',

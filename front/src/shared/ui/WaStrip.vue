@@ -10,7 +10,7 @@ defineProps<{
     <p>
       <strong>{{ title ?? 'Únete al parche' }}</strong>
       <br />
-      {{ copy ?? 'Escríbele a Paola por WhatsApp.' }}
+      {{ copy ?? 'Escríbeme por WhatsApp.' }}
     </p>
     <div v-if="$slots.default">
       <slot />

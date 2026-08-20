@@ -7,7 +7,7 @@ export function buildOutingNotice(
   contact: { email: string; whatsappHref: string },
 ): OutingNotice {
   const moto = ticket.moto ? `, moto ${ticket.moto}` : ''
-  const body = `Hola Paola, me apunto a ${outing.title} (${outing.date}). Soy ${ticket.name}, WhatsApp ${ticket.whatsapp}${moto}.`
+  const body = `Hola, me apunto a ${outing.title} (${outing.date}). Soy ${ticket.name}, WhatsApp ${ticket.whatsapp}${moto}.`
   const base = contact.whatsappHref.split('?')[0] ?? contact.whatsappHref
   return {
     whatsappHref: `${base}?text=${encodeURIComponent(body)}`,

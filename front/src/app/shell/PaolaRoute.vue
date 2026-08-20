@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { getAppDependencies } from '@app/bootstrap.ts'
-import PaolaView from '@modules/paola/presentation/PaolaView.vue'
-
-const { paola } = getAppDependencies()
+import VacantRoute from '@app/shell/VacantRoute.vue'
 </script>
 
 <template>
-  <PaolaView :module="paola" />
+  <VacantRoute />
 </template>

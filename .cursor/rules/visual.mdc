@@ -1,19 +1,17 @@
 ---
-description: Identidad visual de Paola (logo, color, tipo, botones, espacio)
+description: Identidad visual Paola Biker
 alwaysApply: true
 ---
 
 # Diseño
 
-Identidad visual definida en `AGENTS.md`.
+Detalle en `AGENTS.md` §5.
 
-- Logo = `logo.png` del escudo. No fingir “Paola” con una fuente script.
+- Logo = escudo PNG. No fingir “Paola” con cursiva.
 - Fondo `#05070C`, CTA `#0088F8`, cian hover `#48B4FC`, navy `#001028`.
-- Fuentes: **Oswald** (títulos/CTAs), **Montserrat** (UI). Quitar Roboto de marca.
-- Botón primario: azul, mayúsculas, alto 48px, radio 10px, glow cian en hover. **Hero** (`.btn-primary--hero`): pulso suave, uno por vista. **Brochazo**: solo afiche.
-- Iconos de dato: trazo en círculo, azul o blanco.
-- Escala de espacio 8px. Portal oscuro. Afiches pueden usar brocha; formularios no.
-- Capa brocha: Brush King (`type-brush-dry`) + Rock Salt + Bebas/Anton + Caveat; filtros SVG en manchas/separadores.
-- Motion: GSAP + AutoAnimate (tokens en `front/src/shared/motion/`); CSS para hovers. Lottie opcional, no sustituye a la Insta360.
-- Componentes visuales: `front/src/shared/ui/` (`@ui`); catálogo vivo en `/admin/ui`.
-- Insta360 / Paper Mario no cambian paleta ni reemplazan el logo.
+- Fuentes: **Oswald** (títulos/CTAs), **Montserrat** (UI).
+- Botón primario: azul, mayúsculas, 48px, radio 10px, glow cian en hover. **Hero**: un `.btn-primary--hero` por vista. **Brochazo**: solo afiche.
+- Escala 8px. Portal oscuro. Brocha en afiches; formularios limpios.
+- Capa brocha: `type-brush-dry`, filtros SVG en manchas/separadores.
+- Motion: GSAP + AutoAnimate. Componentes en `@ui`; catálogo `/admin/ui`.
+- Insta360 / Paper Mario no sustituyen paleta ni logo.

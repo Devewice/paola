@@ -25,7 +25,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Inicio',
     to: APP_PATHS.INICIO,
-    lead: 'La próxima rodada, los kilómetros y un recorte de Paola.',
+    lead: 'La próxima rodada, los kilómetros y un recorte del parche.',
     cta: 'Ir al inicio',
     columns: [
       {
@@ -113,7 +113,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Tienda',
     to: APP_PATHS.TIENDA,
-    lead: 'Lo de Paola, las colaboraciones y el lavado de casco.',
+    lead: 'Marca propia, colaboraciones y lavado de casco.',
     cta: 'Ir a Tienda',
     columns: [
       {
@@ -127,7 +127,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
         title: 'Servicio',
         links: [
           { label: 'Lavado de casco', to: APP_PATHS.TIENDA },
-          { label: 'Escribirle a Paola', to: APP_PATHS.PAOLA },
+          { label: 'Escríbeme', to: APP_PATHS.PAOLA },
         ],
       },
       {
@@ -142,13 +142,13 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Paola',
     to: APP_PATHS.PAOLA,
-    lead: 'Quién es Paola y cómo escribirle.',
-    cta: 'Conocer a Paola',
+    lead: 'Quién soy y cómo escribirme.',
+    cta: 'Conóceme',
     columns: [
       {
         title: 'Paola',
         links: [
-          { label: 'Quién es', to: APP_PATHS.PAOLA },
+          { label: 'Quién soy', to: APP_PATHS.PAOLA },
           { label: 'Contacto', to: APP_PATHS.PAOLA },
         ],
       },
@@ -198,7 +198,7 @@ export const MEGA_FOOTER_COLUMNS: readonly MegaColumn[] = [
   {
     title: 'Paola',
     links: [
-      { label: 'Paola', to: APP_PATHS.PAOLA },
+      { label: 'Quién soy', to: APP_PATHS.PAOLA },
       { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
       { label: 'Cuenta', to: APP_PATHS.CUENTA },
     ],

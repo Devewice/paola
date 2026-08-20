@@ -8,8 +8,6 @@ import { getAppDependencies } from '@app/bootstrap.ts'
 import { SHOP_DELIVERY_COPY } from '@modules/shop/constants/copy.ts'
 import BrushDefs from '@ui/BrushDefs.vue'
 import DualChannelPills from '@ui/DualChannelPills.vue'
-import KitAllianceStrip from '@ui/KitAllianceStrip.vue'
-import MegaFooter from '@ui/MegaFooter.vue'
 import MegaHeader from '@ui/MegaHeader.vue'
 import MegaPeek from '@ui/MegaPeek.vue'
 import SiteFooter from '@ui/SiteFooter.vue'
@@ -22,35 +20,28 @@ const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
 const board = computed(() => home.getBoard())
 const alliances = computed(() => club.getAlliances())
-const allianceNames = computed(() => alliances.value.items.map((item) => item.name))
+const footerAlliances = computed(() =>
+  alliances.value.items.map((item) => ({
+    name: item.name,
+    href: item.href,
+  })),
+)
 const isKitCatalog = computed(
   () =>
     route.path === APP_PATHS.ADMIN_UI ||
     route.path === `${APP_PATHS.ADMIN}/ui-test` ||
     route.path === APP_PATHS.KIT,
 )
-const showFranja = computed(
-  () => !isKitCatalog.value && !route.path.startsWith(APP_PATHS.ADMIN),
-)
 
-const footerLinks = computed(() => [
+const footerLinks = [
   { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
-])
+  { label: 'Cuenta', to: APP_PATHS.CUENTA },
+  { label: 'Feed', to: APP_PATHS.FEED },
+] as const
 
-const footerColumns = computed(() => [
-  ...MEGA_FOOTER_COLUMNS.map((col) => ({
-    title: col.title,
-    links: [...col.links],
-  })),
-  {
-    title: FOOTER_COPY.contactTitle,
-    links: [
-      { label: FOOTER_COPY.writeLabel, to: APP_PATHS.PAOLA },
-      { label: page.contact.email, href: `mailto:${page.contact.email}` },
-      { label: 'WhatsApp', href: whatsapp.href },
-      ...page.contact.social.map((link) => ({ label: link.label, href: link.href })),
-    ],
-  },
+const footerContact = computed(() => [
+  { label: page.contact.email, href: `mailto:${page.contact.email}` },
+  { label: FOOTER_COPY.writeLabel, href: whatsapp.href },
 ])
 </script>
 
@@ -116,20 +107,24 @@ const footerColumns = computed(() => [
 
     <v-main class="paola-main">
       <router-view />
-      <div v-if="showFranja" class="wrap paola-franja">
-        <p class="meta" style="margin: 0 0 8px">Alianzas</p>
-        <KitAllianceStrip v-if="allianceNames.length" :items="allianceNames" />
-        <p v-else class="meta">{{ alliances.emptyCopy }}</p>
-      </div>
     </v-main>
 
     <footer class="paola-site-foot">
       <div class="wrap paola-site-foot__inner">
-        <MegaFooter :columns="footerColumns" />
         <SiteFooter
           logo-src="/logo.png"
           :motto="FOOTER_COPY.motto"
           :copy="FOOTER_COPY.tagline"
+          :columns="MEGA_FOOTER_COLUMNS"
+          :contact="footerContact"
+          :contact-title="FOOTER_COPY.contactTitle"
+          :alliances="footerAlliances"
+          :alliances-label="FOOTER_COPY.alliancesLabel"
+          :alliances-empty="alliances.emptyCopy"
+          :subscribe-title="FOOTER_COPY.subscribeTitle"
+          :subscribe-placeholder="FOOTER_COPY.subscribePlaceholder"
+          :subscribe-cta="FOOTER_COPY.subscribeCta"
+          :subscribe-mail="page.contact.email"
           :links="footerLinks"
           :credit-label="FOOTER_COPY.creditLabel"
           :credit-name="FOOTER_COPY.creditName"

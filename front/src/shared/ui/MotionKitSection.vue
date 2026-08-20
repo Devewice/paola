@@ -84,7 +84,7 @@ onMounted(() => {
       <p class="motion-stack-label">AutoAnimate · panel notificaciones</p>
       <ul ref="notifyList" class="motion-notify-list">
         <li>Comentario publicado · placeholder</li>
-        <li>Paola respondió en tu hilo</li>
+        <li>Te respondieron en tu hilo</li>
       </ul>
       <Button variant="ghost" size="sm" style="margin-top:12px" @click="addNotification">Simular notificación</Button>
     </div>

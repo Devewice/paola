@@ -9,7 +9,7 @@ withDefaults(
     time?: string
     pinLabel?: string
   }>(),
-  { body: '', pinLabel: 'Aviso de Paola' },
+  { body: '', pinLabel: 'Aviso fijado' },
 )
 </script>
 

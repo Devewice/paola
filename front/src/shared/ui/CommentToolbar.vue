@@ -11,7 +11,7 @@ defineEmits<{
 
 <template>
   <div class="comment-toolbar">
-    <span><strong>{{ count ?? 6 }}</strong> comentarios · moderación Paola</span>
+    <span><strong>{{ count ?? 6 }}</strong> comentarios · moderación del parche</span>
     <div class="comment-sort">
       <button type="button" :class="{ 'is-on': sortModel === 'recientes' }" @click="$emit('update:sortModel', 'recientes')">Recientes</button>
       <button type="button" :class="{ 'is-on': sortModel === 'utiles' }" @click="$emit('update:sortModel', 'utiles')">Útiles</button>

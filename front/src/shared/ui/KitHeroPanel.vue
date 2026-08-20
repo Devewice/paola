@@ -3,6 +3,10 @@ import { computed } from 'vue'
 import BrushSplash from '@ui/BrushSplash.vue'
 import Button from '@ui/Button.vue'
 
+const emit = defineEmits<{
+  'cta-hover': [hovered: boolean]
+}>()
+
 const props = withDefaults(
   defineProps<{
     label?: string
@@ -73,7 +77,13 @@ const mediaStyle = computed(() => {
     <div class="kit-hero__panel-splash">
       <BrushSplash :label="splash" tone="white" size="sm" style="margin:0" />
     </div>
-    <Button v-if="ctaTo" variant="ghost" size="sm" :to="ctaTo">{{ ctaLabel }}</Button>
-    <Button v-else variant="ghost" size="sm" :href="ctaHref">{{ ctaLabel }}</Button>
+    <span
+      class="kit-hero__panel-cta-hit"
+      @pointerenter="emit('cta-hover', true)"
+      @pointerleave="emit('cta-hover', false)"
+    >
+      <Button v-if="ctaTo" variant="ghost" size="sm" :to="ctaTo">{{ ctaLabel }}</Button>
+      <Button v-else variant="ghost" size="sm" :href="ctaHref">{{ ctaLabel }}</Button>
+    </span>
   </div>
 </template>

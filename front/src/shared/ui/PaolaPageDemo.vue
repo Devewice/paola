@@ -4,8 +4,8 @@ import PaolaBlock from '@ui/PaolaBlock.vue'
 
 <template>
   <div class="paola-page">
-    <PaolaBlock voice="armargura" voice-label="Armargura" title="La razón" copy="Texto placeholder · relato personal" />
-    <PaolaBlock title="¿Quién es Paola?" copy="Placeholder · no inventar biografía" />
+    <PaolaBlock voice="armargura" voice-label="Armargura" title="La razón" copy="Texto demo · relato personal" />
+    <PaolaBlock title="¿Quién soy?" copy="Relato en construcción · biografía por definir" />
     <div class="arsenal-grid arsenal-grid--2" style="gap: 12px; margin: 0">
       <PaolaBlock title="¿Por qué?" copy="—" />
       <PaolaBlock title="¿Para qué?" copy="—" />

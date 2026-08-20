@@ -58,7 +58,7 @@ async function submit(): Promise<void> {
 
 <template>
   <TicketCard v-if="done" title="Cupo a tu nombre" :meta="done.outing.title">
-    <Alert tone="ok">El cupo quedó a tu nombre. Avísale a Paola por WhatsApp o correo para que lo vea.</Alert>
+    <Alert tone="ok">El cupo quedó a tu nombre. Escríbeme por WhatsApp o correo para confirmarlo.</Alert>
     <div class="outing-claim__actions">
       <Button :href="done.notice.whatsappHref" target="_blank">Avisar por WhatsApp</Button>
       <Button variant="ghost" :href="done.notice.mailtoHref">Avisar por correo</Button>
@@ -68,7 +68,7 @@ async function submit(): Promise<void> {
   <form v-else class="outing-claim" @submit.prevent="submit">
     <p class="paola-empty__kicker">Anotarse a la rodada</p>
     <Alert v-if="paid" tone="info">
-      Es de pago. El cupo queda anotado; el cobro se habla con Paola por WhatsApp.
+      Es de pago. El cupo queda anotado; el cobro se habla por WhatsApp.
     </Alert>
     <PrivacyCheck
       v-model="privacyAccepted"

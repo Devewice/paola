@@ -1,102 +1,84 @@
-# AGENTS.md — reglas fundamentales de construcción
+# AGENTS.md — guía del proyecto
 
-Este archivo es **vinculante**. Si una instrucción de chat choca con esto, gana esto, salvo que Paola lo cambie por escrito.
-
-El destino es el **portal completo** (horizonte 44). No construyas un paso intermedio que una pieza posterior va a tirar. Comprime: deja el estado final.
+Referencia principal para humanos e IA. Prioriza **arquitectura**, **identidad visual** y **tono de marca**. Si algo no está claro, pregunta antes de inventar decisiones de producto grandes.
 
 ---
 
 ## 1. Identidad
 
-- **Paola** es la persona, la marca y el producto. El oficio público es **Paola Biker**.
-- No uses otro nombre de pila para referirte a ella.
-- Una sola operadora: no diseñes flujos que exijan un equipo 24/7.
-- Responde al usuario en **español**.
+- **Paola Biker** es la marca y el portal. Paola es la operadora; el sitio habla como parche, no como corporativo.
+- Responde en **español**.
+- Una sola operadora: evita flujos que exijan equipo 24/7.
 
 ---
 
-## 2. Cómo se construye
+## 2. Tono de copy
 
-- El mapa de fases es **cobertura** (qué tiene que existir), no una cola de sprints. Se puede sacar **todo de una vez**.
-- Si un paso intermedio se pisa o se borra en una pieza posterior, **no lo implementes**: deja ya el estado final.
-- Los “No incluye” de fases tempranas no bloquean lo que el horizonte **sí** pide (cuenta, feed, chat, comunidades). El “No incluye” que **sí** vale es el de la hoja al final (GPS, marketplace, trámites, envío nacional).
-- Membresías (21): sin precio y beneficios definidos por Paola, **no se inventan**. Hueco honesto.
-- Pasarela (20): el camino WhatsApp/Paola **no se apaga**. Sin credenciales reales, no se finge cobro en línea.
-- WhatsApp **no se apaga** cuando exista la web social. Dos canales, no reemplazo.
-- El módulo `counter` no es producto: quítalo al entrar el primer módulo real.
+- Cercano, directo, de moto y parche. Si suena a plantilla de motoclub genérico, afínalo.
+- **Segunda persona** cuando encaje: *escríbeme*, *te aviso*, *únete al parche*, *contáctanos*.
+- No repitas *Paola* en cada frase ni en CTAs egocéntricos (*escríbele a Paola* → *escríbeme* / *escríbenos*).
+- El nombre de marca va donde corresponde (título, pestaña Paola, legal, SEO). En botones y mensajes cotidianos, habla al usuario.
+- Textos en `constants/` del módulo o de `app/`; no hardcodeados en `.vue`, controllers ni providers.
 
-### Fuera de alcance (hasta regla nueva por escrito)
+Más ejemplos: [`docs/copy.md`](docs/copy.md).
 
-- GPS en vivo.
-- Marketplace de terceros.
-- Trámite o representación de comparendos.
-- Envío nacional.
-- Eventbrite u otro proveedor de tickets.
-- Popups de publicidad o venta de datos.
-- Equipo de moderación 24/7.
-- Sincronizar automáticamente todos los mensajes de WhatsApp a la web.
-
----
-
-## 3. Producto y marca (no negociable)
-
-- Cinco entradas: **Inicio, Parchese, Tu voz, Tienda, Paola**. Más franja global de **alianzas** (el mismo set que en Parchese).
-- Tono de parche, no corporativo. Si una pantalla podría ser cualquier motoclub, está mal.
-- **Marca propia sin mezclar:** lo de Paola se ve como Paola; lo de alianza, como alianza. En Tienda, colaboraciones en estantería **aparte**.
-- Tickets de rodada: **sistema propio y simple** (cupo), no plataforma externa.
-- Pago: primero **escribirle a Paola** (WhatsApp/correo). Pasarela después, y el camino Paola no se apaga.
-- Entrega gratis **solo Bogotá y Soacha**. Fuera: “aún no”, no improvisar flete.
-- Garantía de producto: **solo defectos de fabricación**. Servicio de cascos: si quedó mal, se corrige.
-- El sitio se mira **sin login**. Cuenta cuando haya ticket a tu nombre, pedido o denuncia.
-- Comparendos: educación + disclaimer + enlace oficial. **No** trámites ni formularios que parezcan autoridad.
-- Denuncias: constancia comunitaria, no denuncia penal. Moderación. No linchamiento, no menores, no doxxing.
-- Únete = **WhatsApp** (parche caliente). **Comunidades persistentes** viven en la web (**36+**) como otro canal; WA no se apaga.
-
-### Voces (tríada)
-
-Úsalas en copy y estructura, no como tres sitios:
+### Voces (guía, no tres sitios)
 
 | Voz | Cuándo |
 |-----|--------|
-| **Moto Loigca** | Rodada anunciada, precios, cupo, ley, tips, garantía |
-| **Cámara Incauta** | Fotos, memorias, evidencia, Insta360 |
+| **Moto Loigca** | Rodadas, cupo, ley, tips, garantía |
+| **Cámara Incauta** | Fotos, memorias, evidencia |
 | **Paola Armargura** | Relato personal, denuncias, cierre emocional |
 
-Visual: logo oficial = escudo PNG (no una cursiva). Paleta negro + blanco + azul eléctrico (`#0088F8`). Fuentes Oswald + Montserrat. Botones radio 10px, CTA mayúsculas. Paper Mario / Insta360 no sustituyen esta marca.
+---
+
+## 3. Producto
+
+- Cinco entradas: **Inicio, Parchese, Tu voz, Tienda, Paola**. Alianzas en el footer (mismo set que Parchese).
+- Marca propia aparte de alianzas. En tienda, colaboraciones en estantería separada.
+- Tickets de rodada: sistema propio (cupo). Pago humano primero (WhatsApp/correo); pasarela después sin apagar ese camino.
+- Entrega gratis **Bogotá y Soacha**. Garantía producto: defectos de fabricación. Lavado de casco: si quedó mal, se corrige.
+- Comparendos: educación + disclaimer + enlace oficial. Sin trámites ni formularios que parezcan autoridad.
+- Denuncias: constancia comunitaria, moderación. Sin linchamiento, menores ni doxxing.
+- WhatsApp y web en paralelo; no se sustituyen.
+
+### Fuera de alcance (salvo regla nueva)
+
+GPS en vivo · marketplace de terceros · trámites de comparendos · envío nacional · Eventbrite · popups de ads · moderación 24/7 · sync total de WhatsApp a la web.
 
 ---
 
 ## 4. Arquitectura de código
 
-Stack: **Vue 3 + Vuetify + Vite + TypeScript** en `front/`. API en `back/` también TypeScript.  
-`front/src/app/bootstrap.ts` es **composición** (cablear adapters). No es Bootstrap CSS.
+Stack: **Vue 3 + Vuetify + Vite + TypeScript** (`front/`) y **TypeScript + Knex/MySQL** (`back/`).  
+`front/src/app/bootstrap.ts` es **composición** (cablear adapters), no Bootstrap CSS.
 
 ### Desacoplamiento
 
-1. Un módulo **no importa** de otro módulo.
+1. Un módulo **no importa** otro módulo.
 2. `domain` no conoce Vue, Vuetify, HTTP ni storage.
-3. Casos de uso dependen de **puertos**, no de adapters.
-4. Solo `front/src/app/bootstrap.ts` elige implementaciones concretas.
-5. Las vistas reciben el módulo ya cableado por **props** (o el puerto que bootstrap inyectó).
-6. El resto entra al módulo por su `index.ts`.
+3. Casos de uso → **puertos**; adapters en `infrastructure`.
+4. Solo `bootstrap.ts` elige implementaciones.
+5. Vistas reciben el módulo cableado por **props**.
+6. API pública del módulo en su `index.ts`.
 
-### Carpetas del repo
+### Carpetas
 
 ```
-front/                  Vue + Vuetify + Vite
-  src/app/              cascarón, router, bootstrap
+front/
+  src/app/          cascarón, router, bootstrap
   src/core/
-  src/shared/           theme, motion, ui (`@ui`)
+  src/shared/       theme, motion, ui (@ui)
   src/modules/
-back/                   HTTP TypeScript; estáticos en prod
-  db/                   Knex (MySQL): migraciones + consultas
-  http/                 Router, middleware, guards
-  modules/              Un módulo por recurso, nombre en inglés
+back/
+  db/               migraciones Knex
+  http/             router, middleware
+  modules/          un recurso por carpeta (inglés)
 ```
 
-No mezclar front y back en la raíz. `package.json` en la raíz orquesta los dos.
+`package.json` en la raíz orquesta front y back.
 
-### Cómo nace un módulo
+### Módulo front
 
 ```
 front/src/modules/<nombre>/
@@ -104,59 +86,57 @@ front/src/modules/<nombre>/
   application/      casos de uso
   infrastructure/   adapters
   presentation/     .vue
-  constants/        textos, límites, mensajes (no pegados en código)
-  composition.ts    fábrica
-  index.ts          API pública
+  constants/        copy, rutas, límites
+  composition.ts
+  index.ts
 ```
 
-### Cómo nace un módulo de API (`back/`)
+### Módulo back
 
 ```
 back/modules/<nombre-en-inglés>/
-  controllers/
-  services/
-  providers/
-  schemas/
-  middlewares/
-  interfaces/
-  dtos/
-  constants/        textos, rutas, límites, tablas (no pegados en código)
-  index.ts          rutas del módulo
+  controllers/ services/ providers/ schemas/
+  middlewares/ interfaces/ dtos/ constants/
+  index.ts
 ```
 
+Inventario y datos de producto: **MySQL vía Knex** en `back/`, adapter HTTP en el módulo front. No catálogos JSON en `front/` ni listados inventados en `.vue`.
 
-
-Módulos de producto (dejan el placeholder cuando tienen tabla + API): `home`, `club`, `rides`, `voice`, `shop`, `paola`, `users`, `alliances-strip`, `community`, `communities`, `social`.
-Inicio no importa `rides` por dentro: se cablea en bootstrap. Inventario nuevo: MySQL vía Knex, no JSON en el front.
-
-Componentes visuales reutilizables: `front/src/shared/ui/` (importar `@ui`). Catálogo vivo en `/admin/ui`.
+Componentes UI: `front/src/shared/ui/` (`@ui`). Índice en `COMPONENTES.md`. Catálogo vivo: `/admin/ui`.
 
 ### Más
 
-- Pinia solo si la UI se vuelve ruidosa. **Reglas de negocio nunca en Pinia.**
-- Vue Router al haber las 5 pestañas.
-- **Hostinger:** el front y el back viven **en el mismo hosting**, un solo despliegue. No hay API en otro proveedor. En local, `iniciar.bat` / `npm run dev` levantan los dos procesos; en producción `npm start` sirve el build y el `/api` juntos.
-- API en `back/modules/` (`health`, `rides`, `club`, `memories`, `voice`, `shop`; cada fase de inventario suma tabla + endpoint). No Express dentro de un `.vue`.
-- Textos, rutas, límites y variables de mensaje van en `constants/`, no hardcodeados en controller, provider ni vista.
-- Credenciales MySQL solo en `.env` (gitignored). Nunca en docs ni en el front.
-- Pagos: puerto `PaymentPort` — adapter WhatsApp primero, pasarela después.
-- Tests primero en **casos de uso** (cupo, km, pedido, estados de salida).
-- TypeScript estricto; imports de tipos con `import type`.
+- Pinia solo si la UI lo pide. Reglas de negocio **no** en Pinia.
+- Hostinger: front + back, un despliegue. Local: `iniciar.bat` / `npm run dev`. Prod: `npm start` sirve build + `/api`.
+- Credenciales MySQL solo en `.env`.
+- Pagos: puerto `PaymentPort` — WhatsApp primero.
+- Tests útiles en **casos de uso**.
+- TypeScript estricto; `import type` para tipos.
 
 ---
 
-## 5. Git y mensajes
+## 5. Identidad visual
 
-- Commits y PRs en **español**.
-- Título corto; cuerpo solo si hace falta.
-- **Prohibido** `Co-authored-by: Cursor` y trailers `Made-with` / `Generated by Cursor`.
-- No hagas commit ni push salvo que te lo pidan.
-- Rama de trabajo del producto: `main`.
+- Logo = escudo PNG (`logo.png`). No simular el nombre con script.
+- Fondo `#05070C`, CTA `#0088F8`, cian `#48B4FC`, navy `#001028`.
+- Fuentes: **Oswald** (títulos/CTAs), **Montserrat** (UI).
+- Botón primario: azul, mayúsculas, 48px alto, radio 10px. Un CTA `hero` por vista.
+- Brocha (`type-brush-dry`, afiches): capa visual; formularios sin brocha.
+- Motion: GSAP + AutoAnimate (`front/src/shared/motion/`). Insta360 / Paper Mario no reemplazan la marca.
+
+Detalle en `.cursor/rules/visual.mdc`.
 
 ---
 
-## 6. Contenido que no inventes
+## 6. Git
 
-No rellenes biografía, precios de membresía, lista de integrantes, aliados, links de WhatsApp/redes/video, ni NIT. Correo y dominio sí: `contacto@paolabiker.com` / `paolabiker.com`. Usa placeholders honestos para lo demás.
+- Commits y PRs en **español**. Título corto.
+- Sin `Co-authored-by: Cursor` ni trailers de IA.
+- No commit ni push salvo que lo pidan. Rama: `main`.
 
-Si una decisión de producto no está en la hoja de ruta, **no la des por hecha**: o cabe en la fase, o se pregunta.
+---
+
+## 7. Datos fijos del proyecto
+
+- Dominio: `paolabiker.com`
+- Correo: `contacto@paolabiker.com`

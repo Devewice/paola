@@ -30,6 +30,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
     const today = new Date().toISOString().slice(0, 10)
     const upcoming = agenda.items.find((item) => item.when === 'proxima')
     const join = this.club.getJoinChannel()
+    const members = this.club.getMembers()
     const quien = this.paola.getPage().narrative.find((section) => section.id === 'quien')
     const latest = memories.items[0] ?? null
     const featuredTip = tips.items[0] ?? null
@@ -62,6 +63,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
         label: HOME_JOIN_LABEL,
       },
       totalKm: memories.items.length > 0 ? memories.totalKm : null,
+      integrantesCount: members.items.length > 0 ? members.items.length : null,
       memory: latest
         ? {
             title: latest.title,

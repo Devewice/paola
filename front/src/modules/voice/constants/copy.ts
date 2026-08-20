@@ -8,13 +8,13 @@ export const VOICE_COPY = {
   kicker: 'Moto Loigca',
   title: 'Tu voz',
   plate: 'Voz',
-  lead: 'Tips de vía, comparendos y reportes del parche. Paola no tramita comparendos ni es abogada.',
+  lead: 'Tips de vía, comparendos y reportes del parche. Aquí no tramitamos comparendos ni damos asesoría jurídica.',
   tipsHeading: 'Tips',
   tipsEmpty: 'Sin tips',
   finesHeading: 'Comparendos',
   finesEmpty: 'Sin guías',
   reportsHeading: 'Reportes',
-  publishedHeading: 'Publicados por Paola',
+  publishedHeading: 'Publicados en el parche',
   sendCta: 'Enviar reporte',
 } as const
 

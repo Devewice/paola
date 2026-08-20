@@ -18,7 +18,7 @@ const initial = (name: string) => name.trim().charAt(0).toUpperCase() || '?'
 
 <template>
   <div v-if="pinned" class="comment-item--pinned">
-    <p class="comment-pin-label">Fijado · Paola</p>
+    <p class="comment-pin-label">Fijado · moderación</p>
     <article class="comment-item">
       <div class="comment-item__avatar">{{ avatar || initial(author) }}</div>
       <div>

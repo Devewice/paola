@@ -59,6 +59,7 @@ export type HomeBoard = {
   readonly rodadas: readonly HomeRodadaCard[]
   readonly join: HomeJoinCta
   readonly totalKm: number | null
+  readonly integrantesCount: number | null
   readonly memory: HomeMemoryFlash | null
   readonly memoryEmptyCopy: string
   readonly voice: HomeVoiceHole

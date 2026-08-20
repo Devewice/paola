@@ -1,20 +1,28 @@
 ---
-description: Reglas fundamentales de construcción de Paola (visión, fases, arquitectura)
+description: Construcción del portal Paola — arquitectura y producto
 alwaysApply: true
 ---
 
 # Construcción
 
-Obedece `AGENTS.md` en la raíz.
+Lee `AGENTS.md` en la raíz.
 
-- El destino es el portal completo (horizonte 44). Se puede construir de una vez. No dejes pasos intermedios que luego se tiran.
-- Paola es Paola (persona, marca, producto). No uses otro nombre de pila.
-- Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `front/src/app/bootstrap.ts` cablea adapters.
-- Repo en `front/` + `back/`; kit Vue en `front/src/shared/ui/` (`@ui`). Catálogo vivo: `/admin/ui`.
-- Marca propia sin mezclar con alianzas. Tickets propios. Pago: WhatsApp/Paola primero.
-- Entrega solo Bogotá/Soacha. Garantía de producto: solo defectos de fabricación. Servicio de cascos: si quedó mal, se corrige.
-- No GPS en vivo, no marketplace de terceros, no trámites de comparendos, no envío nacional. Web + WhatsApp en paralelo (WA no se apaga). Comunidades y feed sí van: no hay que esperar “otra fase”.
-- Commits en español, sin `Co-authored-by: Cursor`.
-- No inventes biografía, precios, integrantes, aliados ni links reales. Dominio `paolabiker.com` y correo `contacto@paolabiker.com` sí están definidos.
-- Datos de producto: **MySQL vía Knex en `back/`** (migrate, provider, controller en `back/modules/<nombre-en-inglés>/`). Adapter HTTP en el módulo. Tabla vacía = hueco honesto. Prohibido catálogo JSON en `front/` o listados inventariados en un `.vue`.
-- Hostinger: front y back en el mismo hosting. Credenciales MySQL solo en `.env`.
+## Arquitectura (mantener)
+
+- `front/` + `back/`; kit en `front/src/shared/ui/` (`@ui`). Catálogo: `/admin/ui`.
+- Módulos desacoplados: dominio sin Vue/Vuetify; un módulo no importa otro; solo `bootstrap.ts` cablea adapters.
+- Textos y límites en `constants/`, no hardcodeados en vistas ni controllers.
+- Datos de producto: MySQL vía Knex en `back/`; adapter HTTP en el módulo front.
+- Hostinger: un solo hosting. MySQL en `.env`.
+
+## Producto (orientación)
+
+- Portal completo: Inicio, Parchese, Tu voz, Tienda, Paola + alianzas en footer.
+- Pago humano (WhatsApp/correo) primero. Entrega Bogotá/Soacha.
+- Fuera de alcance: GPS en vivo, marketplace terceros, trámites comparendos, envío nacional.
+- Commits en español, sin coautoría de Cursor.
+
+## Copy
+
+- Tono parche, segunda persona cuando encaje (*escríbeme*, no *escríbele a Paola* en cada CTA).
+- Marca **Paola Biker** en títulos y navegación; no repetir el nombre en exceso en microcopy.

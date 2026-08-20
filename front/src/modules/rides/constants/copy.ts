@@ -29,7 +29,7 @@ export const RIDES_AGENDA_COPY = {
   emptyTitle: 'Sin fecha',
   full: 'El cupo está lleno.',
   closed: 'Ya se cerró la inscripción.',
-  done: 'Esta ya se rodó. La memoria llega cuando Paola la publique.',
+  done: 'Esta ya se rodó. La memoria llega cuando la publiquemos.',
   outingThread: 'Chat de esta salida',
 } as const
 

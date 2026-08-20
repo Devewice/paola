@@ -1,72 +1,67 @@
-# Paola
+# Paola Biker
 
-Portal de **Paola Biker**. Vue 3 + Vuetify + Vite + TypeScript, con arquitectura modular (puertos y adapters).
+Portal de moto, parche y tienda. Vue 3 + Vuetify + TypeScript (front) y API TypeScript + MySQL (back), con módulos desacoplados (puertos y adapters).
 
-Copy en primera persona: [`docs/paola.md`](docs/paola.md). Fases: [`docs/roadmap.md`](docs/roadmap.md).
+Guía completa: [`AGENTS.md`](AGENTS.md). Copy: [`docs/copy.md`](docs/copy.md).
 
 ## Arranque
 
-En Windows, doble clic o desde la carpeta del repo:
+Windows:
 
 ```bat
 iniciar.bat
 ```
 
-Eso instala dependencias si hace falta y levanta **front y back juntos** (mismo Hostinger: no son dos hostings).
+O desde la raíz:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build de producción: `npm run build` → `dist/` (front) y `back/dist/` (API compilada).
+Levanta **front y back** juntos (mismo hosting en producción).
 
-En Hostinger (Node, un solo hosting):
+Build: `npm run build` → `dist/` + `back/dist/`. Producción: `npm start` sirve estáticos y `/api`.
+
+### Hostinger (Node)
 
 | Campo | Valor |
 |-------|--------|
-| Tipo | **Aplicación Node.js** (no sitio estático) |
 | Build | `npm run build` |
-| Directorio de salida | `dist` |
+| Salida | `dist` |
 | Arranque | `npm start` |
 
-`npm start` sirve `dist/` y `/api` juntos. Las variables MySQL van en `.env` del hosting, no en git.
+Variables MySQL en `.env` del hosting (no en git). Copia `.env.example` → `.env` en local.
 
-Copia `.env.example` a `.env` y completa MySQL. **No subas `.env`.** Para conectar desde el PC, en Hostinger agrega tu IP en acceso remoto MySQL.
-
-## Cómo está organizado
+## Estructura
 
 ```
-front/                    Vue + Vite + Vuetify
-  src/app/                Cascarón, router, bootstrap
-  src/core/               Result, errores (sin I/O)
-  src/shared/             theme, motion, ui (`@ui`)
-  src/modules/            Módulos de producto (fases)
-  public/                 logo, mascota, fuentes
-back/                     HTTP TypeScript; estáticos en prod
-  db/                     Knex (MySQL): migraciones + consultas
-  http/                   Router y middleware
-  modules/                Un módulo por recurso, nombre en inglés (controller, service, provider, schema, middleware, interface, dto, constants)
-docs/                     visión, fases, visual, relato
-package.json              Scripts dev/build/start en la raíz
+front/
+  src/app/          router, bootstrap, shell
+  src/core/
+  src/shared/       theme, motion, ui (@ui)
+  src/modules/
+back/
+  db/               Knex + migraciones
+  http/
+  modules/
+AGENTS.md           arquitectura, marca, copy
 ```
 
-**Kit visual:** en local, abre `/admin/ui` para ver todos los componentes Vue importables desde `@ui`. `/kit` y `/operar` redirigen a `/admin/ui` y `/admin`.
+**Kit UI:** `/admin/ui` — catálogo de componentes `@ui`.
 
-## Reglas de desacoplamiento
+## Desacoplamiento (resumen)
 
-1. Un módulo **no importa** de otro módulo.
-2. `domain` no conoce Vue, Vuetify, HTTP ni almacenamiento.
-3. Los casos de uso dependen de **puertos**, no de implementaciones.
-4. Solo `front/src/app/bootstrap.ts` elige adapters concretos.
-5. Las vistas reciben el módulo ya cableado por props.
-6. El resto del código entra a un módulo por su `index.ts`.
+1. Un módulo no importa otro.
+2. `domain` sin Vue/HTTP.
+3. Casos de uso → puertos.
+4. `bootstrap.ts` cablea adapters.
+5. Vistas reciben módulo por props.
+6. Entrada pública: `index.ts` del módulo.
 
-## Cómo añadir un módulo
+## Nuevo módulo
 
-1. Crea `front/src/modules/nombre/` (`domain`, `application`, `infrastructure`, `presentation`, `constants`).
-2. Define el puerto en `domain/ports`.
-3. Implementa el caso de uso y un adapter.
-4. Expón una fábrica en `composition.ts` y una vista `.vue`.
-5. Cablea en `front/src/app/bootstrap.ts` y enruta en `router.ts`.
-6. Si hay API: `back/modules/<nombre-en-inglés>/` (controller, service, provider, schema, middleware, interface, dto, constants). Textos y límites en `constants/`, no pegados.
+1. `front/src/modules/<nombre>/` (domain, application, infrastructure, presentation, constants).
+2. Puertos, casos de uso, adapter, `composition.ts`, vista.
+3. Cablear en `bootstrap.ts` y `router.ts`.
+4. Si hay API: `back/modules/<nombre-en-inglés>/` con capas habituales; textos en `constants/`.

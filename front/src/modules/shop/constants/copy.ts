@@ -15,7 +15,7 @@ export const SHOP_WARRANTY_COPY =
   'La garantía cubre solo defectos de fábrica. No cubre golpe, desgaste ni si no te gustó.'
 
 export const SHOP_SERVICE_WARRANTY_COPY =
-  'Si el lavado quedó mal, Paola lo corrige.'
+  'Si el lavado quedó mal, lo corregimos.'
 
 export const SHOP_SERVICE_ZONE_COPY =
   'El lavado es solo en Bogotá y Soacha.'
@@ -38,8 +38,8 @@ export const SHOP_COPY = {
   kicker: 'Oficio',
   title: 'Tienda',
   plate: 'Tienda',
-  lead: 'Ropa y piezas de Paola, colaboraciones aparte, y lavado de casco. Para pedir, escríbele.',
-  writeCta: 'Escribirle a Paola',
+  lead: 'Marca propia, colaboraciones aparte y lavado de casco. Para pedir, escríbeme.',
+  writeCta: 'Escríbeme',
   mailCta: 'Correo',
   backCta: 'Volver a Tienda',
   rulesHeading: 'Reglas',
@@ -49,7 +49,7 @@ export const SHOP_COPY = {
   ownEmptyTitle: 'Sin piezas propias',
   collabHeading: 'Colaboraciones',
   collabAria: 'Colaboraciones',
-  collabNote: 'Las colaboraciones van en su propia lista, no mezcladas con lo de Paola.',
+  collabNote: 'Las colaboraciones van en su propia lista, no mezcladas con la marca propia.',
   collabEmptyTitle: 'Sin collab',
   fichaEmptyTitle: 'Sin ficha',
   deliveryAria: 'Entrega y garantía',

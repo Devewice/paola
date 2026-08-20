@@ -6,7 +6,7 @@ const youtube = {
   href: 'https://www.youtube.com/@5.paola.3',
 } as const
 
-/** Relato y contacto de docs/paola.md. No inventar otra biografía. */
+/** Relato y contacto del portal. */
 export const PAOLA_PAGE: PaolaPage = {
   narrative: [
     {
@@ -16,7 +16,7 @@ export const PAOLA_PAGE: PaolaPage = {
     },
     {
       id: 'quien',
-      title: '¿Quién es Paola?',
+      title: '¿Quién soy?',
       body: 'Soy Paola, creadora de contenido, motociclista y mujer de Usme. Comparto mis experiencias, rodadas, opiniones y todo aquello que vivo alrededor de las motos, buscando siempre hacerlo desde lo que soy y desde mi realidad.',
     },
     {

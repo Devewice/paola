@@ -32,6 +32,7 @@ const chips = [
 ] as const
 
 const SLIDE_MS = 7000
+const SPARK_CTA_SPEED = 1 / 3
 const PANEL_RADIUS = 10
 const PANEL_GLOW_OUTSET = 18
 
@@ -50,7 +51,7 @@ const props = withDefaults(
   }>(),
   {
     variant: 'classic',
-    tagline: 'Kit de UI · portal en construcción · placeholders honestos',
+    tagline: 'Kit de UI · portal en construcción · demos del parche',
     kicker: 'por el parche',
     splashLabel: 'paolabiker.com',
     logoSrc: '/kit-assets/logo.png',
@@ -186,13 +187,14 @@ const panelTiltStyle = computed(() => {
 
 const slideIndex = ref(0)
 const progress = ref(0)
+const ctaHovered = ref(false)
 const panelRef = ref<HTMLElement | null>(null)
 const panelTiltRef = ref<HTMLElement | null>(null)
 const sparkPathRef = ref<SVGPathElement | null>(null)
 const panelFrame = ref({ w: 0, h: 0 })
 const pathLength = ref(0)
 let raf = 0
-let startedAt = 0
+let lastTickAt = 0
 let resizeObserver: ResizeObserver | undefined
 
 const slides = computed(() => props.panelSlides)
@@ -354,6 +356,7 @@ function onPanelMove(event: PointerEvent): void {
 
 function onPanelLeave(): void {
   panelTilting.value = false
+  ctaHovered.value = false
   stopDepthJitter()
   targetRotate.value = { x: 0, y: 0 }
   targetNorm.value = { x: 0, y: 0 }
@@ -365,17 +368,21 @@ function goTo(index: number): void {
   if (!slides.value.length) return
   slideIndex.value = ((index % slides.value.length) + slides.value.length) % slides.value.length
   progress.value = 0
-  startedAt = performance.now()
+  lastTickAt = 0
 }
 
 function tick(now: number): void {
   if (!canCycle.value) {
     progress.value = 0
+    lastTickAt = 0
     return
   }
-  const elapsed = now - startedAt
-  progress.value = Math.min(100, (elapsed / SLIDE_MS) * 100)
-  if (elapsed >= SLIDE_MS) {
+  if (lastTickAt < 1) lastTickAt = now
+  const dt = now - lastTickAt
+  lastTickAt = now
+  const speed = ctaHovered.value ? SPARK_CTA_SPEED : 1
+  progress.value = Math.min(100, progress.value + (dt / SLIDE_MS) * 100 * speed)
+  if (progress.value >= 100) {
     goTo(slideIndex.value + 1)
   }
   raf = requestAnimationFrame(tick)
@@ -383,10 +390,14 @@ function tick(now: number): void {
 
 function startLoop(): void {
   cancelAnimationFrame(raf)
-  startedAt = performance.now()
   progress.value = 0
+  lastTickAt = 0
   if (!canCycle.value) return
   raf = requestAnimationFrame(tick)
+}
+
+function onCtaHover(hovered: boolean): void {
+  ctaHovered.value = hovered
 }
 
 function syncPathLength(): void {
@@ -538,7 +549,7 @@ watch(borderPath, async () => {
               <div
                 ref="panelTiltRef"
                 class="kit-hero__panel-tilt"
-                :class="{ 'is-tilting': panelTilting }"
+                :class="{ 'is-tilting': panelTilting, 'is-cta-hover': ctaHovered }"
                 :style="panelTiltStyle"
               >
                 <div v-if="canCycle" class="kit-hero__panel-glow" aria-hidden="true">
@@ -576,8 +587,26 @@ watch(borderPath, async () => {
                       <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--e" />
                       <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--f" />
                       <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--g" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--h" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--i" />
                     </span>
-                    <span class="kit-hero__panel-spark-core" />
+                    <span class="kit-hero__panel-spark-head" aria-hidden="true">
+                      <svg
+                        class="kit-hero__panel-spark-svg"
+                        viewBox="0 0 24 24"
+                        width="22"
+                        height="22"
+                        fill="none"
+                      >
+                        <path
+                          class="kit-hero__panel-spark-bolt"
+                          d="M12 1 L13.4 8.2 L21 10.2 L14.2 12.4 L16.2 22 L12 15.8 L7.8 22 L9.8 12.4 L3 10.2 L10.6 8.2 Z"
+                        />
+                        <path class="kit-hero__panel-spark-needle" d="M12 3 L12 21" />
+                        <path class="kit-hero__panel-spark-needle kit-hero__panel-spark-needle--b" d="M4 11 L20 13" />
+                        <path class="kit-hero__panel-spark-needle kit-hero__panel-spark-needle--c" d="M6 6 L18 18" />
+                      </svg>
+                    </span>
                   </span>
                 </div>
                 <Transition v-if="hasDeck" name="kit-hero-deck" mode="out-in">
@@ -595,6 +624,7 @@ watch(borderPath, async () => {
                       :cta-label="activeSlide.ctaLabel"
                       :cta-href="activeSlide.ctaHref"
                       :cta-to="activeSlide.ctaTo"
+                      @cta-hover="onCtaHover"
                     />
                   </div>
                 </Transition>

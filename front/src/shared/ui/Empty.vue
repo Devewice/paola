@@ -22,7 +22,7 @@ withDefaults(
     compact: false,
     hideCta: false,
     ctaHref: 'mailto:contacto@paolabiker.com',
-    ctaLabel: 'Escribirle a Paola',
+    ctaLabel: 'Escríbeme',
   },
 )
 

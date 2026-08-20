@@ -51,11 +51,11 @@ async function sendComment(): Promise<void> {
     body: JSON.stringify({ body: commentBody.value }),
   })
   if (!response.ok) {
-    commentError.value = 'No se pudo enviar. Paola modera.'
+    commentError.value = 'No se pudo enviar. Moderamos los comentarios.'
     return
   }
   commentBody.value = ''
-  commentError.value = 'Enviado. Si entra a revisión, lo ves cuando Paola publique.'
+  commentError.value = 'Enviado. Si entra a revisión, lo ves cuando lo publiquemos.'
 }
 </script>
 
@@ -85,7 +85,7 @@ async function sendComment(): Promise<void> {
 
       <h3 class="paola-page__heading">Comentarios</h3>
       <p class="paola-page__copy paola-page__copy--muted">
-        Respeto, no doxxing, no menores. Paola modera. No es un chat ni un tribunal.
+        Respeto, no doxxing, no menores. Moderamos. No es un chat ni un tribunal.
       </p>
       <div v-if="comments.length" class="parchese-page__comments">
         <Comment

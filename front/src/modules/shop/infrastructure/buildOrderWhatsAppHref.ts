@@ -17,7 +17,7 @@ export function buildOrderWhatsAppHref(
   const sizeLine = order.size ? `Talla: ${order.size}` : 'Talla: (no aplica)'
 
   const body = [
-    `Hola Paola, llegó un pedido por tu WhatsApp.`,
+    `Hola, quiero confirmar un pedido:`,
     ``,
     `Pedido #${order.id}`,
     `Ítem: ${order.itemTitle}`,

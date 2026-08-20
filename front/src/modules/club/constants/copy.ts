@@ -7,7 +7,7 @@ export const JOIN_WHATSAPP_TEXT = 'Quiero unirme al parche'
 export const JOIN_COPY = {
   cta: 'Únete',
   title: 'Únete',
-  copy: 'Escríbele a Paola para que te agregue al grupo.',
+  copy: 'Escríbeme y te agrego al grupo.',
 } as const
 
 export const PARCHESE_COPY = {

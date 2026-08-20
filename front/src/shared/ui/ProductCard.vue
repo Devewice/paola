@@ -16,7 +16,7 @@ withDefaults(
   }>(),
   {
     href: 'mailto:contacto@paolabiker.com',
-    ctaLabel: 'Escribirle a Paola',
+    ctaLabel: 'Escríbeme',
     mediaLabel: 'Producto',
   },
 )

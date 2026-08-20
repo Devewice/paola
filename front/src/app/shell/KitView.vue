@@ -473,7 +473,7 @@ const choiceCheckItems = [
 const actionListDemoItems = [
   { title: 'Mis tickets', meta: '2 activos · 1 realizado', href: '#forms' },
   { title: 'Memorias de rodadas', meta: 'Fotos y km del parche', href: '#nav' },
-  { title: 'Escribirle a Paola', meta: 'WhatsApp · pago y cupo', href: '#feedback' },
+  { title: 'Escríbeme', meta: 'WhatsApp · pago y cupo', href: '#feedback' },
 ] as const
 const mediaListItems = [
   { avatar: 'N', title: 'Nezko', meta: 'Moto por confirmar', chip: 'En parche' },
@@ -506,7 +506,7 @@ const sizeOptions = [
 const trustItems = [
   { title: 'Garantía', copy: 'Solo defectos de fabricación' },
   { title: 'Entrega', copy: 'Bogotá y Soacha gratis' },
-  { title: 'Pago', copy: 'WhatsApp con Paola primero' },
+  { title: 'Pago', copy: 'Escríbeme por WhatsApp primero' },
   { title: 'Cascos', copy: 'Si quedó mal, se corrige' },
 ] as const
 
@@ -545,7 +545,7 @@ const footerLinks = [
 const checkoutDemo = [
   { label: 'Carrito', meta: 'Productos elegidos', state: 'done' as const },
   { label: 'Datos', meta: 'Ciudad y contacto', state: 'active' as const },
-  { label: 'Pago', meta: 'WhatsApp con Paola', state: 'idle' as const },
+  { label: 'Pago', meta: 'Escríbeme por WhatsApp', state: 'idle' as const },
 ]
 
 const receiptLines = [
@@ -563,7 +563,7 @@ const compareRows = [
 ] as const
 
 const faqItems = [
-  { q: '¿Cómo pago?', a: 'Primero escribirle a Paola por WhatsApp o correo.' },
+  { q: '¿Cómo pago?', a: 'Primero escríbeme por WhatsApp o correo.' },
   { q: '¿Envían a Medellín?', a: 'Aún no hay envío nacional. Solo Bogotá y Soacha gratis.' },
   { q: '¿Membresía?', a: 'Próximamente · precio y beneficios por definir.' },
   { q: '¿Ticket rodada?', a: 'Sistema propio con cupo. No Eventbrite al inicio.' },
@@ -812,7 +812,7 @@ const brushDecoItems = [
 const activityMiniItems = [
   { icon: '💬', title: 'Nuevo comentario', meta: 'Memoria Anapoima · placeholder' },
   { icon: '♥', title: 'Reacciones', meta: 'En memoria · sin notificar en exceso' },
-  { icon: '📋', title: 'Denuncia publicada', meta: 'Tras moderación Paola' },
+  { icon: '📋', title: 'Denuncia publicada', meta: 'Tras moderación del parche' },
 ] as const
 
 const segmentedMemOptions = [
@@ -874,7 +874,7 @@ const rideFichaFields = [
 const shopRulesHtml = '<strong>Reglas fijas Loigca:</strong><br/>Entrega gratis Bogotá y Soacha · fuera = aún no.<br/>Garantía solo defectos de fabricación.'
 
 const serviceSteps = [
-  'Escríbele a Paola por WhatsApp',
+  'Escríbeme por WhatsApp',
   'Entrega el casco en punto acordado',
   'Recoges listo · si quedó mal, se corrige',
 ] as const
@@ -886,7 +886,7 @@ const cityGateOptions = [
 ] as const
 
 const waOrderLines = [
-  'Hola Paola, quiero pedir:',
+  'Hola, quiero pedir:',
   '· Bandana azul ×1',
   '· Entrega: Bogotá',
   '· Total: $ —',
@@ -924,7 +924,7 @@ const auditItems = [
 ] as const
 
 const payOptions = [
-  { id: 'wa', icon: 'W', title: 'WhatsApp con Paola', copy: 'Camino que no se apaga' },
+  { id: 'wa', icon: 'W', title: 'Escríbeme por WhatsApp', copy: 'Camino que no se apaga' },
   { id: 'gate', icon: '$', title: 'Pasarela', copy: 'Fase 20 · Wompi/MP placeholder' },
 ] as const
 
@@ -1129,7 +1129,7 @@ onMounted(async () => {
         <div class="row" style="margin-top:12px">
           <Button size="sm">Small · UI</Button>
           <Button variant="hero" size="sm">Small · hero</Button>
-          <Button>Escribirle a Paola</Button>
+          <Button>Escríbeme</Button>
           <Button variant="hero" size="lg">Large · hero</Button>
         </div>
 
@@ -1336,7 +1336,7 @@ onMounted(async () => {
 
         <BannerInline
           style="margin-bottom:24px"
-          copy="Comparendos: educación + enlace oficial. Paola no tramita ni representa."
+          copy="Comparendos: educación + enlace oficial. Aquí no tramitamos ni representamos."
         />
 
         <p class="meta" style="margin:0 0 8px">Cupo 12 / 20</p>
@@ -1370,7 +1370,7 @@ onMounted(async () => {
               :current="1"
               :steps="[
                 { title: 'Paso 1', copy: 'Apúntese' },
-                { title: 'Paso 2', copy: 'WhatsApp a Paola' },
+                { title: 'Paso 2', copy: 'Escríbeme por WhatsApp' },
                 { title: 'Paso 3', copy: 'Cupo confirmado' },
               ]"
             />
@@ -1461,15 +1461,15 @@ onMounted(async () => {
             <Timeline
               :steps="[
                 { title: 'Apunte recibido', meta: 'Formulario enviado', state: 'done' },
-                { title: 'WhatsApp a Paola', meta: 'Confirma cupo y pago', state: 'active' },
+                { title: 'WhatsApp directo', meta: 'Confirma cupo y pago', state: 'active' },
                 { title: 'Ticket a tu nombre', meta: 'Cuando Paola confirme' },
               ]"
             />
           </Card>
         </div>
 
-        <WaStrip title="Pago y cupo" copy="Escríbele a Paola por WhatsApp. La pasarela viene después; este camino no se apaga." style="margin-bottom:24px">
-          <Button size="sm">Escribirle a Paola</Button>
+        <WaStrip title="Pago y cupo" copy="Escríbeme por WhatsApp. La pasarela viene después; este camino no se apaga." style="margin-bottom:24px">
+          <Button size="sm">Escríbeme</Button>
         </WaStrip>
 
         <h3 class="kit">Franja alianzas + galería memoria</h3>
@@ -1570,7 +1570,7 @@ onMounted(async () => {
       <section id="catalogo">
         <h2 class="sec-title">Catálogo extendido</h2>
         <p class="sm" style="color:var(--muted);margin:-8px 0 28px">
-          Más piezas para Inicio, Parchese, Tienda, Tu voz, panel y mobile. Placeholders honestos donde falte contenido real.
+          Más piezas para Inicio, Parchese, Tienda, Tu voz, panel y mobile. Demos donde falte contenido real.
         </p>
 
         <h3 class="kit">Inicio y marca</h3>
@@ -1626,7 +1626,7 @@ onMounted(async () => {
         <ShelfHeader title="Colaboraciones" collab note="Estantería aparte" />
         <div class="grid grid-2" style="margin-bottom:32px">
           <ServiceCard title="Lavado de casco" copy="Servicio Paola en Bogotá / Soacha. Si quedó mal, se corrige.">
-            <Button variant="ghost" size="sm">Escribirle a Paola</Button>
+            <Button variant="ghost" size="sm">Escríbeme</Button>
           </ServiceCard>
           <AllianceCard copy="Apoya el parche · no es marca Paola" />
         </div>
@@ -1640,7 +1640,7 @@ onMounted(async () => {
               <Button variant="ghost" size="sm">Pedir edición</Button>
               <Button variant="danger" size="sm">Rechazar</Button>
             </ModBar>
-            <p class="field-hint" style="margin-top:10px">Solo Paola · constancia comunitaria</p>
+            <p class="field-hint" style="margin-top:10px">Moderación · constancia comunitaria</p>
           </div>
           <NotifyList :items="notifyDemo" />
         </div>
@@ -1688,7 +1688,7 @@ onMounted(async () => {
             who="Paola · operadora"
             initial="P"
           />
-          <SuccessPanel title="Apunte enviado" copy="Paola te escribe por WhatsApp para confirmar cupo.">
+          <SuccessPanel title="Apunte enviado" copy="Te escribo por WhatsApp para confirmar cupo.">
             <Button variant="ghost" size="sm">Ver mis tickets</Button>
           </SuccessPanel>
         </div>
@@ -1814,7 +1814,7 @@ onMounted(async () => {
           <ArsenalBlock>
             <h4>Mini carrito</h4>
             <CartPanel :lines="cartLines" total="$ —">
-              <Button style="width:100%">Escribirle a Paola</Button>
+              <Button style="width:100%">Escríbeme</Button>
             </CartPanel>
           </ArsenalBlock>
           <ArsenalBlock>
@@ -2204,7 +2204,7 @@ onMounted(async () => {
             <ProdGallery v-model="prodView" :views="['Vista 1', 'Vista 2', 'Detalle']" />
             <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
               <WishBtn v-model="wishOn" />
-              <Button style="flex:1">Escribirle a Paola</Button>
+              <Button style="flex:1">Escríbeme</Button>
             </div>
           </ArsenalBlock>
           <ArsenalBlock>
@@ -2337,7 +2337,7 @@ onMounted(async () => {
           <ArsenalBlock>
             <h4>Testimonio</h4>
             <QuoteBlock
-              quote="Paola no vende motos: vende pertenencia con casco puesto."
+              quote="No vendemos motos: vendemos pertenencia con casco puesto."
               cite="— Parcero · placeholder"
             />
           </ArsenalBlock>
@@ -2649,26 +2649,28 @@ onMounted(async () => {
           <PhaseLabel>Fase 7 · 11</PhaseLabel>
           <h4>Inicio · tablero del parche</h4>
           <HomeDash>
-            <template #hero>
-              <h4>Próxima rodada</h4>
+            <template #next>
+              <h4>Próxima salida</h4>
               <p style="margin:0 0 10px">Anapoima · TBD</p>
               <Button variant="hero" size="sm">Apúntese / Parchese</Button>
             </template>
-            <template #km>
-              <h4>Km parche</h4>
-              <strong style="font-family:var(--display);font-size:28px;color:var(--cyan)">—</strong>
+            <template #pulse>
+              <h4>El parche en vivo</h4>
+              <p class="meta" style="margin:0">Feed · 2–3 posts</p>
             </template>
-            <template #memory>
-              <h4>Destello memoria</h4>
-              <p class="meta" style="margin:0">Última salida · foto placeholder</p>
-            </template>
-            <template #voice>
-              <h4>Tu voz</h4>
-              <p class="meta" style="margin:0">Tip Loigca · si no hay, no se fuerza</p>
-            </template>
-            <template #paola>
-              <h4>Paola</h4>
-              <p class="meta" style="margin:0"><a href="#roadmap">Quién es y cómo escribirle →</a></p>
+            <template #aside>
+              <div class="home-board__pane stack">
+                <h4>Memoria</h4>
+                <p class="meta" style="margin:0">Última salida · foto placeholder</p>
+              </div>
+              <div class="home-board__pane stack">
+                <h4>Tu voz</h4>
+                <p class="meta" style="margin:0">Tip Loigca · si no hay, no se fuerza</p>
+              </div>
+              <div class="home-board__pane stack">
+                <h4>Paola</h4>
+                <p class="meta" style="margin:0"><a href="#roadmap">Quién soy y cómo escribirme →</a></p>
+              </div>
             </template>
           </HomeDash>
           <MascotEmpty title="Sin próxima salida" copy="Estado vacío fase 11 · Únete al WhatsApp" style="margin-top:16px">
@@ -2688,7 +2690,7 @@ onMounted(async () => {
             description="Descripción placeholder."
             :rules="shopRulesHtml"
           >
-            <Button style="width:100%;margin-top:12px">Escribirle a Paola</Button>
+            <Button style="width:100%;margin-top:12px">Escríbeme</Button>
           </ShopFicha>
         </ArsenalBlock>
 
@@ -3118,7 +3120,7 @@ onMounted(async () => {
     </Sheet>
 
     <Modal v-model="modalOpen" title="Confirmar cupo">
-      <p class="sm">Nombre y WhatsApp ya van a Paola. Esto no cobra pasarela.</p>
+      <p class="sm">Nombre y WhatsApp ya me llegan. Esto no cobra pasarela.</p>
       <div class="row">
         <Button @click="modalOpen = false">Listo</Button>
         <Button variant="ghost" @click="modalOpen = false">Cancelar</Button>
