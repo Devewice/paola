@@ -1,0 +1,15 @@
+# SPA Vue Router (history): /parchese, /tienda, etc. → index.html
+# Hostinger / Apache. Vite copia esto de front/public a dist/.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # No tocar la API si el back vive en el mismo host.
+  RewriteRule ^api(?:/|$) - [L]
+
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
