@@ -9,6 +9,7 @@ import { usePaolaGsap } from '@shared/motion/usePaolaGsap.ts'
 import Button from '@ui/Button.vue'
 import Icon from '@ui/Icon.vue'
 import RoadLightsBackdrop from '@ui/RoadLightsBackdrop.vue'
+import VoiceBadge from '@ui/VoiceBadge.vue'
 
 const props = defineProps<{
   module: PaolaModule
@@ -37,6 +38,12 @@ usePaolaGsap(() => {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   if (window.matchMedia('(max-width: 959px)').matches) return
 
+  gsap.set(img, {
+    transformPerspective: 1100,
+    transformOrigin: '58% 62%',
+    force3D: true,
+  })
+
   gsap.fromTo(
     img,
     { yPercent: 0 },
@@ -51,6 +58,23 @@ usePaolaGsap(() => {
       },
     },
   )
+
+  // Órbita 3D circular muy sutil (sensación de mano)
+  const orbit = { a: 0 }
+  gsap.to(orbit, {
+    a: Math.PI * 2,
+    duration: 14,
+    ease: 'none',
+    repeat: -1,
+    onUpdate() {
+      const t = orbit.a
+      gsap.set(img, {
+        rotateY: Math.sin(t) * 2.2,
+        rotateX: Math.cos(t) * 1.1,
+      })
+    },
+  })
+
   ScrollTrigger.refresh()
 }, root)
 
@@ -120,6 +144,9 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
             <h2 class="paola-page__heading type-display">{{ section.title }}</h2>
             <p class="paola-page__copy">{{ section.body }}</p>
           </article>
+          <p class="paola-who__byline">
+            <VoiceBadge voice="armargura" :label="copy.byline" />
+          </p>
         </section>
 
         <section
@@ -197,21 +224,6 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
   z-index: 5;
 }
 
-.paola-who__main::before {
-  content: "";
-  position: absolute;
-  inset: -12px -16px;
-  z-index: -1;
-  border-radius: 16px;
-  background: linear-gradient(
-    90deg,
-    rgba(5, 7, 12, 0.72) 0%,
-    rgba(5, 7, 12, 0.45) 70%,
-    rgba(5, 7, 12, 0.12) 100%
-  );
-  pointer-events: none;
-}
-
 .paola-who__intro {
   display: grid;
   gap: 0;
@@ -287,6 +299,16 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
 .paola-who__q + .paola-who__q {
   padding-top: calc(var(--paola-space) * 3);
   border-top: 1px solid var(--paola-line);
+}
+
+.paola-who__byline {
+  margin: calc(var(--paola-space) * 2) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  font-size: 14px;
+  color: var(--paola-muted);
 }
 
 .paola-who__contact {
@@ -401,6 +423,8 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
     overflow: hidden;
     pointer-events: none;
     background: transparent;
+    perspective: 1200px;
+    perspective-origin: 70% 55%;
   }
 
   .paola-who__shot--desktop {
@@ -413,6 +437,8 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
     object-position: right bottom;
     mix-blend-mode: lighten;
     will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
   }
 }
 </style>

@@ -67,6 +67,7 @@ export const PAOLA_VIEW_COPY = {
   socialHeading: 'Redes',
   closing: 'Si llegaste hasta acá, ya eres del parche. Nos vemos en la vía.',
   photoAlt: 'Paola con casco AGV, señalando a cámara',
+  byline: 'Escrito por: Paola Biker',
   narrativeLabel: 'Relato',
   contactLabel: 'Contacto',
 } as const
