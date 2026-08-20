@@ -103,34 +103,38 @@ function mixPose(a: Pose, b: Pose, k: number): Pose {
 }
 
 function softenClip(pose: Pose, u: number): Pose {
-  const rest = restPose()
   const lead = 0.03
   const tail = 0.045
   if (u < lead) {
-    return mixPose(rest, pose, applyEase(u / lead, 'soft'))
+    return mixPose(REST_POSE, pose, applyEase(u / lead, 'soft'))
   }
   if (u > 1 - tail) {
-    return mixPose(pose, rest, applyEase((u - (1 - tail)) / tail, 'soft'))
+    return mixPose(pose, REST_POSE, applyEase((u - (1 - tail)) / tail, 'soft'))
   }
   return pose
 }
 
+const REST_POSE: Pose = {
+  at: 0,
+  yaw: 0,
+  pitch: 0,
+  roll: 0,
+  hop: 0,
+  bend: 0,
+  shake: 0,
+  push: 0,
+  flat: 0,
+  x: 0,
+  spin: 0,
+  gone: 0,
+  ease: 'soft',
+}
+
+const TEXTURE_MAX = 1024
+const SHELL_IDLE_MS = 50
+
 function restPose(): Pose {
-  return {
-    at: 0,
-    yaw: 0,
-    pitch: 0,
-    roll: 0,
-    hop: 0,
-    bend: 0,
-    shake: 0,
-    push: 0,
-    flat: 0,
-    x: 0,
-    spin: 0,
-    gone: 0,
-    ease: 'soft',
-  }
+  return REST_POSE
 }
 
 function beat(at: number, pose: Partial<PoseBeat>, ease: EaseKind): PoseBeat {
@@ -407,7 +411,12 @@ function pauseUntil(seconds: number, pauseMin: number, pauseMax: number, factor 
   return seconds + min + Math.random() * Math.max(0, max - min)
 }
 
-function makePlayer(twist: number, pauseMin: number, pauseMax: number): (seconds: number) => Pose {
+type PosePlayer = {
+  pose: (seconds: number) => Pose
+  animating: () => boolean
+}
+
+function makePlayer(twist: number, pauseMin: number, pauseMax: number): PosePlayer {
   const firstRound = shuffleClips()
   let roundIndex = 0
   let clip = firstRound[0] ?? allClips()[0]!
@@ -417,41 +426,46 @@ function makePlayer(twist: number, pauseMin: number, pauseMax: number): (seconds
   let playAt = 0
   let primed = false
 
-  return (seconds: number): Pose => {
-    if (!primed) {
-      primed = true
-      playAt = seconds
-      phase = 'enter'
-      return clipEnter(0, twist)
-    }
-    if (phase === 'enter') {
-      const progress = (seconds - playAt) / ENTRY_CLIP.duration
+  return {
+    pose(seconds: number): Pose {
+      if (!primed) {
+        primed = true
+        playAt = seconds
+        phase = 'enter'
+        return clipEnter(0, twist)
+      }
+      if (phase === 'enter') {
+        const progress = (seconds - playAt) / ENTRY_CLIP.duration
+        if (progress >= 1) {
+          phase = 'pause'
+          until = pauseUntil(seconds, pauseMin, pauseMax, 0.35)
+          return REST_POSE
+        }
+        return playClipPose(ENTRY_CLIP, progress, twist)
+      }
+      if (phase === 'pause') {
+        if (seconds < until) return REST_POSE
+        phase = 'play'
+        playAt = seconds
+      }
+      const progress = (seconds - playAt) / clip.duration
       if (progress >= 1) {
+        lastId = clip.id
+        roundIndex += 1
+        if (roundIndex < firstRound.length) {
+          clip = firstRound[roundIndex] ?? pickClip(lastId)
+        } else {
+          clip = pickClip(lastId)
+        }
+        until = pauseUntil(seconds, pauseMin, pauseMax, 0.7)
         phase = 'pause'
-        until = pauseUntil(seconds, pauseMin, pauseMax, 0.35)
-        return restPose()
+        return REST_POSE
       }
-      return playClipPose(ENTRY_CLIP, progress, twist)
-    }
-    if (phase === 'pause') {
-      if (seconds < until) return restPose()
-      phase = 'play'
-      playAt = seconds
-    }
-    const progress = (seconds - playAt) / clip.duration
-    if (progress >= 1) {
-      lastId = clip.id
-      roundIndex += 1
-      if (roundIndex < firstRound.length) {
-        clip = firstRound[roundIndex] ?? pickClip(lastId)
-      } else {
-        clip = pickClip(lastId)
-      }
-      until = pauseUntil(seconds, pauseMin, pauseMax, 0.7)
-      phase = 'pause'
-      return restPose()
-    }
-    return playClipPose(clip, progress, twist)
+      return playClipPose(clip, progress, twist)
+    },
+    animating(): boolean {
+      return phase !== 'pause'
+    },
   }
 }
 
@@ -565,18 +579,31 @@ function hookNeckBend(material: MeshPhysicalMaterial, bend: BendUniforms): void 
   }
 }
 
+function downscaleImage(image: HTMLImageElement | HTMLCanvasElement, max: number): HTMLCanvasElement {
+  const w = image.width
+  const h = image.height
+  const scale = Math.min(1, max / Math.max(w, h))
+  const nw = Math.max(1, Math.round(w * scale))
+  const nh = Math.max(1, Math.round(h * scale))
+  const canvas = document.createElement('canvas')
+  canvas.width = nw
+  canvas.height = nh
+  canvas.getContext('2d')?.drawImage(image, 0, 0, nw, nh)
+  return canvas
+}
+
 function paintGlassMaps(
   THREE: typeof import('three'),
   diffuse: Texture,
   metalSrc: Texture,
   roughSrc: Texture,
 ): { metal: Texture; rough: Texture; coat: Texture; albedo: Texture } {
-  const picture = textureImage(diffuse)
+  const picture = downscaleImage(textureImage(diffuse), TEXTURE_MAX)
   const width = picture.width
   const height = picture.height
   const albedoPx = readPixels(picture, width, height)
-  const metalPx = readPixels(textureImage(metalSrc), width, height)
-  const roughPx = readPixels(textureImage(roughSrc), width, height)
+  const metalPx = readPixels(downscaleImage(textureImage(metalSrc), TEXTURE_MAX), width, height)
+  const roughPx = readPixels(downscaleImage(textureImage(roughSrc), TEXTURE_MAX), width, height)
   const albedoOut = new ImageData(width, height)
   const metalOut = new ImageData(width, height)
   const roughOut = new ImageData(width, height)
@@ -685,8 +712,8 @@ async function boot(): Promise<void> {
     camera.position.set(0, 0.12, 2.4)
     camera.lookAt(0, 0.02, 0)
 
-    const webgl = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-    webgl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const webgl = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' })
+    webgl.setPixelRatio(Math.min(window.devicePixelRatio, 1.25))
     webgl.setClearColor(0x000000, 0)
     webgl.outputColorSpace = THREE.SRGBColorSpace
     webgl.toneMapping = THREE.ACESFilmicToneMapping
@@ -778,46 +805,79 @@ async function boot(): Promise<void> {
       camera.aspect = w / Math.max(h, 1)
       camera.updateProjectionMatrix()
     }
-    fit()
-    window.addEventListener('resize', fit)
 
     const motion = !prefersReducedMotion()
-    const nextPose = look ? makePlayer(look.yaw, look.pauseMin, look.pauseMax) : null
+    const player = look ? makePlayer(look.yaw, look.pauseMin, look.pauseMax) : null
+    let pageVisible = !document.hidden
+    let lastShellAt = 0
+    let staticRendered = false
+
+    const onResize = (): void => {
+      fit()
+      staticRendered = false
+    }
+
+    const onVisibility = (): void => {
+      pageVisible = !document.hidden
+      if (pageVisible) staticRendered = false
+    }
+
+    fit()
+    window.addEventListener('resize', onResize)
+    document.addEventListener('visibilitychange', onVisibility)
 
     const tick = (now: number): void => {
       const shell = host.value?.parentElement ?? null
       const t = now * 0.001
       if (dead) {
-        window.removeEventListener('resize', fit)
+        window.removeEventListener('resize', onResize)
+        document.removeEventListener('visibilitychange', onVisibility)
         driveShell(shell, 0, 0, t, false)
         return
       }
-      if (look && nextPose) {
-        const pose = nextPose(t)
-        const hidden = pose.gone > 0.5
-        object.visible = !hidden
-        object.rotation.y = pose.yaw
-        object.rotation.x = pose.pitch
-        object.rotation.z = pose.roll
-        object.position.y = restY + pose.hop
-        object.position.z = restZ + pose.push
-        object.position.x = restX + pose.x
-        const grow = 1 + pose.push * 0.95
-        object.scale.set(
-          restScale * grow * (1 + pose.flat * 0.22),
-          restScale * grow * (1 + pose.flat * 0.1),
-          restScale * grow * (1 - pose.flat * 0.45),
-        )
-        bend.look.value = pose.bend
-        bend.tilt.value = pose.roll * 0.55
-        const aim = Math.min(1, Math.max(0, pose.push) / 0.48)
-        camera.position.set(0, 0.12 + 0.36 * aim, 2.4 - 0.06 * aim)
-        camera.lookAt(0, 0.02 + 0.32 * aim, 0)
-        driveShell(shell, pose.shake, pose.spin, t, motion)
-      } else {
-        driveShell(shell, 0, 0, t, motion)
+      if (!pageVisible) {
+        frame = window.requestAnimationFrame(tick)
+        return
       }
-      renderer?.render(scene, camera)
+
+      let drawScene = false
+
+      if (look && player) {
+        const animating = player.animating()
+        if (animating) {
+          const pose = player.pose(t)
+          const hidden = pose.gone > 0.5
+          object.visible = !hidden
+          object.rotation.y = pose.yaw
+          object.rotation.x = pose.pitch
+          object.rotation.z = pose.roll
+          object.position.y = restY + pose.hop
+          object.position.z = restZ + pose.push
+          object.position.x = restX + pose.x
+          const grow = 1 + pose.push * 0.95
+          object.scale.set(
+            restScale * grow * (1 + pose.flat * 0.22),
+            restScale * grow * (1 + pose.flat * 0.1),
+            restScale * grow * (1 - pose.flat * 0.45),
+          )
+          bend.look.value = pose.bend
+          bend.tilt.value = pose.roll * 0.55
+          const aim = Math.min(1, Math.max(0, pose.push) / 0.48)
+          camera.position.set(0, 0.12 + 0.36 * aim, 2.4 - 0.06 * aim)
+          camera.lookAt(0, 0.02 + 0.32 * aim, 0)
+          driveShell(shell, pose.shake, pose.spin, t, motion)
+          drawScene = true
+        } else if (now - lastShellAt >= SHELL_IDLE_MS) {
+          driveShell(shell, 0, 0, t, motion)
+          lastShellAt = now
+        }
+      } else if (!staticRendered) {
+        driveShell(shell, 0, 0, t, motion)
+        drawScene = true
+        staticRendered = true
+      }
+
+      if (drawScene) renderer?.render(scene, camera)
       frame = window.requestAnimationFrame(tick)
     }
     frame = window.requestAnimationFrame(tick)
