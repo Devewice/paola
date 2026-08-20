@@ -597,7 +597,7 @@ function paintGlassMaps(
   diffuse: Texture,
   metalSrc: Texture,
   roughSrc: Texture,
-): { metal: Texture; rough: Texture; coat: Texture; albedo: Texture } {
+): { metal: Texture; rough: Texture; coat: Texture; albedo: Texture; bump: Texture } {
   const picture = downscaleImage(textureImage(diffuse), TEXTURE_MAX)
   const width = picture.width
   const height = picture.height
@@ -608,6 +608,7 @@ function paintGlassMaps(
   const metalOut = new ImageData(width, height)
   const roughOut = new ImageData(width, height)
   const coatOut = new ImageData(width, height)
+  const bumpOut = new ImageData(width, height)
   for (let i = 0; i < albedoPx.data.length; i += 4) {
     const r = albedoPx.data[i] ?? 0
     const g = albedoPx.data[i + 1] ?? 0
@@ -639,6 +640,15 @@ function paintGlassMaps(
     const rough = lens ? 18 : Math.round(mix(98, 198, bodyRough / 255) * grain)
     const coat = lens ? 255 : 0
 
+    // Bump proxy: derive micro-relief from luminance + roughness.
+    // (No tenemos height map real, así que usamos una "altura" sintética para dar profundidad.)
+    const lumN = lum // 0..1
+    const roughN = bodyRough / 255 // 0..1
+    const lumVar = (lumN - 0.5) * 2 // -1..1
+    const roughVar = (roughN - 0.5) * 2 // -1..1
+    const bumpVar = lens ? (lumVar * 0.08 + roughVar * 0.04) : (lumVar * 0.14 + roughVar * 0.08)
+    const bump = Math.round(clamp01(0.5 + bumpVar * 0.18) * 255)
+
     albedoOut.data[i] = or
     albedoOut.data[i + 1] = og
     albedoOut.data[i + 2] = ob
@@ -655,6 +665,10 @@ function paintGlassMaps(
     coatOut.data[i + 1] = coat
     coatOut.data[i + 2] = coat
     coatOut.data[i + 3] = 255
+    bumpOut.data[i] = bump
+    bumpOut.data[i + 1] = bump
+    bumpOut.data[i + 2] = bump
+    bumpOut.data[i + 3] = 255
   }
   const albedo = canvasTexture(THREE, albedoOut)
   albedo.colorSpace = THREE.SRGBColorSpace
@@ -663,6 +677,7 @@ function paintGlassMaps(
     metal: canvasTexture(THREE, metalOut),
     rough: canvasTexture(THREE, roughOut),
     coat: canvasTexture(THREE, coatOut),
+    bump: canvasTexture(THREE, bumpOut),
   }
 }
 
@@ -762,6 +777,8 @@ async function boot(): Promise<void> {
       iridescenceIOR: 1.28,
       envMapIntensity: 0.5,
       color: new THREE.Color(0xe7dccf),
+      bumpMap: maps.bump,
+      bumpScale: 0.08,
     })
 
     const dracoLoader = new DRACOLoader()
