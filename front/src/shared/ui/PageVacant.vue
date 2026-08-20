@@ -4,7 +4,14 @@ import { PAGE_VACANT_COPY } from '@app/constants/copy.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import Mascot3d from '@ui/Mascot3d.vue'
+import BorderSpark from '@ui/BorderSpark.vue'
 import Button from '@ui/Button.vue'
+
+/** Mismo blob que `.page-vacant__mascot-frame` (46% 54% 42% 58% / 48% 42% 58% 52%). */
+const MASCOT_CORNERS = {
+  hx: [0.46, 0.54, 0.42, 0.58],
+  hy: [0.48, 0.42, 0.58, 0.52],
+} as const
 
 const props = withDefaults(
   defineProps<{
@@ -44,7 +51,11 @@ const titleParts = computed(() => {
         </div>
       </div>
       <div class="page-vacant__mascot">
-        <Mascot3d />
+        <BorderSpark :outset="16" :duration-ms="5600" :corners="MASCOT_CORNERS">
+          <div class="page-vacant__mascot-frame">
+            <Mascot3d />
+          </div>
+        </BorderSpark>
       </div>
       <h1 class="page-vacant__heading">{{ title }} · {{ kicker }}</h1>
       <div class="page-vacant__cta">

@@ -21,7 +21,8 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 | `MegaPeek` | Widget del mega menú (próxima, tip, km) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
 | `MegaFooter` | Columnas de enlaces del pie (kit/demo) | `columns: { title, links[{ label, to?, href? }] }` |
 | `SiteFooter` | Pie del portal: crest, columnas, suscripción, alianzas | `columns`, `copy`, `alliances`, `subscribeMail`, … |
-| `PageVacant` | Página en construcción (mascota + CTAs) | `title`, `kicker`, `copy` |
+| `PageVacant` | Página en construcción (mascota + CTAs + chispa de borde) | `title`, `kicker`, `copy` |
+| `BorderSpark` | Chispa que recorre el borde; color progresivo de la marca. `corners` = mismo blob que el contenedor | `radius`, `corners`, `outset`, `durationMs`, slot default |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |
 | `KitHero` | Hero full-bleed del kit. `portal`: corte del día. `panelSlides`: mazo de rodadas (dots afuera, borde con resplandor) | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, `panelSlides`, slots `voices` `panel` `footer` `actions` |
 | `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `blankMedia` |
