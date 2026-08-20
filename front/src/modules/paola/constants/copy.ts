@@ -10,14 +10,14 @@ const youtube = {
 export const PAOLA_PAGE: PaolaPage = {
   narrative: [
     {
-      id: 'razon',
-      title: '¿Cuál es la razón?',
-      body: 'Porque la moto me permitió conocer personas, territorios y realidades que antes no veía. Encontré en ella una forma de conectar, aprender y contar historias desde mi propia experiencia.',
-    },
-    {
       id: 'quien',
       title: '¿Quién soy?',
       body: 'Soy Paola, creadora de contenido, motociclista y mujer de Usme. Comparto mis experiencias, rodadas, opiniones y todo aquello que vivo alrededor de las motos, buscando siempre hacerlo desde lo que soy y desde mi realidad.',
+    },
+    {
+      id: 'razon',
+      title: '¿Cuál es la razón?',
+      body: 'Porque la moto me permitió conocer personas, territorios y realidades que antes no veía. Encontré en ella una forma de conectar, aprender y contar historias desde mi propia experiencia.',
     },
     {
       id: 'porque',
@@ -52,3 +52,21 @@ export const PAOLA_PAGE: PaolaPage = {
 }
 
 export const PAOLA_QUIEN_FALLBACK = 'Soy Paola, creadora de contenido, motociclista y mujer de Usme.'
+
+export const PAOLA_HERO_PHOTO = '/kit-assets/paola-hero.png'
+
+/** Textos de la vista /paola (hero, CTAs, bloques). */
+export const PAOLA_VIEW_COPY = {
+  kicker: '¡Hola! Soy…',
+  title: 'Paola Biker',
+  plate: 'Acompáñame a rodar con propósito',
+  lead: 'Acá te cuento quién soy. Si te late el parche, ven a rodadas, escríbeme y nos conocemos en la vía.',
+  writeCta: 'Escríbeme',
+  contactHeading: 'Escríbeme',
+  contactLead: 'Correo o WhatsApp. Te respondo personalmente.',
+  socialHeading: 'Redes',
+  closing: 'Si llegaste hasta acá, ya eres del parche. Nos vemos en la vía.',
+  photoAlt: 'Paola con casco AGV, señalando a cámara',
+  narrativeLabel: 'Relato',
+  contactLabel: 'Contacto',
+} as const

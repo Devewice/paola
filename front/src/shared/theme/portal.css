@@ -346,6 +346,14 @@ h2,
   padding: calc(64px + var(--paola-space) * 2) 0 calc(var(--paola-space) * 6);
 }
 
+.paola-page--after-hero {
+  padding-top: calc(var(--paola-space) * 4);
+}
+
+.paola-page__block--anchor {
+  scroll-margin-top: 88px;
+}
+
 .paola-afiche {
   display: grid;
   justify-items: center;
@@ -582,7 +590,7 @@ h2,
 
 .paola-site-foot {
   position: relative;
-  margin-top: 36px;
+  margin-top: 0;
   overflow: visible;
   border-top: 1px solid var(--paola-line);
   background:

@@ -123,8 +123,8 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
       {
         title: 'Paola',
         links: [
-          { label: 'Quién soy', to: APP_PATHS.PAOLA },
-          { label: 'Contacto', to: APP_PATHS.PAOLA },
+          { label: 'Quién soy', to: `${APP_PATHS.PAOLA}#quien` },
+          { label: 'Contacto', to: `${APP_PATHS.PAOLA}#contacto` },
         ],
       },
       {
@@ -173,7 +173,7 @@ export const MEGA_FOOTER_COLUMNS: readonly MegaColumn[] = [
   {
     title: 'Paola',
     links: [
-      { label: 'Quién soy', to: APP_PATHS.PAOLA },
+      { label: 'Quién soy', to: `${APP_PATHS.PAOLA}#quien` },
       { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
       { label: 'Cuenta', to: APP_PATHS.CUENTA },
     ],

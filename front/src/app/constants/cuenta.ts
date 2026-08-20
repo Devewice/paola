@@ -3,11 +3,18 @@ export const ALIAS_STORAGE_KEY = 'paola_alias'
 
 export const CUENTA_COPY = {
   title: 'Cuenta',
+  kicker: 'Paola Biker',
   lead: 'No necesitas cuenta para mirar el sitio. Ábrela si quieres un cupo o un pedido a tu nombre.',
   register: 'Registro',
+  registerCta: 'Crear cuenta',
   login: 'Entrar',
+  loginCta: 'Entrar',
   panel: 'Panel',
   logout: 'Salir',
+  emailLabel: 'Correo',
+  aliasLabel: 'Alias',
+  passwordLabel: 'Clave',
+  messageLabel: 'Mensaje',
   tickets: 'Tickets',
   ticketsEmptyTitle: 'Sin tickets',
   ticketsEmpty: 'Cuando te anotes a una rodada, el cupo queda aquí.',
