@@ -238,12 +238,36 @@ h2,
   border-radius: 46% 54% 42% 58% / 48% 42% 58% 52%;
   overflow: hidden;
   transform-origin: 50% 78%;
+  animation: mascot-shell-blob 12s ease-in-out infinite;
   background:
     radial-gradient(ellipse at 50% 38%, rgba(0, 16, 40, 0.96) 0%, var(--paola-ink) 74%);
   border: 2px solid rgba(72, 180, 252, 0.45);
   box-shadow:
     0 0 0 6px rgba(5, 7, 12, 0.72),
     0 0 28px rgba(0, 136, 248, 0.22);
+}
+
+@keyframes mascot-shell-blob {
+  0%,
+  100% {
+    border-radius: 46% 54% 42% 58% / 48% 42% 58% 52%;
+  }
+
+  20% {
+    border-radius: 52% 48% 56% 44% / 44% 56% 46% 54%;
+  }
+
+  40% {
+    border-radius: 44% 56% 48% 52% / 56% 40% 54% 46%;
+  }
+
+  60% {
+    border-radius: 58% 42% 52% 48% / 42% 58% 50% 50%;
+  }
+
+  80% {
+    border-radius: 48% 52% 44% 56% / 50% 46% 58% 44%;
+  }
 }
 
 .mascot-3d {
@@ -679,5 +703,9 @@ h2,
 @media (prefers-reduced-motion: reduce) {
   .paola-btn {
     transition: none;
+  }
+
+  .page-vacant__mascot {
+    animation: none;
   }
 }

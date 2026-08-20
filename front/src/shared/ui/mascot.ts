@@ -19,8 +19,8 @@ export const MASCOT_3D = {
   metallic: '/mascota/3d/metallic.png',
   roughness: '/mascota/3d/roughness.png',
   look: {
-    yaw: 0.22,
-    tilt: 0.05,
+    yaw: 0.42,
+    tilt: 0.08,
     from: 0.38,
     to: 0.92,
     pauseMin: 0.4,
