@@ -1,9 +1,26 @@
 <script setup lang="ts">
-import { computed, ref, useSlots } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
 import { prefersReducedMotion } from '@shared/motion/prefersReducedMotion.ts'
 import Icon from '@ui/Icon.vue'
 import BrushSplash from '@ui/BrushSplash.vue'
 import BrushButton from '@ui/BrushButton.vue'
+import KitHeroPanel from '@ui/KitHeroPanel.vue'
+
+export type KitHeroPanelSlide = {
+  readonly id: string
+  readonly label?: string
+  readonly mediaLabel?: string
+  readonly mediaSrc?: string
+  readonly blankMedia?: boolean
+  readonly title?: string
+  readonly km?: string
+  readonly cupo?: string
+  readonly fecha?: string
+  readonly splash?: string
+  readonly ctaLabel?: string
+  readonly ctaHref?: string
+  readonly ctaTo?: string
+}
 
 const chips = [
   { href: '#brocha', label: 'Brocha' },
@@ -12,6 +29,8 @@ const chips = [
   { href: '#roadmap', label: 'Roadmap' },
   { href: '#motion', label: 'Motion' },
 ] as const
+
+const SLIDE_MS = 7000
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +43,7 @@ const props = withDefaults(
     splashLabel?: string
     photoSrc?: string
     logoSrc?: string
+    panelSlides?: readonly KitHeroPanelSlide[]
   }>(),
   {
     variant: 'classic',
@@ -31,6 +51,7 @@ const props = withDefaults(
     kicker: 'por el parche',
     splashLabel: 'paolabiker.com',
     logoSrc: '/kit-assets/logo.png',
+    panelSlides: () => [],
   },
 )
 
@@ -47,6 +68,22 @@ const panelTiltStyle = computed(() => ({
   transform: `rotateX(${panelRotate.value.x}deg) rotateY(${panelRotate.value.y}deg)`,
   '--tilt-mx': `${panelShine.value.x}%`,
   '--tilt-my': `${panelShine.value.y}%`,
+}))
+
+const slideIndex = ref(0)
+const progress = ref(0)
+const paused = ref(false)
+let raf = 0
+let startedAt = 0
+let elapsedBeforePause = 0
+
+const slides = computed(() => props.panelSlides)
+const hasDeck = computed(() => slides.value.length > 0)
+const canCycle = computed(() => slides.value.length > 1 && !prefersReducedMotion())
+const activeSlide = computed(() => slides.value[slideIndex.value] ?? slides.value[0])
+const panelStyle = computed(() => ({
+  ...panelTiltStyle.value,
+  '--panel-progress': `${progress.value}%`,
 }))
 
 function onPanelMove(event: PointerEvent): void {
@@ -68,7 +105,69 @@ function onPanelLeave(): void {
   panelTilting.value = false
   panelRotate.value = { x: 0, y: 0 }
   panelShine.value = { x: 50, y: 50 }
+  resumeCycle()
 }
+
+function pauseCycle(): void {
+  if (!canCycle.value || paused.value) return
+  paused.value = true
+  elapsedBeforePause = Math.min(SLIDE_MS, performance.now() - startedAt)
+}
+
+function resumeCycle(): void {
+  if (!canCycle.value || !paused.value) return
+  paused.value = false
+  startedAt = performance.now() - elapsedBeforePause
+}
+
+function goTo(index: number): void {
+  if (!slides.value.length) return
+  slideIndex.value = ((index % slides.value.length) + slides.value.length) % slides.value.length
+  progress.value = 0
+  elapsedBeforePause = 0
+  startedAt = performance.now()
+}
+
+function tick(now: number): void {
+  if (!canCycle.value) {
+    progress.value = 0
+    return
+  }
+  if (!paused.value) {
+    const elapsed = now - startedAt
+    progress.value = Math.min(100, (elapsed / SLIDE_MS) * 100)
+    if (elapsed >= SLIDE_MS) {
+      goTo(slideIndex.value + 1)
+    }
+  }
+  raf = requestAnimationFrame(tick)
+}
+
+function startLoop(): void {
+  cancelAnimationFrame(raf)
+  startedAt = performance.now()
+  elapsedBeforePause = 0
+  progress.value = 0
+  paused.value = false
+  if (!canCycle.value) return
+  raf = requestAnimationFrame(tick)
+}
+
+onMounted(() => {
+  startLoop()
+})
+
+onBeforeUnmount(() => {
+  cancelAnimationFrame(raf)
+})
+
+watch(
+  () => slides.value.length,
+  () => {
+    slideIndex.value = 0
+    startLoop()
+  },
+)
 </script>
 
 <template>
@@ -149,16 +248,58 @@ function onPanelLeave(): void {
           v-if="variant === 'portal'"
           class="kit-hero__panel-stage kit-hero__anim kit-hero__anim--panel"
         >
-          <aside
-            class="kit-hero__panel"
-            :class="{ 'is-tilting': panelTilting }"
-            :style="panelTiltStyle"
-            aria-label="Hoy"
-            @pointermove="onPanelMove"
-            @pointerleave="onPanelLeave"
-          >
-            <slot name="panel" />
-          </aside>
+          <div class="kit-hero__deck">
+            <aside
+              class="kit-hero__panel"
+              :class="{
+                'is-tilting': panelTilting,
+              }"
+              :style="panelStyle"
+              aria-label="Hoy"
+              @pointermove="onPanelMove"
+              @pointerenter="pauseCycle"
+              @pointerleave="onPanelLeave"
+            >
+              <span v-if="canCycle" class="kit-hero__panel-ring" aria-hidden="true" />
+              <Transition v-if="hasDeck" name="kit-hero-deck" mode="out-in">
+                <div v-if="activeSlide" :key="activeSlide.id" class="kit-hero__panel-slide">
+                  <KitHeroPanel
+                    :label="activeSlide.label"
+                    :media-label="activeSlide.mediaLabel"
+                    :media-src="activeSlide.mediaSrc"
+                    :blank-media="activeSlide.blankMedia ?? !activeSlide.mediaSrc"
+                    :title="activeSlide.title"
+                    :km="activeSlide.km"
+                    :cupo="activeSlide.cupo"
+                    :fecha="activeSlide.fecha"
+                    :splash="activeSlide.splash"
+                    :cta-label="activeSlide.ctaLabel"
+                    :cta-href="activeSlide.ctaHref"
+                    :cta-to="activeSlide.ctaTo"
+                  />
+                </div>
+              </Transition>
+              <slot v-else name="panel" />
+            </aside>
+            <div
+              v-if="slides.length > 1"
+              class="kit-hero__deck-dots"
+              role="tablist"
+              aria-label="Rodadas próximas"
+            >
+              <button
+                v-for="(slide, index) in slides"
+                :key="slide.id"
+                type="button"
+                class="kit-hero__deck-dot"
+                role="tab"
+                :aria-label="slide.title ?? `Rodada ${index + 1}`"
+                :aria-selected="index === slideIndex"
+                :class="{ 'is-active': index === slideIndex }"
+                @click="goTo(index)"
+              />
+            </div>
+          </div>
         </div>
       </div>
 

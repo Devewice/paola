@@ -1,8 +1,10 @@
 import type { ClubModule } from '@modules/club/index.ts'
-import { HOME_JOIN_LABEL } from '@modules/home/constants/copy.ts'
-import type { HomeBoard, HomeBoardPort } from '@modules/home/index.ts'
+import { HOME_BOARD_COPY, HOME_JOIN_LABEL } from '@modules/home/constants/copy.ts'
+import type { HomeBoard, HomeBoardPort, HomeRodadaCard } from '@modules/home/index.ts'
 import { PAOLA_QUIEN_FALLBACK } from '@modules/paola/constants/copy.ts'
 import type { PaolaModule } from '@modules/paola/index.ts'
+import { remainingSpots, type Outing } from '@modules/rides/domain/entities/Outing.ts'
+import { RIDES_KIND, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
 import type { RidesModule } from '@modules/rides/index.ts'
 import type { VoiceModule } from '@modules/voice/index.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
@@ -25,11 +27,24 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
     const agenda = this.rides.getAgenda()
     const memories = this.rides.getMemories()
     const tips = this.voice.getTips()
+    const today = new Date().toISOString().slice(0, 10)
     const upcoming = agenda.items.find((item) => item.when === 'proxima')
     const join = this.club.getJoinChannel()
     const quien = this.paola.getPage().narrative.find((section) => section.id === 'quien')
     const latest = memories.items[0] ?? null
     const featuredTip = tips.items[0] ?? null
+    const photoByOuting = new Map(
+      memories.items.map((memory) => [memory.outingId, memory.photos[0]] as const),
+    )
+    const rodadas = this.rides
+      .listOutings()
+      .filter(
+        (outing) =>
+          outing.kind === RIDES_KIND.RODADA &&
+          outing.status !== RIDES_STATUS.REALIZADO &&
+          outing.date >= today,
+      )
+      .map((outing) => toRodadaCard(outing, photoByOuting.get(outing.id)?.src))
 
     return {
       next: upcoming
@@ -41,6 +56,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
           }
         : null,
       nextEmptyCopy: agenda.emptyCopy,
+      rodadas,
       join: {
         href: join.href,
         label: HOME_JOIN_LABEL,
@@ -74,6 +90,22 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
         to: APP_PATHS.PAOLA,
       },
     }
+  }
+}
+
+function toRodadaCard(outing: Outing, mediaSrc: string | undefined): HomeRodadaCard {
+  const cupo =
+    outing.status === RIDES_STATUS.LLENO ? 'Lleno' : String(remainingSpots(outing))
+  return {
+    id: outing.id,
+    title: outing.title,
+    date: outing.date,
+    point: outing.meetingPoint,
+    km: '—',
+    cupo,
+    splash: HOME_BOARD_COPY.splashPhrase,
+    mediaLabel: mediaSrc ? outing.title : HOME_BOARD_COPY.panelEmptyMedia,
+    mediaSrc,
   }
 }
 

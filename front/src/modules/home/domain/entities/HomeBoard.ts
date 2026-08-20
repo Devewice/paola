@@ -9,6 +9,7 @@ export type HomeNextOuting = {
 
 /** Tarjeta del mazo del hero: solo rodadas próximas. */
 export type HomeRodadaCard = {
+  readonly id: string
   readonly title: string
   readonly date: string
   readonly point: string
@@ -54,6 +55,8 @@ export type HomeMemoryFlash = {
 export type HomeBoard = {
   readonly next: HomeNextOuting | null
   readonly nextEmptyCopy: string
+  /** Solo rodadas próximas, en orden de fecha. */
+  readonly rodadas: readonly HomeRodadaCard[]
   readonly join: HomeJoinCta
   readonly totalKm: number | null
   readonly memory: HomeMemoryFlash | null

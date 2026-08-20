@@ -22,8 +22,8 @@ Reglas: no inventes copy/precios/aliados; tabla vacía = hueco honesto; afiche (
 | `MegaFooter` | Columnas de enlaces del pie | `columns: { title, links[{ label, to?, href? }] }` |
 | `SiteFooter` | Pie corto: logo, motto, links, copy | `motto`, `links`, `note`, `copy`, `logoSrc` |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |
-| `KitHero` | Hero full-bleed del kit. `portal`: corte del día | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, slots `voices` `panel` `footer` `actions` |
-| `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc` |
+| `KitHero` | Hero full-bleed del kit. `portal`: corte del día. `panelSlides`: mazo de rodadas (dots afuera, borde con resplandor) | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, `panelSlides`, slots `voices` `panel` `footer` `actions` |
+| `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `blankMedia` |
 | `KitHeroFooter` | KPIs bajo el hero portal | `stamp`, `rodadas`, `km`, `integrantes` |
 | `AficheHero` | Hero de página (más bajo que el kit) | `kicker`, `title`, `plate`, `logo`, `photoSrc`, slots `lead` `actions` |
 | `HomeDash` | Tablero 1 ancha + 4 celdas | slots `hero` `km` `memory` `voice` `paola` |

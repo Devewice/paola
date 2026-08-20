@@ -2,6 +2,7 @@
 import type { HomeModule } from '@modules/home/index.ts'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { HOME_BOARD_COPY, HOME_PULSE_COPY } from '@modules/home/constants/copy.ts'
+import type { KitHeroPanelSlide } from '@ui/KitHero.vue'
 import { parsePublicPost, type PublicPost } from '@app/parsePublicPost.ts'
 import { API, APP_PATHS } from '@shared/http/constants.ts'
 import { runKitHeroEntrance } from '@shared/motion/runKitHero.ts'
@@ -14,7 +15,6 @@ import HomeDash from '@ui/HomeDash.vue'
 import Icon from '@ui/Icon.vue'
 import KitHero from '@ui/KitHero.vue'
 import KitHeroFooter from '@ui/KitHeroFooter.vue'
-import KitHeroPanel from '@ui/KitHeroPanel.vue'
 import MemoriaHero from '@ui/MemoriaHero.vue'
 import QuoteBlock from '@ui/QuoteBlock.vue'
 import StatBig from '@ui/StatBig.vue'
@@ -34,13 +34,43 @@ const copy = HOME_BOARD_COPY
 const pulseCopy = HOME_PULSE_COPY
 
 const kmValue = computed(() => (board.value.totalKm !== null ? String(board.value.totalKm) : '—'))
-const rodadasValue = computed(() => (board.value.memory ? '1+' : '—'))
-const nextFecha = computed(() => board.value.next?.date ?? '—')
-const panelTitle = computed(() => board.value.next?.title ?? copy.panelTitle)
-const splash = computed(() => (board.value.next ? board.value.next.date : copy.splashSoon))
-const mediaLabel = computed(() =>
-  board.value.memory ? `${board.value.memory.title} · ${board.value.memory.date}` : copy.panelEmptyMedia,
+const rodadasValue = computed(() =>
+  board.value.rodadas.length ? String(board.value.rodadas.length) : board.value.memory ? '1+' : '—',
 )
+const panelSlides = computed((): readonly KitHeroPanelSlide[] => {
+  const cards = board.value.rodadas
+  if (cards.length) {
+    return cards.map((card) => ({
+      id: card.id,
+      label: copy.panelLabel,
+      mediaLabel: card.mediaLabel,
+      mediaSrc: card.mediaSrc,
+      blankMedia: !card.mediaSrc,
+      title: card.title,
+      km: card.km,
+      cupo: card.cupo,
+      fecha: card.date,
+      splash: card.splash,
+      ctaLabel: copy.nextCta,
+      ctaTo: APP_PATHS.PARCHESE,
+    }))
+  }
+  return [
+    {
+      id: 'vacio',
+      label: copy.panelLabel,
+      mediaLabel: copy.panelEmptyMedia,
+      blankMedia: true,
+      title: board.value.nextEmptyCopy,
+      km: '—',
+      cupo: '—',
+      fecha: '—',
+      splash: copy.splashSoon,
+      ctaLabel: copy.nextCta,
+      ctaTo: APP_PATHS.PARCHESE,
+    },
+  ]
+})
 
 onMounted(async () => {
   try {
@@ -73,6 +103,7 @@ onMounted(async () => {
       logo-src="/logo.png"
       :scroll-href="`#${TABLERO_ID}`"
       :scroll-label="copy.scrollLabel"
+      :panel-slides="panelSlides"
     >
       <template #voices>
         <VoiceBadge voice="loigca" />
@@ -86,20 +117,6 @@ onMounted(async () => {
           <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
         </Button>
         <span class="label-brush">{{ copy.motto }}</span>
-      </template>
-      <template #panel>
-        <KitHeroPanel
-          :label="copy.panelLabel"
-          :media-label="mediaLabel"
-          :media-src="board.memory?.photoSrc"
-          :title="panelTitle"
-          :km="kmValue"
-          cupo="—"
-          :fecha="nextFecha"
-          :splash="splash"
-          :cta-label="copy.nextCta"
-          :cta-to="APP_PATHS.PARCHESE"
-        />
       </template>
       <template #footer>
         <KitHeroFooter

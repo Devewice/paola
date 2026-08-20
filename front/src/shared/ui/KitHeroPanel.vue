@@ -8,6 +8,8 @@ const props = withDefaults(
     label?: string
     mediaLabel?: string
     mediaSrc?: string
+    /** Sin foto real: no usa la imagen de demo del kit. */
+    blankMedia?: boolean
     title?: string
     km?: string
     cupo?: string
@@ -20,6 +22,7 @@ const props = withDefaults(
   {
     label: 'Corte del día · Parchese',
     mediaLabel: 'Foto de ruta',
+    blankMedia: false,
     title: 'Rodada Anapoima :)',
     km: '—',
     cupo: '—',
@@ -30,9 +33,16 @@ const props = withDefaults(
   },
 )
 
-const mediaStyle = computed(() =>
-  props.mediaSrc ? { backgroundImage: `url("${props.mediaSrc}")` } : undefined,
-)
+const mediaStyle = computed(() => {
+  if (props.mediaSrc) return { backgroundImage: `url("${props.mediaSrc}")` }
+  if (props.blankMedia) {
+    return {
+      backgroundImage: 'none',
+      backgroundColor: '#001028',
+    }
+  }
+  return undefined
+})
 </script>
 
 <template>
