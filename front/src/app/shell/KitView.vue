@@ -135,7 +135,6 @@ import Itinerary from '@ui/Itinerary.vue'
 import KitAllianceStrip from '@ui/KitAllianceStrip.vue'
 import KitBrushDivider from '@ui/KitBrushDivider.vue'
 import KitHero from '@ui/KitHero.vue'
-import KitHeroDeck from '@ui/KitHeroDeck.vue'
 import KitHeroFooter from '@ui/KitHeroFooter.vue'
 import KitHeroPanel from '@ui/KitHeroPanel.vue'
 import KitChecklist from '@ui/KitChecklist.vue'
@@ -1000,30 +999,8 @@ onMounted(async () => {
         <VoiceBadge voice="incauta" />
         <VoiceBadge voice="armargura" />
       </template>
-      <template #deck>
-        <KitHeroDeck>
-          <KitHeroPanel />
-          <KitHeroPanel
-            label="Kilómetros"
-            title="Kilómetros"
-            km="—"
-            cupo="—"
-            fecha="—"
-            splash="Km"
-            cta-label="Parchese"
-            cta-href="#producto"
-          />
-          <KitHeroPanel
-            label="Paola"
-            title="Paola"
-            hide-media
-            hide-stats
-            quote="Nuestra voz importa"
-            hide-splash
-            cta-label="Paola"
-            cta-href="#marca"
-          />
-        </KitHeroDeck>
+      <template #panel>
+        <KitHeroPanel />
       </template>
       <template #footer>
         <KitHeroFooter />
@@ -1034,7 +1011,7 @@ onMounted(async () => {
       <p class="hint" style="margin-top:0">
         Plantilla para alinear componentes con <code>docs/visual.md</code>.
         Logo oficial: PNG del escudo. Arriba: dos heroes de referencia —
-        <a href="#hero">clásico</a> y <a href="#hero-portal">portal con mazo (giro 180°)</a>.
+        <a href="#hero">clásico</a> y <a href="#hero-portal">portal con corte del día</a>.
       </p>
 
       <section id="marca">

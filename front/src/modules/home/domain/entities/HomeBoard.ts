@@ -7,6 +7,18 @@ export type HomeNextOuting = {
   readonly point: string
 }
 
+/** Tarjeta del mazo del hero: solo rodadas próximas. */
+export type HomeRodadaCard = {
+  readonly title: string
+  readonly date: string
+  readonly point: string
+  readonly km: string
+  readonly cupo: string
+  readonly splash: string
+  readonly mediaLabel: string
+  readonly mediaSrc?: string
+}
+
 export type HomeVoiceTip = {
   readonly title: string
   readonly body: string

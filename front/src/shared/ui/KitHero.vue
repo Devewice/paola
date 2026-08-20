@@ -149,18 +149,16 @@ function onPanelLeave(): void {
           v-if="variant === 'portal'"
           class="kit-hero__panel-stage kit-hero__anim kit-hero__anim--panel"
         >
-          <slot name="deck">
-            <aside
-              class="kit-hero__panel"
-              :class="{ 'is-tilting': panelTilting }"
-              :style="panelTiltStyle"
-              aria-label="Hoy"
-              @pointermove="onPanelMove"
-              @pointerleave="onPanelLeave"
-            >
-              <slot name="panel" />
-            </aside>
-          </slot>
+          <aside
+            class="kit-hero__panel"
+            :class="{ 'is-tilting': panelTilting }"
+            :style="panelTiltStyle"
+            aria-label="Hoy"
+            @pointermove="onPanelMove"
+            @pointerleave="onPanelLeave"
+          >
+            <slot name="panel" />
+          </aside>
         </div>
       </div>
 

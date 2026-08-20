@@ -2,13 +2,14 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { FOOTER_COPY } from '@app/constants/copy.ts'
-import { MEGA_NAV } from '@app/constants/nav.ts'
+import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
 import { SHOP_DELIVERY_COPY } from '@modules/shop/constants/copy.ts'
 import BrushDefs from '@ui/BrushDefs.vue'
 import DualChannelPills from '@ui/DualChannelPills.vue'
 import KitAllianceStrip from '@ui/KitAllianceStrip.vue'
+import MegaFooter from '@ui/MegaFooter.vue'
 import MegaHeader from '@ui/MegaHeader.vue'
 import MegaPeek from '@ui/MegaPeek.vue'
 import SiteFooter from '@ui/SiteFooter.vue'
@@ -32,12 +33,24 @@ const showFranja = computed(
   () => !isKitCatalog.value && !route.path.startsWith(APP_PATHS.ADMIN),
 )
 
-const footerNav = TABS
-
 const footerLinks = computed(() => [
-  { label: 'WhatsApp', href: whatsapp.href, target: '_blank' as const },
-  { label: page.contact.email, href: `mailto:${page.contact.email}` },
   { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
+])
+
+const footerColumns = computed(() => [
+  ...MEGA_FOOTER_COLUMNS.map((col) => ({
+    title: col.title,
+    links: [...col.links],
+  })),
+  {
+    title: FOOTER_COPY.contactTitle,
+    links: [
+      { label: FOOTER_COPY.writeLabel, to: APP_PATHS.PAOLA },
+      { label: page.contact.email, href: `mailto:${page.contact.email}` },
+      { label: 'WhatsApp', href: whatsapp.href },
+      ...page.contact.social.map((link) => ({ label: link.label, href: link.href })),
+    ],
+  },
 ])
 </script>
 
@@ -112,11 +125,11 @@ const footerLinks = computed(() => [
 
     <footer class="paola-site-foot">
       <div class="wrap paola-site-foot__inner">
+        <MegaFooter :columns="footerColumns" />
         <SiteFooter
           logo-src="/logo.png"
           :motto="FOOTER_COPY.motto"
           :copy="FOOTER_COPY.tagline"
-          :nav="footerNav"
           :links="footerLinks"
           :credit-label="FOOTER_COPY.creditLabel"
           :credit-name="FOOTER_COPY.creditName"
