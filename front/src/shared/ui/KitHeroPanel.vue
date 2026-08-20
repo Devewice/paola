@@ -51,7 +51,9 @@ const mediaStyle = computed(() => {
     <span>{{ mediaLabel }}</span>
   </div>
   <div class="kit-hero__panel-title">
-    <p class="type-brush-dry type-brush-dry--blue type-brush-dry--card">{{ title }}</p>
+    <p class="type-brush-dry type-brush-dry--blue type-brush-dry--card">
+      <span class="kit-hero__panel-title-pulse">{{ title }}</span>
+    </p>
   </div>
   <div class="kit-hero__panel-stats">
     <div class="kit-hero__stat">
@@ -68,7 +70,9 @@ const mediaStyle = computed(() => {
     </div>
   </div>
   <div class="kit-hero__panel-foot">
-    <BrushSplash :label="splash" tone="white" size="sm" style="margin:0" />
+    <div class="kit-hero__panel-splash">
+      <BrushSplash :label="splash" tone="white" size="sm" style="margin:0" />
+    </div>
     <Button v-if="ctaTo" variant="ghost" size="sm" :to="ctaTo">{{ ctaLabel }}</Button>
     <Button v-else variant="ghost" size="sm" :href="ctaHref">{{ ctaLabel }}</Button>
   </div>

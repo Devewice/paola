@@ -14,6 +14,8 @@
     "preview": "vite preview --config front/vite.config.ts",
     "migrate": "tsx node_modules/knex/bin/cli.js migrate:latest --knexfile back/db/knexfile.ts",
     "migrate:make": "tsx node_modules/knex/bin/cli.js migrate:make --knexfile back/db/knexfile.ts -x ts",
+    "demo:rodadas": "tsx back/scripts/demo-rodadas.ts",
+    "demo:rodadas:quitar": "tsx back/scripts/demo-rodadas.ts quitar",
     "start": "node back/dist/index.js"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
 import { prefersReducedMotion } from '@shared/motion/prefersReducedMotion.ts'
+import { pointOnRoundedRectPath, roundedRectPath } from '@ui/roundedRectPath.ts'
 import Icon from '@ui/Icon.vue'
 import BrushSplash from '@ui/BrushSplash.vue'
 import BrushButton from '@ui/BrushButton.vue'
@@ -31,6 +32,8 @@ const chips = [
 ] as const
 
 const SLIDE_MS = 7000
+const PANEL_RADIUS = 10
+const PANEL_GLOW_OUTSET = 18
 
 const props = withDefaults(
   defineProps<{
@@ -60,31 +63,277 @@ const photoStyle = computed(() =>
   props.photoSrc ? { backgroundImage: `url("${props.photoSrc}")` } : undefined,
 )
 
-const TILT_MAX = 6
+const TILT_PERSPECTIVE = 720
+const TILT_MAX_X = 7
+const TILT_MAX_Y = 10
+const DEPTH_MAX = 96
+const DEPTH_REACH = 0.36
+const DEPTH_JITTER_MAX = 30
+const DEPTH_JITTER_PEAK_MS = 300
+const DEPTH_JITTER_SETTLE_MS = 260
+const DEPTH_JITTER_GAP_MIN_MS = 420
+const DEPTH_JITTER_GAP_MAX_MS = 780
+
+type JitterKey = 'label' | 'media' | 'splash' | 'stat0' | 'stat1' | 'stat2'
+const JITTER_KEYS: readonly JitterKey[] = ['label', 'media', 'splash', 'stat0', 'stat1', 'stat2']
+
+type LayerDepths = {
+  label: number
+  media: number
+  title: number
+  splash: number
+  stat0: number
+  stat1: number
+  stat2: number
+  glow: number
+}
+
+function emptyDepths(): LayerDepths {
+  return { label: 0, media: 0, title: 0, splash: 0, stat0: 0, stat1: 0, stat2: 0, glow: 0 }
+}
+
+function computeDepth(mx: number, my: number, ax: number, ay: number): number {
+  const dist = Math.hypot(mx - ax, my - ay)
+  const t = Math.max(0, 1 - dist / DEPTH_REACH)
+  return t * t * DEPTH_MAX
+}
+
+function computeTargetDepths(px: number, py: number): LayerDepths {
+  const media = computeDepth(px, py, 0.5, 0.3)
+  const title = Math.max(computeDepth(px, py, 0.5, 0.44), media + 16)
+  const stat0 = computeDepth(px, py, 0.17, 0.65)
+  const stat1 = computeDepth(px, py, 0.5, 0.67)
+  const stat2 = computeDepth(px, py, 0.83, 0.65)
+  const peak = Math.max(media, title, stat0, stat1, stat2)
+  return {
+    label: computeDepth(px, py, 0.5, 0.07),
+    media,
+    title,
+    splash: computeDepth(px, py, 0.5, 0.9),
+    stat0,
+    stat1,
+    stat2,
+    glow: peak * 0.14,
+  }
+}
+
+function combineDepths(base: LayerDepths, jitter: LayerDepths): LayerDepths {
+  const media = base.media + jitter.media
+  const title = Math.max(base.title, media + 16)
+  return {
+    label: base.label + jitter.label,
+    media,
+    title,
+    splash: base.splash + jitter.splash,
+    stat0: base.stat0 + jitter.stat0,
+    stat1: base.stat1 + jitter.stat1,
+    stat2: base.stat2 + jitter.stat2,
+    glow: base.glow + jitter.glow,
+  }
+}
+
+function pickJitterValue(): number {
+  const sign = Math.random() > 0.25 ? 1 : -1
+  return sign * (0.65 + Math.random() * 0.35) * DEPTH_JITTER_MAX
+}
+
+function jitterForKey(key: JitterKey, value: number): LayerDepths {
+  const d = emptyDepths()
+  d[key] = value
+  d.glow = value * 0.18
+  return d
+}
+
+function pickNextJitterKey(): JitterKey {
+  const pool = JITTER_KEYS.filter((key) => key !== lastJitterKey)
+  const choices = pool.length > 0 ? pool : [...JITTER_KEYS]
+  const index = Math.floor(Math.random() * choices.length)
+  const key: JitterKey = choices[index] ?? 'label'
+  lastJitterKey = key
+  return key
+}
+
 const panelTilting = ref(false)
 const panelRotate = ref({ x: 0, y: 0 })
-const panelShine = ref({ x: 50, y: 50 })
-const panelTiltStyle = computed(() => ({
-  transform: `rotateX(${panelRotate.value.x}deg) rotateY(${panelRotate.value.y}deg)`,
-  '--tilt-mx': `${panelShine.value.x}%`,
-  '--tilt-my': `${panelShine.value.y}%`,
-}))
+const panelNorm = ref({ x: 0, y: 0 })
+const targetRotate = ref({ x: 0, y: 0 })
+const targetNorm = ref({ x: 0, y: 0 })
+const layerDepth = ref<LayerDepths>(emptyDepths())
+const targetLayerDepth = ref<LayerDepths>(emptyDepths())
+const depthJitter = ref<LayerDepths>(emptyDepths())
+const targetDepthJitter = ref<LayerDepths>(emptyDepths())
+let tiltRaf = 0
+let depthJitterTimeout = 0
+let depthJitterActive = false
+let lastJitterKey: JitterKey | null = null
+
+const panelTiltStyle = computed(() => {
+  const d = combineDepths(layerDepth.value, depthJitter.value)
+  return {
+    transform: `perspective(${TILT_PERSPECTIVE}px) rotateX(${panelRotate.value.x}deg) rotateY(${panelRotate.value.y}deg)`,
+    '--tilt-nx': panelNorm.value.x,
+    '--tilt-ny': panelNorm.value.y,
+    '--depth-label-z': d.label,
+    '--depth-media-z': d.media,
+    '--depth-title-z': d.title,
+    '--depth-splash-z': d.splash,
+    '--depth-stat0-z': d.stat0,
+    '--depth-stat1-z': d.stat1,
+    '--depth-stat2-z': d.stat2,
+    '--depth-glow-z': d.glow,
+  }
+})
 
 const slideIndex = ref(0)
 const progress = ref(0)
-const paused = ref(false)
+const panelRef = ref<HTMLElement | null>(null)
+const panelTiltRef = ref<HTMLElement | null>(null)
+const sparkPathRef = ref<SVGPathElement | null>(null)
+const panelFrame = ref({ w: 0, h: 0 })
+const pathLength = ref(0)
 let raf = 0
 let startedAt = 0
-let elapsedBeforePause = 0
+let resizeObserver: ResizeObserver | undefined
 
 const slides = computed(() => props.panelSlides)
 const hasDeck = computed(() => slides.value.length > 0)
 const canCycle = computed(() => slides.value.length > 1 && !prefersReducedMotion())
 const activeSlide = computed(() => slides.value[slideIndex.value] ?? slides.value[0])
+const borderPath = computed(() => roundedRectPath(panelFrame.value.w, panelFrame.value.h, PANEL_RADIUS))
+const progressStrokeStyle = computed(() => {
+  const len = pathLength.value
+  if (len < 1) return {}
+  return {
+    strokeDasharray: `${len}`,
+    strokeDashoffset: `${len * (1 - progress.value / 100)}`,
+  }
+})
+const sparkStyle = computed(() => {
+  const path = sparkPathRef.value
+  const { w, h } = panelFrame.value
+  if (!path || w < 1 || h < 1) {
+    return {
+      left: `${w / 2 + PANEL_GLOW_OUTSET}px`,
+      top: `${PANEL_GLOW_OUTSET}px`,
+      '--spark-tangent': '-90deg',
+    }
+  }
+  const pt = pointOnRoundedRectPath(path, progress.value)
+  return {
+    left: `${pt.x + PANEL_GLOW_OUTSET}px`,
+    top: `${pt.y + PANEL_GLOW_OUTSET}px`,
+    '--spark-tangent': `${pt.tangent}deg`,
+  }
+})
 const panelStyle = computed(() => ({
-  ...panelTiltStyle.value,
-  '--panel-progress': `${progress.value}%`,
+  '--tilt-nx': panelNorm.value.x,
+  '--tilt-ny': panelNorm.value.y,
 }))
+
+function animateTilt(): void {
+  const ease = 0.18
+  const depthEase = 0.16
+  const jitterEase = 0.26
+  panelRotate.value = {
+    x: panelRotate.value.x + (targetRotate.value.x - panelRotate.value.x) * ease,
+    y: panelRotate.value.y + (targetRotate.value.y - panelRotate.value.y) * ease,
+  }
+  panelNorm.value = {
+    x: panelNorm.value.x + (targetNorm.value.x - panelNorm.value.x) * ease,
+    y: panelNorm.value.y + (targetNorm.value.y - panelNorm.value.y) * ease,
+  }
+  const td = targetLayerDepth.value
+  const ld = layerDepth.value
+  layerDepth.value = {
+    label: ld.label + (td.label - ld.label) * depthEase,
+    media: ld.media + (td.media - ld.media) * depthEase,
+    title: ld.title + (td.title - ld.title) * depthEase,
+    splash: ld.splash + (td.splash - ld.splash) * depthEase,
+    stat0: ld.stat0 + (td.stat0 - ld.stat0) * depthEase,
+    stat1: ld.stat1 + (td.stat1 - ld.stat1) * depthEase,
+    stat2: ld.stat2 + (td.stat2 - ld.stat2) * depthEase,
+    glow: ld.glow + (td.glow - ld.glow) * depthEase,
+  }
+  const tj = targetDepthJitter.value
+  const lj = depthJitter.value
+  depthJitter.value = {
+    label: lj.label + (tj.label - lj.label) * jitterEase,
+    media: lj.media + (tj.media - lj.media) * jitterEase,
+    title: 0,
+    splash: lj.splash + (tj.splash - lj.splash) * jitterEase,
+    stat0: lj.stat0 + (tj.stat0 - lj.stat0) * jitterEase,
+    stat1: lj.stat1 + (tj.stat1 - lj.stat1) * jitterEase,
+    stat2: lj.stat2 + (tj.stat2 - lj.stat2) * jitterEase,
+    glow: lj.glow + (tj.glow - lj.glow) * jitterEase,
+  }
+  const dx = Math.abs(panelRotate.value.x - targetRotate.value.x)
+  const dy = Math.abs(panelRotate.value.y - targetRotate.value.y)
+  const dn = Math.hypot(panelNorm.value.x - targetNorm.value.x, panelNorm.value.y - targetNorm.value.y)
+  const depthDelta =
+    Math.abs(layerDepth.value.label - td.label) +
+    Math.abs(layerDepth.value.media - td.media) +
+    Math.abs(layerDepth.value.title - td.title)
+  const jitterDelta =
+    Math.abs(depthJitter.value.label - tj.label) +
+    Math.abs(depthJitter.value.media - tj.media) +
+    Math.abs(depthJitter.value.splash - tj.splash) +
+    Math.abs(depthJitter.value.stat0 - tj.stat0) +
+    Math.abs(depthJitter.value.stat1 - tj.stat1) +
+    Math.abs(depthJitter.value.stat2 - tj.stat2)
+  if (dx > 0.02 || dy > 0.02 || dn > 0.02 || depthDelta > 0.4 || jitterDelta > 0.2) {
+    tiltRaf = requestAnimationFrame(animateTilt)
+  }
+}
+
+function runNextDepthJitter(): void {
+  clearTimeout(depthJitterTimeout)
+  if (!depthJitterActive || prefersReducedMotion()) return
+
+  const key = pickNextJitterKey()
+  targetDepthJitter.value = jitterForKey(key, pickJitterValue())
+  startTiltLoop()
+
+  depthJitterTimeout = window.setTimeout(() => {
+    if (!depthJitterActive) return
+    targetDepthJitter.value = emptyDepths()
+    startTiltLoop()
+
+    const gap =
+      DEPTH_JITTER_GAP_MIN_MS +
+      Math.random() * (DEPTH_JITTER_GAP_MAX_MS - DEPTH_JITTER_GAP_MIN_MS)
+
+    depthJitterTimeout = window.setTimeout(() => {
+      runNextDepthJitter()
+    }, DEPTH_JITTER_SETTLE_MS + gap)
+  }, DEPTH_JITTER_PEAK_MS)
+}
+
+function startDepthJitter(): void {
+  if (depthJitterActive || prefersReducedMotion()) return
+  depthJitterActive = true
+  lastJitterKey = null
+  runNextDepthJitter()
+}
+
+function stopDepthJitter(): void {
+  depthJitterActive = false
+  lastJitterKey = null
+  clearTimeout(depthJitterTimeout)
+  depthJitterTimeout = 0
+  targetDepthJitter.value = emptyDepths()
+  startTiltLoop()
+}
+
+function startTiltLoop(): void {
+  cancelAnimationFrame(tiltRaf)
+  tiltRaf = requestAnimationFrame(animateTilt)
+}
+
+function onPanelEnter(event: PointerEvent): void {
+  if (event.pointerType === 'touch' || prefersReducedMotion()) return
+  panelTilting.value = true
+  startDepthJitter()
+}
 
 function onPanelMove(event: PointerEvent): void {
   if (event.pointerType === 'touch' || prefersReducedMotion()) return
@@ -97,34 +346,25 @@ function onPanelMove(event: PointerEvent): void {
   const nx = px * 2 - 1
   const ny = py * 2 - 1
   panelTilting.value = true
-  panelRotate.value = { x: -(ny * TILT_MAX), y: nx * TILT_MAX }
-  panelShine.value = { x: px * 100, y: py * 100 }
+  targetRotate.value = { x: ny * TILT_MAX_X, y: -nx * TILT_MAX_Y }
+  targetNorm.value = { x: nx, y: ny }
+  targetLayerDepth.value = computeTargetDepths(px, py)
+  startTiltLoop()
 }
 
 function onPanelLeave(): void {
   panelTilting.value = false
-  panelRotate.value = { x: 0, y: 0 }
-  panelShine.value = { x: 50, y: 50 }
-  resumeCycle()
-}
-
-function pauseCycle(): void {
-  if (!canCycle.value || paused.value) return
-  paused.value = true
-  elapsedBeforePause = Math.min(SLIDE_MS, performance.now() - startedAt)
-}
-
-function resumeCycle(): void {
-  if (!canCycle.value || !paused.value) return
-  paused.value = false
-  startedAt = performance.now() - elapsedBeforePause
+  stopDepthJitter()
+  targetRotate.value = { x: 0, y: 0 }
+  targetNorm.value = { x: 0, y: 0 }
+  targetLayerDepth.value = emptyDepths()
+  startTiltLoop()
 }
 
 function goTo(index: number): void {
   if (!slides.value.length) return
   slideIndex.value = ((index % slides.value.length) + slides.value.length) % slides.value.length
   progress.value = 0
-  elapsedBeforePause = 0
   startedAt = performance.now()
 }
 
@@ -133,12 +373,10 @@ function tick(now: number): void {
     progress.value = 0
     return
   }
-  if (!paused.value) {
-    const elapsed = now - startedAt
-    progress.value = Math.min(100, (elapsed / SLIDE_MS) * 100)
-    if (elapsed >= SLIDE_MS) {
-      goTo(slideIndex.value + 1)
-    }
+  const elapsed = now - startedAt
+  progress.value = Math.min(100, (elapsed / SLIDE_MS) * 100)
+  if (elapsed >= SLIDE_MS) {
+    goTo(slideIndex.value + 1)
   }
   raf = requestAnimationFrame(tick)
 }
@@ -146,19 +384,43 @@ function tick(now: number): void {
 function startLoop(): void {
   cancelAnimationFrame(raf)
   startedAt = performance.now()
-  elapsedBeforePause = 0
   progress.value = 0
-  paused.value = false
   if (!canCycle.value) return
   raf = requestAnimationFrame(tick)
 }
 
+function syncPathLength(): void {
+  pathLength.value = sparkPathRef.value?.getTotalLength() ?? 0
+}
+
+function measurePanel(): void {
+  const el = panelTiltRef.value ?? panelRef.value
+  if (!el) return
+  panelFrame.value = { w: el.offsetWidth, h: el.offsetHeight }
+}
+
 onMounted(() => {
+  measurePanel()
+  if (typeof ResizeObserver !== 'undefined') {
+    const target = () => panelTiltRef.value ?? panelRef.value
+    resizeObserver = new ResizeObserver(() => {
+      measurePanel()
+      nextTick(() => syncPathLength())
+    })
+    nextTick(() => {
+      const el = target()
+      if (el) resizeObserver!.observe(el)
+    })
+  }
+  nextTick(() => syncPathLength())
   startLoop()
 })
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
+  cancelAnimationFrame(tiltRaf)
+  stopDepthJitter()
+  resizeObserver?.disconnect()
 })
 
 watch(
@@ -168,6 +430,20 @@ watch(
     startLoop()
   },
 )
+
+watch(
+  () => activeSlide.value?.id,
+  async () => {
+    await nextTick()
+    measurePanel()
+    syncPathLength()
+  },
+)
+
+watch(borderPath, async () => {
+  await nextTick()
+  syncPathLength()
+})
 </script>
 
 <template>
@@ -250,36 +526,80 @@ watch(
         >
           <div class="kit-hero__deck">
             <aside
+              ref="panelRef"
               class="kit-hero__panel"
-              :class="{
-                'is-tilting': panelTilting,
-              }"
+              :class="{ 'is-tilting': panelTilting }"
               :style="panelStyle"
               aria-label="Hoy"
+              @pointerenter="onPanelEnter"
               @pointermove="onPanelMove"
-              @pointerenter="pauseCycle"
               @pointerleave="onPanelLeave"
             >
-              <span v-if="canCycle" class="kit-hero__panel-ring" aria-hidden="true" />
-              <Transition v-if="hasDeck" name="kit-hero-deck" mode="out-in">
-                <div v-if="activeSlide" :key="activeSlide.id" class="kit-hero__panel-slide">
-                  <KitHeroPanel
-                    :label="activeSlide.label"
-                    :media-label="activeSlide.mediaLabel"
-                    :media-src="activeSlide.mediaSrc"
-                    :blank-media="activeSlide.blankMedia ?? !activeSlide.mediaSrc"
-                    :title="activeSlide.title"
-                    :km="activeSlide.km"
-                    :cupo="activeSlide.cupo"
-                    :fecha="activeSlide.fecha"
-                    :splash="activeSlide.splash"
-                    :cta-label="activeSlide.ctaLabel"
-                    :cta-href="activeSlide.ctaHref"
-                    :cta-to="activeSlide.ctaTo"
-                  />
+              <div
+                ref="panelTiltRef"
+                class="kit-hero__panel-tilt"
+                :class="{ 'is-tilting': panelTilting }"
+                :style="panelTiltStyle"
+              >
+                <div v-if="canCycle" class="kit-hero__panel-glow" aria-hidden="true">
+                  <svg
+                    v-if="panelFrame.w > 0 && panelFrame.h > 0"
+                    class="kit-hero__panel-path"
+                    :viewBox="`0 0 ${panelFrame.w} ${panelFrame.h}`"
+                    :width="panelFrame.w"
+                    :height="panelFrame.h"
+                  >
+                    <path :d="borderPath" class="kit-hero__ring-track" />
+                    <path
+                      :d="borderPath"
+                      class="kit-hero__ring-stroke kit-hero__ring-stroke--halo"
+                      :style="progressStrokeStyle"
+                    />
+                    <path
+                      :d="borderPath"
+                      class="kit-hero__ring-stroke kit-hero__ring-stroke--blur"
+                      :style="progressStrokeStyle"
+                    />
+                    <path
+                      ref="sparkPathRef"
+                      :d="borderPath"
+                      class="kit-hero__ring-stroke kit-hero__ring-stroke--main"
+                      :style="progressStrokeStyle"
+                    />
+                  </svg>
+                  <span class="kit-hero__panel-spark" :style="sparkStyle">
+                    <span class="kit-hero__panel-spark-burst" aria-hidden="true">
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--a" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--b" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--c" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--d" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--e" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--f" />
+                      <span class="kit-hero__panel-spark-ray kit-hero__panel-spark-ray--g" />
+                    </span>
+                    <span class="kit-hero__panel-spark-core" />
+                  </span>
                 </div>
-              </Transition>
-              <slot v-else name="panel" />
+                <Transition v-if="hasDeck" name="kit-hero-deck" mode="out-in">
+                  <div v-if="activeSlide" :key="activeSlide.id" class="kit-hero__panel-slide">
+                    <KitHeroPanel
+                      :label="activeSlide.label"
+                      :media-label="activeSlide.mediaLabel"
+                      :media-src="activeSlide.mediaSrc"
+                      :blank-media="activeSlide.blankMedia ?? !activeSlide.mediaSrc"
+                      :title="activeSlide.title"
+                      :km="activeSlide.km"
+                      :cupo="activeSlide.cupo"
+                      :fecha="activeSlide.fecha"
+                      :splash="activeSlide.splash"
+                      :cta-label="activeSlide.ctaLabel"
+                      :cta-href="activeSlide.ctaHref"
+                      :cta-to="activeSlide.ctaTo"
+                    />
+                  </div>
+                </Transition>
+                <slot v-else name="panel" />
+              </div>
             </aside>
             <div
               v-if="slides.length > 1"
