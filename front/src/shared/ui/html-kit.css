@@ -8562,12 +8562,13 @@
         #paola-cursor-fx-ui { display: none !important; }
       }
 
-      /* Chispa de borde (PageVacant / reutilizable) */
+      /* Chispa de borde (PageVacant / reutilizable) — ligera: sin blur SVG pesado */
       .border-spark {
         position: relative;
         display: block;
         width: 100%;
         height: 100%;
+        contain: layout style;
       }
       .border-spark__body {
         position: relative;
@@ -8592,33 +8593,25 @@
       }
       .border-spark__track {
         fill: none;
-        stroke: rgba(72, 180, 252, 0.12);
-        stroke-width: 2;
+        stroke: rgba(72, 180, 252, 0.1);
+        stroke-width: 1.5;
       }
       .border-spark__stroke {
         fill: none;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
+      /* Halo barato: trazo ancho + blur moderado (una sola capa) */
+      .border-spark__stroke--glow {
+        stroke: var(--spark-color, #48b4fc);
+        stroke-width: 12;
+        opacity: 0.45;
+        filter: blur(10px);
+      }
       .border-spark__stroke--main {
         stroke: var(--spark-color, #48b4fc);
-        stroke-width: 2.6;
-        filter:
-          drop-shadow(0 0 10px color-mix(in srgb, var(--spark-color, #48b4fc) 90%, white))
-          drop-shadow(0 0 24px color-mix(in srgb, var(--spark-color, #48b4fc) 75%, transparent))
-          drop-shadow(0 0 44px color-mix(in srgb, var(--spark-color, #48b4fc) 45%, transparent));
-      }
-      .border-spark__stroke--blur {
-        stroke: var(--spark-color, #70c0f8);
-        stroke-width: 16;
-        opacity: 0.68;
-        filter: blur(36px);
-      }
-      .border-spark__stroke--halo {
-        stroke: var(--spark-color, #48b4fc);
-        stroke-width: 28;
-        opacity: 0.42;
-        filter: blur(56px);
+        stroke-width: 2.4;
+        filter: drop-shadow(0 0 8px color-mix(in srgb, var(--spark-color, #48b4fc) 80%, transparent));
       }
       .border-spark__spark {
         position: absolute;
@@ -8627,6 +8620,7 @@
         transform: translate(-50%, -50%);
         pointer-events: none;
         z-index: 3;
+        will-change: left, top;
       }
       .border-spark__burst {
         position: absolute;
@@ -8648,25 +8642,14 @@
         background: linear-gradient(
           to top,
           transparent 0%,
-          color-mix(in srgb, var(--spark-color, #48b4fc) 40%, transparent) 22%,
-          color-mix(in srgb, var(--spark-color, #48b4fc) 70%, white) 58%,
+          color-mix(in srgb, var(--spark-color, #48b4fc) 55%, transparent) 40%,
           #fff 100%
         );
-        box-shadow:
-          0 0 1px #fff,
-          0 0 4px color-mix(in srgb, var(--spark-color, #48b4fc) 90%, white);
-        opacity: 0;
-        animation: border-spark-needle 0.08s linear infinite;
+        opacity: 0.85;
       }
-      .border-spark__ray--a { --ray-r: -84deg; --ray-len: 16px; animation-delay: 0ms; }
-      .border-spark__ray--b { --ray-r: -58deg; --ray-len: 11px; animation-delay: 14ms; }
-      .border-spark__ray--c { --ray-r: -32deg; --ray-len: 18px; animation-delay: 28ms; }
-      .border-spark__ray--d { --ray-r: -8deg; --ray-len: 9px; animation-delay: 6ms; }
-      .border-spark__ray--e { --ray-r: 18deg; --ray-len: 15px; animation-delay: 20ms; }
-      .border-spark__ray--f { --ray-r: 44deg; --ray-len: 12px; animation-delay: 34ms; }
-      .border-spark__ray--g { --ray-r: 68deg; --ray-len: 17px; animation-delay: 10ms; }
-      .border-spark__ray--h { --ray-r: 92deg; --ray-len: 10px; animation-delay: 24ms; }
-      .border-spark__ray--i { --ray-r: 118deg; --ray-len: 13px; animation-delay: 38ms; }
+      .border-spark__ray--a { --ray-r: -55deg; --ray-len: 14px; }
+      .border-spark__ray--b { --ray-r: 0deg; --ray-len: 18px; }
+      .border-spark__ray--c { --ray-r: 55deg; --ray-len: 14px; }
       .border-spark__head {
         position: absolute;
         top: 0;
@@ -8677,45 +8660,14 @@
       .border-spark__svg {
         display: block;
         overflow: visible;
-        filter:
-          drop-shadow(0 0 4px #fff)
-          drop-shadow(0 0 10px var(--spark-color, #48b4fc))
-          drop-shadow(0 0 18px color-mix(in srgb, var(--spark-color, #48b4fc) 70%, transparent));
-        animation: border-spark-flicker 0.06s steps(2, end) infinite;
+        filter: drop-shadow(0 0 6px var(--spark-color, #48b4fc));
       }
       .border-spark__bolt {
         fill: currentColor;
         stroke: #fff;
         stroke-width: 0.6;
       }
-      .border-spark__needle {
-        stroke: #fff;
-        stroke-width: 1.1;
-        stroke-linecap: round;
-        opacity: 0.9;
-      }
-      .border-spark__needle--b { opacity: 0.65; }
-      .border-spark__needle--c { opacity: 0.45; }
-      @keyframes border-spark-needle {
-        0%, 100% {
-          opacity: 0;
-          transform: rotate(var(--ray-r, 0deg)) scaleY(0.35);
-        }
-        35% {
-          opacity: 1;
-          transform: rotate(var(--ray-r, 0deg)) scaleY(1);
-        }
-        70% {
-          opacity: 0.25;
-          transform: rotate(var(--ray-r, 0deg)) scaleY(0.7);
-        }
-      }
-      @keyframes border-spark-flicker {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.82; transform: scale(1.08); }
-      }
       @media (prefers-reduced-motion: reduce) {
-        .border-spark__ray,
-        .border-spark__svg { animation: none; }
+        .border-spark__spark { will-change: auto; }
       }
     
