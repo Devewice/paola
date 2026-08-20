@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { FOOTER_COPY } from '@app/constants/copy.ts'
+import { FOOTER_COPY, MEGA_COPY } from '@app/constants/copy.ts'
 import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
@@ -54,6 +54,8 @@ const footerContact = computed(() => [
     <MegaHeader
       :items="MEGA_NAV"
       :whatsapp="whatsapp"
+      :whatsapp-title="MEGA_COPY.whatsappTitle"
+      :whatsapp-lead="MEGA_COPY.whatsappLead"
       :account-to="APP_PATHS.CUENTA"
     >
       <template #widget="{ item }">

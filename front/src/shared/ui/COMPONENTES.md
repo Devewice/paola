@@ -37,7 +37,7 @@ Clases kit (no son Vue): `.wrap` ancho de contenido · `.stack` columna con gap 
 
 ## Marca / afiche / brocha
 
-`BrushButton` CTA afiche (texto blanco, Montserrat 800) · `BrushSplash` mancha + label · `BrushBanner` / `KitBrushBanner` · `BrushDivider` / `KitBrushDivider` · `BrushPlate` · `AficheBlock` marco afiche · `AficheMiniDemo` `AficheAnapoimaDemo` `AficheCumpleDemo` `AficheRefs` solo kit · `VoiceBadge` Loigca/Incauta/Armargura · `VoiceCard` · `PaolaBlock`
+`BrushButton` CTA afiche (texto blanco, Montserrat 800) · `BrushSplash` mancha + label · `BrushBanner` / `KitBrushBanner` · `BrushDivider` / `KitBrushDivider` · `BrushPlate` · `AficheBlock` marco afiche · `AficheMiniDemo` `AficheAnapoimaDemo` `AficheCumpleDemo` `AficheRefs` solo kit · `VoiceBadge` Loigca/Incauta/Armargura · `VoiceCard` · `PaolaBlock` · `Mascot3d` cámara GL/OBJ · `MascotFlash` poses 360 + destello
 
 ## Botones, chips, iconos
 

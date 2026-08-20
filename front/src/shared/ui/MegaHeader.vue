@@ -34,8 +34,18 @@ const props = withDefaults(
     closeLabel?: string
     embed?: boolean
     whatsapp?: { href: string; label: string }
+    whatsappTitle?: string
+    whatsappLead?: string
   }>(),
-  { logoSrc: '/logo.png', accountLabel: 'Cuenta', menuLabel: 'Menú', closeLabel: 'Cerrar', embed: false },
+  {
+    logoSrc: '/logo.png',
+    accountLabel: 'Cuenta',
+    menuLabel: 'Menú',
+    closeLabel: 'Cerrar',
+    embed: false,
+    whatsappTitle: 'WhatsApp',
+    whatsappLead: 'El chat del día a día. Este camino no se apaga.',
+  },
 )
 
 const route = useRoute()
@@ -194,8 +204,8 @@ onUnmounted(() => {
             </ul>
           </section>
           <section v-if="whatsapp">
-            <h5>WhatsApp</h5>
-            <p class="meta" style="margin: 0 0 10px">El chat del día a día. No se apaga.</p>
+            <h5>{{ whatsappTitle }}</h5>
+            <p class="meta" style="margin: 0 0 10px">{{ whatsappLead }}</p>
             <ul>
               <li>
                 <AppLink :href="whatsapp.href" target="_blank">{{ whatsapp.label }}</AppLink>

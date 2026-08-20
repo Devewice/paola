@@ -40,11 +40,16 @@ export const OG_COPY = {
 } as const
 
 export const PAGE_VACANT_COPY = {
-  kicker: 'En construcción',
+  kicker: 'en construcción',
   lead: 'Esta sección todavía no está lista. Vuelve pronto o escríbeme.',
   ctaHome: 'Volver al inicio',
   ctaContact: 'Escríbeme',
   contactMail: 'contacto@paolabiker.com',
+} as const
+
+export const MEGA_COPY = {
+  whatsappTitle: 'WhatsApp',
+  whatsappLead: 'El chat del día a día. Este camino no se apaga.',
 } as const
 
 export const FOOTER_COPY = {
