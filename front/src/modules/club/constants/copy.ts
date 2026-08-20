@@ -1,15 +1,29 @@
-export const ALLIANCES_EMPTY_COPY =
-  'Aún estamos armando el apoyo. Aquí van quienes bancan el parche cuando Paola los publique. No son productos de la tienda.'
+export const ALLIANCES_EMPTY_COPY = 'Aún no hay aliados.'
 
-export const MEMBERS_EMPTY_COPY =
-  'Nadie sale aquí sin haber dicho que sí. Hoy no hay fichas públicas: el parche vive, pero las caras se publican con consentimiento.'
+export const MEMBERS_EMPTY_COPY = 'Aún no hay integrantes.'
 
 export const JOIN_WHATSAPP_TEXT = 'Quiero unirme al parche'
 
 export const JOIN_COPY = {
   cta: 'Únete',
   title: 'Únete',
-  copy: 'El grupo de WhatsApp todavía no está publicado. Escríbele a Paola y ella te mete.',
+  copy: 'Escríbele a Paola para que te agregue al grupo.',
+} as const
+
+export const PARCHESE_COPY = {
+  kicker: 'Parchese',
+  title: 'El club',
+  plate: 'Parche',
+  lead: 'Las rodadas, cómo unirse y quiénes ya son del parche.',
+  cycleHeading: 'El ciclo',
+  cyclePending: 'Aún no hay memoria.',
+  cycleDone: 'Ya hay memoria de lo que rodamos.',
+  rosterHeading: 'Así va el parche',
+  rosterEmptyTitle: 'Todavía nadie',
+  talkHeading: 'Dónde hablamos',
+  feedLink: 'Ver publicaciones',
+  alliancesKicker: 'Alianzas',
+  alliancesTitle: 'Quienes apoyan',
 } as const
 
 export const PARCHESE_TABS = [

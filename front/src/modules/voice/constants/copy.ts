@@ -1,17 +1,14 @@
-export const TIPS_EMPTY_COPY =
-  'Todavía no hay un tip publicado.'
+export const TIPS_EMPTY_COPY = 'Aún no hay tips.'
 
-export const FINES_EMPTY_COPY =
-  'Todavía no hay una guía de comparendo. Cuando Paola publique una, se lee aquí. El trámite sigue en el canal oficial.'
+export const FINES_EMPTY_COPY = 'Aún no hay guía de comparendos.'
 
-export const REPORTS_EMPTY_COPY =
-  'Todavía no hay reportes publicados. Paola revisa antes de que algo se vea.'
+export const REPORTS_EMPTY_COPY = 'Aún no hay reportes.'
 
 export const VOICE_COPY = {
   kicker: 'Moto Loigca',
   title: 'Tu voz',
   plate: 'Voz',
-  lead: 'Tips de vía, cómo leer un comparendo (sin tramitarlo) y reportes del parche. Paola no es autoridad ni abogada.',
+  lead: 'Tips de vía, comparendos y reportes del parche. Paola no tramita comparendos ni es abogada.',
   tipsHeading: 'Tips',
   tipsEmpty: 'Sin tips',
   finesHeading: 'Comparendos',

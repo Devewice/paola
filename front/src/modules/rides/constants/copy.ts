@@ -1,8 +1,6 @@
-export const AGENDA_EMPTY_COPY =
-  'Ahora mismo no hay fecha. El parche vive en WhatsApp: escríbele a Paola y te avisa la próxima.'
+export const AGENDA_EMPTY_COPY = 'Aún no hay fecha.'
 
-export const MEMORIES_EMPTY_COPY =
-  'Vamos contando. Aún no hay kilómetros publicados de una memoria realizada.'
+export const MEMORIES_EMPTY_COPY = 'Aún no hay memoria de rodada.'
 
 export const RIDES_ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -26,13 +24,13 @@ export const RIDES_KIND = {
 } as const
 
 export const RIDES_AGENDA_COPY = {
-  heading: 'Agenda',
-  aria: 'Agenda',
+  heading: 'Próximas',
+  aria: 'Próximas salidas',
   emptyTitle: 'Sin fecha',
-  full: 'Cupo lleno. Ya no se anota más gente.',
-  closed: 'Inscripción cerrada.',
-  done: 'Ya se rodó. Esta salida pasa a memorias cuando haya recuento.',
-  outingThread: 'Hilo de la rodada',
+  full: 'El cupo está lleno.',
+  closed: 'Ya se cerró la inscripción.',
+  done: 'Esta ya se rodó. La memoria llega cuando Paola la publique.',
+  outingThread: 'Chat de esta salida',
 } as const
 
 export const RIDES_MESSAGES = {

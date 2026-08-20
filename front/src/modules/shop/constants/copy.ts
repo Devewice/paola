@@ -1,28 +1,24 @@
-export const SHOP_EMPTY_OWN =
-  'Aún no hay piezas propias en estantería. Cuando Paola publique algo de verdad, se ve aquí.'
+export const SHOP_EMPTY_OWN = 'Aún no hay nada a la venta.'
 
-export const SHOP_EMPTY_COLLAB =
-  'No hay colaboraciones publicadas. Si entra una, vive en esta estantería, nunca mezclada con lo propio.'
+export const SHOP_EMPTY_COLLAB = 'Aún no hay colaboraciones.'
 
-export const SHOP_EMPTY_FICHA = 'Esa ficha no está. El catálogo no inventa piezas.'
+export const SHOP_EMPTY_FICHA = 'Ese producto no está.'
 
-export const SHOP_EMPTY_SERVICE =
-  'Aún no hay ficha de lavado. Cuando Paola la publique, se pide aquí — no en la estantería de gorras.'
+export const SHOP_EMPTY_SERVICE = 'Aún no hay lavado de casco.'
 
-export const SHOP_EMPTY_SERVICE_FICHA =
-  'Esa ficha de lavado no está. El servicio no se inventa.'
+export const SHOP_EMPTY_SERVICE_FICHA = 'Ese lavado no está.'
 
 export const SHOP_DELIVERY_COPY =
-  'Entrega gratis solo en Bogotá y Soacha. Fuera: aún no. No improvisamos flete.'
+  'La entrega es gratis en Bogotá y Soacha. Al resto del país todavía no llegamos.'
 
 export const SHOP_WARRANTY_COPY =
-  'Garantía solo por defectos de fabricación. No cubre desgaste de rodada, golpe ni “no me gustó”.'
+  'La garantía cubre solo defectos de fábrica. No cubre golpe, desgaste ni si no te gustó.'
 
 export const SHOP_SERVICE_WARRANTY_COPY =
-  'Si el lavado quedó mal, se corrige. Eso es garantía del trabajo, no de una gorra.'
+  'Si el lavado quedó mal, Paola lo corrige.'
 
 export const SHOP_SERVICE_ZONE_COPY =
-  'El lavado es en Bogotá y Soacha. Fuera: aún no.'
+  'El lavado es solo en Bogotá y Soacha.'
 
 export const SHOP_KIND = {
   OWN: 'propia',
@@ -42,7 +38,7 @@ export const SHOP_COPY = {
   kicker: 'Oficio',
   title: 'Tienda',
   plate: 'Tienda',
-  lead: 'Piezas propias y colaboraciones en estanterías distintas. El lavado de cascos es servicio, no una gorra. Se le escribe a Paola; la pasarela, si entra, no apaga ese camino.',
+  lead: 'Ropa y piezas de Paola, colaboraciones aparte, y lavado de casco. Para pedir, escríbele.',
   writeCta: 'Escribirle a Paola',
   mailCta: 'Correo',
   backCta: 'Volver a Tienda',
@@ -53,7 +49,7 @@ export const SHOP_COPY = {
   ownEmptyTitle: 'Sin piezas propias',
   collabHeading: 'Colaboraciones',
   collabAria: 'Colaboraciones',
-  collabNote: 'Estantería aparte. Nunca en la misma ficha que lo propio.',
+  collabNote: 'Las colaboraciones van en su propia lista, no mezcladas con lo de Paola.',
   collabEmptyTitle: 'Sin collab',
   fichaEmptyTitle: 'Sin ficha',
   deliveryAria: 'Entrega y garantía',

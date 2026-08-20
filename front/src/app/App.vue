@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
+import { FOOTER_COPY } from '@app/constants/copy.ts'
+import { MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
 import { SHOP_DELIVERY_COPY } from '@modules/shop/constants/copy.ts'
 import BrushDefs from '@ui/BrushDefs.vue'
 import DualChannelPills from '@ui/DualChannelPills.vue'
 import KitAllianceStrip from '@ui/KitAllianceStrip.vue'
-import MegaFooter from '@ui/MegaFooter.vue'
 import MegaHeader from '@ui/MegaHeader.vue'
 import MegaPeek from '@ui/MegaPeek.vue'
 import SiteFooter from '@ui/SiteFooter.vue'
@@ -32,22 +32,13 @@ const showFranja = computed(
   () => !isKitCatalog.value && !route.path.startsWith(APP_PATHS.ADMIN),
 )
 
-const footerLinks = computed(() => {
-  const social = page.contact.social.map((link) => ({ label: link.label, href: link.href }))
-  return [
-    { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
-    { label: page.contact.email, href: `mailto:${page.contact.email}` },
-    { label: whatsapp.label, href: whatsapp.href },
-    ...social,
-  ]
-})
+const footerNav = TABS
 
-const footerColumns = computed(() =>
-  MEGA_FOOTER_COLUMNS.map((col) => ({
-    title: col.title,
-    links: [...col.links],
-  })),
-)
+const footerLinks = computed(() => [
+  { label: 'WhatsApp', href: whatsapp.href, target: '_blank' as const },
+  { label: page.contact.email, href: `mailto:${page.contact.email}` },
+  { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
+])
 </script>
 
 <template>
@@ -68,7 +59,7 @@ const footerColumns = computed(() =>
           :title="board.next?.title ?? 'Sin fecha'"
           :meta="board.next ? `${board.next.date} · ${board.next.point}` : board.nextEmptyCopy"
           :value="item.label === 'Inicio' ? (board.totalKm !== null ? String(board.totalKm) : '—') : undefined"
-          :value-label="item.label === 'Inicio' ? 'km del parche' : undefined"
+          :value-label="item.label === 'Inicio' ? 'kilómetros' : undefined"
           :image-src="board.memory?.photoSrc"
           :to="APP_PATHS.PARCHESE"
           :cta="item.cta"
@@ -121,11 +112,17 @@ const footerColumns = computed(() =>
 
     <footer class="paola-site-foot">
       <div class="wrap paola-site-foot__inner">
-        <MegaFooter :columns="footerColumns" />
         <SiteFooter
           logo-src="/logo.png"
+          :motto="FOOTER_COPY.motto"
+          :copy="FOOTER_COPY.tagline"
+          :nav="footerNav"
           :links="footerLinks"
-          copy="Paola Biker · Rodando con propósito"
+          :credit-label="FOOTER_COPY.creditLabel"
+          :credit-name="FOOTER_COPY.creditName"
+          :credit-href="FOOTER_COPY.creditHref"
+          :legal-name="FOOTER_COPY.legalName"
+          :domain="FOOTER_COPY.domain"
         />
       </div>
     </footer>

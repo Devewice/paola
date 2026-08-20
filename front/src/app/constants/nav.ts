@@ -25,15 +25,15 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Inicio',
     to: APP_PATHS.INICIO,
-    lead: 'El corte del día: próxima rodada, kilómetros y un recorte de Paola.',
+    lead: 'La próxima rodada, los kilómetros y un recorte de Paola.',
     cta: 'Ir al inicio',
     columns: [
       {
         title: 'Hoy',
         links: [
-          { label: 'Tablero del parche', to: APP_PATHS.INICIO },
+          { label: 'Inicio', to: APP_PATHS.INICIO },
           { label: 'Próxima salida', to: APP_PATHS.PARCHESE },
-          { label: 'De tus comunidades', to: APP_PATHS.FEED },
+          { label: 'Publicaciones', to: APP_PATHS.FEED },
         ],
       },
       {
@@ -55,25 +55,25 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Parchese',
     to: APP_PATHS.PARCHESE,
-    lead: 'Cuándo hay rodada, cómo unirse y las caras que autorizaron salir.',
+    lead: 'Las rodadas, cómo unirse y quiénes ya son del parche.',
     cta: 'Ir a Parchese',
     columns: [
       {
         title: 'Rodar',
         links: [
-          { label: 'Agenda y cupo', to: APP_PATHS.PARCHESE },
+          { label: 'Próxima rodada', to: APP_PATHS.PARCHESE },
           { label: 'Memorias', to: APP_PATHS.PARCHESE },
         ],
       },
       {
         title: 'Comunidad',
         links: [
-          { label: 'Feed y comunidades', to: APP_PATHS.FEED },
+          { label: 'Publicaciones', to: APP_PATHS.FEED },
           { label: 'Así va el parche', to: APP_PATHS.PARCHESE },
         ],
       },
       {
-        title: 'Canales',
+        title: 'Más',
         links: [
           { label: 'Inicio', to: APP_PATHS.INICIO },
           { label: 'Cuenta', to: APP_PATHS.CUENTA },
@@ -84,7 +84,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Tu voz',
     to: APP_PATHS.TU_VOZ,
-    lead: 'Tips de vía, cómo leer un comparendo (sin tramitarlo) y reportes del parche.',
+    lead: 'Tips de vía, comparendos y reportes.',
     cta: 'Ir a Tu voz',
     columns: [
       {
@@ -105,7 +105,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
         title: 'Legal',
         links: [
           { label: 'Aviso de privacidad', to: APP_PATHS.PRIVACIDAD },
-          { label: 'Paola no es autoridad', to: APP_PATHS.TU_VOZ },
+          { label: 'Cómo leer un comparendo', to: APP_PATHS.TU_VOZ },
         ],
       },
     ],
@@ -113,11 +113,11 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Tienda',
     to: APP_PATHS.TIENDA,
-    lead: 'Piezas propias y colaboraciones en estanterías distintas. El lavado es servicio, no una gorra.',
+    lead: 'Lo de Paola, las colaboraciones y el lavado de casco.',
     cta: 'Ir a Tienda',
     columns: [
       {
-        title: 'Estanterías',
+        title: 'Tienda',
         links: [
           { label: 'Marca Paola', to: APP_PATHS.TIENDA },
           { label: 'Colaboraciones', to: APP_PATHS.TIENDA },
@@ -142,7 +142,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Paola',
     to: APP_PATHS.PAOLA,
-    lead: 'Quién es Paola y cómo escribirle. Web y WhatsApp, en paralelo.',
+    lead: 'Quién es Paola y cómo escribirle.',
     cta: 'Conocer a Paola',
     columns: [
       {

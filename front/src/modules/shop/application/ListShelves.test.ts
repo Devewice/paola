@@ -34,6 +34,6 @@ describe('ListShelves', () => {
     expect(shelves.collab).toHaveLength(0)
     expect(shelves.emptyOwnCopy.length).toBeGreaterThan(10)
     expect(shelves.deliveryCopy).toMatch(/Bogotá y Soacha/)
-    expect(shelves.warrantyCopy).toMatch(/defectos de fabricación/)
+    expect(shelves.warrantyCopy).toMatch(/defectos de fábrica/)
   })
 })

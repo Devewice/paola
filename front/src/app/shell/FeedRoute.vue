@@ -92,7 +92,7 @@ async function loadFeed(): Promise<void> {
 async function join(id: string): Promise<void> {
   error.value = ''
   if (!sessionId.value) {
-    error.value = 'Entra a tu cuenta para unirte. El sitio se mira igual sin login.'
+    error.value = FEED_COPY.joinNeedAccount
     return
   }
   const response = await fetch(apiCommunityJoin(id), {
@@ -101,17 +101,17 @@ async function join(id: string): Promise<void> {
     body: '{}',
   })
   if (!response.ok) {
-    error.value = 'No se pudo unir.'
+    error.value = FEED_COPY.joinFail
     return
   }
-  notice.value = 'Ya estás en esa comunidad web. El WhatsApp, si hay enlace, es otro canal.'
+  notice.value = FEED_COPY.joined
   await loadFeed()
 }
 
 async function follow(id: string): Promise<void> {
   error.value = ''
   if (!sessionId.value) {
-    error.value = 'Entra a tu cuenta para seguir. WhatsApp no se apaga.'
+    error.value = FEED_COPY.followNeedAccount
     return
   }
   const response = await fetch(apiCommunityFollow(id), {
@@ -120,10 +120,10 @@ async function follow(id: string): Promise<void> {
     body: '{}',
   })
   if (!response.ok) {
-    error.value = 'No se pudo seguir.'
+    error.value = FEED_COPY.followFail
     return
   }
-  notice.value = 'Sigues esa comunidad en web.'
+  notice.value = FEED_COPY.followed
   await loadFeed()
 }
 
@@ -218,9 +218,9 @@ async function pinPost(id: string): Promise<void> {
 async function sharePost(): Promise<void> {
   try {
     await navigator.clipboard.writeText(window.location.href)
-    notice.value = 'Enlace copiado. WhatsApp sigue en paralelo.'
+    notice.value = 'Enlace copiado.'
   } catch {
-    notice.value = 'Copia el enlace del feed. WhatsApp no se apaga.'
+    notice.value = 'No se pudo copiar. Copia el enlace a mano.'
   }
 }
 
@@ -253,7 +253,7 @@ const communityOptions = () =>
         >
           <p class="paola-page__copy">{{ item.description }}</p>
           <template #actions>
-            <Button size="sm" type="button" @click="join(item.id)">Unirme en web</Button>
+            <Button size="sm" type="button" @click="join(item.id)">Unirme</Button>
             <Follow v-if="sessionId" @click="follow(item.id)" />
             <Button
               v-if="item.whatsappGroupHref"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { ClubModule } from '@modules/club/index.ts'
-import { PARCHESE_TABS } from '@modules/club/constants/copy.ts'
+import { PARCHESE_COPY, PARCHESE_TABS } from '@modules/club/constants/copy.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import AficheHero from '@ui/AficheHero.vue'
 import AllianceStrip from '@ui/AllianceStrip.vue'
@@ -24,13 +24,14 @@ const alliances = props.module.getAlliances()
 const members = props.module.getMembers()
 const bindReveal = usePageReveal()
 const tab = ref('club')
+const copy = PARCHESE_COPY
 </script>
 
 <template>
   <article :ref="bindReveal" class="paola-page">
-    <AficheHero kicker="Parchese" title="El club" plate="Parche" data-reveal>
+    <AficheHero :kicker="copy.kicker" :title="copy.title" :plate="copy.plate" data-reveal>
       <template #lead>
-        Cuándo hay rodada, cómo unirse, quién apoya el parche y las caras que autorizaron salir.
+        {{ copy.lead }}
       </template>
     </AficheHero>
 
@@ -46,7 +47,7 @@ const tab = ref('club')
 
     <section v-show="tab === 'club'" class="paola-page__block" aria-label="Ciclo de rodada" data-reveal>
       <VoiceBadge voice="loigca" />
-      <h2 class="paola-page__heading type-display">El ciclo</h2>
+      <h2 class="paola-page__heading type-display">{{ copy.cycleHeading }}</h2>
       <Timeline
         :steps="[
           { label: 'Creada', done: true },
@@ -58,8 +59,8 @@ const tab = ref('club')
       <p class="paola-page__copy paola-page__copy--muted">
         {{
           props.hasMemories
-            ? 'Hay recuento publicado. Lo rodado no se evapora.'
-            : 'Cuando Paola marque realizada y publique el recuento, la memoria entra aquí.'
+            ? copy.cycleDone
+            : copy.cyclePending
         }}
       </p>
     </section>
@@ -70,7 +71,7 @@ const tab = ref('club')
 
     <section v-show="tab === 'club'" class="paola-page__block" aria-label="Así va el parche" data-reveal>
       <VoiceBadge voice="incauta" />
-      <h2 class="paola-page__heading type-display">Así va el parche</h2>
+      <h2 class="paola-page__heading type-display">{{ copy.rosterHeading }}</h2>
       <div v-if="members.items.length" class="parchese-page__roster">
         <MemberCard
           v-for="member in members.items"
@@ -84,7 +85,7 @@ const tab = ref('club')
       <Empty
         v-else
         compact
-        title="Nadie aún"
+        :title="copy.rosterEmptyTitle"
         :copy="members.emptyCopy"
         mascot-src="/mascota/en-pie.png"
         hide-cta
@@ -93,10 +94,10 @@ const tab = ref('club')
 
     <section v-show="tab === 'club'" class="paola-page__block" aria-label="Dónde hablamos" data-reveal>
       <VoiceBadge voice="loigca" />
-      <h2 class="paola-page__heading type-display">Dónde hablamos</h2>
+      <h2 class="paola-page__heading type-display">{{ copy.talkHeading }}</h2>
       <DualChannel />
       <p class="paola-page__copy">
-        <router-link class="parchese-feed" to="/feed">Actividad y comunidades en el feed</router-link>
+        <router-link class="parchese-feed" to="/feed">{{ copy.feedLink }}</router-link>
       </p>
     </section>
 
@@ -110,8 +111,8 @@ const tab = ref('club')
     <section v-show="tab === 'club'" class="paola-page__block" aria-label="Alianzas" data-reveal>
       <VoiceBadge voice="loigca" />
       <AllianceStrip
-        kicker="Alianzas"
-        title="Quienes apoyan"
+        :kicker="copy.alliancesKicker"
+        :title="copy.alliancesTitle"
         :alliances="alliances"
       />
     </section>

@@ -1,4 +1,4 @@
-export const COMING_SOON_FALLBACK = 'Próximamente. Esta pestaña todavía no tiene contenido.'
+export const COMING_SOON_FALLBACK = 'Esto todavía no está listo. Vuelve pronto o escríbele a Paola.'
 export const COMING_SOON_DEFAULT_TITLE = 'Próximamente'
 export const COMING_SOON_PLATE = 'Loigca'
 
@@ -22,13 +22,25 @@ export const ROUTE_TITLES = {
 
 export const NOT_FOUND_COPY = {
   kicker: '404',
-  title: 'Esa ruta no está',
-  lead: 'Esa dirección no existe en paolabiker.com. Vuelve al inicio o escríbele a Paola por WhatsApp.',
+  title: 'Esta página no existe',
+  lead: 'Revisa el enlace o vuelve al inicio. También puedes escribirle a Paola.',
   cta: 'Volver al inicio',
 } as const
 
 export const OG_COPY = {
   title: 'Paola Biker',
   description:
-    'Rodando con propósito. Rodadas, parche y tienda en Bogotá y Soacha. Web y WhatsApp, en paralelo. paolabiker.com',
+    'Rodando con propósito. Rodadas, parche y tienda en Bogotá y Soacha.',
+} as const
+
+export const FOOTER_COPY = {
+  motto: 'Paola Biker',
+  tagline: 'Rodando con propósito',
+  creditLabel: 'Desarrollado por',
+  creditName: 'jeisson.pro',
+  creditHref: 'https://jeisson.pro',
+  legalName: 'Paola Biker',
+  domain: 'paolabiker.com',
+  contactTitle: 'Contacto',
+  writeLabel: 'Escribirle a Paola',
 } as const

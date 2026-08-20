@@ -11,7 +11,9 @@ import EmptyBlock from '@ui/EmptyBlock.vue'
 import FeedPost from '@ui/FeedPost.vue'
 import Gallery from '@ui/Gallery.vue'
 import HomeDash from '@ui/HomeDash.vue'
+import Icon from '@ui/Icon.vue'
 import KitHero from '@ui/KitHero.vue'
+import KitHeroDeck from '@ui/KitHeroDeck.vue'
 import KitHeroFooter from '@ui/KitHeroFooter.vue'
 import KitHeroPanel from '@ui/KitHeroPanel.vue'
 import MemoriaHero from '@ui/MemoriaHero.vue'
@@ -40,6 +42,9 @@ const splash = computed(() => (board.value.next ? board.value.next.date : copy.s
 const mediaLabel = computed(() =>
   board.value.memory ? `${board.value.memory.title} · ${board.value.memory.date}` : copy.panelEmptyMedia,
 )
+const memoryTitle = computed(() => board.value.memory?.title ?? copy.kmHeading)
+const memoryKm = computed(() => (board.value.memory ? String(board.value.memory.km) : '—'))
+const memoryFecha = computed(() => board.value.memory?.date ?? '—')
 
 onMounted(async () => {
   try {
@@ -67,6 +72,7 @@ onMounted(async () => {
       variant="portal"
       :tagline="copy.tagline"
       :kicker="copy.kicker"
+      :splash-label="copy.splashPhrase"
       :photo-src="board.memory?.photoSrc"
       logo-src="/logo.png"
       :scroll-href="`#${TABLERO_ID}`"
@@ -79,22 +85,50 @@ onMounted(async () => {
       </template>
       <template #actions>
         <Button variant="brush" :to="APP_PATHS.PARCHESE">{{ copy.nextCta }}</Button>
-        <Button variant="ghost" :href="board.join.href" target="_blank">{{ board.join.label }}</Button>
-        <span class="label-brush">Ride · Respect · Enjoy</span>
+        <Button variant="ghost" :href="board.join.href" target="_blank">
+          {{ board.join.label }}
+          <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
+        </Button>
+        <span class="label-brush">{{ copy.motto }}</span>
       </template>
-      <template #panel>
-        <KitHeroPanel
-          :label="copy.panelLabel"
-          :media-label="mediaLabel"
-          :media-src="board.memory?.photoSrc"
-          :title="panelTitle"
-          :km="kmValue"
-          cupo="—"
-          :fecha="nextFecha"
-          :splash="splash"
-          :cta-label="copy.nextCta"
-          :cta-to="APP_PATHS.PARCHESE"
-        />
+      <template #deck>
+        <KitHeroDeck>
+          <KitHeroPanel
+            :label="copy.panelLabel"
+            :media-label="mediaLabel"
+            :media-src="board.memory?.photoSrc"
+            :title="panelTitle"
+            :km="kmValue"
+            cupo="—"
+            :fecha="nextFecha"
+            :splash="splash"
+            :cta-label="copy.nextCta"
+            :cta-to="APP_PATHS.PARCHESE"
+          />
+          <KitHeroPanel
+            :label="copy.panelKmLabel"
+            :media-label="mediaLabel"
+            :media-src="board.memory?.photoSrc"
+            :title="memoryTitle"
+            :km="kmValue"
+            :cupo="memoryKm"
+            :fecha="memoryFecha"
+            :cupo-caption="copy.panelMemoryCaption"
+            :splash="copy.kmHeading"
+            :cta-label="copy.parcheseCta"
+            :cta-to="APP_PATHS.PARCHESE"
+          />
+          <KitHeroPanel
+            :label="copy.panelPaolaLabel"
+            hide-media
+            hide-stats
+            :title="copy.paolaHeading"
+            :quote="board.paola.phrase"
+            hide-splash
+            :cta-label="copy.paolaCta"
+            :cta-to="board.paola.to"
+          />
+        </KitHeroDeck>
       </template>
       <template #footer>
         <KitHeroFooter
@@ -177,7 +211,10 @@ onMounted(async () => {
       <DualChannel style="margin-top: 28px">
         <template #wa>
           <p class="meta" style="margin: 8px 0">{{ copy.channelWa }}</p>
-          <Button size="sm" :href="board.join.href" target="_blank">{{ board.join.label }}</Button>
+          <Button size="sm" :href="board.join.href" target="_blank">
+            {{ board.join.label }}
+            <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
+          </Button>
         </template>
         <template #web>
           <p class="meta" style="margin: 8px 0">{{ copy.channelWeb }}</p>

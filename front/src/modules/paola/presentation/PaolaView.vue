@@ -43,7 +43,7 @@ const shareUrl = `https://${page.contact.domain}/paola`
       <VoiceBadge voice="loigca" />
       <h2 class="paola-page__heading type-display">Escríbeme</h2>
       <p class="paola-page__copy">Correo o WhatsApp. Te responde Paola.</p>
-      <WaStrip title="WhatsApp de Paola" copy="El parche caliente vive aquí.">
+      <WaStrip title="WhatsApp de Paola" copy="El grupo del día a día.">
         <Button :href="page.contact.whatsapp.href" target="_blank">
           {{ page.contact.whatsapp.label }}
         </Button>
@@ -64,7 +64,7 @@ const shareUrl = `https://${page.contact.domain}/paola`
         <p class="paola-empty__kicker">Cámara Incauta</p>
         <h2 class="paola-page__heading type-display">Video</h2>
         <p class="paola-page__copy paola-page__copy--muted">
-          Canal de YouTube. Un video suelto para embeber, cuando Paola lo elija.
+          El canal de YouTube de Paola. Pronto va a haber un video aquí.
         </p>
         <Button size="sm" :href="page.contact.youtube.href" target="_blank">
           Ver en YouTube

@@ -443,12 +443,14 @@ h2,
 }
 
 .paola-site-foot__inner {
-  padding-top: 24px;
+  padding-top: 28px;
   padding-bottom: 24px;
 }
 
 .paola-site-foot .site-footer {
-  margin-top: 24px;
+  margin-top: 0;
+  padding: 0;
+  border-top: none;
 }
 
 .paola-footer {

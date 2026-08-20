@@ -9,7 +9,7 @@ Reglas: no inventes copy/precios/aliados; tabla vacía = hueco honesto; afiche (
 
 1. Hero a todo el ancho: `KitHero` (Inicio portal) o `AficheHero` (páginas).
 2. Cuerpo en `.wrap` (ancho fluido del kit). Tablero: `HomeDash`.
-3. Cascarón del portal: `MegaHeader` + `MegaFooter` + `SiteFooter` (en `App.vue`, no en cada vista).
+3. Cascarón del portal: `MegaHeader` + `SiteFooter` (en `App.vue`, no en cada vista). `MegaFooter` queda solo en el catálogo `/admin/ui`.
 4. Acciones: `Button` (`primary` | `hero` | `ghost` | `dark` | `danger` | `brush`). Brocha solo capa afiche.
 5. Vacío: `EmptyBlock` / `MascotEmpty` / `Empty`. No rellenes.
 
@@ -19,11 +19,12 @@ Reglas: no inventes copy/precios/aliados; tabla vacía = hueco honesto; afiche (
 |---|---|---|
 | `MegaHeader` | Header del portal: logo, 5 pestañas, panel overlay (no empuja el hero) | `items`, `whatsapp`, `accountTo`, slot `widget` |
 | `MegaPeek` | Widget compacto del mega menú (próxima, tip, km, hueco honesto) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
-| `MegaFooter` | Columnas de enlaces del pie | `columns: { title, links[{ label, to?, href? }] }` |
-| `SiteFooter` | Pie corto: logo, motto, links, copy | `motto`, `links`, `note`, `copy`, `logoSrc` |
+| `MegaFooter` | Columnas de enlaces (demo del kit, no el pie del portal) | `columns: { title, links[{ label, to?, href? }] }` |
+| `SiteFooter` | Pie único: marca, nav de las 5 pestañas, contacto, © | `motto`, `nav`, `links`, `note`, `copy`, `logoSrc` |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |
-| `KitHero` | Hero full-bleed del kit. `portal`: corte del día | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, slots `voices` `panel` `footer` `actions` |
-| `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc` |
+| `KitHero` | Hero full-bleed del kit. `portal`: corte del día | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, slots `voices` `deck` `panel` `footer` `actions` |
+| `KitHeroDeck` | Mazo de `KitHeroPanel`: flechas y giro 180° | slot default: un `KitHeroPanel` por cara |
+| `KitHeroPanel` | Cara del corte del día | `title`, `quote`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `hideMedia`, `hideStats` |
 | `KitHeroFooter` | KPIs bajo el hero portal | `stamp`, `rodadas`, `km`, `integrantes` |
 | `AficheHero` | Hero de página (más bajo que el kit) | `kicker`, `title`, `plate`, `logo`, `photoSrc`, slots `lead` `actions` |
 | `HomeDash` | Tablero 1 ancha + 4 celdas | slots `hero` `km` `memory` `voice` `paola` |

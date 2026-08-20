@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
+import { computed, ref, useSlots } from 'vue'
+import { prefersReducedMotion } from '@shared/motion/prefersReducedMotion.ts'
 import Icon from '@ui/Icon.vue'
 import BrushSplash from '@ui/BrushSplash.vue'
 import BrushButton from '@ui/BrushButton.vue'
@@ -20,6 +21,7 @@ const props = withDefaults(
     scrollLabel: string
     tagline?: string
     kicker?: string
+    splashLabel?: string
     photoSrc?: string
     logoSrc?: string
   }>(),
@@ -27,6 +29,7 @@ const props = withDefaults(
     variant: 'classic',
     tagline: 'Kit de UI · portal en construcción · placeholders honestos',
     kicker: 'por el parche',
+    splashLabel: 'paolabiker.com',
     logoSrc: '/kit-assets/logo.png',
   },
 )
@@ -35,6 +38,37 @@ const slots = useSlots()
 const photoStyle = computed(() =>
   props.photoSrc ? { backgroundImage: `url("${props.photoSrc}")` } : undefined,
 )
+
+const TILT_MAX = 6
+const panelTilting = ref(false)
+const panelRotate = ref({ x: 0, y: 0 })
+const panelShine = ref({ x: 50, y: 50 })
+const panelTiltStyle = computed(() => ({
+  transform: `rotateX(${panelRotate.value.x}deg) rotateY(${panelRotate.value.y}deg)`,
+  '--tilt-mx': `${panelShine.value.x}%`,
+  '--tilt-my': `${panelShine.value.y}%`,
+}))
+
+function onPanelMove(event: PointerEvent): void {
+  if (event.pointerType === 'touch' || prefersReducedMotion()) return
+  const el = event.currentTarget
+  if (!(el instanceof HTMLElement)) return
+  const box = el.getBoundingClientRect()
+  if (box.width < 1 || box.height < 1) return
+  const px = (event.clientX - box.left) / box.width
+  const py = (event.clientY - box.top) / box.height
+  const nx = px * 2 - 1
+  const ny = py * 2 - 1
+  panelTilting.value = true
+  panelRotate.value = { x: -(ny * TILT_MAX), y: nx * TILT_MAX }
+  panelShine.value = { x: px * 100, y: py * 100 }
+}
+
+function onPanelLeave(): void {
+  panelTilting.value = false
+  panelRotate.value = { x: 0, y: 0 }
+  panelShine.value = { x: 50, y: 50 }
+}
 </script>
 
 <template>
@@ -88,7 +122,7 @@ const photoStyle = computed(() =>
             </svg>
           </div>
 
-          <BrushSplash label="paolabiker.com" class="kit-hero__url kit-hero__anim" />
+          <BrushSplash :label="splashLabel" class="kit-hero__url kit-hero__anim" />
 
           <div class="kit-hero__copy">
             <p class="kit-hero__tagline kit-hero__anim">{{ tagline }}</p>
@@ -111,9 +145,23 @@ const photoStyle = computed(() =>
           </div>
         </div>
 
-        <aside v-if="variant === 'portal'" class="kit-hero__panel kit-hero__anim kit-hero__anim--panel" aria-label="Corte del día">
-          <slot name="panel" />
-        </aside>
+        <div
+          v-if="variant === 'portal'"
+          class="kit-hero__panel-stage kit-hero__anim kit-hero__anim--panel"
+        >
+          <slot name="deck">
+            <aside
+              class="kit-hero__panel"
+              :class="{ 'is-tilting': panelTilting }"
+              :style="panelTiltStyle"
+              aria-label="Hoy"
+              @pointermove="onPanelMove"
+              @pointerleave="onPanelLeave"
+            >
+              <slot name="panel" />
+            </aside>
+          </slot>
+        </div>
       </div>
 
       <footer v-if="variant === 'portal'" class="kit-hero__footer kit-hero__anim">

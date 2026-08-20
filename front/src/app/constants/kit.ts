@@ -67,15 +67,15 @@ export const ADMIN_COPY = {
 } as const
 
 export const FEED_COPY = {
-  title: 'Feed del parche',
-  lead: 'Las publicaciones salen de la más nueva a la más vieja. Lo urgente del día a día sigue en WhatsApp. Paola crea las comunidades desde Admin.',
-  communitiesEmpty: 'Todavía no hay comunidades en la web. Cuando Paola publique una, aparece aquí.',
-  feedEmptyTitle: 'Todavía no hay publicaciones',
-  feedEmpty: 'Cuando alguien publique en una comunidad, se ve aquí.',
+  title: 'Publicaciones',
+  lead: 'Lo más reciente. Si algo urge, el grupo de WhatsApp.',
+  communitiesEmpty: 'Aún no hay comunidades.',
+  feedEmptyTitle: 'Aún no hay publicaciones',
+  feedEmpty: 'Aún no hay publicaciones.',
   joinFail: 'No se pudo unir.',
   followFail: 'No se pudo seguir.',
-  joinNeedAccount: 'Entra a tu cuenta para unirte. El sitio se puede mirar igual sin login.',
-  followNeedAccount: 'Entra a tu cuenta para seguir. WhatsApp no se apaga.',
-  joined: 'Ya estás en esa comunidad en la web. Si hay grupo de WhatsApp, es otro canal.',
-  followed: 'Ahora sigues esa comunidad en la web.',
+  joinNeedAccount: 'Entra a tu cuenta para unirte. Puedes mirar el sitio sin registrarte.',
+  followNeedAccount: 'Entra a tu cuenta para seguir.',
+  joined: 'Ya estás en la comunidad. El grupo de WhatsApp, si hay, es aparte.',
+  followed: 'Ahora sigues esa comunidad.',
 } as const

@@ -16,7 +16,7 @@ describe('ListServices', () => {
   it('deja hueco honesto si no hay ficha de lavado', () => {
     const board = new ListServices(new InMemoryServiceCatalog()).execute()
     expect(board.items).toHaveLength(0)
-    expect(board.emptyCopy).toMatch(/no en la estantería de gorras/)
+    expect(board.emptyCopy).toMatch(/lavado/)
     expect(board.warrantyCopy).toMatch(/se corrige/)
     expect(board.warrantyCopy).not.toMatch(/defectos de fabricación/)
     expect(board.zoneCopy).toMatch(/Bogotá y Soacha/)

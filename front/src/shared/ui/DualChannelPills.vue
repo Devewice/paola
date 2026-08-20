@@ -5,8 +5,8 @@ withDefaults(
     wa?: string
   }>(),
   {
-    web: '● Hogar web',
-    wa: 'W Grupo WA opcional',
+    web: 'Web',
+    wa: 'WhatsApp',
   },
 )
 </script>

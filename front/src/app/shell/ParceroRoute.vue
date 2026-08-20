@@ -62,7 +62,7 @@ async function load(): Promise<void> {
 
 async function follow(): Promise<void> {
   if (!parcero.value || !sessionId.value) {
-    error.value = 'Entra a tu cuenta para seguir. WhatsApp no se apaga.'
+    error.value = copy.followNeedAccount
     return
   }
   const response = await fetch(apiUserFollow(parcero.value.id), {
@@ -74,12 +74,12 @@ async function follow(): Promise<void> {
     error.value = 'No se pudo seguir.'
     return
   }
-  notice.value = 'Sigues a este parcero en web. No se filtra WhatsApp.'
+  notice.value = copy.followed
 }
 
 async function requestFriend(): Promise<void> {
   if (!parcero.value || !sessionId.value) {
-    error.value = 'Entra a tu cuenta para agregar amigo.'
+    error.value = copy.friendNeedAccount
     return
   }
   const response = await fetch(API.FRIEND_REQUEST, {
@@ -92,7 +92,7 @@ async function requestFriend(): Promise<void> {
     error.value = body.detail ?? 'No se pudo agregar amigo.'
     return
   }
-  notice.value = 'Solicitud enviada. El número de WhatsApp no se comparte.'
+  notice.value = copy.friendSent
 }
 </script>
 
