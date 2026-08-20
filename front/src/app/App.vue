@@ -60,12 +60,10 @@ const footerContact = computed(() => [
     >
       <template #widget="{ item }">
         <MegaPeek
-          v-if="item.label === 'Inicio' || item.label === 'Parchese'"
+          v-if="item.label === 'Parchese'"
           kicker="Próxima"
           :title="board.next?.title ?? 'Sin fecha'"
           :meta="board.next ? `${board.next.date} · ${board.next.point}` : board.nextEmptyCopy"
-          :value="item.label === 'Inicio' ? (board.totalKm !== null ? String(board.totalKm) : '—') : undefined"
-          :value-label="item.label === 'Inicio' ? 'kilómetros' : undefined"
           :image-src="board.memory?.photoSrc"
           :to="APP_PATHS.PARCHESE"
           :cta="item.cta"

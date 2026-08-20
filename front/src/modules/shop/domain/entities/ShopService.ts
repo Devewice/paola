@@ -5,6 +5,7 @@ export type ShopService = {
   readonly handoverText: string
   readonly turnaroundText: string
   readonly priceCop: number | null
+  readonly createdAt?: string
 }
 
 export type ServiceDraft = {

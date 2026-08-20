@@ -17,7 +17,7 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 
 | Componente | Para qué | Props / slots clave |
 |---|---|---|
-| `MegaHeader` | Header del portal: logo, 5 pestañas, panel overlay (no empuja el hero) | `items`, `whatsapp`, `accountTo`, slot `widget` |
+| `MegaHeader` | Header del portal: logo, pestañas; megamenú solo si el ítem trae `columns` (chevron) | `items`, `whatsapp`, `accountTo`, slot `widget` |
 | `MegaPeek` | Widget del mega menú (próxima, tip, km) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
 | `MegaFooter` | Columnas de enlaces del pie (kit/demo) | `columns: { title, links[{ label, to?, href? }] }` |
 | `SiteFooter` | Pie del portal: crest, columnas, suscripción, alianzas | `columns`, `copy`, `alliances`, `subscribeMail`, … |
@@ -37,7 +37,9 @@ Clases kit (no son Vue): `.wrap` ancho de contenido · `.stack` columna con gap 
 
 ## Marca / afiche / brocha
 
-`BrushButton` CTA afiche (texto blanco, Montserrat 800) · `BrushSplash` mancha + label · `BrushBanner` / `KitBrushBanner` · `BrushDivider` / `KitBrushDivider` · `BrushPlate` · `AficheBlock` marco afiche · `AficheMiniDemo` `AficheAnapoimaDemo` `AficheCumpleDemo` `AficheRefs` solo kit · `VoiceBadge` Loigca/Incauta/Armargura · `VoiceCard` · `PaolaBlock` · `Mascot3d` cámara GL/OBJ · `MascotFlash` poses 360 + destello
+`BrushButton` CTA afiche (texto blanco, Montserrat 800) · `BrushSplash` mancha + label · `BrushBanner` / `KitBrushBanner` · `BrushDivider` / `KitBrushDivider` · `BrushPlate` · `AficheBlock` marco afiche · `AficheMiniDemo` `AficheAnapoimaDemo` `AficheCumpleDemo` `AficheRefs` solo kit · `VoiceBadge` Loigca/Incauta/Armargura · `VoiceCard` · `PaolaBlock` · `Mascot3d` cámara GLB/Draco · `MascotFlash` poses 360 + destello
+
+Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 ## Botones, chips, iconos
 
@@ -57,7 +59,7 @@ Clases kit (no son Vue): `.wrap` ancho de contenido · `.stack` columna con gap 
 
 ## Tienda
 
-`ProductCard` `ProductRow` `ShopFicha` `ProdGallery` `ShelfHeader` `ShelfDivider` · `ServiceCard` `ServiceFicha` · `CartPanel` `OrderSummary` `CheckoutSteps` `PayPicker` `WaOrder` `Receipt` · `DeliveryZones` `ZoneBadge` `HoursTable` `SpecTable`
+`ProductCard` `ProductRow` `DealSpotlight` `ShopFicha` `ProdGallery` `ShelfHeader` `ShelfDivider` · `ServiceCard` `ServiceFicha` · `CartPanel` `OrderSummary` `CheckoutSteps` `PayPicker` `WaOrder` `Receipt` · `DeliveryZones` `ZoneBadge` `HoursTable` `SpecTable`
 
 ## Social / feed / cuenta
 

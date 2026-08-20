@@ -8,6 +8,10 @@ export type Product = {
   readonly priceCop: number | null
   readonly stock: number | null
   readonly photoSrc?: string
+  readonly color?: string
+  readonly size?: string
+  readonly category?: string
+  readonly createdAt?: string
 }
 
 export type ProductDraft = {
@@ -17,6 +21,7 @@ export type ProductDraft = {
   readonly priceCop?: number | null
   readonly stock?: number | null
   readonly photoSrc?: string
+  readonly category?: string
 }
 
 export type ShopShelves = {

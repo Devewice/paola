@@ -31,6 +31,10 @@ import {
   InMemoryProductCatalog,
   InMemoryServiceCatalog,
   InMemoryServiceOrderApi,
+  HttpPaymentsApi,
+  InMemoryPaymentsApi,
+  HttpMysteryDeckApi,
+  InMemoryMysteryDeckApi,
   type ShopModule,
 } from '@modules/shop/index.ts'
 import type { ProductCatalogPort } from '@modules/shop/domain/ports/ProductCatalogPort.ts'
@@ -99,6 +103,8 @@ function wire(
       email: contact.email,
       whatsappHref: contact.whatsapp.href,
     },
+    ordersMode === 'http' ? new HttpPaymentsApi() : new InMemoryPaymentsApi(),
+    ordersMode === 'http' ? new HttpMysteryDeckApi() : new InMemoryMysteryDeckApi(),
   )
   const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, voice, paola))
   dependencies = { paola, club, rides, voice, shop, home }

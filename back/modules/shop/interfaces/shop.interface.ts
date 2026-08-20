@@ -8,6 +8,10 @@ export interface Product {
   priceCop: number | null
   stock: number | null
   photoSrc?: string
+  color?: string
+  size?: string
+  category?: string
+  createdAt?: string
 }
 
 export interface ShopService {
@@ -17,4 +21,5 @@ export interface ShopService {
   handoverText: string
   turnaroundText: string
   priceCop: number | null
+  createdAt?: string
 }

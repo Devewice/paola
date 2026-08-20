@@ -1,4 +1,4 @@
-import { SHOP_KIND, SHOP_LIMITS } from '@modules/shop/constants/copy.ts'
+import { SHOP_CATEGORY, SHOP_KIND, SHOP_LIMITS } from '@modules/shop/constants/copy.ts'
 import type { Product, ProductKind } from '@modules/shop/domain/entities/Product.ts'
 
 const KINDS = new Set<ProductKind>([SHOP_KIND.OWN, SHOP_KIND.COLLAB])
@@ -14,6 +14,26 @@ function optionalCount(value: unknown): number | null | 'bad' {
   const n = Number(value)
   if (!Number.isInteger(n) || n < SHOP_LIMITS.COUNT_MIN) return 'bad'
   return n
+}
+
+function optionalLabel(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const label = value.trim()
+  return label.length > 0 ? label : undefined
+}
+
+const CATEGORIES = new Set<string>(Object.values(SHOP_CATEGORY))
+
+function optionalCategory(value: unknown): string | undefined {
+  const label = optionalLabel(value)
+  if (!label || !CATEGORIES.has(label)) return undefined
+  return label
+}
+
+function optionalTime(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined
+  const ms = Date.parse(value)
+  return Number.isNaN(ms) ? undefined : new Date(ms).toISOString()
 }
 
 export function parseProduct(raw: unknown): Product | null {
@@ -36,6 +56,10 @@ export function parseProduct(raw: unknown): Product | null {
     priceCop,
     stock,
     photoSrc: optionalHref(row.photoSrc),
+    color: optionalLabel(row.color),
+    size: optionalLabel(row.size),
+    category: optionalCategory(row.category),
+    createdAt: optionalTime(row.createdAt),
   }
 }
 

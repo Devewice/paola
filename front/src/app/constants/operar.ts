@@ -1,0 +1,27 @@
+export const OPERAR_CLAVE_STORAGE_KEY = 'paola_operador_clave'
+
+export const OPERAR_COPY = {
+  kicker: 'Operar',
+  title: 'Admin',
+  lead: 'Publicas el oficio desde acá. La pasarela se arma con el asistente; WhatsApp no se apaga.',
+  claveLabel: 'Clave de operadora',
+  enter: 'Entrar',
+  unlockFail: 'Esa clave no entra.',
+  kitCta: 'Ver componentes',
+  sectionPasarela: 'Pasarela',
+  sectionMystery: 'Mazo misterioso',
+  mysteryTitle: 'Mazo misterioso',
+  mysteryLead: 'Cuántas cartas salen en el hero de Tienda, qué productos llevan y el cupón de cada una.',
+  mysteryEnabled: 'Mostrar mazo en Tienda',
+  mysteryDeckSize: 'Cartas visibles',
+  mysteryAdd: 'Agregar carta',
+  mysteryProduct: 'Producto',
+  mysteryCoupon: 'Cupón',
+  mysteryActive: 'Activa',
+  mysterySave: 'Guardar mazo',
+  mysterySaved: 'Mazo guardado.',
+  mysteryFail: 'No se pudo guardar el mazo.',
+  mysteryLoadFail: 'No se pudo cargar el mazo.',
+  mysteryEmptyProducts: 'Publica productos antes de armar cartas.',
+  mysteryRemove: 'Quitar',
+} as const

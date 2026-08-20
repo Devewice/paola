@@ -9,9 +9,13 @@ import type { ProductCatalogPort } from '@modules/shop/domain/ports/ProductCatal
 import type { ServiceCatalogPort } from '@modules/shop/domain/ports/ServiceCatalogPort.ts'
 import type { ShopWritePort } from '@modules/shop/domain/ports/ShopWritePort.ts'
 import type { ServiceOrderApiPort } from '@modules/shop/domain/ports/ServiceOrderApiPort.ts'
+import type { PaymentPort } from '@modules/shop/domain/ports/PaymentPort.ts'
+import type { MysteryDeckPort } from '@modules/shop/domain/ports/MysteryDeckPort.ts'
 import type { AppError } from '@core/errors/AppError.ts'
-import type { Result } from '@core/result.ts'
+import { ok, type Result } from '@core/result.ts'
 import type { ServiceOrder, ServiceOrderDraft } from '@modules/shop/domain/entities/ServiceOrder.ts'
+import type { CheckoutDraft, CheckoutSession } from '@modules/shop/domain/entities/Payment.ts'
+import { PAYMENT_HUMAN } from '@modules/shop/constants/payments.ts'
 
 export type ShopModule = {
   getShelves: () => ReturnType<ListShelves['execute']>
@@ -23,6 +27,15 @@ export type ShopModule = {
   publishService: ShopWritePort['publishService']
   createServiceOrder: (draft: ServiceOrderDraft) => Promise<Result<{ order: ServiceOrder; notice: { whatsappHref: string } }, AppError>>
   listOperatorOrders: (clave: string) => ReturnType<ListOperatorOrders['execute']>
+  listPaymentMethods: PaymentPort['listMethods']
+  listOperatorGateways: PaymentPort['listOperatorGateways']
+  savePaymentWizard: PaymentPort['saveWizard']
+  testPaymentGateway: PaymentPort['testGateway']
+  createCheckout: (draft: CheckoutDraft) => Promise<Result<CheckoutSession, AppError>>
+  loadMysteryDeck: MysteryDeckPort['loadDeck']
+  revealMysteryCard: MysteryDeckPort['revealCard']
+  loadOperatorMystery: MysteryDeckPort['loadOperator']
+  saveOperatorMystery: MysteryDeckPort['saveOperator']
 }
 
 export function createShopModule(
@@ -31,6 +44,8 @@ export function createShopModule(
   write: ShopWritePort,
   orders: ServiceOrderApiPort,
   contact: ShopContact,
+  payments: PaymentPort,
+  mystery: MysteryDeckPort,
 ): ShopModule {
   const listShelves = new ListShelves(catalog)
   const getProduct = new GetProduct(catalog)
@@ -49,5 +64,22 @@ export function createShopModule(
     publishService: (draft, clave) => write.publishService(draft, clave),
     createServiceOrder: (draft) => createServiceOrder.execute({ ...draft }),
     listOperatorOrders: (clave) => listOperatorOrders.execute(clave),
+    listPaymentMethods: () => payments.listMethods(),
+    listOperatorGateways: (clave) => payments.listOperatorGateways(clave),
+    savePaymentWizard: (gateways, clave) => payments.saveWizard(gateways, clave),
+    testPaymentGateway: (provider, clave) => payments.testGateway(provider, clave),
+    createCheckout: async (draft) => {
+      const result = await payments.createCheckout(draft)
+      if (!result.ok) return result
+      const session = result.value
+      if (session.status === 'redirect' && session.checkoutUrl) return ok(session)
+      const href =
+        draft.method === PAYMENT_HUMAN.MAIL ? `mailto:${contact.email}` : contact.whatsappHref
+      return ok({ ...session, href })
+    },
+    loadMysteryDeck: (sessionId) => mystery.loadDeck(sessionId),
+    revealMysteryCard: (cardId, sessionId) => mystery.revealCard(cardId, sessionId),
+    loadOperatorMystery: (clave) => mystery.loadOperator(clave),
+    saveOperatorMystery: (clave, draft) => mystery.saveOperator(clave, draft),
   }
 }

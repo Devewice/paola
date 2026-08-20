@@ -5,7 +5,19 @@ import { toProduct, toService } from '../schemas/shop.schema.js'
 
 export async function findProducts(): Promise<Product[]> {
   const rows = await getDb()(SHOP_TABLES.PRODUCTS)
-    .select('id', 'title', 'description', 'kind', 'price_cop', 'stock', 'photo_src')
+    .select(
+      'id',
+      'title',
+      'description',
+      'kind',
+      'price_cop',
+      'stock',
+      'photo_src',
+      'color',
+      'size',
+      'category',
+      'created_at',
+    )
     .orderBy('created_at', 'desc')
   return rows.map((row) => toProduct(row as Record<string, unknown>))
 }
@@ -19,12 +31,15 @@ export async function insertProduct(product: Product): Promise<void> {
     price_cop: product.priceCop,
     stock: product.stock,
     photo_src: product.photoSrc ?? null,
+    color: product.color ?? null,
+    size: product.size ?? null,
+    category: product.category ?? null,
   })
 }
 
 export async function findServices(): Promise<ShopService[]> {
   const rows = await getDb()(SHOP_TABLES.SERVICES)
-    .select('id', 'title', 'includes_text', 'handover_text', 'turnaround_text', 'price_cop')
+    .select('id', 'title', 'includes_text', 'handover_text', 'turnaround_text', 'price_cop', 'created_at')
     .orderBy('created_at', 'desc')
   return rows.map((row) => toService(row as Record<string, unknown>))
 }

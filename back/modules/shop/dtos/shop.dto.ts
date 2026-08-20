@@ -7,6 +7,9 @@ export interface CreateProductDto {
   priceCop: number | null
   stock: number | null
   photoSrc?: string
+  color?: string
+  size?: string
+  category?: string
 }
 
 export interface CreateServiceDto {

@@ -41,3 +41,28 @@ export { HttpShopApi } from '@modules/shop/infrastructure/HttpShopApi.ts'
 export { HttpShopOrdersApi } from '@modules/shop/infrastructure/HttpShopOrdersApi.ts'
 export { parseProduct, parseProductList } from '@modules/shop/infrastructure/parseProduct.ts'
 export { parseService, parseServiceList } from '@modules/shop/infrastructure/parseService.ts'
+export type { PaymentPort } from '@modules/shop/domain/ports/PaymentPort.ts'
+export type {
+  CheckoutDraft,
+  CheckoutSession,
+  GatewayTest,
+  OperatorGateway,
+  PaymentMethod,
+  WizardGatewayDraft,
+} from '@modules/shop/domain/entities/Payment.ts'
+export {
+  PAYMENT_CATALOG,
+  PAYMENT_COPY,
+  PAYMENT_HUMAN,
+  PAYMENT_PROVIDER,
+} from '@modules/shop/constants/payments.ts'
+export { HttpPaymentsApi } from '@modules/shop/infrastructure/HttpPaymentsApi.ts'
+export { InMemoryPaymentsApi } from '@modules/shop/infrastructure/InMemoryPaymentsApi.ts'
+export { HttpMysteryDeckApi } from '@modules/shop/infrastructure/HttpMysteryDeckApi.ts'
+export { InMemoryMysteryDeckApi } from '@modules/shop/infrastructure/InMemoryMysteryDeckApi.ts'
+export type { MysteryDeckPort } from '@modules/shop/domain/ports/MysteryDeckPort.ts'
+export type {
+  MysteryDeck,
+  MysteryDeckCard,
+  MysteryOperatorConfig,
+} from '@modules/shop/domain/entities/MysteryDeck.ts'

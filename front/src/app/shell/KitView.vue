@@ -151,6 +151,7 @@ import LoadingRow from '@ui/LoadingRow.vue'
 import LoginStrip from '@ui/LoginStrip.vue'
 import MapBlock from '@ui/MapBlock.vue'
 import MapStatic from '@ui/MapStatic.vue'
+import Mascot3d from '@ui/Mascot3d.vue'
 import MascotBubble from '@ui/MascotBubble.vue'
 import MascotEmpty from '@ui/MascotEmpty.vue'
 import MemoryLayout from '@ui/MemoryLayout.vue'
@@ -186,6 +187,7 @@ import OtpRow from '@ui/OtpRow.vue'
 import Pager from '@ui/Pager.vue'
 import PagerText from '@ui/PagerText.vue'
 import PaolaPageDemo from '@ui/PaolaPageDemo.vue'
+import PageVacant from '@ui/PageVacant.vue'
 import PageNav from '@ui/PageNav.vue'
 import ParticipantRow from '@ui/ParticipantRow.vue'
 import ParcheseActivity from '@ui/ParcheseActivity.vue'
@@ -949,8 +951,34 @@ const userPanelPanels = [
 
 const integrantesSlots = ['+', '·', '·', '·', '·', '·'] as const
 
+const mascotFramePreviews = [
+  '/mascota/frames/mascot_enter_u0.55.png',
+  '/mascota/frames/mascot_sides_u0.55.png',
+  '/mascota/frames/mascot_peek_u0.55.png',
+  '/mascota/frames/mascot_curious_u0.55.png',
+  '/mascota/frames/mascot_back_u0.55.png',
+  '/mascota/frames/mascot_peace_u0.55.png',
+] as const
+
+const kitUsageEntries = ref<Array<{ name: string; count: number }>>([])
+
+async function loadKitUsageEntries(): Promise<void> {
+  try {
+    const res = await fetch('/__kit-usage-counts', { headers: { accept: 'application/json' } })
+    if (!res.ok) return
+    const data = (await res.json()) as { counts?: Record<string, number> }
+    const counts = data.counts ?? {}
+    kitUsageEntries.value = Object.entries(counts)
+      .map(([name, count]) => ({ name, count: Number(count) || 0 }))
+      .sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name))
+  } catch {
+    kitUsageEntries.value = []
+  }
+}
+
 
 onMounted(async () => {
+  await loadKitUsageEntries()
   try {
     if (document.fonts?.ready) await document.fonts.ready
   } catch {
@@ -1359,10 +1387,37 @@ onMounted(async () => {
             <Empty title="Sin rodadas aún" copy="Próximamente Paola anuncia la siguiente salida." glyph="◎" cta-label="Próximamente" compact />
           </Card>
           <Card>
+            <h3 class="kit">Página en construcción</h3>
+            <p class="sm" style="color:var(--muted);margin:0 0 12px">
+              Traza del componente <code>PageVacant</code> usado por rutas reservadas.
+            </p>
+            <PageVacant title="Tu voz" />
+          </Card>
+          <Card>
             <h3 class="kit">Skeleton (carga)</h3>
             <Skeleton kind="card" />
             <Skeleton width="w60" />
             <Skeleton width="w40" />
+          </Card>
+          <Card style="grid-column:1/-1">
+            <h3 class="kit">Mascota 3D + frames exportados</h3>
+            <p class="sm" style="color:var(--muted);margin:0 0 12px">
+              Referencia de la cámara en pose viva (<code>Mascot3d</code>) y sprites PNG para reutilizar luego.
+            </p>
+            <div style="width:min(260px,72vw);height:min(260px,72vw);border-radius:20px;overflow:hidden;border:1px solid rgba(72,180,252,.45);margin-bottom:14px">
+              <Mascot3d />
+            </div>
+            <div class="row" style="gap:8px">
+              <img
+                v-for="frameSrc in mascotFramePreviews"
+                :key="frameSrc"
+                :src="frameSrc"
+                alt="Frame de la mascota 3D"
+                width="120"
+                height="120"
+                style="border-radius:10px;border:1px solid rgba(72,180,252,.35);background:#05070c;object-fit:cover"
+              />
+            </div>
           </Card>
           <Card style="grid-column:1/-1">
             <h3 class="kit">Pasos — flujo ticket / pedido</h3>
@@ -1572,6 +1627,47 @@ onMounted(async () => {
         <p class="sm" style="color:var(--muted);margin:-8px 0 28px">
           Más piezas para Inicio, Parchese, Tienda, Tu voz, panel y mobile. Demos donde falte contenido real.
         </p>
+
+        <Card style="margin-bottom:24px">
+          <h3 class="kit">Contador de uso — componentes `@ui/*`</h3>
+          <p class="sm" style="color:var(--muted);margin:0 0 14px">
+            Badge rojo: solo se ve en este catálogo · Badge verde: también se importa en otras vistas.
+          </p>
+          <div
+            class="row"
+            style="max-height:320px;overflow:auto;flex-wrap:wrap;gap:8px;padding:10px;border-radius:12px;border:1px solid rgba(26,42,64,.55)"
+          >
+            <p v-if="!kitUsageEntries.length" class="meta" style="margin:0">
+              No se pudo cargar el contador en este momento.
+            </p>
+            <span
+              v-for="item in kitUsageEntries"
+              :key="item.name"
+              style="display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;border:1px solid rgba(72,180,252,.22);background:rgba(5,7,12,.35)"
+            >
+              <span
+                :style="{
+                  width: '22px',
+                  height: '22px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '999px',
+                  fontWeight: 800,
+                  fontSize: '13px',
+                  border: item.count === 0 ? '1px solid rgba(226,59,74,.45)' : '1px solid rgba(61,220,151,.35)',
+                  color: item.count === 0 ? '#e23b4a' : '#3ddc97',
+                  background: item.count === 0 ? 'rgba(226,59,74,.15)' : 'rgba(61,220,151,.12)',
+                }"
+              >
+                {{ item.count }}
+              </span>
+              <span style="font-size:13px;color:var(--paola-white);opacity:.92;white-space:nowrap">
+                {{ item.name }}
+              </span>
+            </span>
+          </div>
+        </Card>
 
         <h3 class="kit">Inicio y marca</h3>
         <NoticeBar kicker="Nuevo" text="Próxima rodada — fecha por confirmar · cupo limitado" />

@@ -27,6 +27,9 @@ export function parseCreateProduct(draft: Record<string, unknown>): Parsed<Creat
   const description = String(draft.description ?? '').trim()
   const kindRaw = String(draft.kind ?? '').trim()
   const photoSrc = optionalText(draft.photoSrc)
+  const color = optionalText(draft.color)
+  const size = optionalText(draft.size)
+  const category = optionalText(draft.category)
   const price = parseOptionalCount(draft.priceCop)
   const stock = parseOptionalCount(draft.stock)
 
@@ -55,6 +58,9 @@ export function parseCreateProduct(draft: Record<string, unknown>): Parsed<Creat
       priceCop: price.value,
       stock: stock.value,
       photoSrc,
+      color,
+      size,
+      category,
     },
   }
 }
@@ -94,6 +100,15 @@ export function parseCreateService(draft: Record<string, unknown>): Parsed<Creat
   }
 }
 
+export function toIso(value: unknown): string | undefined {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString()
+  if (typeof value === 'string' && value.trim()) {
+    const date = new Date(value)
+    if (!Number.isNaN(date.getTime())) return date.toISOString()
+  }
+  return undefined
+}
+
 export function toProduct(row: Record<string, unknown>): Product {
   const rawKind = String(row.kind)
   const price = row.price_cop
@@ -106,6 +121,10 @@ export function toProduct(row: Record<string, unknown>): Product {
     priceCop: price === null || price === undefined ? null : Number(price),
     stock: stock === null || stock === undefined ? null : Number(stock),
     photoSrc: optionalText(row.photo_src),
+    color: optionalText(row.color),
+    size: optionalText(row.size),
+    category: optionalText(row.category),
+    createdAt: toIso(row.created_at),
   }
 }
 
@@ -118,5 +137,6 @@ export function toService(row: Record<string, unknown>): ShopService {
     handoverText: String(row.handover_text),
     turnaroundText: String(row.turnaround_text),
     priceCop: price === null || price === undefined ? null : Number(price),
+    createdAt: toIso(row.created_at),
   }
 }

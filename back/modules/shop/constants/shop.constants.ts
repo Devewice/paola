@@ -13,6 +13,11 @@ export const SHOP_LIMITS = {
 export const SHOP_TABLES = {
   PRODUCTS: 'products',
   SERVICES: 'services',
+  MYSTERY_SETTINGS: 'shop_mystery_settings',
+  MYSTERY_CARDS: 'shop_mystery_cards',
+  MYSTERY_REVEALS: 'shop_mystery_reveals',
+  USERS: 'users',
+  SESSIONS: 'sessions',
 } as const
 
 export const SHOP_ROUTES = {
@@ -20,6 +25,9 @@ export const SHOP_ROUTES = {
   CREATE: '/api/operar/products',
   SERVICES: '/api/services',
   CREATE_SERVICE: '/api/operar/services',
+  MYSTERY_DECK: '/api/shop/mystery-deck',
+  MYSTERY_REVEAL: '/api/shop/mystery-deck/reveal',
+  OPERAR_MYSTERY: '/api/operar/shop/mystery',
 } as const
 
 export const SHOP_MESSAGES = {
@@ -32,4 +40,16 @@ export const SHOP_MESSAGES = {
   INCLUDES_REQUIRED: 'Di qué incluye el lavado.',
   HANDOVER_REQUIRED: 'Di cómo se entrega el casco.',
   TURNAROUND_REQUIRED: 'Di cuánto tarda el trabajo.',
+  MYSTERY_SESSION: 'Regístrate para revelar la pieza.',
+  MYSTERY_CARD_MISSING: 'Esa carta no está.',
+  MYSTERY_DISABLED: 'El mazo misterioso está apagado.',
+  MYSTERY_DECK_SIZE: 'El mazo lleva entre 1 y 8 cartas.',
+  MYSTERY_PRODUCT: 'Cada carta necesita un producto del aparador.',
+  MYSTERY_COUPON: 'Cada carta necesita un cupón.',
+} as const
+
+export const SHOP_MYSTERY_LIMITS = {
+  DECK_MIN: 1,
+  DECK_MAX: 8,
+  DECK_DEFAULT: 3,
 } as const

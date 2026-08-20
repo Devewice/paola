@@ -38,6 +38,8 @@ export const API = {
   CHATS: '/api/chats',
   PRODUCTS: '/api/products',
   SERVICES: '/api/services',
+  SHOP_MYSTERY_DECK: '/api/shop/mystery-deck',
+  SHOP_MYSTERY_REVEAL: '/api/shop/mystery-deck/reveal',
   ALLIANCES: '/api/alliances',
   MEMBERS: '/api/members',
   ORDERS: '/api/orders',
@@ -51,6 +53,11 @@ export const API = {
   OPERAR_FINES: '/api/operar/fines',
   OPERAR_REPORTS: '/api/operar/reports',
   OPERAR_COMMUNITIES: '/api/operar/communities',
+  OPERAR_SHOP_MYSTERY: '/api/operar/shop/mystery',
+  PAYMENTS_METHODS: '/api/payments/methods',
+  PAYMENTS_CHECKOUT: '/api/payments/checkout',
+  OPERAR_PAYMENTS: '/api/operar/payments',
+  OPERAR_PAYMENTS_TEST: '/api/operar/payments/test',
 } as const
 
 export function apiOutingTickets(id: string): string {

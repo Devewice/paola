@@ -27,6 +27,9 @@ export async function createProduct(
     priceCop: parsed.value.priceCop,
     stock: parsed.value.stock,
     photoSrc: parsed.value.photoSrc,
+    color: parsed.value.color,
+    size: parsed.value.size,
+    category: parsed.value.category,
   }
   await insertProduct(product)
   return { ok: true, product }

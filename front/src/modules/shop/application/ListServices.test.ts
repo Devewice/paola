@@ -17,7 +17,7 @@ describe('ListServices', () => {
     const board = new ListServices(new InMemoryServiceCatalog()).execute()
     expect(board.items).toHaveLength(0)
     expect(board.emptyCopy).toMatch(/lavado/)
-    expect(board.warrantyCopy).toMatch(/se corrige/)
+    expect(board.warrantyCopy).toMatch(/corregimos/)
     expect(board.warrantyCopy).not.toMatch(/defectos de fabricación/)
     expect(board.zoneCopy).toMatch(/Bogotá y Soacha/)
   })

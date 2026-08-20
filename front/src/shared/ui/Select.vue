@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 const props = defineProps<{
   modelValue: string
+  label?: string
   options: readonly { value: string; label: string; muted?: boolean }[]
 }>()
 
@@ -16,6 +17,7 @@ const current = () => props.options.find((o) => o.value === props.modelValue)?.l
 
 <template>
   <div class="list-select" :class="{ open: open }">
+    <span v-if="label" class="list-select__label">{{ label }}</span>
     <button type="button" class="list-select__trigger" aria-haspopup="listbox" :aria-expanded="open" @click="open = !open">
       <span class="list-select__value">{{ current() }}</span>
       <span class="list-select__chev" aria-hidden="true" />

@@ -47,10 +47,12 @@ const titleParts = computed(() => {
         <Mascot3d />
       </div>
       <h1 class="page-vacant__heading">{{ title }} · {{ kicker }}</h1>
-      <p class="page-vacant__copy">{{ copy }}</p>
-      <div class="page-vacant__actions">
-        <Button :to="APP_PATHS.INICIO">{{ PAGE_VACANT_COPY.ctaHome }}</Button>
-        <Button variant="ghost" :href="contactHref">{{ PAGE_VACANT_COPY.ctaContact }}</Button>
+      <div class="page-vacant__cta">
+        <p class="page-vacant__copy">{{ copy }}</p>
+        <div class="page-vacant__actions">
+          <Button :to="APP_PATHS.INICIO">{{ PAGE_VACANT_COPY.ctaHome }}</Button>
+          <Button variant="ghost" :href="contactHref">{{ PAGE_VACANT_COPY.ctaContact }}</Button>
+        </div>
       </div>
     </div>
   </article>

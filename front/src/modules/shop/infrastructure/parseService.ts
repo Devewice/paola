@@ -14,6 +14,12 @@ function requiredText(value: unknown): string | null {
   return text.length >= SHOP_LIMITS.DESCRIPTION_MIN ? text : null
 }
 
+function optionalTime(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined
+  const ms = Date.parse(value)
+  return Number.isNaN(ms) ? undefined : new Date(ms).toISOString()
+}
+
 export function parseService(raw: unknown): ShopService | null {
   if (!raw || typeof raw !== 'object') return null
   const row = raw as Record<string, unknown>
@@ -32,6 +38,7 @@ export function parseService(raw: unknown): ShopService | null {
     handoverText,
     turnaroundText,
     priceCop,
+    createdAt: optionalTime(row.createdAt),
   }
 }
 

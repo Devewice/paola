@@ -16,41 +16,16 @@ export type MegaColumn = {
 export type MegaNavItem = {
   readonly label: string
   readonly to: string
-  readonly lead: string
-  readonly cta: string
-  readonly columns: readonly MegaColumn[]
+  readonly lead?: string
+  readonly cta?: string
+  /** Si hay columnas, abre megamenú y muestra chevron. */
+  readonly columns?: readonly MegaColumn[]
 }
 
 export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Inicio',
     to: APP_PATHS.INICIO,
-    lead: 'La próxima rodada, los kilómetros y un recorte del parche.',
-    cta: 'Ir al inicio',
-    columns: [
-      {
-        title: 'Hoy',
-        links: [
-          { label: 'Inicio', to: APP_PATHS.INICIO },
-          { label: 'Próxima salida', to: APP_PATHS.PARCHESE },
-          { label: 'Publicaciones', to: APP_PATHS.FEED },
-        ],
-      },
-      {
-        title: 'Parche',
-        links: [
-          { label: 'Parchese', to: APP_PATHS.PARCHESE },
-          { label: 'Feed', to: APP_PATHS.FEED },
-        ],
-      },
-      {
-        title: 'Tu sitio',
-        links: [
-          { label: 'Cuenta', to: APP_PATHS.CUENTA },
-          { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
-        ],
-      },
-    ],
   },
   {
     label: 'Parchese',

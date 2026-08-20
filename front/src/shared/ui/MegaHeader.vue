@@ -65,6 +65,10 @@ const panelColumns = computed((): readonly MegaHeaderColumn[] => {
 
 const panelOpen = computed(() => Boolean(mobileOpen.value || activeItem.value?.columns?.length))
 
+function hasMega(item: MegaHeaderItem): boolean {
+  return Boolean(item.columns?.length)
+}
+
 function isOn(item: MegaHeaderItem): boolean {
   if (item.to === '/') return route.path === '/'
   return route.path === item.to || route.path.startsWith(`${item.to}/`)
@@ -77,7 +81,22 @@ function cancelClose(): void {
 function openPanel(label: string): void {
   cancelClose()
   const item = props.items.find((entry) => entry.label === label)
-  openId.value = item?.columns?.length ? label : null
+  openId.value = item && hasMega(item) ? label : null
+}
+
+function togglePanel(label: string, event: MouseEvent): void {
+  event.preventDefault()
+  event.stopPropagation()
+  cancelClose()
+  openId.value = openId.value === label ? null : label
+}
+
+function onItemEnter(item: MegaHeaderItem): void {
+  if (!hasMega(item)) {
+    scheduleClose()
+    return
+  }
+  openPanel(item.label)
 }
 
 function scheduleClose(): void {
@@ -139,17 +158,29 @@ onUnmounted(() => {
           v-for="item in items"
           :key="item.label"
           class="mega-header__item"
-          @mouseenter="openPanel(item.label)"
+          :class="{ 'has-mega': hasMega(item), 'is-open': openId === item.label }"
+          @mouseenter="onItemEnter(item)"
         >
           <router-link
             :to="item.to"
             class="mega-header__link"
-            :class="{ 'is-on': isOn(item), 'has-panel': Boolean(item.columns?.length) }"
-            :aria-expanded="item.columns?.length ? openId === item.label : undefined"
-            :aria-haspopup="item.columns?.length ? 'true' : undefined"
+            :class="{ 'is-on': isOn(item), 'has-panel': hasMega(item) }"
           >
             {{ item.label }}
           </router-link>
+          <button
+            v-if="hasMega(item)"
+            type="button"
+            class="mega-header__caret-btn"
+            :class="{ 'is-on': isOn(item) }"
+            :aria-label="`Abrir menú de ${item.label}`"
+            :aria-expanded="openId === item.label"
+            aria-haspopup="true"
+            aria-controls="mega-header-panel"
+            @click="togglePanel(item.label, $event)"
+          >
+            <span class="mega-header__caret" aria-hidden="true" />
+          </button>
         </div>
       </nav>
 
