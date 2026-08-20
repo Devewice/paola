@@ -14,7 +14,7 @@ export const MASCOT_FLASH = {
 } as const
 
 export const MASCOT_3D = {
-  obj: '/mascota/3d/camera.obj',
+  model: '/mascota/3d/camera.draco.glb',
   diffuse: '/mascota/3d/diffuse.png',
   metallic: '/mascota/3d/metallic.png',
   roughness: '/mascota/3d/roughness.png',

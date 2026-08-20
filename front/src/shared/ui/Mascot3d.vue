@@ -625,18 +625,18 @@ function paintGlassMaps(
     let og = g
     let ob = b
     if (!lens) {
-      const warm = 1.04
-      or = Math.min(255, r * warm + 4)
-      og = Math.min(255, g * warm + 2)
-      ob = Math.min(255, b * (warm - 0.02))
-      const mid = 168
-      or = Math.min(255, Math.max(0, mid + (or - mid) * 1.14))
-      og = Math.min(255, Math.max(0, mid + (og - mid) * 1.14))
-      ob = Math.min(255, Math.max(0, mid + (ob - mid) * 1.14))
+      const warm = 1.01
+      or = Math.min(255, r * warm + 1)
+      og = Math.min(255, g * warm + 1)
+      ob = Math.min(255, b * warm)
+      const mid = 148
+      or = Math.min(255, Math.max(0, mid + (or - mid) * 1.06))
+      og = Math.min(255, Math.max(0, mid + (og - mid) * 1.06))
+      ob = Math.min(255, Math.max(0, mid + (ob - mid) * 1.06))
     }
 
-    const metal = lens ? 230 : Math.round(bodyMetal * 0.22)
-    const rough = lens ? 14 : Math.round(mix(118, 168, bodyRough / 255) * grain)
+    const metal = lens ? 210 : Math.round(bodyMetal * 0.18)
+    const rough = lens ? 18 : Math.round(mix(98, 198, bodyRough / 255) * grain)
     const coat = lens ? 255 : 0
 
     albedoOut.data[i] = or
@@ -704,7 +704,8 @@ async function boot(): Promise<void> {
 
   try {
     const THREE = await import('three')
-    const { OBJLoader } = await import('three/addons/loaders/OBJLoader.js')
+    const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js')
+    const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js')
     if (dead || !host.value) return
 
     const scene = new THREE.Scene()
@@ -717,7 +718,7 @@ async function boot(): Promise<void> {
     webgl.setClearColor(0x000000, 0)
     webgl.outputColorSpace = THREE.SRGBColorSpace
     webgl.toneMapping = THREE.ACESFilmicToneMapping
-    webgl.toneMappingExposure = 0.96
+    webgl.toneMappingExposure = 0.84
     el.appendChild(webgl.domElement)
     renderer = webgl
 
@@ -727,14 +728,14 @@ async function boot(): Promise<void> {
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
     pmrem.dispose()
 
-    scene.add(new THREE.HemisphereLight(0x88b8e8, 0x001028, 0.62))
-    const key = new THREE.DirectionalLight(0xfff6ee, 0.82)
+    scene.add(new THREE.HemisphereLight(0x88b8e8, 0x001028, 0.54))
+    const key = new THREE.DirectionalLight(0xfff6ee, 0.66)
     key.position.set(1.4, 2.2, 2.4)
     scene.add(key)
-    const rim = new THREE.DirectionalLight(0x48b4fc, 0.38)
+    const rim = new THREE.DirectionalLight(0x48b4fc, 0.28)
     rim.position.set(-2, 0.4, -1.2)
     scene.add(rim)
-    const fill = new THREE.DirectionalLight(0xc8dff5, 0.28)
+    const fill = new THREE.DirectionalLight(0xc8dff5, 0.22)
     fill.position.set(-0.8, 0.6, 2.1)
     scene.add(fill)
 
@@ -752,18 +753,24 @@ async function boot(): Promise<void> {
       metalnessMap: maps.metal,
       roughnessMap: maps.rough,
       clearcoatMap: maps.coat,
-      metalness: 0.72,
+      metalness: 0.54,
       roughness: 0.88,
-      clearcoat: 0.62,
-      clearcoatRoughness: 0.22,
+      clearcoat: 0.34,
+      clearcoatRoughness: 0.34,
       ior: 1.52,
-      iridescence: 0.08,
+      iridescence: 0.03,
       iridescenceIOR: 1.28,
-      envMapIntensity: 0.68,
-      color: new THREE.Color(0xf3ebe2),
+      envMapIntensity: 0.5,
+      color: new THREE.Color(0xe7dccf),
     })
 
-    const object = await new OBJLoader().loadAsync(MASCOT_3D.obj)
+    const dracoLoader = new DRACOLoader()
+    dracoLoader.setDecoderPath('/draco/')
+    const gltfLoader = new GLTFLoader()
+    gltfLoader.setDRACOLoader(dracoLoader)
+    const gltf = await gltfLoader.loadAsync(MASCOT_3D.model)
+    const object = gltf.scene
+    dracoLoader.dispose()
     if (dead) return
     object.traverse((child) => {
       const mesh = child as Mesh
