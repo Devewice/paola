@@ -693,7 +693,7 @@ function canvasTexture(THREE: typeof import('three'), pixels: ImageData): Textur
   canvas.getContext('2d')?.putImageData(pixels, 0, 0)
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.NoColorSpace
-  texture.flipY = true
+  texture.flipY = false
   texture.needsUpdate = true
   return texture
 }
