@@ -843,9 +843,8 @@ async function boot(): Promise<void> {
       let drawScene = false
 
       if (look && player) {
-        const animating = player.animating()
-        if (animating) {
-          const pose = player.pose(t)
+        const pose = player.pose(t)
+        if (player.animating()) {
           const hidden = pose.gone > 0.5
           object.visible = !hidden
           object.rotation.y = pose.yaw
