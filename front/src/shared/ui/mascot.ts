@@ -23,8 +23,8 @@ export const MASCOT_3D = {
     tilt: 0.08,
     from: 0.38,
     to: 0.92,
-    pauseMin: 0.4,
-    pauseMax: 1.6,
+    pauseMin: 0.12,
+    pauseMax: 0.45,
   },
 } as const
 

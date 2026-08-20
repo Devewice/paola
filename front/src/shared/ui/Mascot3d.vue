@@ -104,8 +104,8 @@ function mixPose(a: Pose, b: Pose, k: number): Pose {
 
 function softenClip(pose: Pose, u: number): Pose {
   const rest = restPose()
-  const lead = 0.06
-  const tail = 0.08
+  const lead = 0.03
+  const tail = 0.045
   if (u < lead) {
     return mixPose(rest, pose, applyEase(u / lead, 'soft'))
   }
@@ -182,7 +182,7 @@ function clipSides(u: number, twist: number): Pose {
       beat(0.43, { yaw: 0, pitch: 0.03, hop: 0.008, roll: 0.01, bend: 0 }, 'soft'),
       beat(0.52, { yaw: 0.78, pitch: 0.07, roll: -0.08, hop: 0.014, bend: twist }, 'soft'),
       beat(0.68, { yaw: 0.72, pitch: 0.04, roll: -0.05, bend: twist * 0.75 }, 'soft'),
-      beat(0.86, { yaw: 0.08, pitch: 0.01, roll: -0.01, bend: twist * 0.08 }, 'soft'),
+      beat(0.94, { yaw: 0.04, pitch: 0.005, roll: -0.005, bend: twist * 0.04 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -195,7 +195,7 @@ function clipUp(u: number, twist: number): Pose {
       beat(0, {}, 'soft'),
       beat(0.28, { yaw: 0.1, pitch: -0.48, roll: 0.05, hop: 0.018, bend: twist * 0.55 }, 'soft'),
       beat(0.55, { yaw: 0.08, pitch: -0.44, roll: 0.04, bend: twist * 0.48 }, 'soft'),
-      beat(0.82, { pitch: -0.06, hop: 0.004, bend: twist * 0.1 }, 'soft'),
+      beat(0.94, { pitch: -0.03, hop: 0.002, bend: twist * 0.05 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -213,7 +213,7 @@ function clipBack(u: number, twist: number): Pose {
       beat(0.54, { yaw: back + 0.72, pitch: 0.08, roll: -0.09, hop: 0.016, bend: twist * 0.9 }, 'soft'),
       beat(0.64, { yaw: back - 0.28, pitch: -0.36, roll: -0.04, hop: 0.02, bend: twist * 0.5 }, 'soft'),
       beat(0.74, { yaw: back + 0.34, pitch: 0.12, roll: 0.06, hop: 0.014, bend: -twist * 0.65 }, 'soft'),
-      beat(0.92, { yaw: 0.06, pitch: 0.02, roll: 0.01, hop: 0.003, bend: twist * 0.05 }, 'soft'),
+      beat(0.96, { yaw: 0.03, pitch: 0.01, roll: 0.005, hop: 0.002, bend: twist * 0.03 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -228,7 +228,7 @@ function clipCurious(u: number, twist: number): Pose {
       beat(0.42, { pitch: -0.36, push: 0.28, hop: 0.012, bend: twist * 0.52 }, 'soft'),
       beat(0.58, { pitch: -0.28, push: 0.22, yaw: 0.12, roll: 0.06, bend: twist * 0.4 }, 'soft'),
       beat(0.74, { pitch: -0.1, push: 0.06, yaw: 0.04, roll: 0.02, bend: twist * 0.08 }, 'soft'),
-      beat(0.9, { pitch: -0.02, push: 0.01, yaw: 0.01 }, 'soft'),
+      beat(0.95, { pitch: -0.01, push: 0.005, yaw: 0.005 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -241,7 +241,7 @@ function clipSway(u: number, twist: number): Pose {
       beat(0, {}, 'soft'),
       beat(0.28, { yaw: -0.32, roll: 0.06, hop: 0.01, bend: -twist * 0.38 }, 'soft'),
       beat(0.55, { yaw: 0.32, roll: -0.06, hop: 0.014, bend: twist * 0.38 }, 'soft'),
-      beat(0.82, { yaw: -0.06, roll: 0.01, hop: 0.002, bend: twist * 0.06 }, 'soft'),
+      beat(0.94, { yaw: -0.03, roll: 0.005, hop: 0.001, bend: twist * 0.03 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -256,7 +256,7 @@ function clipPeek(u: number, twist: number): Pose {
       beat(0.4, { x: -0.26, yaw: -0.42, pitch: 0.06, roll: 0.07, bend: -twist * 0.38 }, 'soft'),
       beat(0.49, { x: 0, yaw: 0, pitch: 0.03, roll: 0.01, bend: 0 }, 'soft'),
       beat(0.58, { x: 0.34, yaw: 0.56, pitch: 0.06, roll: -0.1, bend: twist * 0.52 }, 'soft'),
-      beat(0.76, { x: 0.08, yaw: 0.1, pitch: 0.02, roll: -0.02, bend: twist * 0.1 }, 'soft'),
+      beat(0.93, { x: 0.04, yaw: 0.05, pitch: 0.01, roll: -0.01, bend: twist * 0.05 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -270,7 +270,7 @@ function clipDream(u: number, twist: number): Pose {
       beat(0.24, { pitch: -0.32, roll: 0.05, hop: 0.014, bend: twist * 0.42 }, 'soft'),
       beat(0.48, { pitch: -0.46, roll: -0.05, hop: 0.022, bend: twist * 0.58 }, 'soft'),
       beat(0.68, { pitch: -0.36, yaw: 0.14, roll: 0.06, bend: twist * 0.45 }, 'soft'),
-      beat(0.86, { pitch: -0.06, hop: 0.004, yaw: 0.04, roll: 0.01, bend: twist * 0.1 }, 'soft'),
+      beat(0.94, { pitch: -0.03, hop: 0.002, yaw: 0.02, roll: 0.005, bend: twist * 0.05 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -285,7 +285,7 @@ function clipNod(u: number, twist: number): Pose {
       beat(0.3, { pitch: 0.04, hop: 0.004, bend: twist * 0.08 }, 'soft'),
       beat(0.44, { pitch: 0.2, hop: 0.01, bend: twist * 0.24 }, 'soft'),
       beat(0.58, { pitch: 0.04, hop: 0.003, bend: twist * 0.06 }, 'soft'),
-      beat(0.72, { pitch: 0.06, roll: 0.02, bend: twist * 0.08 }, 'soft'),
+      beat(0.94, { pitch: 0.03, roll: 0.01, bend: twist * 0.04 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -298,7 +298,7 @@ function clipPeace(u: number, twist: number): Pose {
       beat(0, {}, 'soft'),
       beat(0.3, { pitch: 0.1, roll: 0.05, hop: -0.014, bend: twist * 0.28, yaw: -0.12 }, 'soft'),
       beat(0.55, { pitch: 0.06, yaw: -0.22, roll: 0.06, hop: -0.02, bend: twist * 0.2 }, 'soft'),
-      beat(0.78, { pitch: 0.02, yaw: 0.06, hop: -0.004, bend: twist * 0.08 }, 'soft'),
+      beat(0.94, { pitch: 0.01, yaw: 0.03, hop: -0.002, bend: twist * 0.04 }, 'soft'),
       beat(1, {}, 'soft'),
     ],
     u,
@@ -307,8 +307,8 @@ function clipPeace(u: number, twist: number): Pose {
 
 function clipJelly(u: number, twist: number): Pose {
   const t = clamp01(u)
-  const fadeIn = clamp01(t / 0.1)
-  const fadeOut = t > 0.88 ? clamp01((1 - t) / 0.12) : 1
+  const fadeIn = clamp01(t / 0.05)
+  const fadeOut = t > 0.93 ? clamp01((1 - t) / 0.07) : 1
   const amp = fadeIn * fadeOut
   const beat = t * Math.PI * 5.4
   const sway = Math.sin(beat)
@@ -333,8 +333,8 @@ function clipJelly(u: number, twist: number): Pose {
 
 function clipEnter(u: number, twist: number): Pose {
   const t = clamp01(u)
-  if (t < 0.72) {
-    const k = clamp01(applyEase(t / 0.72, 'soft'))
+  if (t < 0.78) {
+    const k = clamp01(applyEase(t / 0.78, 'soft'))
     return {
       ...restPose(),
       at: t,
@@ -346,8 +346,8 @@ function clipEnter(u: number, twist: number): Pose {
       ease: 'soft',
     }
   }
-  const k = clamp01(applyEase((t - 0.72) / 0.28, 'soft'))
-  const yawStart = Math.sin(0.72 * 9) * 0.1
+  const k = clamp01(applyEase((t - 0.78) / 0.22, 'soft'))
+  const yawStart = Math.sin(0.78 * 9) * 0.1
   return {
     ...restPose(),
     at: t,
@@ -360,7 +360,7 @@ function clipEnter(u: number, twist: number): Pose {
   }
 }
 
-const ENTRY_CLIP: Clip = { id: 'enter', duration: 2.9, play: clipEnter }
+const ENTRY_CLIP: Clip = { id: 'enter', duration: 2.5, play: clipEnter }
 
 function playClipPose(clip: Clip, progress: number, twist: number): Pose {
   const u = clamp01(progress)
@@ -401,6 +401,12 @@ function shuffleClips(): Clip[] {
   return deck
 }
 
+function pauseUntil(seconds: number, pauseMin: number, pauseMax: number, factor = 1): number {
+  const min = pauseMin * factor
+  const max = pauseMax * factor
+  return seconds + min + Math.random() * Math.max(0, max - min)
+}
+
 function makePlayer(twist: number, pauseMin: number, pauseMax: number): (seconds: number) => Pose {
   const firstRound = shuffleClips()
   let roundIndex = 0
@@ -422,7 +428,7 @@ function makePlayer(twist: number, pauseMin: number, pauseMax: number): (seconds
       const progress = (seconds - playAt) / ENTRY_CLIP.duration
       if (progress >= 1) {
         phase = 'pause'
-        until = seconds + pauseMin + Math.random() * (pauseMax - pauseMin)
+        until = pauseUntil(seconds, pauseMin, pauseMax, 0.35)
         return restPose()
       }
       return playClipPose(ENTRY_CLIP, progress, twist)
@@ -441,7 +447,7 @@ function makePlayer(twist: number, pauseMin: number, pauseMax: number): (seconds
       } else {
         clip = pickClip(lastId)
       }
-      until = seconds + pauseMin + Math.random() * (pauseMax - pauseMin)
+      until = pauseUntil(seconds, pauseMin, pauseMax, 0.7)
       phase = 'pause'
       return restPose()
     }
