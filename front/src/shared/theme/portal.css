@@ -238,13 +238,52 @@ h2,
   flex: none;
 }
 
-.page-vacant__mascot .border-spark {
-  width: 100%;
-  height: 100%;
+/* Trazo estático tipo anillo del hero (cian + blur), sin chispa ni animación */
+.page-vacant__mascot-ring {
+  position: absolute;
+  inset: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.page-vacant__mascot-ring-halo,
+.page-vacant__mascot-ring-blur,
+.page-vacant__mascot-ring-main {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Mismas capas / colores que `.kit-hero__ring-stroke*` (viewBox 100 → ~260px) */
+.page-vacant__mascot-ring-halo {
+  stroke: #48b4fc;
+  stroke-width: 2.3;
+  opacity: 0.55;
+  filter: blur(18px);
+}
+
+.page-vacant__mascot-ring-blur {
+  stroke: #70c0f8;
+  stroke-width: 1.5;
+  opacity: 0.82;
+  filter: blur(10px);
+}
+
+.page-vacant__mascot-ring-main {
+  stroke: #48b4fc;
+  stroke-width: 0.75;
+  filter:
+    drop-shadow(0 0 6px rgba(112, 192, 248, 0.95))
+    drop-shadow(0 0 16px rgba(0, 136, 248, 0.75))
+    drop-shadow(0 0 32px rgba(72, 180, 252, 0.45));
 }
 
 .page-vacant__mascot-frame {
   position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   border-radius: 46% 54% 42% 58% / 48% 42% 58% 52%;
@@ -252,10 +291,8 @@ h2,
   transform-origin: 50% 78%;
   background:
     radial-gradient(ellipse at 50% 38%, rgba(0, 16, 40, 0.96) 0%, var(--paola-ink) 74%);
-  border: 2px solid rgba(72, 180, 252, 0.28);
-  box-shadow:
-    0 0 0 6px rgba(5, 7, 12, 0.72),
-    0 0 28px rgba(0, 136, 248, 0.18);
+  border: 1px solid rgba(72, 180, 252, 0.2);
+  box-shadow: 0 0 0 6px rgba(5, 7, 12, 0.72);
 }
 
 .mascot-3d {

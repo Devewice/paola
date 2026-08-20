@@ -3,15 +3,17 @@ import { computed } from 'vue'
 import { PAGE_VACANT_COPY } from '@app/constants/copy.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
+import { asymmetricRoundedRectPath } from '@ui/roundedRectPath.ts'
 import Mascot3d from '@ui/Mascot3d.vue'
-import BorderSpark from '@ui/BorderSpark.vue'
 import Button from '@ui/Button.vue'
 
-/** Mismo blob que `.page-vacant__mascot-frame` (46% 54% 42% 58% / 48% 42% 58% 52%). */
-const MASCOT_CORNERS = {
-  hx: [0.46, 0.54, 0.42, 0.58],
-  hy: [0.48, 0.42, 0.58, 0.52],
-} as const
+/** Mismo blob que `.page-vacant__mascot-frame`. */
+const MASCOT_RING = asymmetricRoundedRectPath(
+  100,
+  100,
+  [0.46, 0.54, 0.42, 0.58],
+  [0.48, 0.42, 0.58, 0.52],
+)
 
 const props = withDefaults(
   defineProps<{
@@ -51,11 +53,18 @@ const titleParts = computed(() => {
         </div>
       </div>
       <div class="page-vacant__mascot">
-        <BorderSpark :outset="16" :duration-ms="5600" :corners="MASCOT_CORNERS">
-          <div class="page-vacant__mascot-frame">
-            <Mascot3d />
-          </div>
-        </BorderSpark>
+        <svg
+          class="page-vacant__mascot-ring"
+          viewBox="0 0 100 100"
+          aria-hidden="true"
+        >
+          <path class="page-vacant__mascot-ring-halo" :d="MASCOT_RING" />
+          <path class="page-vacant__mascot-ring-blur" :d="MASCOT_RING" />
+          <path class="page-vacant__mascot-ring-main" :d="MASCOT_RING" />
+        </svg>
+        <div class="page-vacant__mascot-frame">
+          <Mascot3d />
+        </div>
       </div>
       <h1 class="page-vacant__heading">{{ title }} · {{ kicker }}</h1>
       <div class="page-vacant__cta">
