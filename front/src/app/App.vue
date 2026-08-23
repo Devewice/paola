@@ -11,6 +11,7 @@ import DualChannelPills from '@ui/DualChannelPills.vue'
 import MegaHeader from '@ui/MegaHeader.vue'
 import MegaPeek from '@ui/MegaPeek.vue'
 import SiteFooter from '@ui/SiteFooter.vue'
+import ToastHost from '@ui/ToastHost.vue'
 import ZoneBadge from '@ui/ZoneBadge.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
@@ -33,6 +34,10 @@ const isKitCatalog = computed(
     route.path === APP_PATHS.KIT,
 )
 
+const footerCompact = computed(
+  () => route.path === APP_PATHS.CUENTA || route.path === APP_PATHS.ENTRAR,
+)
+
 const footerLinks = [
   { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
   { label: 'Cuenta', to: APP_PATHS.CUENTA },
@@ -47,6 +52,7 @@ const footerContact = computed(() => [
 
 <template>
   <BrushDefs />
+  <ToastHost />
   <div v-if="isKitCatalog" class="html-kit-root">
     <router-view />
   </div>
@@ -109,22 +115,23 @@ const footerContact = computed(() => [
       <router-view />
     </v-main>
 
-    <footer class="paola-site-foot">
+    <footer class="paola-site-foot" :class="{ 'paola-site-foot--compact': footerCompact }">
       <div class="wrap paola-site-foot__inner">
         <SiteFooter
+          :compact="footerCompact"
           logo-src="/logo.png"
           :motto="FOOTER_COPY.motto"
           :copy="FOOTER_COPY.tagline"
-          :columns="MEGA_FOOTER_COLUMNS"
-          :contact="footerContact"
+          :columns="footerCompact ? undefined : MEGA_FOOTER_COLUMNS"
+          :contact="footerCompact ? undefined : footerContact"
           :contact-title="FOOTER_COPY.contactTitle"
-          :alliances="footerAlliances"
+          :alliances="footerCompact ? undefined : footerAlliances"
           :alliances-label="FOOTER_COPY.alliancesLabel"
           :alliances-empty="alliances.emptyCopy"
           :subscribe-title="FOOTER_COPY.subscribeTitle"
           :subscribe-placeholder="FOOTER_COPY.subscribePlaceholder"
           :subscribe-cta="FOOTER_COPY.subscribeCta"
-          :subscribe-mail="page.contact.email"
+          :subscribe-mail="footerCompact ? undefined : page.contact.email"
           :links="footerLinks"
           :credit-label="FOOTER_COPY.creditLabel"
           :credit-name="FOOTER_COPY.creditName"

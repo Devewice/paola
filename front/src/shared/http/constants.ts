@@ -58,6 +58,9 @@ export const API = {
   PAYMENTS_CHECKOUT: '/api/payments/checkout',
   OPERAR_PAYMENTS: '/api/operar/payments',
   OPERAR_PAYMENTS_TEST: '/api/operar/payments/test',
+  AUTH_METHODS: '/api/auth/methods',
+  AUTH_GOOGLE_START: '/api/auth/google/start',
+  OPERAR_AUTH: '/api/operar/auth',
 } as const
 
 export function apiOutingTickets(id: string): string {
@@ -152,6 +155,7 @@ export const APP_PATHS = {
   OPERAR: '/operar',
   PRIVACIDAD: '/privacidad',
   CUENTA: '/cuenta',
+  ENTRAR: '/entrar',
   FEED: '/feed',
   PARCERO: '/parcero',
 } as const

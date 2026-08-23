@@ -20,7 +20,7 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 | `MegaHeader` | Header del portal: logo, pestañas; megamenú solo si el ítem trae `columns` (chevron) | `items`, `whatsapp`, `accountTo`, slot `widget` |
 | `MegaPeek` | Widget del mega menú (próxima, tip, km) | `kicker`, `title`, `meta`, `copy`, `value`, `imageSrc`, `to`, `empty` |
 | `MegaFooter` | Columnas de enlaces del pie (kit/demo) | `columns: { title, links[{ label, to?, href? }] }` |
-| `SiteFooter` | Pie del portal: crest, columnas, suscripción, alianzas | `columns`, `copy`, `alliances`, `subscribeMail`, … |
+| `SiteFooter` | Pie del portal: crest, columnas, suscripción, alianzas | `compact` (solo barra legal), `columns`, `copy`, `alliances`, `subscribeMail`, … |
 | `PageVacant` | Página en construcción (mascota + CTAs; anillo cian estático tipo hero) | `title`, `kicker`, `copy` |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |
 | `KitHero` | Hero full-bleed del kit. `portal`: corte del día. `panelSlides`: mazo de rodadas (dots afuera, borde con resplandor) | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, `panelSlides`, slots `voices` `panel` `footer` `actions` |
@@ -47,11 +47,11 @@ Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 ## Formularios
 
-`Field` + `Input` / `Textarea` / `Select` / `PasswordField` / `PwdMeterField` · `Choice` `ChoiceList` · `PrivacyCheck` · `FilePicker` `Dropzone` `UploadQueue` · `QtyStepper` `RangeField` `OtpRow` `Search` `CalMiniPicker` `TimeChips` `SizePicker` `SwatchPicker` `CityGate`
+`Field` + `Input` / `Textarea` / `Select` / `PasswordField` / `PwdMeterField` · `tone="electric"` (borde brocha + glow cian; default limpio) · `Choice` `ChoiceList` · `PrivacyCheck` · `FilePicker` `Dropzone` `UploadQueue` · `QtyStepper` `RangeField` `OtpRow` `Search` `CalMiniPicker` `TimeChips` `SizePicker` `SwatchPicker` `CityGate`
 
 ## Feedback
 
-`Alert` · `Banner` `BannerInline` `AnnounceBar` `NoticeBar` `Callout` `TipBox` `DisclaimerBox` · `Empty` `EmptyBlock` `MascotEmpty` · `Modal` `Sheet` `ConfirmBox` · `ProgressBar` `Skeleton` `LoadingRow` `OfflineStrip` `UndoBar` `SuccessPanel`
+`Alert` · `ToastHost` + `showToast()` · `Banner` `BannerInline` `AnnounceBar` `NoticeBar` `Callout` `TipBox` `DisclaimerBox` · `Empty` `EmptyBlock` `MascotEmpty` · `Modal` `Sheet` `ConfirmBox` · `ProgressBar` `Skeleton` `LoadingRow` `OfflineStrip` `UndoBar` `SuccessPanel`
 
 ## Parchese / rodadas
 

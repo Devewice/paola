@@ -3,7 +3,7 @@ const props = withDefaults(
   defineProps<{
     href?: string
     to?: string
-    variant?: 'primary' | 'hero' | 'ghost' | 'dark' | 'danger' | 'brush'
+    variant?: 'primary' | 'hero' | 'ghost' | 'dark' | 'danger' | 'brush' | 'armargura' | 'white'
     size?: 'sm' | 'md' | 'lg'
     disabled?: boolean
     type?: 'button' | 'submit'
@@ -19,6 +19,8 @@ function btnClass(): string[] {
   if (props.variant === 'ghost') classes.push('btn-ghost')
   else if (props.variant === 'dark') classes.push('btn-dark')
   else if (props.variant === 'danger') classes.push('btn-danger')
+  else if (props.variant === 'armargura') classes.push('btn-armargura')
+  else if (props.variant === 'white') classes.push('btn-white')
   else classes.push('btn-primary')
   if (props.variant === 'hero') classes.push('btn-primary--hero')
   if (props.variant === 'brush') classes.push('btn-brush', 'btn-brush--brochazo')

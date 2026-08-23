@@ -470,6 +470,30 @@
         background: var(--navy); color: var(--white);
         box-shadow: inset 0 0 0 1px var(--blue);
       }
+      .btn-armargura {
+        background: var(--paola-armargura, #c878b4);
+        color: #05070c;
+        box-shadow: none;
+      }
+      .btn-armargura:hover {
+        background: #d48ec4;
+        box-shadow: 0 0 18px rgba(200, 120, 180, 0.35);
+      }
+      .btn-armargura:active {
+        background: #b068a0;
+      }
+      .btn-white {
+        background: var(--white);
+        color: #05070c;
+        box-shadow: none;
+      }
+      .btn-white:hover {
+        background: #fff;
+        box-shadow: 0 0 18px rgba(247, 250, 252, 0.28);
+      }
+      .btn-white:active {
+        background: #e8eef4;
+      }
       .btn-danger {
         background: transparent; color: var(--danger);
         box-shadow: inset 0 0 0 2px var(--danger);
@@ -496,6 +520,12 @@
       a.btn-dark,
       a.btn-dark:hover,
       a.btn-dark:focus-visible { color: var(--white); }
+      a.btn-armargura,
+      a.btn-armargura:hover,
+      a.btn-armargura:focus-visible { color: #05070c; }
+      a.btn-white,
+      a.btn-white:hover,
+      a.btn-white:focus-visible { color: #05070c; }
       a.btn-danger,
       a.btn-danger:hover,
       a.btn-danger:focus-visible { color: var(--danger); }
@@ -574,6 +604,85 @@
         cursor: not-allowed;
         background: var(--surface);
         border-color: var(--line);
+        box-shadow: none;
+      }
+
+      /* Variante eléctrica / brocha (login y superficies inmersivas) */
+      .field--electric > label,
+      .field--electric > .field-label {
+        color: var(--cyan);
+        letter-spacing: 0.14em;
+      }
+      .input-electric {
+        position: relative;
+        display: block;
+        width: 100%;
+      }
+      .input-electric__stroke {
+        position: absolute;
+        inset: -2px -3px -4px;
+        width: calc(100% + 6px);
+        height: calc(100% + 6px);
+        color: var(--blue);
+        pointer-events: none;
+        overflow: visible;
+        z-index: 0;
+        transition: color 180ms ease, filter 180ms ease, opacity 180ms ease;
+        opacity: 0.9;
+      }
+      .input-electric__spark {
+        color: var(--cyan);
+        opacity: 0.85;
+      }
+      .input-electric__fill {
+        fill: rgba(0, 16, 40, 0.92);
+        stroke: none;
+        transition: fill 180ms ease;
+      }
+      .input-electric:hover .input-electric__fill {
+        fill: rgba(0, 40, 80, 0.88);
+      }
+      .input-electric:focus-within .input-electric__fill {
+        fill: rgba(5, 7, 12, 0.96);
+      }
+      .input-electric:hover .input-electric__stroke,
+      .input-electric:focus-within .input-electric__stroke {
+        color: var(--cyan);
+        opacity: 1;
+        filter: drop-shadow(0 0 6px rgba(72, 180, 252, 0.55));
+      }
+      .input-electric:focus-within .input-electric__spark {
+        opacity: 1;
+      }
+      .input.input--electric,
+      textarea.input--electric {
+        position: relative;
+        z-index: 1;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+      .pass-field .input.input--electric {
+        padding-right: 52px;
+      }
+      textarea.input--electric {
+        padding-top: 14px;
+        padding-bottom: 14px;
+      }
+      .input.input--electric:hover,
+      textarea.input--electric:hover {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+      .input.input--electric:focus,
+      textarea.input--electric:focus {
+        outline: none;
+        border: none;
+        background: transparent;
         box-shadow: none;
       }
 
@@ -2108,6 +2217,37 @@
         position: relative;
         z-index: 2;
       }
+      .site-footer--compact {
+        margin-top: 0;
+        padding: 24px 0 12px;
+        border-top: none;
+        gap: 0;
+        width: 100%;
+      }
+      .site-footer--compact .site-footer__bar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        margin-top: 0;
+        padding-top: 8px;
+        gap: 8px 16px;
+        border-top: none;
+      }
+      .site-footer--compact .site-footer__legal-block {
+        justify-self: start;
+      }
+      .site-footer--compact .site-footer__links {
+        justify-self: center;
+        justify-content: center;
+      }
+      .site-footer--compact .site-footer__credit {
+        justify-self: end;
+        text-align: right;
+      }
+      .site-footer--compact .site-footer__note {
+        grid-column: 1 / -1;
+        justify-self: center;
+      }
       .site-footer__crest {
         width: 100%;
         text-align: center;
@@ -2300,8 +2440,16 @@
         color: var(--muted);
       }
       .site-footer__legal-block {
-        display: grid;
-        gap: 2px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .site-footer__legal-logo {
+        display: block;
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        flex: none;
       }
       .site-footer__legal,
       .site-footer__credit,
@@ -2339,6 +2487,19 @@
         .site-footer__bar {
           flex-direction: column;
           align-items: flex-start;
+        }
+        .site-footer--compact .site-footer__bar {
+          display: grid;
+          align-items: center;
+        }
+        .site-footer--compact .site-footer__legal-block {
+          justify-self: start;
+        }
+        .site-footer--compact .site-footer__links {
+          justify-self: center;
+        }
+        .site-footer--compact .site-footer__credit {
+          justify-self: end;
         }
         .site-footer__alliances {
           align-items: center;
@@ -2901,22 +3062,31 @@
       .dropzone span { font-size: 12px; color: var(--muted); }
 
       .pass-field { position: relative; }
-      .pass-field .input { padding-right: 48px; }
+      .pass-field__row {
+        position: relative;
+      }
+      .pass-field .input { padding-right: 44px; }
       .pass-field__toggle {
         position: absolute;
-        right: 8px;
+        right: 6px;
         top: 50%;
         transform: translateY(-50%);
         appearance: none;
         border: 0;
         background: transparent;
         color: var(--cyan);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
         cursor: pointer;
-        padding: 8px;
+        padding: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+        z-index: 3;
+      }
+      .pass-field__toggle:hover { color: var(--white); }
+      .pass-field__toggle .brush-icon {
+        width: 22px;
+        height: 22px;
       }
 
       .otp-row { display: flex; gap: 8px; }

@@ -4,13 +4,22 @@ export const ALIAS_STORAGE_KEY = 'paola_alias'
 export const CUENTA_COPY = {
   title: 'Cuenta',
   kicker: 'Paola Biker',
-  lead: 'No necesitas cuenta para mirar el sitio. Ábrela si quieres un cupo o un pedido a tu nombre.',
+  lead: 'Tu cupo, pedidos y amigos del parche quedan aquí a tu nombre.',
   register: 'Registro',
   registerCta: 'Crear cuenta',
   login: 'Entrar',
   loginCta: 'Entrar',
   panel: 'Panel',
   logout: 'Salir',
+  needLogin: 'Entra a tu cuenta para ver este panel.',
+  goLogin: 'Ir a entrar',
+  profileMeta: 'Tu espacio en el parche',
+  tabTickets: 'Tickets',
+  tabOrders: 'Pedidos',
+  tabNotices: 'Avisos',
+  tabFriends: 'Amigos',
+  tabChat: 'Chat',
+  tabProfile: 'Perfil',
   emailLabel: 'Correo',
   aliasLabel: 'Alias',
   passwordLabel: 'Clave',
@@ -52,6 +61,30 @@ export const CUENTA_COPY = {
   failRegister: 'No se pudo registrar.',
   failLogin: 'No se pudo entrar.',
   failGeneric: 'No se pudo completar.',
+} as const
+
+export const LOGIN_COPY = {
+  title: 'Mi cuenta',
+  titleMi: 'Mi',
+  titleCuenta: 'cuenta',
+  registerTitle: 'Únete',
+  registerAccent: 'al parche',
+  registerLead:
+    'Elige alias, correo y clave. En segundos tienes el parche a tu nombre.',
+  switchToRegister: 'Créate una cuenta',
+  switchToLogin: 'Ya tengo cuenta · Entrar',
+  benefitsKicker: 'Si te creas la cuenta',
+  benefits: [
+    'Te anotas a rodadas con cupo',
+    'Entras a la tienda con tu perfil',
+    'Sigues parceros y hablas en el chat',
+    'Guardas trayectos y kilómetros',
+    'Recibes avisos del parche',
+    'Dejas constancia en Tu voz',
+  ],
+  googleCta: 'Iniciar con Google',
+  googleFail: 'No se pudo abrir Google.',
+  orEmail: 'o',
 } as const
 
 export const PARCERO_COPY = {

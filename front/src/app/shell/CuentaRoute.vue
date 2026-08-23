@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { LEGAL_COPY } from '@app/constants/legal.ts'
 import { ALIAS_STORAGE_KEY, CUENTA_COPY, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import OutingThreadBlock from '@app/shell/OutingThreadBlock.vue'
-import { parseAccountRegister } from '@app/parseAccountRegister.ts'
 import {
   API,
   APP_PATHS,
@@ -15,17 +15,16 @@ import {
 } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
-import AficheHero from '@ui/AficheHero.vue'
 import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
 import ChatBubble from '@ui/ChatBubble.vue'
 import Choice from '@ui/Choice.vue'
-import DualChannel from '@ui/DualChannel.vue'
 import Empty from '@ui/Empty.vue'
 import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
-import PrivacyCheck from '@ui/PrivacyCheck.vue'
+import ProfileHead from '@ui/ProfileHead.vue'
 import Textarea from '@ui/Textarea.vue'
+import UserPanel from '@ui/UserPanel.vue'
 
 type TicketRow = { id: string; outing_id?: string; outingId?: string; name: string }
 type OrderRow = { id: string; item_title?: string; itemTitle?: string; status: string }
@@ -52,13 +51,21 @@ const copy = CUENTA_COPY
 const legal = LEGAL_COPY
 const privacyPath = APP_PATHS.PRIVACIDAD
 const bindReveal = usePageReveal()
+const router = useRouter()
 
-const email = ref('')
-const alias = ref('')
-const password = ref('')
-const loginEmail = ref('')
-const loginPassword = ref('')
-const privacyAccepted = ref(false)
+const panelTabs = computed(() => [
+  { id: 'tickets', label: copy.tabTickets },
+  { id: 'orders', label: copy.tabOrders },
+  { id: 'notices', label: copy.tabNotices },
+  { id: 'friends', label: copy.tabFriends },
+  { id: 'chat', label: copy.tabChat },
+  { id: 'profile', label: copy.tabProfile },
+])
+
+const panelSlots = computed(() =>
+  panelTabs.value.map((tab) => ({ id: tab.id, content: '' })),
+)
+
 const sessionId = ref(
   typeof localStorage !== 'undefined' ? localStorage.getItem(SESSION_STORAGE_KEY) ?? '' : '',
 )
@@ -83,75 +90,17 @@ const chatVoice = ref('')
 const outingThreadId = ref('')
 
 onMounted(async () => {
-  if (sessionId.value) await loadSession()
+  if (!sessionId.value) {
+    await router.replace({ path: APP_PATHS.ENTRAR, query: { next: APP_PATHS.CUENTA } })
+    return
+  }
+  await loadSession()
 })
 
 function sessionHeaders(json = false): Record<string, string> {
   return json
     ? { ...JSON_HEADERS, [SESSION_HEADER]: sessionId.value }
     : { [SESSION_HEADER]: sessionId.value }
-}
-
-function rememberSession(id: string, nextAlias: string): void {
-  sessionId.value = id
-  myAlias.value = nextAlias
-  localStorage.setItem(SESSION_STORAGE_KEY, id)
-  if (nextAlias) localStorage.setItem(ALIAS_STORAGE_KEY, nextAlias)
-}
-
-async function register(): Promise<void> {
-  error.value = ''
-  const parsed = parseAccountRegister({ privacyAccepted: privacyAccepted.value })
-  if (!parsed.ok) {
-    error.value = parsed.error.message
-    return
-  }
-  try {
-    const response = await fetch(API.USERS_REGISTER, {
-      method: 'POST',
-      headers: JSON_HEADERS,
-      body: JSON.stringify({
-        email: email.value,
-        alias: alias.value,
-        password: password.value,
-        privacyAccepted: privacyAccepted.value,
-      }),
-    })
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    if (!response.ok) {
-      error.value = typeof body.detail === 'string' ? body.detail : copy.failRegister
-      return
-    }
-    const user = body.user as { alias?: string } | undefined
-    rememberSession(
-      typeof body.sessionId === 'string' ? body.sessionId : '',
-      typeof user?.alias === 'string' ? user.alias : alias.value,
-    )
-    await loadSession()
-  } catch {
-    error.value = copy.failRegister
-  }
-}
-
-async function login(): Promise<void> {
-  error.value = ''
-  try {
-    const response = await fetch(API.USERS_LOGIN, {
-      method: 'POST',
-      headers: JSON_HEADERS,
-      body: JSON.stringify({ email: loginEmail.value, password: loginPassword.value }),
-    })
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    if (!response.ok || typeof body.sessionId !== 'string') {
-      error.value = typeof body.detail === 'string' ? body.detail : copy.failLogin
-      return
-    }
-    const user = body.user as { alias?: string } | undefined
-    rememberSession(body.sessionId, typeof user?.alias === 'string' ? user.alias : '')
-    await loadSession()
-  } catch {
-    error.value = copy.failLogin
-  }
 }
 
 async function loadSession(): Promise<void> {
@@ -340,193 +289,204 @@ function logout(): void {
   outingThreadId.value = ''
   localStorage.removeItem(SESSION_STORAGE_KEY)
   localStorage.removeItem(ALIAS_STORAGE_KEY)
+  void router.push(APP_PATHS.ENTRAR)
 }
 </script>
 
 <template>
-  <div :ref="bindReveal">
-    <AficheHero :kicker="copy.kicker" :title="copy.title" data-reveal>
-      <template #lead>{{ copy.lead }}</template>
-    </AficheHero>
-
-    <article class="paola-page paola-page--after-hero">
-      <DualChannel data-reveal />
-      <p class="paola-page__copy" data-reveal>
-        <router-link class="cuenta-legal" :to="privacyPath">{{ legal.checkboxLink }}</router-link>
-        ·
-        <router-link class="cuenta-legal" :to="APP_PATHS.FEED">{{ copy.feed }}</router-link>
-      </p>
+  <div :ref="bindReveal" class="cuenta-screen">
+    <article class="wrap cuenta-screen__body">
       <Alert v-if="error" tone="bad" data-reveal>{{ error }}</Alert>
 
-      <section v-if="!panel" class="cuenta-grid" data-reveal>
-        <form class="cuenta-card" @submit.prevent="register">
-          <h2 class="paola-page__heading type-display">{{ copy.register }}</h2>
-          <PrivacyCheck
-            v-model="privacyAccepted"
-            :label="legal.checkboxLabel"
-            :to="privacyPath"
-            :link-label="legal.checkboxLink"
-          />
-          <Field :label="copy.emailLabel"><Input v-model="email" type="email" /></Field>
-          <Field :label="copy.aliasLabel"><Input v-model="alias" /></Field>
-          <Field :label="copy.passwordLabel"><Input v-model="password" type="password" /></Field>
-          <Button type="submit" :disabled="!privacyAccepted">{{ copy.registerCta }}</Button>
-        </form>
-        <form class="cuenta-card" @submit.prevent="login">
-          <h2 class="paola-page__heading type-display">{{ copy.login }}</h2>
-          <Field :label="copy.emailLabel"><Input v-model="loginEmail" type="email" /></Field>
-          <Field :label="copy.passwordLabel"><Input v-model="loginPassword" type="password" /></Field>
-          <Button type="submit">{{ copy.loginCta }}</Button>
-        </form>
+      <section v-if="!panel" class="cuenta-screen__gate stack" data-reveal>
+        <p class="paola-page__copy">{{ copy.needLogin }}</p>
+        <Button :to="APP_PATHS.ENTRAR">{{ copy.goLogin }}</Button>
       </section>
 
-      <section v-else class="cuenta-card" data-reveal>
-        <h2 class="paola-page__heading type-display">{{ copy.panel }}</h2>
-        <Button size="sm" variant="ghost" type="button" @click="logout">{{ copy.logout }}</Button>
-
-        <h3 class="paola-page__heading">{{ copy.visibility }}</h3>
-        <p class="paola-page__copy paola-page__copy--muted">{{ copy.visibilityLead }}</p>
-        <Choice v-model="profilePublic" :label="copy.visibilityCta" />
-        <Button size="sm" type="button" @click="saveVisibility">
-          {{ profilePublic ? copy.visibilityCta : copy.visibilityOff }}
-        </Button>
-
-        <h3 class="paola-page__heading">{{ copy.tickets }}</h3>
-        <ul v-if="panel.tickets.length" class="cuenta-list">
-          <li v-for="ticket in panel.tickets" :key="ticket.id">
-            {{ ticket.name }}
-            <Button
-              v-if="ticketOutingId(ticket)"
-              size="sm"
-              variant="ghost"
-              type="button"
-              @click="openOutingThread(ticket)"
-            >
-              {{ copy.outingThread }}
-            </Button>
-          </li>
-        </ul>
-        <Empty
-          v-else
-          compact
-          hide-cta
-          :title="copy.ticketsEmptyTitle"
-          :copy="copy.ticketsEmpty"
-          :mascot-src="MASCOT.TUMBADA"
-        />
-        <OutingThreadBlock v-if="outingThreadId" :outing-id="outingThreadId" compact />
-
-        <h3 class="paola-page__heading">{{ copy.orders }}</h3>
-        <ul v-if="panel.orders.length" class="cuenta-list">
-          <li v-for="order in panel.orders" :key="order.id">
-            {{ order.itemTitle ?? order.item_title }} · {{ order.status }}
-          </li>
-        </ul>
-        <Empty
-          v-else
-          compact
-          hide-cta
-          :title="copy.ordersEmptyTitle"
-          :copy="copy.ordersEmpty"
-          :mascot-src="MASCOT.EN_PIE"
-        />
-
-        <h3 class="paola-page__heading">{{ copy.notices }}</h3>
-        <ul v-if="panel.notifications.length" class="cuenta-list">
-          <li v-for="note in panel.notifications" :key="note.id">{{ note.message }}</li>
-        </ul>
-        <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.noticesEmpty }}</p>
-
-        <h3 class="paola-page__heading">{{ copy.friends }}</h3>
-        <p class="paola-page__copy paola-page__copy--muted">{{ copy.friendsLead }}</p>
-        <form class="cuenta-inline" @submit.prevent="requestFriend">
-          <Field :label="copy.aliasLabel">
-            <Input v-model="friendAlias" :placeholder="copy.aliasPlaceholder" />
-          </Field>
-          <Button type="submit" size="sm">{{ copy.request }}</Button>
-        </form>
-        <h4 class="paola-page__heading">{{ copy.pending }}</h4>
-        <ul v-if="pending.length" class="cuenta-list">
-          <li v-for="row in pending" :key="row.id">
-            {{ row.alias }}
-            <Button size="sm" type="button" @click="acceptFriend(row.id)">{{ copy.accept }}</Button>
-            <Button size="sm" variant="ghost" type="button" @click="blockFriend(row.id)">
-              {{ copy.block }}
-            </Button>
-          </li>
-        </ul>
-        <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.pendingEmpty }}</p>
-        <h4 class="paola-page__heading">{{ copy.outgoing }}</h4>
-        <ul v-if="outgoing.length" class="cuenta-list">
-          <li v-for="row in outgoing" :key="row.id">{{ row.alias }}</li>
-        </ul>
-        <ul v-if="accepted.length" class="cuenta-list">
-          <li v-for="row in accepted" :key="row.id">
-            <router-link
-              class="cuenta-legal"
-              :to="`${APP_PATHS.PARCERO}/${encodeURIComponent(row.alias)}`"
-            >
-              {{ row.alias }}
-            </router-link>
-            <Button size="sm" variant="ghost" type="button" @click="startChat(row.userId)">
-              {{ copy.chatOpen }}
-            </Button>
-          </li>
-        </ul>
-        <Empty
-          v-else-if="!pending.length && !outgoing.length"
-          compact
-          hide-cta
-          :title="copy.friends"
-          :copy="copy.friendsEmpty"
-          :mascot-src="MASCOT.TUMBADA"
-        />
-
-        <h3 class="paola-page__heading">{{ copy.chat }}</h3>
-        <p class="paola-page__copy paola-page__copy--muted">{{ copy.chatLead }}</p>
-        <ul v-if="chats.length" class="cuenta-list">
-          <li v-for="row in chats" :key="row.id">
-            <Button size="sm" variant="ghost" type="button" @click="openChat(row.id)">
-              {{ chatLabel(row) }}
-            </Button>
-          </li>
-        </ul>
-        <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.chatEmpty }}</p>
-        <div v-if="activeChatId" class="cuenta-chat">
-          <ChatBubble
-            v-for="line in messages"
-            :key="line.id"
-            :mine="line.authorAlias === myAlias"
-            :body="line.body ?? messageBody(line)"
-            :photo-src="line.photoSrc"
-            :voice-src="line.voiceSrc"
-            :pinned="line.pinned"
+      <template v-else>
+        <header class="cuenta-screen__head" data-reveal>
+          <ProfileHead
+            :name="myAlias || copy.title"
+            :meta="copy.profileMeta"
+            :initial="(myAlias || copy.title).charAt(0)"
           />
-          <form class="cuenta-inline" @submit.prevent="sendChat">
-            <Field :label="copy.messageLabel"><Textarea v-model="chatDraft" /></Field>
-            <Field :label="copy.photoUrl"><Input v-model="chatPhoto" /></Field>
-            <Field :label="copy.voiceUrl"><Input v-model="chatVoice" /></Field>
-            <Button type="submit" size="sm">{{ copy.chatSend }}</Button>
-          </form>
-        </div>
+          <div class="cuenta-screen__actions row">
+            <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feed }}</Button>
+            <Button size="sm" variant="ghost" :to="privacyPath">{{ legal.checkboxLink }}</Button>
+            <Button size="sm" variant="ghost" type="button" @click="logout">{{ copy.logout }}</Button>
+          </div>
+        </header>
 
-        <Alert tone="info">{{ copy.membership }}</Alert>
-      </section>
+        <UserPanel class="cuenta-screen__panel" :tabs="panelTabs" :panels="panelSlots" data-reveal>
+          <template #tickets>
+            <div class="cuenta-pane stack">
+              <ul v-if="panel.tickets.length" class="cuenta-list">
+                <li v-for="ticket in panel.tickets" :key="ticket.id">
+                  {{ ticket.name }}
+                  <Button
+                    v-if="ticketOutingId(ticket)"
+                    size="sm"
+                    variant="ghost"
+                    type="button"
+                    @click="openOutingThread(ticket)"
+                  >
+                    {{ copy.outingThread }}
+                  </Button>
+                </li>
+              </ul>
+              <Empty
+                v-else
+                compact
+                hide-cta
+                :title="copy.ticketsEmptyTitle"
+                :copy="copy.ticketsEmpty"
+                :mascot-src="MASCOT.TUMBADA"
+              />
+              <OutingThreadBlock v-if="outingThreadId" :outing-id="outingThreadId" compact />
+            </div>
+          </template>
+
+          <template #orders>
+            <div class="cuenta-pane stack">
+              <ul v-if="panel.orders.length" class="cuenta-list">
+                <li v-for="order in panel.orders" :key="order.id">
+                  {{ order.itemTitle ?? order.item_title }} · {{ order.status }}
+                </li>
+              </ul>
+              <Empty
+                v-else
+                compact
+                hide-cta
+                :title="copy.ordersEmptyTitle"
+                :copy="copy.ordersEmpty"
+                :mascot-src="MASCOT.EN_PIE"
+              />
+            </div>
+          </template>
+
+          <template #notices>
+            <div class="cuenta-pane stack">
+              <ul v-if="panel.notifications.length" class="cuenta-list">
+                <li v-for="note in panel.notifications" :key="note.id">{{ note.message }}</li>
+              </ul>
+              <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.noticesEmpty }}</p>
+              <Alert tone="info">{{ copy.membership }}</Alert>
+            </div>
+          </template>
+
+          <template #friends>
+            <div class="cuenta-pane stack">
+              <p class="paola-page__copy paola-page__copy--muted">{{ copy.friendsLead }}</p>
+              <form class="cuenta-inline" @submit.prevent="requestFriend">
+                <Field :label="copy.aliasLabel">
+                  <Input v-model="friendAlias" :placeholder="copy.aliasPlaceholder" />
+                </Field>
+                <Button type="submit" size="sm">{{ copy.request }}</Button>
+              </form>
+              <h4 class="paola-page__heading">{{ copy.pending }}</h4>
+              <ul v-if="pending.length" class="cuenta-list">
+                <li v-for="row in pending" :key="row.id">
+                  {{ row.alias }}
+                  <Button size="sm" type="button" @click="acceptFriend(row.id)">{{ copy.accept }}</Button>
+                  <Button size="sm" variant="ghost" type="button" @click="blockFriend(row.id)">
+                    {{ copy.block }}
+                  </Button>
+                </li>
+              </ul>
+              <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.pendingEmpty }}</p>
+              <h4 class="paola-page__heading">{{ copy.outgoing }}</h4>
+              <ul v-if="outgoing.length" class="cuenta-list">
+                <li v-for="row in outgoing" :key="row.id">{{ row.alias }}</li>
+              </ul>
+              <ul v-if="accepted.length" class="cuenta-list">
+                <li v-for="row in accepted" :key="row.id">
+                  <router-link
+                    class="cuenta-legal"
+                    :to="`${APP_PATHS.PARCERO}/${encodeURIComponent(row.alias)}`"
+                  >
+                    {{ row.alias }}
+                  </router-link>
+                  <Button size="sm" variant="ghost" type="button" @click="startChat(row.userId)">
+                    {{ copy.chatOpen }}
+                  </Button>
+                </li>
+              </ul>
+              <Empty
+                v-else-if="!pending.length && !outgoing.length"
+                compact
+                hide-cta
+                :title="copy.friends"
+                :copy="copy.friendsEmpty"
+                :mascot-src="MASCOT.TUMBADA"
+              />
+            </div>
+          </template>
+
+          <template #chat>
+            <div class="cuenta-pane stack">
+              <p class="paola-page__copy paola-page__copy--muted">{{ copy.chatLead }}</p>
+              <ul v-if="chats.length" class="cuenta-list">
+                <li v-for="row in chats" :key="row.id">
+                  <Button size="sm" variant="ghost" type="button" @click="openChat(row.id)">
+                    {{ chatLabel(row) }}
+                  </Button>
+                </li>
+              </ul>
+              <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.chatEmpty }}</p>
+              <div v-if="activeChatId" class="cuenta-chat">
+                <ChatBubble
+                  v-for="line in messages"
+                  :key="line.id"
+                  :mine="line.authorAlias === myAlias"
+                  :body="line.body ?? messageBody(line)"
+                  :photo-src="line.photoSrc"
+                  :voice-src="line.voiceSrc"
+                  :pinned="line.pinned"
+                />
+                <form class="cuenta-inline" @submit.prevent="sendChat">
+                  <Field :label="copy.messageLabel"><Textarea v-model="chatDraft" /></Field>
+                  <Field :label="copy.photoUrl"><Input v-model="chatPhoto" /></Field>
+                  <Field :label="copy.voiceUrl"><Input v-model="chatVoice" /></Field>
+                  <Button type="submit" size="sm">{{ copy.chatSend }}</Button>
+                </form>
+              </div>
+            </div>
+          </template>
+
+          <template #profile>
+            <div class="cuenta-pane stack">
+              <p class="paola-page__copy paola-page__copy--muted">{{ copy.visibilityLead }}</p>
+              <Choice v-model="profilePublic" :label="copy.visibilityCta" />
+              <Button size="sm" type="button" @click="saveVisibility">
+                {{ profilePublic ? copy.visibilityCta : copy.visibilityOff }}
+              </Button>
+            </div>
+          </template>
+        </UserPanel>
+      </template>
     </article>
   </div>
 </template>
 
 <style scoped>
-.cuenta-grid {
+.cuenta-screen__body {
+  padding-top: 24px;
+  padding-bottom: 32px;
   display: grid;
-  gap: 16px;
+  gap: 20px;
 }
 
-.cuenta-card {
+.cuenta-screen__head {
   display: grid;
   gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--paola-line);
+}
+
+.cuenta-screen__actions {
+  justify-content: flex-end;
+}
+
+.cuenta-pane {
+  gap: 12px;
 }
 
 .cuenta-list {
@@ -550,12 +510,5 @@ function logout(): void {
   color: var(--paola-cyan, #48b4fc);
   text-decoration: underline;
   text-underline-offset: 2px;
-}
-
-@media (min-width: 720px) {
-  .cuenta-grid {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-  }
 }
 </style>

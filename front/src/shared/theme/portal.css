@@ -24,6 +24,10 @@
   --paola-gutter: clamp(16px, 4.5vw, 80px);
   --paola-content-max: 85rem;
   --paola-card-min: 17rem;
+  /* Grano fino (SVG noise) sobre el gris del portal */
+  --paola-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E");
+  --paola-grain-size: 180px;
+  --paola-grain-opacity: 0.07;
 }
 
 html,
@@ -47,6 +51,25 @@ body {
       rgba(0, 0, 0, 0.18) 3px,
       rgba(0, 0, 0, 0.18) 4px
     );
+}
+
+/* Textura de asfalto / grano sutil encima del fondo (no tapa clics) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  opacity: var(--paola-grain-opacity);
+  background-image: var(--paola-grain);
+  background-size: var(--paola-grain-size) var(--paola-grain-size);
+  mix-blend-mode: soft-light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    opacity: 0.04;
+  }
 }
 
 a {
@@ -599,6 +622,17 @@ h2,
   padding-bottom: calc(72px + env(safe-area-inset-bottom));
 }
 
+.paola-site-foot--compact {
+  background: var(--paola-ink);
+  border-top: none;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+.paola-site-foot--compact .paola-site-foot__inner {
+  padding-top: 16px;
+  padding-bottom: 12px;
+}
+
 .paola-site-foot__inner {
   padding-top: 0;
   padding-bottom: 16px;
@@ -738,6 +772,10 @@ h2,
 
   .paola-site-foot {
     padding-bottom: 24px;
+  }
+
+  .paola-site-foot--compact {
+    padding-bottom: 12px;
   }
 }
 

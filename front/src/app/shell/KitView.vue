@@ -278,6 +278,7 @@ import TicketCard from '@ui/TicketCard.vue'
 import TimeChips from '@ui/TimeChips.vue'
 import TipBox from '@ui/TipBox.vue'
 import TipLink from '@ui/TipLink.vue'
+import { showToast } from '@ui/toast.ts'
 import Timeline from '@ui/Timeline.vue'
 import ToggleList from '@ui/ToggleList.vue'
 import TreeNav from '@ui/TreeNav.vue'
@@ -1349,10 +1350,10 @@ onMounted(async () => {
           Esquina superior derecha · auto-cierran a los 5 s · no bloquean la UI.
         </p>
         <div class="row" style="margin-bottom:24px">
-          <Button variant="ghost" size="sm" data-toast="info">Info</Button>
-          <Button size="sm" data-toast="ok">Éxito</Button>
-          <Button variant="danger" size="sm" data-toast="bad">Error</Button>
-          <Button variant="dark" size="sm" data-toast="warn">Aviso</Button>
+          <Button variant="ghost" size="sm" @click="showToast('Esto es un aviso del parche.', 'info')">Info</Button>
+          <Button size="sm" @click="showToast('Ticket listo. Ya te contamos por WhatsApp.', 'ok')">Éxito</Button>
+          <Button variant="danger" size="sm" @click="showToast('Cupo lleno. Espera la próxima.', 'bad')">Error</Button>
+          <Button variant="dark" size="sm" @click="showToast('Revisa el cupo antes de apuntarte.', 'warn')">Aviso</Button>
         </div>
 
         <h3 class="kit">Alertas en página (inline)</h3>

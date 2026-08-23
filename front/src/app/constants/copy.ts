@@ -21,6 +21,7 @@ export const ROUTE_TITLES = {
   OPERAR: 'Admin',
   PRIVACIDAD: 'Privacidad',
   CUENTA: 'Cuenta',
+  ENTRAR: 'Entrar',
   FEED: 'Feed',
   PARCERO: 'Parcero',
   NOT_FOUND: 'No está',

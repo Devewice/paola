@@ -9,6 +9,7 @@ const subscribeEmail = ref('')
 
 const props = withDefaults(
   defineProps<{
+    compact?: boolean
     motto?: string
     columns?: readonly {
       title: string
@@ -34,6 +35,7 @@ const props = withDefaults(
     domain?: string
   }>(),
   {
+    compact: false,
     motto: 'Paola Biker',
     copy: 'Rodando con propósito',
     alliancesLabel: 'Alianzas',
@@ -64,86 +66,102 @@ function onSubscribe() {
 </script>
 
 <template>
-  <div class="site-footer" :class="{ 'site-footer--portal': columns?.length }">
-    <header v-if="columns?.length" class="site-footer__crest">
-      <div class="site-footer__crest-mark" aria-hidden="true">
-        <img class="site-footer__crest-logo" :src="logoSrc" width="72" height="72" alt="" />
-      </div>
-      <h2 class="sr-only">{{ motto }}</h2>
-      <div class="site-footer__brush-line" aria-hidden="true">
-        <p class="type-brush-dry type-brush-dry--footer">Paola</p>
-        <p class="type-brush-dry type-brush-dry--blue type-brush-dry--footer">Biker</p>
-      </div>
-      <p class="site-footer__purpose">{{ copy }}</p>
-    </header>
-
-    <div v-else class="site-footer__brand site-footer__brand--compact">
-      <img :src="logoSrc" width="40" height="40" alt="Paola" />
-      <div>
-        <p class="site-footer__name">{{ motto }}</p>
-        <p class="site-footer__tagline">{{ copy }}</p>
-      </div>
-    </div>
-
-    <template v-if="columns?.length">
-      <div class="site-footer__grid">
-        <div v-for="col in columns" :key="col.title" class="site-footer__col">
-          <h5 class="site-footer__col-title">{{ col.title }}</h5>
-          <ul class="site-footer__col-list">
-            <li v-for="link in col.links" :key="link.label">
-              <AppLink :to="link.to" :href="link.href">{{ link.label }}</AppLink>
-            </li>
-          </ul>
+  <div
+    class="site-footer"
+    :class="{
+      'site-footer--portal': !compact && columns?.length,
+      'site-footer--compact': compact,
+    }"
+  >
+    <template v-if="!compact">
+      <header v-if="columns?.length" class="site-footer__crest">
+        <div class="site-footer__crest-mark" aria-hidden="true">
+          <img class="site-footer__crest-logo" :src="logoSrc" width="72" height="72" alt="" />
         </div>
-
-        <div v-if="contact?.length" class="site-footer__col">
-          <h5 class="site-footer__col-title">{{ contactTitle }}</h5>
-          <ul class="site-footer__col-list">
-            <li v-for="link in contact" :key="(link.to ?? link.href) + link.label">
-              <AppLink :to="link.to" :href="link.href">{{ link.label }}</AppLink>
-            </li>
-            <li v-if="domain">
-              <a :href="`https://${domain}`" target="_blank" rel="noopener noreferrer">{{ domain }}</a>
-            </li>
-          </ul>
+        <h2 class="sr-only">{{ motto }}</h2>
+        <div class="site-footer__brush-line" aria-hidden="true">
+          <p class="type-brush-dry type-brush-dry--footer">Paola</p>
+          <p class="type-brush-dry type-brush-dry--blue type-brush-dry--footer">Biker</p>
         </div>
+        <p class="site-footer__purpose">{{ copy }}</p>
+      </header>
 
-        <div v-if="subscribeMail" class="site-footer__col site-footer__col--subscribe">
-          <h5 class="site-footer__col-title">{{ subscribeTitle }}</h5>
-          <form class="site-footer__subscribe-form" @submit.prevent="onSubscribe">
-            <Input
-              v-model="subscribeEmail"
-              type="email"
-              :placeholder="subscribePlaceholder"
-            />
-            <Button type="submit" size="sm">{{ subscribeCta }}</Button>
-          </form>
+      <div v-else class="site-footer__brand site-footer__brand--compact">
+        <img :src="logoSrc" width="40" height="40" alt="Paola" />
+        <div>
+          <p class="site-footer__name">{{ motto }}</p>
+          <p class="site-footer__tagline">{{ copy }}</p>
         </div>
       </div>
 
-      <div class="site-footer__alliances" aria-label="Alianzas del parche">
-        <span class="site-footer__alliances-label">{{ alliancesLabel }}</span>
-        <div class="site-footer__alliances-track">
-          <template v-if="alliances?.length">
-            <a
-              v-for="ally in alliances"
-              :key="ally.name"
-              class="site-footer__ally"
-              :href="ally.href || undefined"
-              :target="ally.href ? '_blank' : undefined"
-              :rel="ally.href ? 'noopener noreferrer' : undefined"
-              :tabindex="ally.href ? undefined : -1"
-            >
-              {{ ally.name }}
-            </a>
-          </template>
-          <span v-else class="site-footer__alliances-empty">{{ alliancesEmpty }}</span>
+      <template v-if="columns?.length">
+        <div class="site-footer__grid">
+          <div v-for="col in columns" :key="col.title" class="site-footer__col">
+            <h5 class="site-footer__col-title">{{ col.title }}</h5>
+            <ul class="site-footer__col-list">
+              <li v-for="link in col.links" :key="link.label">
+                <AppLink :to="link.to" :href="link.href">{{ link.label }}</AppLink>
+              </li>
+            </ul>
+          </div>
+
+          <div v-if="contact?.length" class="site-footer__col">
+            <h5 class="site-footer__col-title">{{ contactTitle }}</h5>
+            <ul class="site-footer__col-list">
+              <li v-for="link in contact" :key="(link.to ?? link.href) + link.label">
+                <AppLink :to="link.to" :href="link.href">{{ link.label }}</AppLink>
+              </li>
+              <li v-if="domain">
+                <a :href="`https://${domain}`" target="_blank" rel="noopener noreferrer">{{ domain }}</a>
+              </li>
+            </ul>
+          </div>
+
+          <div v-if="subscribeMail" class="site-footer__col site-footer__col--subscribe">
+            <h5 class="site-footer__col-title">{{ subscribeTitle }}</h5>
+            <form class="site-footer__subscribe-form" @submit.prevent="onSubscribe">
+              <Input
+                v-model="subscribeEmail"
+                type="email"
+                :placeholder="subscribePlaceholder"
+              />
+              <Button type="submit" size="sm">{{ subscribeCta }}</Button>
+            </form>
+          </div>
         </div>
-      </div>
+
+        <div class="site-footer__alliances" aria-label="Alianzas del parche">
+          <span class="site-footer__alliances-label">{{ alliancesLabel }}</span>
+          <div class="site-footer__alliances-track">
+            <template v-if="alliances?.length">
+              <a
+                v-for="ally in alliances"
+                :key="ally.name"
+                class="site-footer__ally"
+                :href="ally.href || undefined"
+                :target="ally.href ? '_blank' : undefined"
+                :rel="ally.href ? 'noopener noreferrer' : undefined"
+                :tabindex="ally.href ? undefined : -1"
+              >
+                {{ ally.name }}
+              </a>
+            </template>
+            <span v-else class="site-footer__alliances-empty">{{ alliancesEmpty }}</span>
+          </div>
+        </div>
+      </template>
     </template>
 
     <div class="site-footer__bar">
       <div class="site-footer__legal-block">
+        <img
+          v-if="compact"
+          class="site-footer__legal-logo"
+          :src="logoSrc"
+          width="24"
+          height="24"
+          alt=""
+        />
         <p class="site-footer__legal">© {{ year }} {{ legalName }}</p>
       </div>
       <div v-if="links?.length" class="site-footer__links">

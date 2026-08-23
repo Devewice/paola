@@ -13,6 +13,7 @@ import ProductRoute from '@app/shell/ProductRoute.vue'
 import ServiceRoute from '@app/shell/ServiceRoute.vue'
 import ShopRoute from '@app/shell/ShopRoute.vue'
 import TuVozRoute from '@app/shell/TuVozRoute.vue'
+import LoginRoute from '@app/shell/LoginRoute.vue'
 import PrivacyView from '@app/shell/PrivacyView.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
@@ -41,6 +42,7 @@ const routes: RouteRecordRaw[] = [
   { path: APP_PATHS.OPERAR, redirect: APP_PATHS.ADMIN },
   { path: `${APP_PATHS.OPERAR}/ui-test`, redirect: APP_PATHS.ADMIN_UI },
   { path: APP_PATHS.PRIVACIDAD, name: 'privacidad', component: PrivacyView, meta: { title: ROUTE_TITLES.PRIVACIDAD } },
+  { path: APP_PATHS.ENTRAR, name: 'entrar', component: LoginRoute, meta: { title: ROUTE_TITLES.ENTRAR } },
   { path: APP_PATHS.CUENTA, name: 'cuenta', component: CuentaRoute, meta: { title: ROUTE_TITLES.CUENTA } },
   { path: APP_PATHS.FEED, name: 'feed', component: FeedRoute, meta: { title: ROUTE_TITLES.FEED } },
   {

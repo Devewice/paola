@@ -8,6 +8,7 @@ import { voiceRoutes } from './voice/index.js'
 import { ordersRoutes } from './orders/index.js'
 import { socialRoutes } from './social/index.js'
 import { paymentsRoutes } from './payments/index.js'
+import { authRoutes } from './auth/index.js'
 
 export const apiRoutes: readonly Route[] = [
   ...healthRoutes,
@@ -19,4 +20,5 @@ export const apiRoutes: readonly Route[] = [
   ...ordersRoutes,
   ...socialRoutes,
   ...paymentsRoutes,
+  ...authRoutes,
 ]

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { getAppDependencies } from '@app/bootstrap.ts'
+import AuthWizard from '@app/shell/AuthWizard.vue'
 import { OPERAR_CLAVE_STORAGE_KEY, OPERAR_COPY } from '@app/constants/operar.ts'
 import { ADMIN_COPY } from '@app/constants/kit.ts'
 import PaymentWizard from '@modules/shop/presentation/PaymentWizard.vue'
@@ -67,6 +68,9 @@ async function unlock() {
       </section>
       <section id="pasarela" class="operar-page__section" data-reveal>
         <PaymentWizard :module="module" :clave="clave.trim()" />
+      </section>
+      <section id="login" class="operar-page__section" data-reveal>
+        <AuthWizard :clave="clave.trim()" />
       </section>
       <div class="row" data-reveal>
         <Button variant="ghost" size="sm" :to="APP_PATHS.ADMIN_UI">{{ ADMIN_COPY.kitCta }}</Button>
