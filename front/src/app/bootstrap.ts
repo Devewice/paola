@@ -42,10 +42,19 @@ import type { ServiceCatalogPort } from '@modules/shop/domain/ports/ServiceCatal
 import {
   createVoiceModule,
   loadTipCatalog,
+  loadFineCatalog,
+  loadReportCatalog,
   InMemoryTipCatalog,
+  InMemoryFineCatalog,
+  InMemoryReportCatalog,
+  HttpReportApi,
+  InMemoryReportApi,
   type VoiceModule,
 } from '@modules/voice/index.ts'
 import type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
+import type { FineCatalogPort } from '@modules/voice/domain/ports/FineCatalogPort.ts'
+import type { ReportCatalogPort } from '@modules/voice/domain/ports/ReportCatalogPort.ts'
+import type { ReportSubmitPort } from '@modules/voice/domain/ports/ReportSubmitPort.ts'
 
 export type AppDependencies = {
   paola: PaolaModule
@@ -67,6 +76,9 @@ function wire(
   memoryCatalog: MemoryCatalogPort,
   clubContent: ClubContentPort,
   tipCatalog: TipCatalogPort,
+  fineCatalog: FineCatalogPort,
+  reportCatalog: ReportCatalogPort,
+  reportSubmit: ReportSubmitPort,
   productCatalog: ProductCatalogPort,
   serviceCatalog: ServiceCatalogPort,
   ordersMode: 'http' | 'memory',
@@ -89,7 +101,7 @@ function wire(
       },
     }),
   )
-  const voice = createVoiceModule(tipCatalog)
+  const voice = createVoiceModule(tipCatalog, fineCatalog, reportCatalog, reportSubmit)
   const ordersApi =
     ordersMode === 'http'
       ? new HttpShopOrdersApi({ whatsappHref: contact.whatsapp.href })
@@ -117,31 +129,73 @@ function emptyClub(paola: PaolaModule): ClubContentPort {
 
 export async function createAppDependencies(): Promise<AppDependencies> {
   const join = joinFromPaola(createPaolaModule())
-  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog] =
-    await Promise.all([
-      loadOutingCatalog(),
-      loadMemoryCatalog(),
-      loadClubCatalog(join),
-      loadTipCatalog(),
-      loadProductCatalog(),
-      loadServiceCatalog(),
-    ])
-  return wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog, 'http')
+  const [
+    catalog,
+    memoryCatalog,
+    clubContent,
+    tipCatalog,
+    fineCatalog,
+    reportCatalog,
+    productCatalog,
+    serviceCatalog,
+  ] = await Promise.all([
+    loadOutingCatalog(),
+    loadMemoryCatalog(),
+    loadClubCatalog(join),
+    loadTipCatalog(),
+    loadFineCatalog(),
+    loadReportCatalog(),
+    loadProductCatalog(),
+    loadServiceCatalog(),
+  ])
+  return wire(
+    catalog,
+    memoryCatalog,
+    clubContent,
+    tipCatalog,
+    fineCatalog,
+    reportCatalog,
+    new HttpReportApi(),
+    productCatalog,
+    serviceCatalog,
+    'http',
+  )
 }
 
-/** Recarga inventario desde la API (Inicio, Parchese, Tienda). */
+/** Recarga inventario desde la API (Inicio, Parchese, Tienda, Tu voz). */
 export async function refreshInventory(): Promise<void> {
   const join = joinFromPaola(createPaolaModule())
-  const [catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog] =
-    await Promise.all([
-      loadOutingCatalog(),
-      loadMemoryCatalog(),
-      loadClubCatalog(join),
-      loadTipCatalog(),
-      loadProductCatalog(),
-      loadServiceCatalog(),
-    ])
-  wire(catalog, memoryCatalog, clubContent, tipCatalog, productCatalog, serviceCatalog, 'http')
+  const [
+    catalog,
+    memoryCatalog,
+    clubContent,
+    tipCatalog,
+    fineCatalog,
+    reportCatalog,
+    productCatalog,
+    serviceCatalog,
+  ] = await Promise.all([
+    loadOutingCatalog(),
+    loadMemoryCatalog(),
+    loadClubCatalog(join),
+    loadTipCatalog(),
+    loadFineCatalog(),
+    loadReportCatalog(),
+    loadProductCatalog(),
+    loadServiceCatalog(),
+  ])
+  wire(
+    catalog,
+    memoryCatalog,
+    clubContent,
+    tipCatalog,
+    fineCatalog,
+    reportCatalog,
+    new HttpReportApi(),
+    productCatalog,
+    serviceCatalog,
+    'http',
+  )
 }
 
 export function getAppDependencies(): AppDependencies {
@@ -152,6 +206,9 @@ export function getAppDependencies(): AppDependencies {
       new InMemoryMemoryCatalog(),
       emptyClub(paola),
       new InMemoryTipCatalog(),
+      new InMemoryFineCatalog(),
+      new InMemoryReportCatalog(),
+      new InMemoryReportApi(),
       new InMemoryProductCatalog(),
       new InMemoryServiceCatalog(),
       'memory',

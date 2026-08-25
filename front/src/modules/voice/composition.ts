@@ -1,14 +1,34 @@
+import { GetFines } from '@modules/voice/application/GetFines.ts'
+import { GetReports } from '@modules/voice/application/GetReports.ts'
 import { GetTips } from '@modules/voice/application/GetTips.ts'
+import { SubmitReport } from '@modules/voice/application/SubmitReport.ts'
+import type { FineCatalogPort } from '@modules/voice/domain/ports/FineCatalogPort.ts'
+import type { ReportCatalogPort } from '@modules/voice/domain/ports/ReportCatalogPort.ts'
+import type { ReportSubmitPort } from '@modules/voice/domain/ports/ReportSubmitPort.ts'
 import type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
 
 export type VoiceModule = {
   getTips: () => ReturnType<GetTips['execute']>
+  getFines: () => ReturnType<GetFines['execute']>
+  getReports: () => ReturnType<GetReports['execute']>
+  submitReport: (draft: Record<string, unknown>) => ReturnType<SubmitReport['execute']>
 }
 
-export function createVoiceModule(catalog: TipCatalogPort): VoiceModule {
-  const getTips = new GetTips(catalog)
+export function createVoiceModule(
+  tips: TipCatalogPort,
+  fines: FineCatalogPort,
+  reports: ReportCatalogPort,
+  submit: ReportSubmitPort,
+): VoiceModule {
+  const getTips = new GetTips(tips)
+  const getFines = new GetFines(fines)
+  const getReports = new GetReports(reports)
+  const submitReport = new SubmitReport(submit)
 
   return {
     getTips: () => getTips.execute(),
+    getFines: () => getFines.execute(),
+    getReports: () => getReports.execute(),
+    submitReport: (draft) => submitReport.execute(draft),
   }
 }

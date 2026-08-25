@@ -65,14 +65,14 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
       {
         title: 'Educación',
         links: [
-          { label: 'Tips de vía', to: APP_PATHS.TU_VOZ },
-          { label: 'Comparendos · guía', to: APP_PATHS.TU_VOZ },
+          { label: 'Tips de vía', to: `${APP_PATHS.TU_VOZ}#tips` },
+          { label: 'Comparendos · guía', to: `${APP_PATHS.TU_VOZ}#comparendos` },
         ],
       },
       {
         title: 'Parche',
         links: [
-          { label: 'Reportes', to: APP_PATHS.TU_VOZ },
+          { label: 'Reportes', to: `${APP_PATHS.TU_VOZ}#reportes` },
           { label: 'Moderación', to: `${APP_PATHS.PRIVACIDAD}#moderacion` },
         ],
       },
@@ -80,7 +80,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
         title: 'Legal',
         links: [
           { label: 'Aviso de privacidad', to: APP_PATHS.PRIVACIDAD },
-          { label: 'Cómo leer un comparendo', to: APP_PATHS.TU_VOZ },
+          { label: 'Cómo leer un comparendo', to: `${APP_PATHS.TU_VOZ}#comparendos` },
         ],
       },
     ],
@@ -165,9 +165,9 @@ export const MEGA_FOOTER_COLUMNS: readonly MegaColumn[] = [
   {
     title: 'Tu voz',
     links: [
-      { label: 'Tips', to: APP_PATHS.TU_VOZ },
-      { label: 'Comparendos', to: APP_PATHS.TU_VOZ },
-      { label: 'Reportes', to: APP_PATHS.TU_VOZ },
+      { label: 'Tips', to: `${APP_PATHS.TU_VOZ}#tips` },
+      { label: 'Comparendos', to: `${APP_PATHS.TU_VOZ}#comparendos` },
+      { label: 'Reportes', to: `${APP_PATHS.TU_VOZ}#reportes` },
     ],
   },
   {

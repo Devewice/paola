@@ -345,7 +345,15 @@ async function googleStart(): Promise<void> {
   min-height: min(72vh, 680px);
   padding: 40px 16px 56px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-x: clip;
+}
+
+@media (max-width: 639px) {
+  .login-screen {
+    align-items: flex-start;
+    min-height: 0;
+    padding: 24px 16px 40px;
+  }
 }
 
 .login-screen__glow {

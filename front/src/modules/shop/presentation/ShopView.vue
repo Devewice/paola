@@ -85,6 +85,7 @@ const authOpen = ref(false)
 const authBusy = ref(false)
 const authError = ref('')
 const pendingCardId = ref<string | null>(null)
+const filtersPanelOpen = ref(false)
 
 const contact = computed(() => props.module.getContact())
 const catalog = computed(() => props.module.getShelves())
@@ -199,8 +200,15 @@ async function onLogin(draft: { email: string; password: string }) {
 
 onMounted(() => {
   sessionId.value = readSession()
+  filtersPanelOpen.value = window.matchMedia('(min-width: 960px)').matches
   void refreshMysteryDeck()
 })
+
+function onFiltersToggle(event: Event): void {
+  const el = event.target
+  if (!(el instanceof HTMLDetailsElement)) return
+  filtersPanelOpen.value = el.open
+}
 
 const filterState = computed((): CatalogFilter => ({
   query: query.value,
@@ -442,7 +450,14 @@ const filtersDirty = computed(() => chips.value.length > 0)
             <p class="meta">{{ copy.eventsLead }}</p>
             <Button size="sm" :to="APP_PATHS.PARCHESE">{{ copy.eventsCta }}</Button>
           </div>
-          <aside class="shop-market__filters" :aria-label="copy.filtersTitle" data-reveal>
+          <details
+            class="shop-market__filters-panel"
+            :open="filtersPanelOpen"
+            data-reveal
+            @toggle="onFiltersToggle"
+          >
+            <summary>{{ copy.filtersTitle }}</summary>
+            <aside class="shop-market__filters" :aria-label="copy.filtersTitle">
           <h2>{{ copy.filtersTitle }}</h2>
           <Search v-model="query" :placeholder="copy.searchPlaceholder" />
 
@@ -505,7 +520,8 @@ const filtersDirty = computed(() => chips.value.length > 0)
           <Button v-if="filtersDirty" variant="ghost" size="sm" @click="clearFilters">
             {{ copy.filtersClear }}
           </Button>
-          </aside>
+            </aside>
+          </details>
         </div>
 
         <div class="shop-market__results">

@@ -485,6 +485,22 @@ function logout(): void {
   justify-content: flex-end;
 }
 
+@media (max-width: 639px) {
+  .cuenta-screen__body {
+    padding-top: 16px;
+    padding-bottom: 24px;
+    gap: 16px;
+  }
+
+  .cuenta-screen__actions {
+    justify-content: stretch;
+  }
+
+  .cuenta-screen__actions :deep(.btn) {
+    width: 100%;
+  }
+}
+
 .cuenta-pane {
   gap: 12px;
 }

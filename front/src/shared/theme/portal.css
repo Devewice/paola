@@ -619,13 +619,13 @@ h2,
   background:
     linear-gradient(180deg, rgba(0, 136, 248, 0.05) 0%, transparent 64px),
     var(--paola-ink);
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .paola-site-foot--compact {
   background: var(--paola-ink);
   border-top: none;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .paola-site-foot--compact .paola-site-foot__inner {
@@ -730,15 +730,18 @@ h2,
   align-items: center;
   justify-content: center;
   min-height: 48px;
-  padding: 8px 4px;
+  padding: 8px 2px;
   font-family: var(--paola-font-ui);
-  font-size: 10px;
+  font-size: clamp(9px, 2.5vw, 10px);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-align: center;
   text-decoration: none;
   color: var(--paola-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .paola-bottom-nav__item.is-on {

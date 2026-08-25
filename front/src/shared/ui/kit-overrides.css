@@ -219,3 +219,130 @@ body:not(:has(.html-kit-page)) section {
     opacity: 1 !important;
   }
 }
+
+/* —— Responsive portal (teléfono / tablet) —— */
+
+@media (max-width: 959px) {
+  .shop-market__layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .shop-market__results {
+    order: 1;
+  }
+
+  .shop-market__aside {
+    order: 2;
+  }
+
+  .shop-market__filters-panel {
+    border: 1px solid rgba(72, 180, 252, 0.22);
+    border-radius: 12px;
+    background: rgba(0, 16, 40, 0.4);
+    padding: 0 14px 14px;
+  }
+
+  .shop-market__filters-panel > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0;
+    font-family: var(--display, Oswald, sans-serif);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white, #f7fafc);
+  }
+
+  .shop-market__filters-panel > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .shop-market__filters-panel > summary::after {
+    content: '+';
+    font-size: 18px;
+    color: var(--cyan, #48b4fc);
+  }
+
+  .shop-market__filters-panel[open] > summary::after {
+    content: '−';
+  }
+
+  .shop-market__filters-panel .shop-market__filters > h2 {
+    display: none;
+  }
+
+  .user-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sort-toolbar__drops .list-select {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+}
+
+@media (min-width: 960px) {
+  .shop-market__filters-panel {
+    display: contents;
+  }
+
+  .shop-market__filters-panel > summary {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .wrap {
+    padding-block: 24px 48px;
+  }
+
+  .kit-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kit-hero__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .kit-hero__titles {
+    min-width: 0;
+  }
+
+  .shop-market__shelf.grid-3,
+  .shop-market__shelf.grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .notice-bar {
+    flex-wrap: wrap;
+  }
+
+  .deal-deck__stage {
+    overflow: hidden;
+  }
+
+  .paola-who__cta,
+  .paola-who__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .paola-who__cta .btn,
+  .paola-who__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 959px) {
+  .shop-market__shelf.grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

@@ -1,9 +1,31 @@
 export type { Tip, TipList } from '@modules/voice/domain/entities/Tip.ts'
-export { TIPS_EMPTY_COPY } from '@modules/voice/constants/copy.ts'
+export type { FineGuide, FineList } from '@modules/voice/domain/entities/Fine.ts'
+export type { VoiceReport, ReportList } from '@modules/voice/domain/entities/Report.ts'
+export {
+  TIPS_EMPTY_COPY,
+  FINES_EMPTY_COPY,
+  REPORTS_EMPTY_COPY,
+  VOICE_COPY,
+  VOICE_HERO_PHOTO,
+} from '@modules/voice/constants/copy.ts'
 export type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
+export type { FineCatalogPort } from '@modules/voice/domain/ports/FineCatalogPort.ts'
+export type { ReportCatalogPort } from '@modules/voice/domain/ports/ReportCatalogPort.ts'
+export type { ReportSubmitPort } from '@modules/voice/domain/ports/ReportSubmitPort.ts'
 export { parseReportDraft } from '@modules/voice/application/parseReportDraft.ts'
 export { GetTips } from '@modules/voice/application/GetTips.ts'
+export { GetFines } from '@modules/voice/application/GetFines.ts'
+export { GetReports } from '@modules/voice/application/GetReports.ts'
+export { SubmitReport } from '@modules/voice/application/SubmitReport.ts'
 export { createVoiceModule, type VoiceModule } from '@modules/voice/composition.ts'
 export { loadTipCatalog } from '@modules/voice/infrastructure/loadTipCatalog.ts'
+export { loadFineCatalog } from '@modules/voice/infrastructure/loadFineCatalog.ts'
+export { loadReportCatalog } from '@modules/voice/infrastructure/loadReportCatalog.ts'
 export { InMemoryTipCatalog } from '@modules/voice/infrastructure/InMemoryTipCatalog.ts'
+export { InMemoryFineCatalog } from '@modules/voice/infrastructure/InMemoryFineCatalog.ts'
+export { InMemoryReportCatalog } from '@modules/voice/infrastructure/InMemoryReportCatalog.ts'
+export { HttpReportApi } from '@modules/voice/infrastructure/HttpReportApi.ts'
+export { InMemoryReportApi } from '@modules/voice/infrastructure/InMemoryReportApi.ts'
 export { parseTip, parseTipList } from '@modules/voice/infrastructure/parseTip.ts'
+export { parseFine, parseFineList } from '@modules/voice/infrastructure/parseFine.ts'
+export { parseReport, parseReportList } from '@modules/voice/infrastructure/parseReport.ts'
