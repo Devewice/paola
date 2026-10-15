@@ -2,11 +2,12 @@ import { fail } from '../../../http/fail.js'
 import { ADMIN_ROLE_ID, HTTP_MESSAGES, HTTP_STATUS, PERMISSION_LIST } from '../../../http/constants.js'
 import type { Parsed } from '../../../http/types.js'
 import { hashPassword } from '../../social/schemas/social.schema.js'
-import { ROLES_ENV, ROLES_LIMITS, ROLES_MESSAGES } from '../constants/roles.constants.js'
+import { ROLES_LIMITS, ROLES_MESSAGES } from '../constants/roles.constants.js'
 import type { AccessDto } from '../dtos/roles.dto.js'
 import type { Access, RoleRecord, UserRoleRow } from '../interfaces/roles.interface.js'
 import {
   aliasTaken,
+  countAdmins,
   deleteRole,
   findAccess,
   findRole,
@@ -23,13 +24,9 @@ import {
 } from '../providers/roles.provider.js'
 import { aliasFromEmail, parseRoleDraft, roleIdFromName } from '../schemas/roles.schema.js'
 
-function ownerEmail(): string {
-  return (process.env[ROLES_ENV.ADMIN_EMAIL] ?? '').trim().toLowerCase()
-}
-
 export async function readAccess(sessionId: string): Promise<Parsed<AccessDto>> {
   const access = await findAccess(sessionId)
-  if (!access) return fail(HTTP_STATUS.FORBIDDEN, HTTP_MESSAGES.SESSION_REQUIRED)
+  if (!access?.permissions.length) return fail(HTTP_STATUS.NOT_FOUND, HTTP_MESSAGES.HIDDEN)
   return {
     ok: true,
     value: {
@@ -97,8 +94,8 @@ export async function changeUserRole(
   const user = await findUserById(userId)
   if (!user) return fail(HTTP_STATUS.NOT_FOUND, ROLES_MESSAGES.USER_NOT_FOUND)
   if (user.id === actor.userId) return fail(HTTP_STATUS.FORBIDDEN, ROLES_MESSAGES.SELF_LOCKED)
-  if (user.email.toLowerCase() === ownerEmail() && roleId !== ADMIN_ROLE_ID) {
-    return fail(HTTP_STATUS.FORBIDDEN, ROLES_MESSAGES.OWNER_LOCKED)
+  if (user.roleId === ADMIN_ROLE_ID && roleId !== ADMIN_ROLE_ID && (await countAdmins()) <= 1) {
+    return fail(HTTP_STATUS.FORBIDDEN, ROLES_MESSAGES.LAST_ADMIN)
   }
   await setUserRole(user.id, roleId)
   return { ok: true, value: { id: user.id } }
@@ -113,24 +110,17 @@ async function freeAlias(email: string): Promise<string> {
   return alias
 }
 
-export async function ensureAdminAccount(): Promise<void> {
-  const email = ownerEmail()
-  if (!email) return
-  try {
-    const existing = await findUserIdByEmail(email)
-    if (existing) {
-      await setUserRole(existing, ADMIN_ROLE_ID)
-      console.log(ROLES_MESSAGES.ADMIN_READY(email))
-      return
-    }
-    const password = (process.env[ROLES_ENV.ADMIN_PASSWORD] ?? '').trim()
-    if (password.length < ROLES_LIMITS.PASSWORD_MIN) {
-      console.warn(ROLES_MESSAGES.ADMIN_SKIPPED)
-      return
-    }
-    await insertAdminUser({ email, alias: await freeAlias(email), passwordHash: hashPassword(password) })
-    console.log(ROLES_MESSAGES.ADMIN_READY(email))
-  } catch (error) {
-    console.warn(ROLES_MESSAGES.ADMIN_FAIL(error instanceof Error ? error.message : String(error)))
+export type MakeAdminResult = 'promoted' | 'created' | 'needs-password'
+
+/** Solo para el comando de consola: nunca se expone por HTTP. */
+export async function makeAdmin(email: string, password = ''): Promise<MakeAdminResult> {
+  const clean = email.trim().toLowerCase()
+  const existing = await findUserIdByEmail(clean)
+  if (existing) {
+    await setUserRole(existing, ADMIN_ROLE_ID)
+    return 'promoted'
   }
+  if (password.trim().length < ROLES_LIMITS.PASSWORD_MIN) return 'needs-password'
+  await insertAdminUser({ email: clean, alias: await freeAlias(clean), passwordHash: hashPassword(password.trim()) })
+  return 'created'
 }

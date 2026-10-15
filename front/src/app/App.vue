@@ -5,6 +5,7 @@ import { FOOTER_COPY, MEGA_COPY } from '@app/constants/copy.ts'
 import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies } from '@app/bootstrap.ts'
+import { kitUnlocked } from '@app/shell/kitGate.ts'
 import BrushDefs from '@ui/BrushDefs.vue'
 import MegaHeader from '@ui/MegaHeader.vue'
 import SiteFooter from '@ui/SiteFooter.vue'
@@ -22,12 +23,7 @@ const footerAlliances = computed(() =>
     href: item.href,
   })),
 )
-const isKitCatalog = computed(
-  () =>
-    route.path === APP_PATHS.ADMIN_UI ||
-    route.path === `${APP_PATHS.ADMIN}/ui-test` ||
-    route.path === APP_PATHS.KIT,
-)
+const isKitCatalog = computed(() => kitUnlocked.value && route.path === APP_PATHS.ADMIN_UI)
 
 const footerCompact = computed(
   () => route.path === APP_PATHS.CUENTA || route.path === APP_PATHS.ENTRAR,

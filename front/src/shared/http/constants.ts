@@ -207,7 +207,6 @@ export const APP_PATHS = {
   PAOLA: '/paola',
   ADMIN: '/admin',
   ADMIN_UI: '/admin/ui',
-  KIT: '/kit',
   OPERAR: '/operar',
   PRIVACIDAD: '/privacidad',
   CUENTA: '/cuenta',

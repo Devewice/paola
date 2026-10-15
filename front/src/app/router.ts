@@ -3,7 +3,7 @@ import { OG_COPY, ROUTE_TITLES } from '@app/constants/copy.ts'
 import CuentaRoute from '@app/shell/CuentaRoute.vue'
 import FeedRoute from '@app/shell/FeedRoute.vue'
 import HomeRoute from '@app/shell/HomeRoute.vue'
-import KitView from '@app/shell/KitView.vue'
+import KitRoute from '@app/shell/KitRoute.vue'
 import NotFoundView from '@app/shell/NotFoundView.vue'
 import OperarView from '@app/shell/OperarView.vue'
 import PaolaRoute from '@app/shell/PaolaRoute.vue'
@@ -103,12 +103,14 @@ const routes: RouteRecordRaw[] = [
     meta: { title: ROUTE_TITLES.FICHA },
   },
   { path: APP_PATHS.PAOLA, name: 'paola', component: PaolaRoute, meta: { title: ROUTE_TITLES.PAOLA } },
-  { path: APP_PATHS.ADMIN, name: 'admin', component: OperarView, meta: { title: ROUTE_TITLES.ADMIN } },
-  { path: APP_PATHS.ADMIN_UI, name: 'admin-ui', component: KitView, meta: { title: ROUTE_TITLES.KIT } },
-  { path: `${APP_PATHS.ADMIN}/ui-test`, redirect: APP_PATHS.ADMIN_UI },
-  { path: APP_PATHS.KIT, redirect: APP_PATHS.ADMIN_UI },
-  { path: APP_PATHS.OPERAR, redirect: APP_PATHS.ADMIN },
-  { path: `${APP_PATHS.OPERAR}/ui-test`, redirect: APP_PATHS.ADMIN_UI },
+  {
+    path: APP_PATHS.ADMIN,
+    alias: APP_PATHS.OPERAR,
+    name: 'admin',
+    component: OperarView,
+    meta: { title: ROUTE_TITLES.NOT_FOUND },
+  },
+  { path: APP_PATHS.ADMIN_UI, name: 'admin-ui', component: KitRoute, meta: { title: ROUTE_TITLES.NOT_FOUND } },
   { path: APP_PATHS.PRIVACIDAD, name: 'privacidad', component: PrivacyView, meta: { title: ROUTE_TITLES.PRIVACIDAD } },
   { path: APP_PATHS.ENTRAR, name: 'entrar', component: LoginRoute, meta: { title: ROUTE_TITLES.ENTRAR } },
   { path: APP_PATHS.CUENTA, name: 'cuenta', component: CuentaRoute, meta: { title: ROUTE_TITLES.CUENTA } },

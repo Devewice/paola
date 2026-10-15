@@ -14,11 +14,6 @@ export const ROLES_TABLES = {
   SESSIONS: 'sessions',
 } as const
 
-export const ROLES_ENV = {
-  ADMIN_EMAIL: 'ADMIN_EMAIL',
-  ADMIN_PASSWORD: 'ADMIN_PASSWORD',
-} as const
-
 export const ROLES_LIMITS = {
   NAME_MIN: 2,
   NAME_MAX: 80,
@@ -38,8 +33,17 @@ export const ROLES_MESSAGES = {
   SYSTEM_LOCKED: 'Admin y Usuario son fijos: no se editan ni se borran.',
   USER_NOT_FOUND: 'Esa cuenta no existe.',
   SELF_LOCKED: 'No puedes cambiar tu propio rol.',
-  OWNER_LOCKED: 'La cuenta dueña del panel siempre es admin.',
-  ADMIN_READY: (email: string) => `Paola roles: ${email} es admin`,
-  ADMIN_SKIPPED: 'Paola roles: ADMIN_EMAIL existe sin cuenta y falta ADMIN_PASSWORD (mínimo 6)',
-  ADMIN_FAIL: (detail: string) => `Paola roles: no se pudo preparar el admin (${detail})`,
+  LAST_ADMIN: 'Tiene que quedar al menos un admin.',
+} as const
+
+export const ADMIN_CLI_COPY = {
+  askEmail: 'Correo de la cuenta admin: ',
+  askPassword: 'Contraseña (no se ve al escribir): ',
+  askRepeat: 'Repite la contraseña: ',
+  emailInvalid: 'Ese correo no sirve.',
+  passwordShort: 'La contraseña necesita mínimo 6 caracteres.',
+  passwordMismatch: 'Las contraseñas no coinciden.',
+  promoted: (email: string) => `Listo: ${email} ya es admin. Su contraseña no cambió.`,
+  created: (email: string) => `Listo: cuenta ${email} creada como admin. Entra en /entrar.`,
+  failed: 'Error:',
 } as const

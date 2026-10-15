@@ -1,3 +1,5 @@
+import { HTTP_MESSAGES } from './http/constants.js'
+
 export const ENV = {
   PORT: 'PORT',
   SITE_DOMAIN: 'VITE_SITE_DOMAIN',
@@ -34,7 +36,7 @@ export const MIME_HTML = 'text/html; charset=utf-8'
 
 export const APP_MESSAGES = {
   NO_BUILD: 'sin build; corre npm run build',
-  API_NOT_FOUND: 'ruta de API no existe aún',
+  API_NOT_FOUND: HTTP_MESSAGES.HIDDEN,
   BACK_ALIVE: 'back vivo; el front en local lo sirve Vite',
   MIGRATE_UP_TO_DATE: 'Paola MySQL: migraciones al día',
   MYSQL_ERROR: 'error mysql',

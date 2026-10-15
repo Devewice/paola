@@ -12,8 +12,6 @@ import {
 } from './controllers/roles.controller.js'
 import { withRolesErrors } from './middlewares/roles.middleware.js'
 
-export { ensureAdminAccount } from './services/roles.service.js'
-
 export const rolesRoutes: readonly Route[] = [
   { method: HTTP_METHOD.GET, path: ROLES_ROUTES.ACCESS, handler: withRolesErrors(accessController) },
   { method: HTTP_METHOD.GET, path: ROLES_ROUTES.LIST, handler: withRolesErrors(listRolesController) },

@@ -28,9 +28,10 @@ export async function requirePermission(
 ): Promise<Access | null> {
   const access = await operadorAccess(request, body)
   if (access?.permissions.includes(permission)) return access
-  sendJson(response, HTTP_STATUS.FORBIDDEN, {
-    ok: false,
-    detail: access ? HTTP_MESSAGES.CLAVE_INVALID : HTTP_MESSAGES.SESSION_REQUIRED,
-  })
+  if (!access?.permissions.length) {
+    sendJson(response, HTTP_STATUS.NOT_FOUND, { ok: false, detail: HTTP_MESSAGES.HIDDEN })
+    return null
+  }
+  sendJson(response, HTTP_STATUS.FORBIDDEN, { ok: false, detail: HTTP_MESSAGES.CLAVE_INVALID })
   return null
 }

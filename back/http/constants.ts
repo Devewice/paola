@@ -45,7 +45,8 @@ export const DEFAULT_ROLE_ID = 'usuario'
 export const HTTP_MESSAGES = {
   JSON_INVALID: 'El cuerpo no es JSON.',
   CLAVE_INVALID: 'Tu cuenta no tiene permiso para esto.',
-  SESSION_REQUIRED: 'Entra con tu cuenta para usar el panel.',
+  /** Igual al 404 de ruta inexistente: el panel no se delata sin permisos. */
+  HIDDEN: 'ruta de API no existe aún',
   MYSQL_FALLBACK: 'mysql',
   INTERNAL: 'error interno',
 } as const

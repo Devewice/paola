@@ -19,7 +19,6 @@ import { HTTP_HEADER, HTTP_STATUS } from './http/constants.js'
 import { createRouter } from './http/router.js'
 import { sendJson } from './http/send.js'
 import { apiRoutes } from './modules/index.js'
-import { ensureAdminAccount } from './modules/roles/index.js'
 
 const root = process.cwd()
 dotenv.config({ path: join(root, '.env') })
@@ -82,7 +81,6 @@ async function start(): Promise<void> {
   if (ping.ok) {
     try {
       await migrate()
-      await ensureAdminAccount()
     } catch (error) {
       const message = error instanceof Error ? error.message : APP_MESSAGES.MIGRATE_FALLBACK
       console.warn(migrateFailMessage(message))

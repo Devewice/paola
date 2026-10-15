@@ -40,6 +40,7 @@ export const CUENTA_COPY = {
   noticesEmpty: 'No tienes avisos nuevos.',
   membership: 'La membresía del parche viene pronto. Antes de cobrar nada, te cuento el precio y los beneficios.',
   feed: 'Feed',
+  adminPanel: 'Panel',
   friends: 'Amigos',
   friendsLead: 'Tus amigos del parche. El número de WhatsApp no se muestra.',
   friendsEmpty: 'Todavía no tienes amigos agregados.',

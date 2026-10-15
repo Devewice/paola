@@ -16,7 +16,7 @@ import {
 export const accessController: RouteHandler = async (request, response) => {
   const result = await readAccess(operadorSessionFrom(request))
   if (!result.ok) {
-    sendJson(response, result.status, result)
+    sendJson(response, result.status, { ok: false, detail: result.detail })
     return
   }
   sendJson(response, HTTP_STATUS.OK, { ok: true, access: result.value })

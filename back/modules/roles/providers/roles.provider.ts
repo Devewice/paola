@@ -144,6 +144,11 @@ export async function setUserRole(userId: string, roleId: string): Promise<void>
   await db()(ROLES_TABLES.USERS).where({ id: userId }).update({ role_id: roleId })
 }
 
+export async function countAdmins(): Promise<number> {
+  const row = await db()(ROLES_TABLES.USERS).where({ role_id: ADMIN_ROLE_ID }).count({ total: '*' }).first()
+  return Number((row as { total?: unknown } | undefined)?.total ?? 0)
+}
+
 export async function findUserIdByEmail(email: string): Promise<string | null> {
   const row = await db()(ROLES_TABLES.USERS).select('id').where({ email }).first()
   return row ? String(row.id) : null

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
 import AuthWizard from '@app/shell/AuthWizard.vue'
+import NotFoundView from '@app/shell/NotFoundView.vue'
 import RolesAdmin from '@app/shell/RolesAdmin.vue'
-import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
-import { OPERAR_COPY, OPERAR_TABS, type OperarPermission } from '@app/constants/operar.ts'
+import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
+import { OPERAR_COPY, OPERAR_TABS } from '@app/constants/operar.ts'
+import { ROUTE_TITLES } from '@app/constants/copy.ts'
 import { ADMIN_COPY } from '@app/constants/kit.ts'
 import ClubAdmin from '@modules/club/presentation/ClubAdmin.vue'
 import PollsAdmin from '@modules/polls/presentation/PollsAdmin.vue'
@@ -13,27 +15,14 @@ import PaymentWizard from '@modules/shop/presentation/PaymentWizard.vue'
 import MysteryDeckAdmin from '@modules/shop/presentation/MysteryDeckAdmin.vue'
 import ShopAdmin from '@modules/shop/presentation/ShopAdmin.vue'
 import VoiceAdmin from '@modules/voice/presentation/VoiceAdmin.vue'
-import { API, API_FAIL_FALLBACK, APP_PATHS, SESSION_HEADER, appEntrarYVolver } from '@shared/http/constants.ts'
+import { APP_PATHS } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
-import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
-import Empty from '@ui/Empty.vue'
 import FilterPills from '@ui/FilterPills.vue'
-
-type Access = {
-  readonly alias: string
-  readonly role: { readonly id: string; readonly name: string }
-  readonly permissions: readonly OperarPermission[]
-}
-
-type GateState = 'loading' | 'guest' | 'denied' | 'failed' | 'ready'
 
 const bindReveal = usePageReveal()
 const copy = OPERAR_COPY
-const state = ref<GateState>('loading')
-const access = ref<Access | null>(null)
-const error = ref('')
-const session = ref('')
+const { gate, access, session, can } = useOperarAccess(ROUTE_TITLES.ADMIN)
 const tab = ref('')
 const stamp = ref(0)
 const deps = computed(() => {
@@ -41,57 +30,14 @@ const deps = computed(() => {
   return getAppDependencies()
 })
 const key = computed(() => session.value)
-const enterTo = appEntrarYVolver(APP_PATHS.OPERAR)
 const tabs = computed(() => OPERAR_TABS.filter((item) => can(item.permission)))
 const outingOptions = computed(() =>
   deps.value.rides.listOutings().map((outing) => ({ value: outing.id, label: `${outing.title} · ${outing.date}` })),
 )
 
-function can(permission: OperarPermission): boolean {
-  return Boolean(access.value?.permissions.includes(permission))
-}
-
-function readSession(): string {
-  try {
-    return localStorage.getItem(SESSION_STORAGE_KEY) ?? ''
-  } catch {
-    return ''
-  }
-}
-
-async function loadAccess(): Promise<void> {
-  error.value = ''
-  session.value = readSession()
-  if (!session.value) {
-    state.value = 'guest'
-    return
-  }
-  state.value = 'loading'
-  try {
-    const response = await fetch(API.OPERAR_ACCESS, { headers: { [SESSION_HEADER]: session.value } })
-    const body = (await response.json().catch(() => ({}))) as { access?: Access; detail?: string }
-    if (response.status === 403) {
-      state.value = 'guest'
-      return
-    }
-    if (!response.ok || !body.access) {
-      error.value = typeof body.detail === 'string' ? body.detail : API_FAIL_FALLBACK
-      state.value = 'failed'
-      return
-    }
-    access.value = body.access
-    state.value = body.access.permissions.length ? 'ready' : 'denied'
-  } catch {
-    error.value = API_FAIL_FALLBACK
-    state.value = 'failed'
-  }
-}
-
 watch(tabs, (list) => {
   if (!list.some((item) => item.id === tab.value)) tab.value = list[0]?.id ?? ''
 })
-
-onMounted(loadAccess)
 
 async function onPublished() {
   await refreshInventory()
@@ -100,41 +46,16 @@ async function onPublished() {
 </script>
 
 <template>
-  <article :ref="bindReveal" class="wrap operar-page">
+  <NotFoundView v-if="gate === 'hidden'" />
+  <div v-else-if="gate === 'loading'" class="wrap operar-page" aria-busy="true" />
+  <article v-else :ref="bindReveal" class="wrap operar-page">
     <header class="stack operar-page__intro" data-reveal>
       <p class="meta" style="margin: 0">{{ copy.kicker }}</p>
       <h1 class="operar-page__title">{{ copy.title }}</h1>
       <p class="meta-text">{{ copy.lead }}</p>
     </header>
 
-    <section v-if="state === 'loading'" class="operar-page__gate stack" data-reveal>
-      <p class="meta-text">{{ copy.loading }}</p>
-    </section>
-
-    <section v-else-if="state === 'guest'" class="operar-page__gate stack" data-reveal>
-      <h2 class="operar-page__gate-title">{{ copy.guestTitle }}</h2>
-      <p class="meta-text">{{ copy.guestLead }}</p>
-      <div class="row">
-        <Button :to="enterTo">{{ copy.guestCta }}</Button>
-      </div>
-    </section>
-
-    <section v-else-if="state === 'denied'" class="operar-page__gate" data-reveal>
-      <Empty :title="copy.deniedTitle" :copy="copy.deniedLead" glyph="🔒" compact hide-cta />
-      <div class="row" style="justify-content: center; margin-top: 16px">
-        <Button variant="ghost" size="sm" :to="APP_PATHS.CUENTA">{{ copy.logout }}</Button>
-      </div>
-    </section>
-
-    <section v-else-if="state === 'failed'" class="operar-page__gate stack" data-reveal>
-      <h2 class="operar-page__gate-title">{{ copy.failTitle }}</h2>
-      <Alert tone="bad">{{ error }}</Alert>
-      <div class="row">
-        <Button size="sm" @click="loadAccess">{{ copy.retry }}</Button>
-      </div>
-    </section>
-
-    <template v-else-if="access">
+    <template v-if="access">
       <div class="operar-page__tabs">
         <FilterPills v-model="tab" :pills="tabs" />
         <div class="operar-page__who">

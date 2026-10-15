@@ -5,6 +5,7 @@ import { getAppDependencies } from '@app/bootstrap.ts'
 import { LEGAL_COPY } from '@app/constants/legal.ts'
 import { ALIAS_STORAGE_KEY, CUENTA_COPY, CUENTA_FIGURE, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import OutingThreadBlock from '@app/shell/OutingThreadBlock.vue'
+import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
 import {
   API,
   APP_PATHS,
@@ -60,6 +61,7 @@ const legal = LEGAL_COPY
 const privacyPath = APP_PATHS.PRIVACIDAD
 const bindReveal = usePageReveal()
 const router = useRouter()
+const operar = useOperarAccess()
 
 const panelTabs = computed(() => [
   { id: 'tickets', label: copy.tabTickets },
@@ -348,6 +350,7 @@ function logout(): void {
               </div>
             </dl>
             <div class="cuenta-screen__actions row">
+              <Button v-if="operar.gate.value === 'ready'" size="sm" :to="APP_PATHS.ADMIN">{{ copy.adminPanel }}</Button>
               <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feed }}</Button>
               <Button size="sm" variant="ghost" :to="privacyPath">{{ legal.checkboxLink }}</Button>
               <Button size="sm" variant="ghost" type="button" @click="logout">{{ copy.logout }}</Button>

@@ -273,7 +273,7 @@ article.paola-page {
   }
 }
 
-/* —— Responsive portal (teléfono / tablet) —— */
+/* â€”â€” Responsive portal (telÃ©fono / tablet) â€”â€” */
 
 @media (max-width: 959px) {
   .shop-market__layout {
@@ -322,7 +322,7 @@ article.paola-page {
   }
 
   .shop-market__filters-panel[open] > summary::after {
-    content: '−';
+    content: 'âˆ’';
   }
 
   .shop-market__filters-panel .shop-market__filters > h2 {
@@ -443,7 +443,7 @@ article.paola-page {
   }
 }
 
-/* Portada de sección: bento de afiches (HubTile). */
+/* Portada de secciÃ³n: bento de afiches (HubTile). */
 .hub-bento {
   display: grid;
   gap: 16px;
@@ -814,7 +814,7 @@ button.hub-tile {
   color: var(--cyan, #48b4fc);
 }
 
-/* Tira de tiles que se desliza en teléfono y se reparte en escritorio. */
+/* Tira de tiles que se desliza en telÃ©fono y se reparte en escritorio. */
 .tile-strip {
   display: grid;
   grid-auto-flow: column;
@@ -864,7 +864,7 @@ button.hub-tile {
   }
 }
 
-/* Tableros de sección (Parchese, Tu voz): portada con extractos y una página por sección. */
+/* Tableros de secciÃ³n (Parchese, Tu voz): portada con extractos y una pÃ¡gina por secciÃ³n. */
 .board-shell {
   padding-top: 24px;
 }
@@ -1189,7 +1189,7 @@ button.hub-tile {
   gap: 12px clamp(20px, 3vw, 36px);
 }
 
-/* `dl` de cifras: `dt` (etiqueta) va primero en el DOM y se pinta debajo del número. */
+/* `dl` de cifras: `dt` (etiqueta) va primero en el DOM y se pinta debajo del nÃºmero. */
 .hub-stats--dl {
   margin: 0;
 }
@@ -1297,7 +1297,7 @@ button.hub-tile {
   }
 }
 
-/* Afiche con pasos numerados: vacíos que explican qué viene y rails de "cómo funciona". */
+/* Afiche con pasos numerados: vacÃ­os que explican quÃ© viene y rails de "cÃ³mo funciona". */
 .steps-poster {
   gap: 16px;
 }
@@ -1399,7 +1399,7 @@ button.hub-tile {
     opacity: 0.35;
   }
 }
-/* Bento espejo: la pieza grande a la derecha para no repetir la portada de sección. */
+/* Bento espejo: la pieza grande a la derecha para no repetir la portada de secciÃ³n. */
 @media (min-width: 1024px) {
   .hub-bento--flip {
     grid-auto-flow: dense;
@@ -1416,7 +1416,7 @@ button.hub-tile {
 .steps-poster.poster--mascot-top .steps-poster__steps {
   max-width: 100%;
 }
-/* Tarjetas y pestañas que son enlaces: sin el subrayado del `a:hover` global. */
+/* Tarjetas y pestaÃ±as que son enlaces: sin el subrayado del `a:hover` global. */
 a.hub-tile,
 a.hub-tile:hover,
 a.hub-tile:focus-visible,
@@ -1431,7 +1431,7 @@ a.hub-tile:hover,
 a.hub-tile:focus-visible {
   color: var(--white, #fff);
 }
-/* Encuesta de rodada sin inscripción: se ven las preguntas, se vota al inscribirse. */
+/* Encuesta de rodada sin inscripciÃ³n: se ven las preguntas, se vota al inscribirse. */
 .poll-card__preview {
   display: grid;
   gap: 6px;
@@ -1452,11 +1452,4 @@ a.hub-tile:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-}
-.operar-page__gate-title {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 22px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
