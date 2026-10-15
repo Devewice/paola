@@ -23,10 +23,13 @@ import {
   VOTER_KEY_HEADER,
   apiOperarPoll,
   apiOperarPollDelete,
+  apiPoll,
   apiPollVotes,
 } from '@shared/http/constants.ts'
 
 type Body = Record<string, unknown>
+
+const HTTP_NOT_FOUND = 404
 
 function detailOr(body: Body, fallback: string): string {
   return typeof body.detail === 'string' && body.detail ? body.detail : fallback
@@ -64,6 +67,21 @@ export class HttpPollsApi implements PollsPort {
       const body = await readJson(response)
       if (!response.ok) return err(appError('INFRASTRUCTURE', detailOr(body, POLLS_COPY.loadFail)))
       return ok(parsePollList(body.polls))
+    } catch {
+      return err(appError('INFRASTRUCTURE', POLLS_COPY.loadFail))
+    }
+  }
+
+  async get(pollId: string): Promise<Result<Poll | null, AppError>> {
+    try {
+      const response = await fetch(apiPoll(pollId), {
+        headers: this.headers(),
+        signal: abortAfter(FETCH_TIMEOUT_MS),
+      })
+      if (response.status === HTTP_NOT_FOUND) return ok(null)
+      const body = await readJson(response)
+      if (!response.ok) return err(appError('INFRASTRUCTURE', detailOr(body, POLLS_COPY.loadFail)))
+      return ok(parsePoll(body.poll))
     } catch {
       return err(appError('INFRASTRUCTURE', POLLS_COPY.loadFail))
     }

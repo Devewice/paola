@@ -24,6 +24,7 @@ import ServiceRoute from '@app/shell/ServiceRoute.vue'
 import ShopRoute from '@app/shell/ShopRoute.vue'
 import TuVozRoute from '@app/shell/TuVozRoute.vue'
 import LoginRoute from '@app/shell/LoginRoute.vue'
+import PollRoute from '@app/shell/PollRoute.vue'
 import PrivacyView from '@app/shell/PrivacyView.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
@@ -62,6 +63,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: ROUTE_TITLES.PARCHESE_EL_PARCHE },
       },
     ],
+  },
+  {
+    path: `${APP_PATHS.TU_VOZ_ENCUESTAS}/:id`,
+    name: 'encuesta',
+    component: PollRoute,
+    meta: { title: ROUTE_TITLES.TU_VOZ_ENCUESTAS, compactFooter: true },
   },
   {
     path: APP_PATHS.TU_VOZ,

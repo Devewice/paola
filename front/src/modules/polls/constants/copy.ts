@@ -63,6 +63,9 @@ export const POLLS_COPY = {
   averageRankLabel: 'Posición promedio',
   textResultsNote: 'Las respuestas escritas solo las lee el equipo.',
   noVotes: 'Aún no hay votos.',
+  pageBack: 'Todas las encuestas',
+  pageNotFoundTitle: 'Esa encuesta no está',
+  pageNotFoundCopy: 'Puede que la hayan quitado o que el enlace esté mal.',
 } as const
 
 export const POLLS_ADMIN_COPY = {

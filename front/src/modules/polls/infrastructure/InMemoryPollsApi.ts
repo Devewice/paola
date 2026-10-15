@@ -26,6 +26,10 @@ export class InMemoryPollsApi implements PollsPort {
     )
   }
 
+  async get(pollId: string): Promise<Result<Poll | null, AppError>> {
+    return ok(this.polls.find((poll) => poll.id === pollId) ?? null)
+  }
+
   async vote(_pollId: string, _answers: readonly AnswerPayload[]): Promise<Result<Poll, AppError>> {
     return err(appError('INFRASTRUCTURE', POLLS_COPY.voteFail))
   }

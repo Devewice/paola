@@ -233,6 +233,10 @@ export function appRodada(id: string): string {
   return `${APP_PATHS.PARCHESE_RODADAS}/${encodeURIComponent(id)}`
 }
 
+export function appEncuesta(id: string): string {
+  return `${APP_PATHS.TU_VOZ_ENCUESTAS}/${encodeURIComponent(id)}`
+}
+
 export function appEntrarYVolver(next: string): string {
   return `${APP_PATHS.ENTRAR}?next=${encodeURIComponent(next)}`
 }

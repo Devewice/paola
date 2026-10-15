@@ -16,7 +16,7 @@ import {
   type PollQuestion,
 } from '@modules/polls/domain/entities/Poll.ts'
 import PollResults from '@modules/polls/presentation/PollResults.vue'
-import { appRodada } from '@shared/http/constants.ts'
+import { appEncuesta, appRodada } from '@shared/http/constants.ts'
 import Button from '@ui/Button.vue'
 import Chip from '@ui/Chip.vue'
 import Textarea from '@ui/Textarea.vue'
@@ -27,6 +27,8 @@ const props = defineProps<{
   poll: Poll
   accountTo: string
   compact?: boolean
+  /** Vista propia de la encuesta: título sin enlace y lectura amplia. */
+  standalone?: boolean
 }>()
 
 const emit = defineEmits<{ voted: [poll: Poll] }>()
@@ -160,13 +162,16 @@ async function submit() {
 </script>
 
 <template>
-  <article class="poll-card" :class="{ 'poll-card--compact': compact }">
+  <article class="poll-card" :class="{ 'poll-card--compact': compact && !standalone, 'poll-card--standalone': standalone }">
     <header class="poll-card__head">
       <div class="poll-card__chips">
         <Chip :tone="current.isOpen ? 'abierto' : 'cerrado'">{{ copy.kicker }}</Chip>
         <span v-if="responsesLabel" class="poll-card__votes">{{ responsesLabel }}</span>
       </div>
-      <h3 class="poll-card__title">{{ current.title }}</h3>
+      <h1 v-if="standalone" class="poll-card__title">{{ current.title }}</h1>
+      <h3 v-else class="poll-card__title">
+        <RouterLink class="poll-card__link" :to="appEncuesta(current.id)">{{ current.title }}</RouterLink>
+      </h3>
       <p v-if="current.description" class="poll-card__lead">{{ current.description }}</p>
       <p v-if="current.outingTitle || closesLabel" class="poll-card__meta">
         <span v-if="current.outingTitle">{{ copy.linkedRide }} {{ current.outingTitle }}</span>

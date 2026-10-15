@@ -26,7 +26,7 @@ const footerAlliances = computed(() =>
 const isKitCatalog = computed(() => kitUnlocked.value && route.path === APP_PATHS.ADMIN_UI)
 
 const footerCompact = computed(
-  () => route.path === APP_PATHS.CUENTA || route.path === APP_PATHS.ENTRAR,
+  () => route.path === APP_PATHS.CUENTA || route.path === APP_PATHS.ENTRAR || route.meta.compactFooter === true,
 )
 
 const footerLinks = [

@@ -34,6 +34,7 @@ function spyPort() {
   const calls: { pollId: string; answers: readonly AnswerPayload[] }[] = []
   const port: PollsPort = {
     list: async () => ok([]),
+    get: async () => ok(null),
     vote: async (pollId, answers) => {
       calls.push({ pollId, answers })
       return ok({ ...poll, hasVoted: true })

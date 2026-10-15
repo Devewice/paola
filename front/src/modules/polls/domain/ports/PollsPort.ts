@@ -55,6 +55,8 @@ export type OperatorPoll = Omit<Poll, 'isOpen' | 'hasVoted' | 'ridersOnly' | 'is
 
 export interface PollsPort {
   list(filter?: PollFilter): Promise<Result<readonly Poll[], AppError>>
+  /** `null` si no existe o no está publicada. */
+  get(pollId: string): Promise<Result<Poll | null, AppError>>
   vote(pollId: string, answers: readonly AnswerPayload[]): Promise<Result<Poll, AppError>>
 }
 

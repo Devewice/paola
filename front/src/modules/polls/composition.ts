@@ -3,6 +3,7 @@ import type { PollsAdminPort, PollsPort, VoterIdentityPort } from '@modules/poll
 
 export type PollsModule = {
   list: PollsPort['list']
+  get: PollsPort['get']
   submit: SubmitBallot['execute']
   isSignedIn: () => boolean
   listOperator: PollsAdminPort['list']
@@ -19,6 +20,7 @@ export function createPollsModule(
   const submitBallot = new SubmitBallot(polls)
   return {
     list: (filter) => polls.list(filter),
+    get: (id) => polls.get(id),
     submit: (poll, ballot, signedIn) => submitBallot.execute(poll, ballot, signedIn),
     isSignedIn: () => identity.sessionId().length > 0,
     listOperator: (clave) => admin.list(clave),
