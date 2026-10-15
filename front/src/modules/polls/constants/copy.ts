@@ -12,6 +12,23 @@ export const POLLS_SECONDS_PER_QUESTION = 20
 /** Pausa antes de pasar sola a la siguiente pantalla tras elegir. */
 export const POLLS_AUTO_ADVANCE_MS = 380
 
+/** Escena inmersiva del recorrido: fotos de fondo por sección y poses de la cámara. */
+export const POLLS_STAGE = {
+  photos: ['/kit-assets/Rodada anapoimap.png', '/kit-assets/Primera rodada.webp'],
+  poses: [MASCOT.EN_PIE, MASCOT.X5, MASCOT.TUMBADA],
+  /** Segundos que se sostiene el título de sección antes de pasar solo. */
+  sectionHold: 1.25,
+} as const
+
+/** Lo que dice la cámara según el avance (0 a 1). */
+export const POLLS_COMPANION_LINES: readonly { readonly from: number; readonly text: string }[] = [
+  { from: 0, text: 'Arranquemos. Yo voy grabando.' },
+  { from: 0.2, text: 'Buen ritmo, sigue así.' },
+  { from: 0.45, text: 'Ya vas por la mitad del camino.' },
+  { from: 0.7, text: 'Recta final, no aflojes.' },
+  { from: 0.9, text: 'Un par más y llegamos.' },
+]
+
 export const POLLS_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   day: 'numeric',
   month: 'long',
@@ -92,6 +109,9 @@ export const POLLS_COPY = {
   stepGateEnd: 'Gracias por pasar. Envía para terminar.',
   stepDraftSaved: 'Tus respuestas se guardan en este navegador hasta que envíes.',
   longCta: 'Responder encuesta',
+  stageSkip: 'Toca para seguir',
+  stageSubmitLine: 'Última foto. Envía y queda guardado.',
+  stageIntroLine: 'Te acompaño en todo el recorrido.',
   otherPlaceholder: '¿Cuál?',
   otherMissing: 'Escribe cuál en «Otro».',
   gridRowHeader: 'Pregunta',
