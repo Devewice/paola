@@ -12,6 +12,7 @@ import {
 import { createHomeModule, type HomeModule } from '@modules/home/index.ts'
 import { createPaolaModule, type PaolaModule } from '@modules/paola/index.ts'
 import {
+  BrowserBallotDrafts,
   BrowserVoterIdentity,
   createPollsModule,
   HttpPollsAdminApi,
@@ -142,6 +143,7 @@ function wire(
     ordersMode === 'http' ? new HttpPollsApi(voter) : new InMemoryPollsApi(),
     ordersMode === 'http' ? new HttpPollsAdminApi() : new InMemoryPollsAdminApi(),
     voter,
+    new BrowserBallotDrafts(),
   )
   dependencies = { paola, club, rides, voice, shop, home, polls }
   return dependencies

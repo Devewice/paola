@@ -1,9 +1,16 @@
-import type { PollAudience, PollKind, PollStatus } from '@modules/polls/domain/entities/Poll.ts'
+import type { PollAudience, PollDisplay, PollKind, PollStatus, PollTone } from '@modules/polls/domain/entities/Poll.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
 
 export const POLLS_HOME_FIGURE = MASCOT.X5
 
 export const POLLS_VOTER_STORAGE_KEY = 'paola_voter_key'
+export const POLLS_DRAFT_STORAGE_PREFIX = 'paola_poll_draft_'
+/** Hasta este número de preguntas se responde dentro de la tarjeta; más largas abren su vista. */
+export const POLLS_INLINE_MAX = 3
+/** Segundos estimados por pregunta para el «te toma N min». */
+export const POLLS_SECONDS_PER_QUESTION = 20
+/** Pausa antes de pasar sola a la siguiente pantalla tras elegir. */
+export const POLLS_AUTO_ADVANCE_MS = 380
 
 export const POLLS_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   day: 'numeric',
@@ -64,6 +71,27 @@ export const POLLS_COPY = {
   averageRankLabel: 'Posición promedio',
   textResultsNote: 'Las respuestas escritas solo las lee el equipo.',
   noVotes: 'Aún no hay votos.',
+  counterOf: 'de',
+  counterChosen: 'elegidas',
+  limitReached: 'Llegaste al máximo. Quita una para cambiarla.',
+  deckProgress: 'Afirmaciones',
+  stepStart: 'Empezar',
+  stepNext: 'Siguiente',
+  stepBack: 'Atrás',
+  stepSkip: 'Saltar',
+  stepContinue: 'Seguir',
+  stepOf: 'de',
+  stepSection: 'Sección',
+  stepRequired: 'Responde para seguir.',
+  stepKeys: 'Usa los números para elegir y Enter para seguir.',
+  stepMinutes: 'min aprox.',
+  stepQuestions: 'preguntas',
+  stepSubmitTitle: 'Eso es todo',
+  stepSubmitLead: 'Revisa lo que quieras con «Atrás» y envía cuando estés listo.',
+  stepAnswered: 'respondidas',
+  stepGateEnd: 'Gracias por pasar. Envía para terminar.',
+  stepDraftSaved: 'Tus respuestas se guardan en este navegador hasta que envíes.',
+  longCta: 'Responder encuesta',
   otherPlaceholder: '¿Cuál?',
   otherMissing: 'Escribe cuál en «Otro».',
   gridRowHeader: 'Pregunta',
@@ -138,7 +166,26 @@ export const POLLS_ADMIN_COPY = {
   conditionMode: 'Cuando',
   conditionAny: 'eligieron alguna de',
   conditionNone: 'no eligieron ninguna de',
+  fieldCode: 'Número visible (opcional)',
+  fieldDisplay: 'Cómo se muestra',
+  fieldTone: 'Estilo de la escala',
+  rowCode: 'Número',
 } as const
+
+export const POLL_DISPLAY_LABELS: Readonly<Record<PollDisplay, string>> = {
+  auto: 'Automático',
+  chips: 'Fichas',
+  cards: 'Tarjetas',
+  gate: 'Portada (filtro)',
+  deck: 'Baraja (una fila por vez)',
+  table: 'Tabla',
+}
+
+export const POLL_TONE_LABELS: Readonly<Record<PollTone, string>> = {
+  plain: 'Sencillo',
+  track: 'Riel de color',
+  faces: 'Caritas',
+}
 
 export const POLL_KIND_LABELS: Readonly<Record<PollKind, string>> = {
   single: 'Una opción',

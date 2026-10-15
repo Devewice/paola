@@ -1690,7 +1690,7 @@ a.hub-tile:focus-visible {
 }
 .poll-editor__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
   align-items: end;
   gap: 12px;
 }

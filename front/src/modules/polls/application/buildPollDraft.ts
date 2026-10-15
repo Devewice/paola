@@ -1,8 +1,21 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { POLLS_EDITOR_MESSAGES, POLLS_LIMITS } from '@modules/polls/constants/copy.ts'
-import type { PollAudience, PollConditionMode, PollKind, PollStatus } from '@modules/polls/domain/entities/Poll.ts'
-import type { ConditionDraft, OptionDraft, PollDraft, QuestionDraft } from '@modules/polls/domain/ports/PollsPort.ts'
+import type {
+  PollAudience,
+  PollConditionMode,
+  PollDisplay,
+  PollKind,
+  PollStatus,
+  PollTone,
+} from '@modules/polls/domain/entities/Poll.ts'
+import type {
+  ConditionDraft,
+  OptionDraft,
+  PollDraft,
+  QuestionDraft,
+  RowDraft,
+} from '@modules/polls/domain/ports/PollsPort.ts'
 
 export type OptionForm = { label: string; imageSrc: string; isOther?: boolean; exclusive?: boolean }
 
@@ -11,6 +24,10 @@ export type QuestionForm = {
   prompt: string
   help: string
   section?: string
+  /** Número del documento; vacío = sin número. */
+  code?: string
+  display?: PollDisplay
+  tone?: PollTone
   required: boolean
   maxChoices: string
   scaleMin: string
@@ -18,8 +35,9 @@ export type QuestionForm = {
   scaleMinLabel: string
   scaleMaxLabel: string
   options: OptionForm[]
-  /** Filas de la cuadrícula. */
+  /** Filas de la cuadrícula y su número del documento (misma posición). */
   rows?: string[]
+  rowCodes?: string[]
   /** Posición (como texto) de la pregunta de la que depende; vacío = siempre visible. */
   showIfQuestion?: string
   showIfOptions?: number[]
@@ -50,6 +68,9 @@ export function emptyQuestion(kind: PollKind = 'single'): QuestionForm {
     prompt: '',
     help: '',
     section: '',
+    code: '',
+    display: 'auto',
+    tone: 'plain',
     required: true,
     maxChoices: '',
     scaleMin: '1',
@@ -58,6 +79,7 @@ export function emptyQuestion(kind: PollKind = 'single'): QuestionForm {
     scaleMaxLabel: '',
     options: [emptyOption(), emptyOption()],
     rows: ['', ''],
+    rowCodes: ['', ''],
     showIfQuestion: '',
     showIfOptions: [],
     showIfMode: 'any',
@@ -125,6 +147,9 @@ function buildQuestion(form: QuestionForm, index: number, built: readonly Built[
     required: form.required,
     options: [],
     ...(optional(form.section) ? { section: optional(form.section) } : {}),
+    ...(optional(form.code) ? { code: optional(form.code) } : {}),
+    ...(form.display && form.display !== 'auto' ? { display: form.display } : {}),
+    ...(form.tone && form.tone !== 'plain' ? { tone: form.tone } : {}),
     ...(condition.value ? { showIf: condition.value } : {}),
   }
   const done = (draft: QuestionDraft, optionMap: readonly number[] = []) =>
@@ -153,7 +178,12 @@ function buildQuestion(form: QuestionForm, index: number, built: readonly Built[
     if (options.filter((option) => option.isOther).length > 1) return fail(POLLS_EDITOR_MESSAGES.otherOnce, index)
 
     if (form.kind === 'grid') {
-      const rows = (form.rows ?? []).map((row) => row.trim()).filter(Boolean)
+      const rows: RowDraft[] = (form.rows ?? [])
+        .map((row, position) => {
+          const code = optional(form.rowCodes?.[position])
+          return code ? { label: row.trim(), code } : { label: row.trim() }
+        })
+        .filter((row) => row.label)
       if (rows.length < POLLS_LIMITS.ROWS_MIN || rows.length > POLLS_LIMITS.ROWS_MAX) {
         return fail(POLLS_EDITOR_MESSAGES.rowsRequired, index)
       }

@@ -25,6 +25,10 @@ export const POLL_QUERY = {
 
 export const POLL_KINDS = ['single', 'multiple', 'ranking', 'scale', 'text', 'grid'] as const
 export const POLL_CONDITION_MODES = ['any', 'none'] as const
+/** Cómo se pinta la pregunta; `auto` decide según el tipo y lo largo de las opciones. */
+export const POLL_DISPLAYS = ['auto', 'chips', 'cards', 'gate', 'deck', 'table'] as const
+/** Estilo de las escalas y cuadrículas. */
+export const POLL_TONES = ['plain', 'track', 'faces'] as const
 export const POLL_STATUSES = ['draft', 'open', 'closed'] as const
 export const POLL_AUDIENCES = ['public', 'account'] as const
 
@@ -40,6 +44,7 @@ export const POLL_LIMITS = {
   ROWS_MIN: 1,
   ROWS_MAX: 12,
   SECTION_MAX: 160,
+  CODE_MAX: 16,
   SCALE_MIN: 0,
   SCALE_MAX: 10,
   TEXT_MAX: 1000,

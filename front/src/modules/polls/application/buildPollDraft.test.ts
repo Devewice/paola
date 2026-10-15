@@ -118,7 +118,7 @@ describe('buildPollDraft', () => {
       ['Ninguna', undefined, true],
     ])
     expect(contents?.showIf).toEqual({ question: 1, options: [2], mode: 'none' })
-    expect(grid?.rows).toEqual(['Respetas la velocidad', 'Usas casco'])
+    expect(grid?.rows).toEqual([{ label: 'Respetas la velocidad' }, { label: 'Usas casco' }])
   })
 
   it('rechaza condiciones hacia adelante o sobre preguntas sin opciones', () => {

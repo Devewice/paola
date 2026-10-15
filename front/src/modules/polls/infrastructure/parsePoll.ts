@@ -4,7 +4,9 @@ import type {
   PollAudience,
   PollCondition,
   PollConditionMode,
+  PollDisplay,
   PollKind,
+  PollTone,
   PollOption,
   PollQuestion,
   PollResults,
@@ -19,6 +21,8 @@ type Row = Record<string, unknown>
 
 const KINDS: readonly PollKind[] = ['single', 'multiple', 'ranking', 'scale', 'text', 'grid']
 const MODES: readonly PollConditionMode[] = ['any', 'none']
+const DISPLAYS: readonly PollDisplay[] = ['auto', 'chips', 'cards', 'gate', 'deck', 'table']
+const TONES: readonly PollTone[] = ['plain', 'track', 'faces']
 const STATUSES: readonly PollStatus[] = ['draft', 'open', 'closed']
 
 function asRow(value: unknown): Row | null {
@@ -53,7 +57,7 @@ function parseOption(row: Row): PollOption | null {
 function parseRow(row: Row): PollRow | null {
   const id = str(row.id)
   const label = str(row.label)
-  return id && label ? { id, label } : null
+  return id && label ? { id, label, code: str(row.code) } : null
 }
 
 function parseCondition(value: unknown): PollCondition | undefined {
@@ -76,6 +80,9 @@ function parseQuestion(row: Row): PollQuestion | null {
     prompt,
     help: str(row.help),
     section: str(row.section),
+    code: str(row.code),
+    display: DISPLAYS.find((item) => item === row.display),
+    tone: TONES.find((item) => item === row.tone),
     rows: list(row.rows)
       .map(parseRow)
       .filter((item): item is PollRow => item !== null),

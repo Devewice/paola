@@ -1,6 +1,15 @@
-import type { POLL_AUDIENCES, POLL_CONDITION_MODES, POLL_KINDS, POLL_STATUSES } from '../constants/polls.constants.js'
+import type {
+  POLL_AUDIENCES,
+  POLL_CONDITION_MODES,
+  POLL_DISPLAYS,
+  POLL_KINDS,
+  POLL_STATUSES,
+  POLL_TONES,
+} from '../constants/polls.constants.js'
 
 export type PollKind = (typeof POLL_KINDS)[number]
+export type PollDisplay = (typeof POLL_DISPLAYS)[number]
+export type PollTone = (typeof POLL_TONES)[number]
 export type PollStatus = (typeof POLL_STATUSES)[number]
 export type PollAudience = (typeof POLL_AUDIENCES)[number]
 /** `any`: se muestra si eligieron alguna de las opciones; `none`: si no eligieron ninguna. */
@@ -19,6 +28,8 @@ export interface PollOption {
 export interface PollRow {
   id: string
   label: string
+  /** Número del documento original («a», «13»). */
+  code?: string
 }
 
 export interface PollCondition {
@@ -34,6 +45,10 @@ export interface PollQuestion {
   help?: string
   /** Título de sección que arranca en esta pregunta. */
   section?: string
+  /** Número del documento original; sin código la pregunta no se numera. */
+  code?: string
+  display?: PollDisplay
+  tone?: PollTone
   required: boolean
   maxChoices?: number
   scaleMin?: number

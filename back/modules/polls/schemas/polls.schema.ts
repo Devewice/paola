@@ -5,10 +5,12 @@ import { optionalText } from '../../../shared/text.js'
 import {
   POLL_AUDIENCES,
   POLL_CONDITION_MODES,
+  POLL_DISPLAYS,
   POLL_KINDS,
   POLL_LIMITS,
   POLL_MESSAGES,
   POLL_STATUSES,
+  POLL_TONES,
 } from '../constants/polls.constants.js'
 import type {
   AnswerInput,
@@ -36,9 +38,11 @@ export type ConditionDraft = {
   mode: PollConditionMode
 }
 
+export type RowDraft = Omit<PollRow, 'id'>
+
 export type QuestionDraft = Omit<PollQuestion, 'id' | 'options' | 'rows' | 'showIf'> & {
   options: OptionDraft[]
-  rows: string[]
+  rows: RowDraft[]
   showIf?: ConditionDraft
 }
 
@@ -135,6 +139,9 @@ function parseQuestion(raw: unknown, index: number, previous: readonly QuestionD
     prompt,
     help: optionalText(row.help),
     section: optionalText(row.section)?.slice(0, POLL_LIMITS.SECTION_MAX),
+    code: optionalText(row.code)?.slice(0, POLL_LIMITS.CODE_MAX),
+    display: isOneOf(POLL_DISPLAYS, row.display) && row.display !== 'auto' ? row.display : undefined,
+    tone: isOneOf(POLL_TONES, row.tone) && row.tone !== 'plain' ? row.tone : undefined,
     required: row.required !== false,
     options: [],
     rows: [],
@@ -150,9 +157,15 @@ function parseQuestion(raw: unknown, index: number, previous: readonly QuestionD
     }
     question.options = options
     if (kind === 'grid') {
-      const rows = (Array.isArray(row.rows) ? row.rows : [])
-        .map((item) => text(typeof item === 'string' ? item : asRecord(item).label).slice(0, POLL_LIMITS.OPTION_MAX))
-        .filter(Boolean)
+      const rows: RowDraft[] = (Array.isArray(row.rows) ? row.rows : [])
+        .map((item) => {
+          const record = typeof item === 'string' ? { label: item } : asRecord(item)
+          return {
+            label: text(record.label).slice(0, POLL_LIMITS.OPTION_MAX),
+            code: optionalText(record.code)?.slice(0, POLL_LIMITS.CODE_MAX),
+          }
+        })
+        .filter((item) => item.label.length > 0)
       if (rows.length < POLL_LIMITS.ROWS_MIN || rows.length > POLL_LIMITS.ROWS_MAX) {
         return fail(HTTP_STATUS.BAD_REQUEST, POLL_MESSAGES.ROWS_REQUIRED)
       }
@@ -418,6 +431,9 @@ export function toQuestion(row: Record<string, unknown>, options: PollOption[], 
     prompt: String(row.prompt),
     help: optionalText(row.help),
     section: optionalText(row.section),
+    code: optionalText(row.code),
+    display: isOneOf(POLL_DISPLAYS, row.display) ? row.display : undefined,
+    tone: isOneOf(POLL_TONES, row.tone) ? row.tone : undefined,
     required: Boolean(row.required),
     maxChoices: optionalNumber(row.max_choices),
     scaleMin: optionalNumber(row.scale_min),
@@ -441,6 +457,6 @@ export function toOption(row: Record<string, unknown>): PollOption {
 }
 
 export function toRow(row: Record<string, unknown>): PollRow {
-  return { id: String(row.id), label: String(row.label) }
+  return { id: String(row.id), label: String(row.label), code: optionalText(row.code) }
 }
 

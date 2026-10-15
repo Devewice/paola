@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   EMPTY_ANSWER,
+  buildSteps,
   canVote,
+  countQuestions,
+  questionNumber,
+  resolveDisplay,
   emptyBallot,
   missingRequired,
   moveRank,
@@ -195,6 +199,55 @@ describe('encuestas largas', () => {
       g: pickCell(EMPTY_ANSWER, 'vel', 'nunca'),
     }
     expect(missingRequired(survey, ballot).map((question) => question.id)).toEqual(['g'])
+  })
+
+  it('arma el recorrido: portada con filtro, entrada de sección y envío', () => {
+    const gated = {
+      questions: [
+        { ...filter, display: 'gate' as const, section: 'Filtro' },
+        { ...training, section: 'Trayectoria', code: '8' },
+        { ...contents, code: '9' },
+        { ...grid, section: 'Prácticas', code: '11' },
+      ],
+    }
+    const no = { ...emptyBallot(gated), f: { ...EMPTY_ANSWER, optionIds: ['no'] } }
+    expect(buildSteps(gated, no).map((step) => step.type)).toEqual(['intro', 'submit'])
+    const yes = { ...emptyBallot(gated), f: { ...EMPTY_ANSWER, optionIds: ['si'] } }
+    expect(buildSteps(gated, yes).map((step) => step.key)).toEqual([
+      'intro',
+      'section:t',
+      't',
+      'c',
+      'section:g',
+      'g',
+      'submit',
+    ])
+    expect(questionNumber(gated, gated.questions[0]!)).toBe('')
+    expect(questionNumber(gated, gated.questions[3]!)).toBe('11')
+    expect(questionNumber(survey, contents)).toBe('3')
+  })
+
+  it('cuenta como el documento: sin filtro y el bloque de afirmaciones por fila', () => {
+    const statements: PollQuestion = {
+      ...grid,
+      id: 's',
+      rows: [
+        { id: 'r13', label: 'Me ayudó', code: '13' },
+        { id: 'r14', label: 'Influyó', code: '14' },
+      ],
+    }
+    const doc = {
+      questions: [{ ...filter, display: 'gate' as const }, { ...training, code: '8' }, { ...grid, code: '11' }, statements],
+    }
+    expect(countQuestions(doc)).toBe(4)
+  })
+
+  it('elige chips para opciones cortas y tarjetas para largas', () => {
+    expect(resolveDisplay(filter)).toBe('chips')
+    expect(resolveDisplay(training)).toBe('cards')
+    expect(resolveDisplay({ ...training, display: 'chips' })).toBe('chips')
+    expect(resolveDisplay(grid)).toBe('deck')
+    expect(resolveDisplay({ ...grid, display: 'table' })).toBe('table')
   })
 
   it('no envía respuestas de preguntas ocultas', () => {

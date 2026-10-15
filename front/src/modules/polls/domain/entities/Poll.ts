@@ -3,6 +3,10 @@ export type PollStatus = 'draft' | 'open' | 'closed'
 export type PollAudience = 'public' | 'account'
 /** `any`: se muestra si eligieron alguna de las opciones; `none`: si no eligieron ninguna. */
 export type PollConditionMode = 'any' | 'none'
+/** Cómo se pinta la pregunta; `auto` decide según el tipo y lo largo de las opciones. */
+export type PollDisplay = 'auto' | 'chips' | 'cards' | 'gate' | 'deck' | 'table'
+/** Estilo de escalas y cuadrículas: números sueltos, pista con color o caritas. */
+export type PollTone = 'plain' | 'track' | 'faces'
 
 export type PollOption = {
   readonly id: string
@@ -17,6 +21,8 @@ export type PollOption = {
 export type PollRow = {
   readonly id: string
   readonly label: string
+  /** Número del documento original («a», «13»). */
+  readonly code?: string
 }
 
 export type PollCondition = {
@@ -32,6 +38,10 @@ export type PollQuestion = {
   readonly help?: string
   /** Título de sección que arranca en esta pregunta. */
   readonly section?: string
+  /** Número del documento original; sin código la pregunta no se numera. */
+  readonly code?: string
+  readonly display?: PollDisplay
+  readonly tone?: PollTone
   readonly required: boolean
   readonly maxChoices?: number
   readonly scaleMin?: number
@@ -252,6 +262,72 @@ export function canVote(
   if (!poll.isOpen || poll.hasVoted) return false
   if (poll.ridersOnly) return poll.isInscribed
   return poll.audience === 'public' || signedIn
+}
+
+/** Opciones cortas van en chips; largas o con imagen, en tarjetas. */
+const CHIP_LABEL_MAX = 22
+const CHIP_OPTIONS_MAX = 8
+
+export function resolveDisplay(question: PollQuestion): Exclude<PollDisplay, 'auto'> | 'plain' {
+  const display = question.display ?? 'auto'
+  if (question.kind === 'grid') return display === 'table' ? 'table' : 'deck'
+  if (question.kind !== 'single' && question.kind !== 'multiple') return 'plain'
+  if (display === 'gate' && question.kind === 'single') return 'gate'
+  if (display === 'chips' || display === 'cards') return display
+  const short =
+    question.options.length <= CHIP_OPTIONS_MAX &&
+    question.options.every((option) => !option.imageSrc && !option.isOther && option.label.length <= CHIP_LABEL_MAX)
+  return short ? 'chips' : 'cards'
+}
+
+/** Con códigos del documento se respetan; sin ninguno, se numera en orden. */
+export function questionNumber(poll: Pick<Poll, 'questions'>, question: PollQuestion): string {
+  if (poll.questions.some((item) => item.code)) return question.code ?? ''
+  return String(poll.questions.indexOf(question) + 1)
+}
+
+/**
+ * Preguntas como las cuenta el documento: el filtro de portada no suma y un bloque sin
+ * número propio cuyas filas sí tienen número cuenta una por fila.
+ */
+export function countQuestions(poll: Pick<Poll, 'questions'>): number {
+  return poll.questions.reduce((total, question) => {
+    if (resolveDisplay(question) === 'gate') return total
+    const rows = rowsOf(question)
+    if (!question.code && rows.length && rows.every((row) => row.code)) return total + rows.length
+    return total + 1
+  }, 0)
+}
+
+export type PollStep =
+  | { readonly key: string; readonly type: 'intro'; readonly gate?: PollQuestion }
+  | { readonly key: string; readonly type: 'section'; readonly title: string }
+  | { readonly key: string; readonly type: 'question'; readonly question: PollQuestion; readonly section?: string }
+  | { readonly key: string; readonly type: 'submit' }
+
+/**
+ * Recorrido de una pregunta por pantalla: portada (con el filtro si lo hay), una pantalla
+ * de entrada por sección, las preguntas visibles y el envío.
+ */
+export function buildSteps(poll: Pick<Poll, 'questions'>, ballot: Ballot): readonly PollStep[] {
+  const visible = visibleQuestions(poll, ballot)
+  const [first] = visible
+  const gate = first && resolveDisplay(first) === 'gate' ? first : undefined
+  const steps: PollStep[] = [{ key: 'intro', type: 'intro', gate }]
+  let section: string | undefined
+  for (const question of visible) {
+    if (question === gate) {
+      section = question.section
+      continue
+    }
+    if (question.section && question.section !== section) {
+      section = question.section
+      steps.push({ key: `section:${question.id}`, type: 'section', title: question.section })
+    }
+    steps.push({ key: question.id, type: 'question', question, section })
+  }
+  steps.push({ key: 'submit', type: 'submit' })
+  return steps
 }
 
 /** Abierta, sin votar y a la espera de que la persona se inscriba a la rodada. */

@@ -15,10 +15,12 @@ import {
   POLLS_COPY,
   POLLS_LIMITS,
   POLL_AUDIENCE_LABELS,
+  POLL_DISPLAY_LABELS,
   POLL_KIND_LABELS,
   POLL_STATUS_LABELS,
+  POLL_TONE_LABELS,
 } from '@modules/polls/constants/copy.ts'
-import type { PollKind, PollStatus } from '@modules/polls/domain/entities/Poll.ts'
+import type { PollDisplay, PollKind, PollStatus, PollTone } from '@modules/polls/domain/entities/Poll.ts'
 import type { OperatorPoll, PollPatch } from '@modules/polls/domain/ports/PollsPort.ts'
 import PollResults from '@modules/polls/presentation/PollResults.vue'
 import Button from '@ui/Button.vue'
@@ -57,6 +59,39 @@ const modeOptions = [
   { value: 'any', label: copy.conditionAny },
   { value: 'none', label: copy.conditionNone },
 ]
+
+const DISPLAYS_BY_KIND: Partial<Record<PollKind, PollDisplay[]>> = {
+  single: ['auto', 'chips', 'cards', 'gate'],
+  multiple: ['auto', 'chips', 'cards'],
+  grid: ['auto', 'deck', 'table'],
+}
+const toneOptions = (Object.keys(POLL_TONE_LABELS) as PollTone[]).map((value) => ({
+  value,
+  label: POLL_TONE_LABELS[value],
+}))
+
+function displayOptions(question: QuestionForm) {
+  return (DISPLAYS_BY_KIND[question.kind] ?? []).map((value) => ({ value, label: POLL_DISPLAY_LABELS[value] }))
+}
+
+function hasTone(question: QuestionForm): boolean {
+  return question.kind === 'scale' || question.kind === 'grid'
+}
+
+function setDisplay(question: QuestionForm, value: string) {
+  question.display = value as PollDisplay
+}
+
+function setTone(question: QuestionForm, value: string) {
+  question.tone = value as PollTone
+}
+
+function setRowCode(question: QuestionForm, index: number, value: string) {
+  const codes = [...(question.rowCodes ?? [])]
+  while (codes.length <= index) codes.push('')
+  codes[index] = value
+  question.rowCodes = codes
+}
 
 function hasOptions(question: QuestionForm): boolean {
   return ['single', 'multiple', 'ranking', 'grid'].includes(question.kind)
@@ -131,10 +166,12 @@ function addRow(question: QuestionForm) {
   const rows = question.rows ?? []
   if (rows.length >= POLLS_LIMITS.ROWS_MAX) return
   question.rows = [...rows, '']
+  question.rowCodes = [...(question.rowCodes ?? []), '']
 }
 
 function removeRow(question: QuestionForm, index: number) {
   question.rows = (question.rows ?? []).filter((_, position) => position !== index)
+  question.rowCodes = (question.rowCodes ?? []).filter((_, position) => position !== index)
 }
 
 function setRow(question: QuestionForm, index: number, value: string) {
@@ -299,6 +336,25 @@ onMounted(() => void load())
           <Field :label="copy.fieldSection">
             <Input :model-value="question.section ?? ''" @update:model-value="question.section = $event" />
           </Field>
+          <div class="admin-fields">
+            <Field :label="copy.fieldCode">
+              <Input :model-value="question.code ?? ''" @update:model-value="question.code = $event" />
+            </Field>
+            <Field v-if="displayOptions(question).length" :label="copy.fieldDisplay">
+              <Select
+                :model-value="question.display ?? 'auto'"
+                :options="displayOptions(question)"
+                @update:model-value="setDisplay(question, $event)"
+              />
+            </Field>
+            <Field v-if="hasTone(question)" :label="copy.fieldTone">
+              <Select
+                :model-value="question.tone ?? 'plain'"
+                :options="toneOptions"
+                @update:model-value="setTone(question, $event)"
+              />
+            </Field>
+          </div>
           <Field :label="copy.fieldPrompt">
             <Input v-model="question.prompt" />
           </Field>
@@ -329,6 +385,12 @@ onMounted(() => void load())
           <div v-if="question.kind === 'grid'" class="poll-editor__options">
             <p class="poll-editor__subtitle">{{ copy.rowsTitle }}</p>
             <div v-for="(row, rIndex) in question.rows ?? []" :key="rIndex" class="poll-editor__row">
+              <Field :label="copy.rowCode" class="poll-editor__code">
+                <Input
+                  :model-value="question.rowCodes?.[rIndex] ?? ''"
+                  @update:model-value="setRowCode(question, rIndex, $event)"
+                />
+              </Field>
               <Field :label="`${copy.rowLabel} ${rIndex + 1}`">
                 <Input :model-value="row" @update:model-value="setRow(question, rIndex, $event)" />
               </Field>

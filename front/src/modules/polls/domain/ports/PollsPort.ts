@@ -2,10 +2,13 @@ import type { AppError } from '@core/errors/AppError.ts'
 import type { Result } from '@core/result.ts'
 import type {
   AnswerPayload,
+  Ballot,
   Poll,
   PollAudience,
   PollConditionMode,
+  PollDisplay,
   PollKind,
+  PollTone,
   PollResults,
   PollStatus,
 } from '@modules/polls/domain/entities/Poll.ts'
@@ -29,12 +32,20 @@ export type ConditionDraft = {
   readonly mode: PollConditionMode
 }
 
+export type RowDraft = {
+  readonly label: string
+  readonly code?: string
+}
+
 export type QuestionDraft = {
   readonly kind: PollKind
   readonly prompt: string
   readonly help?: string
   readonly section?: string
-  readonly rows?: readonly string[]
+  readonly code?: string
+  readonly display?: PollDisplay
+  readonly tone?: PollTone
+  readonly rows?: readonly RowDraft[]
   readonly showIf?: ConditionDraft
   readonly required: boolean
   readonly maxChoices?: number
@@ -78,6 +89,13 @@ export interface PollsAdminPort {
   create(draft: PollDraft, clave: string): Promise<Result<string, AppError>>
   update(id: string, patch: PollPatch, clave: string): Promise<Result<true, AppError>>
   remove(id: string, clave: string): Promise<Result<true, AppError>>
+}
+
+/** Respuestas a medio camino, para no perderlas si recargan la página. */
+export interface BallotDraftPort {
+  load(pollId: string): Ballot | null
+  save(pollId: string, ballot: Ballot): void
+  clear(pollId: string): void
 }
 
 /** Sesión y llave anónima del navegador; la app decide de dónde salen. */

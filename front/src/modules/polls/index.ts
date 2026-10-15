@@ -8,6 +8,9 @@ export type {
   PollRow,
   PollCondition,
   PollConditionMode,
+  PollDisplay,
+  PollTone,
+  PollStep,
   PollResults,
   Ballot,
   BallotAnswer,
@@ -16,10 +19,12 @@ export type {
   PollsPort,
   PollsAdminPort,
   VoterIdentityPort,
+  BallotDraftPort,
   PollDraft,
   QuestionDraft,
   OptionDraft,
   ConditionDraft,
+  RowDraft,
   PollPatch,
   PollFilter,
   OperatorPoll,
@@ -36,4 +41,5 @@ export { createPollsModule, type PollsModule } from '@modules/polls/composition.
 export { HttpPollsApi, HttpPollsAdminApi } from '@modules/polls/infrastructure/HttpPollsApi.ts'
 export { InMemoryPollsApi, InMemoryPollsAdminApi } from '@modules/polls/infrastructure/InMemoryPollsApi.ts'
 export { BrowserVoterIdentity } from '@modules/polls/infrastructure/BrowserVoterIdentity.ts'
+export { BrowserBallotDrafts, InMemoryBallotDrafts } from '@modules/polls/infrastructure/BrowserBallotDrafts.ts'
 export { parsePoll, parsePollList, parseOperatorPollList } from '@modules/polls/infrastructure/parsePoll.ts'

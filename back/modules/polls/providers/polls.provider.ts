@@ -134,6 +134,9 @@ export async function insertPoll(draft: PollDraft, options: { db?: Knex; id?: st
         scale_min_label: question.scaleMinLabel ?? null,
         scale_max_label: question.scaleMaxLabel ?? null,
         show_if: showIf ? JSON.stringify(showIf) : null,
+        ...(question.code ? { code: question.code } : {}),
+        ...(question.display ? { display: question.display } : {}),
+        ...(question.tone ? { tone: question.tone } : {}),
       })
       if (question.options.length) {
         await trx(POLL_TABLES.OPTIONS).insert(
@@ -150,11 +153,12 @@ export async function insertPoll(draft: PollDraft, options: { db?: Knex; id?: st
       }
       if (question.rows.length) {
         await trx(POLL_TABLES.ROWS).insert(
-          question.rows.map((label, index) => ({
+          question.rows.map((row, index) => ({
             id: randomUUID(),
             question_id: questionId,
             position: index,
-            label,
+            label: row.label,
+            ...(row.code ? { code: row.code } : {}),
           })),
         )
       }
