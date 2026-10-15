@@ -15,8 +15,14 @@ const root = ref<HTMLElement | null>(null)
 let timeline: gsap.core.Timeline | undefined
 let finished = false
 
-const words = computed(() => props.title.trim().split(/\s+/).map((word) => [...word]))
+/** «3. Educación…»: el número va aparte porque la brocha no trae cifras. */
+const parts = computed(() => {
+  const match = /^(\d+)[.)]\s*(.+)$/.exec(props.title.trim())
+  return match ? { number: match[1], text: match[2]! } : { number: '', text: props.title.trim() }
+})
+const words = computed(() => parts.value.text.split(/\s+/).map((word) => [...word]))
 const longest = computed(() => Math.max(1, ...words.value.map((word) => word.length)))
+const chars = computed(() => Math.max(1, parts.value.text.length))
 
 function finish() {
   if (finished) return
@@ -66,8 +72,11 @@ onBeforeUnmount(() => {
   <div ref="root" class="poll-splash" role="status" :aria-label="title" @click="finish">
     <span class="poll-splash__flash" aria-hidden="true" />
     <div class="poll-splash__inner">
-      <p class="poll-splash__kicker">{{ POLLS_COPY.stepSection }}</p>
-      <h2 class="poll-splash__title type-brush-dry" :style="{ '--longest': longest }" aria-hidden="true">
+      <p class="poll-splash__kicker">
+        {{ POLLS_COPY.stepSection }}
+        <span v-if="parts.number" class="poll-splash__number">{{ parts.number }}</span>
+      </p>
+      <h2 class="poll-splash__title type-brush-dry" :style="{ '--longest': longest, '--chars': chars }" aria-hidden="true">
         <span v-for="(word, w) in words" :key="w" class="poll-splash__word">
           <span v-for="(char, c) in word" :key="c" class="poll-splash__char">{{ char }}</span>
         </span>
@@ -113,17 +122,40 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   color: var(--cyan, #48b4fc);
 }
+.poll-splash__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.poll-splash__number {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: var(--blue, #0088f8);
+  font: 700 18px/1 var(--display, Oswald, sans-serif);
+  letter-spacing: 0;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(0, 136, 248, 0.5);
+}
 .poll-splash__title {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  /* Brush King tiene trazos altos y la clase inclina el bloque: separación vertical amplia entre renglones. */
-  gap: 0.32em 0.3em;
+  /* Brush King tiene tildes y trazos altos y la clase inclina el bloque: separación vertical amplia entre renglones. */
+  gap: 0.8em 0.3em;
   max-width: 100%;
   margin: 0;
   padding: 0.2em 0.4em;
   /* Cabe la palabra más larga sin partirla: ~0.9em por letra en Brush King, más la inclinación. */
-  font-size: clamp(22px, calc(88cqw / (var(--longest, 10) * 0.95)), 76px) !important;
+  /* La palabra más larga cabe sin partirse y el título completo ocupa unos tres renglones como mucho. */
+  font-size: clamp(
+    22px,
+    min(calc(88cqw / (var(--longest, 10) * 0.95)), calc(88cqw * 2.6 / (var(--chars, 20) * 0.95))),
+    64px
+  ) !important;
   line-height: 1.15 !important;
   transform-origin: center !important;
 }

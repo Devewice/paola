@@ -17,7 +17,7 @@ export const POLLS_STAGE = {
   photos: ['/kit-assets/Rodada anapoimap.png', '/kit-assets/Primera rodada.webp'],
   poses: [MASCOT.EN_PIE, MASCOT.X5, MASCOT.TUMBADA],
   /** Segundos que se sostiene el título de sección antes de pasar solo. */
-  sectionHold: 8,
+  sectionHold: 1.25,
 } as const
 
 /** Lo que dice la cámara según el avance (0 a 1). */
