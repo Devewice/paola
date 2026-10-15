@@ -100,8 +100,8 @@ defineExpose({ snap })
   animation: poll-orb-spin 9s linear infinite;
 }
 .poll-companion__pose {
-  width: 78%;
-  height: 78%;
+  width: 88%;
+  height: 88%;
   object-fit: contain;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
 }
@@ -153,6 +153,11 @@ defineExpose({ snap })
 }
 @keyframes poll-rec {
   50% { opacity: 0.2; }
+}
+@media (max-width: 959px) {
+  .poll-companion {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
 }
 @media (max-width: 600px) {
   .poll-companion__bubble {

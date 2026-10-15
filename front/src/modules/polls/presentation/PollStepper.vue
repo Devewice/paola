@@ -218,7 +218,7 @@ onBeforeUnmount(() => {
       <span class="poll-stepper__veil" />
     </div>
 
-    <header class="poll-stepper__bar">
+    <header v-if="step.type !== 'intro'" class="poll-stepper__bar">
       <div class="poll-stepper__meta">
         <span class="poll-stepper__section">{{ sectionLabel ?? poll.title }}</span>
         <span v-if="step.type === 'question'" class="poll-stepper__count">
@@ -266,6 +266,9 @@ onBeforeUnmount(() => {
             @update:answer="setAnswer(gate, $event)"
             @advance="onAdvance"
           />
+          <div v-if="canAdvance" class="poll-stepper__nav poll-stepper__nav--start">
+            <Button @click="next">{{ copy.stepContinue }}</Button>
+          </div>
         </div>
         <div v-else class="poll-stepper__nav poll-stepper__nav--start">
           <Button variant="hero" @click="next">{{ copy.stepStart }}</Button>
@@ -361,7 +364,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: -4%;
   background: center 40% / cover no-repeat;
-  filter: saturate(0.85) brightness(0.55);
+  filter: saturate(0.85) brightness(0.45) blur(1px);
   animation: poll-kenburns 26s ease-in-out infinite alternate;
 }
 .poll-stepper__veil {
@@ -431,13 +434,15 @@ onBeforeUnmount(() => {
 }
 @media (max-width: 760px) {
   .poll-stepper__hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 16px;
+    align-items: start;
   }
-  .poll-stepper__mascot {
-    order: -1;
+  .poll-stepper__mascot-line {
+    display: none;
   }
-  .poll-stepper__mascot-frame {
-    width: min(200px, 60vw);
+  .poll-stepper__hero-copy .poll-stepper__lead {
+    grid-column: 1 / -1;
   }
 }
 

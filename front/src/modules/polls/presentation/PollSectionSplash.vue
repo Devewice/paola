@@ -16,6 +16,7 @@ let timeline: gsap.core.Timeline | undefined
 let finished = false
 
 const words = computed(() => props.title.trim().split(/\s+/).map((word) => [...word]))
+const longest = computed(() => Math.max(1, ...words.value.map((word) => word.length)))
 
 function finish() {
   if (finished) return
@@ -46,7 +47,7 @@ onMounted(() => {
     .from(q('.poll-splash__kicker'), { y: 12, opacity: 0, duration: 0.3, ease: 'power2.out' }, 0.1)
     .from(
       q('.poll-splash__char'),
-      { yPercent: 110, rotate: 8, opacity: 0, duration: 0.5, ease: 'back.out(1.8)', stagger: 0.022 },
+      { y: 40, rotate: 10, scale: 0.6, opacity: 0, duration: 0.5, ease: 'back.out(1.8)', stagger: 0.022 },
       0.15,
     )
     .fromTo(q('.poll-splash__stroke'), { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: 'power3.out' }, 0.45)
@@ -66,7 +67,7 @@ onBeforeUnmount(() => {
     <span class="poll-splash__flash" aria-hidden="true" />
     <div class="poll-splash__inner">
       <p class="poll-splash__kicker">{{ POLLS_COPY.stepSection }}</p>
-      <h2 class="poll-splash__title type-brush-dry" aria-hidden="true">
+      <h2 class="poll-splash__title type-brush-dry" :style="{ '--longest': longest }" aria-hidden="true">
         <span v-for="(word, w) in words" :key="w" class="poll-splash__word">
           <span v-for="(char, c) in word" :key="c" class="poll-splash__char">{{ char }}</span>
         </span>
@@ -84,6 +85,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   min-height: min(62vh, 560px);
+  container-type: inline-size;
   cursor: pointer;
   user-select: none;
 }
@@ -100,7 +102,7 @@ onBeforeUnmount(() => {
   display: grid;
   justify-items: center;
   gap: 16px;
-  max-width: 900px;
+  width: 100%;
   text-align: center;
 }
 .poll-splash__kicker {
@@ -115,14 +117,16 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0 0.28em;
+  max-width: 100%;
   margin: 0;
-  font-size: clamp(40px, 8vw, 92px);
-  line-height: 1.05;
-  text-shadow: 0 0 32px rgba(0, 136, 248, 0.45);
+  /* Cabe la palabra más larga sin partirla: ~0.9em por letra en Brush King, más la inclinación. */
+  font-size: clamp(22px, calc(88cqw / (var(--longest, 10) * 0.95)), 76px) !important;
+  line-height: 1.3;
+  transform-origin: center !important;
 }
 .poll-splash__word {
   display: inline-flex;
-  overflow: hidden;
+  white-space: nowrap;
   padding: 0.06em 0;
 }
 .poll-splash__char {
@@ -138,7 +142,7 @@ onBeforeUnmount(() => {
   transform-origin: 0 50%;
 }
 .poll-splash__pose {
-  width: clamp(110px, 18vw, 160px);
+  width: clamp(130px, 22vw, 200px);
   height: auto;
   margin-top: 8px;
   object-fit: contain;
