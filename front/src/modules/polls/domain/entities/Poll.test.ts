@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
+  EMPTY_ANSWER,
   canVote,
   emptyBallot,
   missingRequired,
   moveRank,
   needsTicket,
+  pickCell,
   toPayload,
   toggleChoice,
+  visibleQuestions,
   type Poll,
   type PollQuestion,
 } from '@modules/polls/domain/entities/Poll.ts'
@@ -59,9 +62,9 @@ describe('papeleta de encuesta', () => {
   it('arma el envío solo con lo respondido', () => {
     const ballot = {
       ...emptyBallot(poll),
-      q1: { optionIds: ['b'], ranking: [], value: null, text: '' },
-      q4: { optionIds: [], ranking: [], value: 4, text: '' },
-      q5: { optionIds: [], ranking: [], value: null, text: '  buena ruta ' },
+      q1: { ...EMPTY_ANSWER, optionIds: ['b'] },
+      q4: { ...EMPTY_ANSWER, value: 4 },
+      q5: { ...EMPTY_ANSWER, text: '  buena ruta ' },
     }
     expect(toPayload(poll, ballot)).toEqual([
       { questionId: 'q1', optionIds: ['b'] },
@@ -92,5 +95,114 @@ describe('papeleta de encuesta', () => {
     expect(canVote({ ...ride, isInscribed: true }, true)).toBe(true)
     expect(needsTicket({ ...ride, isInscribed: true })).toBe(false)
     expect(needsTicket({ ...ride, isOpen: false })).toBe(false)
+  })
+})
+
+describe('encuestas largas', () => {
+  const filter: PollQuestion = {
+    id: 'f',
+    kind: 'single',
+    prompt: '¿Rodas en Bogotá?',
+    required: true,
+    options: [
+      { id: 'si', label: 'Sí' },
+      { id: 'no', label: 'No' },
+    ],
+  }
+  const training: PollQuestion = {
+    id: 't',
+    kind: 'multiple',
+    prompt: '¿Dónde aprendiste?',
+    required: true,
+    showIf: { questionId: 'f', optionIds: ['si'], mode: 'any' },
+    options: [
+      { id: 'cea', label: 'CEA' },
+      { id: 'otro', label: 'Otro', isOther: true },
+      { id: 'nada', label: 'Ninguna', exclusive: true },
+    ],
+  }
+  const contents: PollQuestion = {
+    id: 'c',
+    kind: 'multiple',
+    prompt: '¿Qué te enseñaron?',
+    required: true,
+    showIf: { questionId: 't', optionIds: ['nada'], mode: 'none' },
+    options: [
+      { id: 'normas', label: 'Normas' },
+      { id: 'senales', label: 'Señales' },
+    ],
+  }
+  const grid: PollQuestion = {
+    id: 'g',
+    kind: 'grid',
+    prompt: '¿Con qué frecuencia…?',
+    required: true,
+    showIf: { questionId: 'f', optionIds: ['si'], mode: 'any' },
+    rows: [
+      { id: 'vel', label: 'Respetas la velocidad' },
+      { id: 'casco', label: 'Usas casco' },
+    ],
+    options: [
+      { id: 'nunca', label: 'Nunca' },
+      { id: 'siempre', label: 'Siempre' },
+    ],
+  }
+  const survey = { questions: [filter, training, contents, grid] }
+
+  it('oculta todo lo que depende del filtro hasta responderlo', () => {
+    const ballot = emptyBallot(survey)
+    expect(visibleQuestions(survey, ballot).map((question) => question.id)).toEqual(['f'])
+    const yes = { ...ballot, f: { ...EMPTY_ANSWER, optionIds: ['si'] } }
+    expect(visibleQuestions(survey, yes).map((question) => question.id)).toEqual(['f', 't', 'c', 'g'])
+  })
+
+  it('salta la pregunta de contenidos si no recibió formación', () => {
+    const ballot = {
+      ...emptyBallot(survey),
+      f: { ...EMPTY_ANSWER, optionIds: ['si'] },
+      t: { ...EMPTY_ANSWER, optionIds: ['nada'] },
+    }
+    expect(visibleQuestions(survey, ballot).map((question) => question.id)).toEqual(['f', 't', 'g'])
+  })
+
+  it('la opción exclusiva desmarca las demás y al revés', () => {
+    let answer = toggleChoice(training, EMPTY_ANSWER, 'cea')
+    answer = toggleChoice(training, answer, 'nada')
+    expect(answer.optionIds).toEqual(['nada'])
+    expect(toggleChoice(training, answer, 'cea').optionIds).toEqual(['cea'])
+  })
+
+  it('«Otro» sin texto cuenta como pendiente y se envía con lo escrito', () => {
+    const base = {
+      ...emptyBallot(survey),
+      f: { ...EMPTY_ANSWER, optionIds: ['si'] },
+      c: { ...EMPTY_ANSWER, optionIds: ['normas'] },
+      g: pickCell(pickCell(EMPTY_ANSWER, 'vel', 'nunca'), 'casco', 'siempre'),
+    }
+    const blank = { ...base, t: { ...EMPTY_ANSWER, optionIds: ['otro'] } }
+    expect(missingRequired(survey, blank).map((question) => question.id)).toEqual(['t'])
+    const filled = { ...base, t: { ...EMPTY_ANSWER, optionIds: ['otro'], otherText: ' YouTube ' } }
+    expect(missingRequired(survey, filled)).toEqual([])
+    expect(toPayload(survey, filled)).toContainEqual({ questionId: 't', optionIds: ['otro'], otherText: 'YouTube' })
+    expect(toPayload(survey, filled)).toContainEqual({ questionId: 'g', grid: { vel: 'nunca', casco: 'siempre' } })
+  })
+
+  it('la cuadrícula obligatoria pide todas las filas', () => {
+    const ballot = {
+      ...emptyBallot(survey),
+      f: { ...EMPTY_ANSWER, optionIds: ['si'] },
+      t: { ...EMPTY_ANSWER, optionIds: ['nada'] },
+      g: pickCell(EMPTY_ANSWER, 'vel', 'nunca'),
+    }
+    expect(missingRequired(survey, ballot).map((question) => question.id)).toEqual(['g'])
+  })
+
+  it('no envía respuestas de preguntas ocultas', () => {
+    const ballot = {
+      ...emptyBallot(survey),
+      f: { ...EMPTY_ANSWER, optionIds: ['no'] },
+      t: { ...EMPTY_ANSWER, optionIds: ['cea'] },
+    }
+    expect(toPayload(survey, ballot)).toEqual([{ questionId: 'f', optionIds: ['no'] }])
   })
 })

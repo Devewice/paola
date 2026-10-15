@@ -2,18 +2,23 @@ import type {
   OptionTally,
   Poll,
   PollAudience,
+  PollCondition,
+  PollConditionMode,
   PollKind,
   PollOption,
   PollQuestion,
   PollResults,
+  PollRow,
   PollStatus,
   QuestionResult,
+  RowResult,
 } from '@modules/polls/domain/entities/Poll.ts'
 import type { OperatorPoll } from '@modules/polls/domain/ports/PollsPort.ts'
 
 type Row = Record<string, unknown>
 
-const KINDS: readonly PollKind[] = ['single', 'multiple', 'ranking', 'scale', 'text']
+const KINDS: readonly PollKind[] = ['single', 'multiple', 'ranking', 'scale', 'text', 'grid']
+const MODES: readonly PollConditionMode[] = ['any', 'none']
 const STATUSES: readonly PollStatus[] = ['draft', 'open', 'closed']
 
 function asRow(value: unknown): Row | null {
@@ -36,7 +41,28 @@ function parseOption(row: Row): PollOption | null {
   const id = str(row.id)
   const label = str(row.label)
   if (!id || !label) return null
-  return { id, label, imageSrc: str(row.imageSrc) }
+  return {
+    id,
+    label,
+    imageSrc: str(row.imageSrc),
+    isOther: row.isOther === true || undefined,
+    exclusive: row.exclusive === true || undefined,
+  }
+}
+
+function parseRow(row: Row): PollRow | null {
+  const id = str(row.id)
+  const label = str(row.label)
+  return id && label ? { id, label } : null
+}
+
+function parseCondition(value: unknown): PollCondition | undefined {
+  const row = asRow(value)
+  if (!row) return undefined
+  const questionId = str(row.questionId)
+  const mode = MODES.find((item) => item === row.mode)
+  const optionIds = Array.isArray(row.optionIds) ? row.optionIds.filter((id): id is string => typeof id === 'string') : []
+  return questionId && mode && optionIds.length ? { questionId, optionIds, mode } : undefined
 }
 
 function parseQuestion(row: Row): PollQuestion | null {
@@ -49,6 +75,11 @@ function parseQuestion(row: Row): PollQuestion | null {
     kind,
     prompt,
     help: str(row.help),
+    section: str(row.section),
+    rows: list(row.rows)
+      .map(parseRow)
+      .filter((item): item is PollRow => item !== null),
+    showIf: parseCondition(row.showIf),
     required: row.required !== false,
     maxChoices: num(row.maxChoices),
     scaleMin: num(row.scaleMin),
@@ -81,6 +112,24 @@ function parseQuestionResult(row: Row): QuestionResult | null {
       ? list(row.distribution).map((item) => ({ value: num(item.value) ?? 0, count: num(item.count) ?? 0 }))
       : undefined,
     texts: Array.isArray(row.texts) ? row.texts.filter((item): item is string => typeof item === 'string') : undefined,
+    otherTexts: Array.isArray(row.otherTexts)
+      ? row.otherTexts.filter((item): item is string => typeof item === 'string')
+      : undefined,
+    rows: Array.isArray(row.rows)
+      ? list(row.rows)
+          .map((item): RowResult | null => {
+            const rowId = str(item.rowId)
+            if (!rowId) return null
+            return {
+              rowId,
+              answered: num(item.answered) ?? 0,
+              options: list(item.options)
+                .map(parseTally)
+                .filter((tally): tally is OptionTally => tally !== null),
+            }
+          })
+          .filter((item): item is RowResult => item !== null)
+      : undefined,
   }
 }
 

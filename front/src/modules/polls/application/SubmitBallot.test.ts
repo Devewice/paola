@@ -53,7 +53,7 @@ describe('SubmitBallot', () => {
 
   it('bloquea encuestas con cuenta si no hay sesión', async () => {
     const { port, calls } = spyPort()
-    const ballot = { q1: { optionIds: ['a'], ranking: [], value: null, text: '' } }
+    const ballot = { q1: { optionIds: ['a'], ranking: [], value: null, text: '', otherText: '', grid: {} } }
     const result = await new SubmitBallot(port).execute({ ...poll, audience: 'account' }, ballot, false)
     expect(result.ok).toBe(false)
     expect(calls).toHaveLength(0)
@@ -61,7 +61,7 @@ describe('SubmitBallot', () => {
 
   it('bloquea encuestas de rodada a quien no está inscrito', async () => {
     const { port, calls } = spyPort()
-    const ballot = { q1: { optionIds: ['a'], ranking: [], value: null, text: '' } }
+    const ballot = { q1: { optionIds: ['a'], ranking: [], value: null, text: '', otherText: '', grid: {} } }
     const result = await new SubmitBallot(port).execute({ ...poll, ridersOnly: true }, ballot, true)
     expect(!result.ok && result.error.message).toBe(POLLS_COPY.ridersOnly)
     expect(calls).toHaveLength(0)
@@ -69,7 +69,7 @@ describe('SubmitBallot', () => {
 
   it('envía las respuestas y devuelve la encuesta votada', async () => {
     const { port, calls } = spyPort()
-    const ballot = { q1: { optionIds: ['b'], ranking: [], value: null, text: '' } }
+    const ballot = { q1: { optionIds: ['b'], ranking: [], value: null, text: '', otherText: '', grid: {} } }
     const result = await new SubmitBallot(port).execute(poll, ballot, false)
     expect(result.ok && result.value.hasVoted).toBe(true)
     expect(calls).toEqual([{ pollId: 'p1', answers: [{ questionId: 'q1', optionIds: ['b'] }] }])

@@ -1,11 +1,28 @@
-export type PollKind = 'single' | 'multiple' | 'ranking' | 'scale' | 'text'
+export type PollKind = 'single' | 'multiple' | 'ranking' | 'scale' | 'text' | 'grid'
 export type PollStatus = 'draft' | 'open' | 'closed'
 export type PollAudience = 'public' | 'account'
+/** `any`: se muestra si eligieron alguna de las opciones; `none`: si no eligieron ninguna. */
+export type PollConditionMode = 'any' | 'none'
 
 export type PollOption = {
   readonly id: string
   readonly label: string
   readonly imageSrc?: string
+  /** Pide escribir cuál («Otro: ___»). */
+  readonly isOther?: boolean
+  /** Al elegirla se desmarcan las demás («Ninguna», «No recuerdo»). */
+  readonly exclusive?: boolean
+}
+
+export type PollRow = {
+  readonly id: string
+  readonly label: string
+}
+
+export type PollCondition = {
+  readonly questionId: string
+  readonly optionIds: readonly string[]
+  readonly mode: PollConditionMode
 }
 
 export type PollQuestion = {
@@ -13,13 +30,18 @@ export type PollQuestion = {
   readonly kind: PollKind
   readonly prompt: string
   readonly help?: string
+  /** Título de sección que arranca en esta pregunta. */
+  readonly section?: string
   readonly required: boolean
   readonly maxChoices?: number
   readonly scaleMin?: number
   readonly scaleMax?: number
   readonly scaleMinLabel?: string
   readonly scaleMaxLabel?: string
+  /** En cuadrícula, `options` son las columnas y `rows` las filas. */
   readonly options: readonly PollOption[]
+  readonly rows?: readonly PollRow[]
+  readonly showIf?: PollCondition
 }
 
 export type OptionTally = {
@@ -29,6 +51,12 @@ export type OptionTally = {
   readonly averageRank?: number
 }
 
+export type RowResult = {
+  readonly rowId: string
+  readonly answered: number
+  readonly options: readonly OptionTally[]
+}
+
 export type QuestionResult = {
   readonly questionId: string
   readonly answered: number
@@ -36,6 +64,8 @@ export type QuestionResult = {
   readonly average?: number
   readonly distribution?: readonly { readonly value: number; readonly count: number }[]
   readonly texts?: readonly string[]
+  readonly otherTexts?: readonly string[]
+  readonly rows?: readonly RowResult[]
 }
 
 export type PollResults = {
@@ -69,6 +99,10 @@ export type BallotAnswer = {
   readonly ranking: readonly string[]
   readonly value: number | null
   readonly text: string
+  /** Lo escrito en la opción «Otro». */
+  readonly otherText: string
+  /** Cuadrícula: fila → columna elegida. */
+  readonly grid: Readonly<Record<string, string>>
 }
 
 export type Ballot = Readonly<Record<string, BallotAnswer>>
@@ -79,13 +113,19 @@ export type AnswerPayload = {
   readonly ranking?: readonly string[]
   readonly value?: number
   readonly text?: string
+  readonly otherText?: string
+  readonly grid?: Readonly<Record<string, string>>
 }
 
-export const EMPTY_ANSWER: BallotAnswer = { optionIds: [], ranking: [], value: null, text: '' }
+export const EMPTY_ANSWER: BallotAnswer = { optionIds: [], ranking: [], value: null, text: '', otherText: '', grid: {} }
 
 export function choiceLimit(question: PollQuestion): number {
   if (question.kind === 'single') return 1
   return question.maxChoices ?? question.options.length
+}
+
+export function rowsOf(question: PollQuestion): readonly PollRow[] {
+  return question.rows ?? []
 }
 
 /** Estado inicial: las preguntas de ordenar arrancan con el orden publicado. */
@@ -100,19 +140,37 @@ export function emptyBallot(poll: Pick<Poll, 'questions'>): Ballot {
   return ballot
 }
 
+function otherPicked(question: PollQuestion, answer: BallotAnswer): boolean {
+  return question.options.some((option) => option.isOther && answer.optionIds.includes(option.id))
+}
+
+/** «Otro» elegido sin escribir cuál. */
+export function needsOtherText(question: PollQuestion, answer: BallotAnswer | undefined): boolean {
+  return Boolean(answer) && otherPicked(question, answer!) && !answer!.otherText.trim()
+}
+
 export function isAnswered(question: PollQuestion, answer: BallotAnswer | undefined): boolean {
   if (!answer) return false
   switch (question.kind) {
     case 'single':
     case 'multiple':
-      return answer.optionIds.length > 0
+      return answer.optionIds.length > 0 && !needsOtherText(question, answer)
     case 'ranking':
       return answer.ranking.length === question.options.length
     case 'scale':
       return answer.value !== null
     case 'text':
       return answer.text.trim().length > 0
+    case 'grid':
+      return rowsOf(question).every((row) => Boolean(answer.grid[row.id]))
   }
+}
+
+function hasAny(question: PollQuestion, answer: BallotAnswer | undefined): boolean {
+  if (!answer) return false
+  if (question.kind === 'grid') return Object.keys(answer.grid).length > 0
+  if (question.kind === 'single' || question.kind === 'multiple') return answer.optionIds.length > 0
+  return isAnswered(question, answer)
 }
 
 export function toggleChoice(question: PollQuestion, answer: BallotAnswer, optionId: string): BallotAnswer {
@@ -120,8 +178,16 @@ export function toggleChoice(question: PollQuestion, answer: BallotAnswer, optio
   if (answer.optionIds.includes(optionId)) {
     return { ...answer, optionIds: answer.optionIds.filter((id) => id !== optionId) }
   }
-  if (answer.optionIds.length >= choiceLimit(question)) return answer
-  return { ...answer, optionIds: [...answer.optionIds, optionId] }
+  const option = question.options.find((item) => item.id === optionId)
+  if (option?.exclusive) return { ...answer, optionIds: [optionId] }
+  const exclusive = new Set(question.options.filter((item) => item.exclusive).map((item) => item.id))
+  const kept = answer.optionIds.filter((id) => !exclusive.has(id))
+  if (kept.length >= choiceLimit(question)) return answer
+  return { ...answer, optionIds: [...kept, optionId] }
+}
+
+export function pickCell(answer: BallotAnswer, rowId: string, optionId: string): BallotAnswer {
+  return { ...answer, grid: { ...answer.grid, [rowId]: optionId } }
 }
 
 export function moveRank(answer: BallotAnswer, from: number, to: number): BallotAnswer {
@@ -133,26 +199,48 @@ export function moveRank(answer: BallotAnswer, from: number, to: number): Ballot
   return { ...answer, ranking }
 }
 
+/** Preguntas que se muestran según lo respondido hasta ahora. */
+export function visibleQuestions(poll: Pick<Poll, 'questions'>, ballot: Ballot): readonly PollQuestion[] {
+  const shown = new Set<string>()
+  return poll.questions.filter((question) => {
+    const condition = question.showIf
+    let visible = true
+    if (condition) {
+      const chosen = ballot[condition.questionId]?.optionIds ?? []
+      const hit = chosen.some((id) => condition.optionIds.includes(id))
+      visible = shown.has(condition.questionId) && (condition.mode === 'any' ? hit : !hit)
+    }
+    if (visible) shown.add(question.id)
+    return visible
+  })
+}
+
 /** Preguntas obligatorias que faltan por responder. */
 export function missingRequired(poll: Pick<Poll, 'questions'>, ballot: Ballot): readonly PollQuestion[] {
-  return poll.questions.filter((question) => question.required && !isAnswered(question, ballot[question.id]))
+  return visibleQuestions(poll, ballot).filter(
+    (question) => (question.required || needsOtherText(question, ballot[question.id])) && !isAnswered(question, ballot[question.id]),
+  )
 }
 
 export function toPayload(poll: Pick<Poll, 'questions'>, ballot: Ballot): readonly AnswerPayload[] {
-  return poll.questions
-    .filter((question) => isAnswered(question, ballot[question.id]))
+  return visibleQuestions(poll, ballot)
+    .filter((question) => hasAny(question, ballot[question.id]))
     .map((question) => {
       const answer = ballot[question.id] ?? EMPTY_ANSWER
       switch (question.kind) {
         case 'single':
         case 'multiple':
-          return { questionId: question.id, optionIds: answer.optionIds }
+          return otherPicked(question, answer)
+            ? { questionId: question.id, optionIds: answer.optionIds, otherText: answer.otherText.trim() }
+            : { questionId: question.id, optionIds: answer.optionIds }
         case 'ranking':
           return { questionId: question.id, ranking: answer.ranking }
         case 'scale':
           return { questionId: question.id, value: answer.value ?? undefined }
         case 'text':
           return { questionId: question.id, text: answer.text.trim() }
+        case 'grid':
+          return { questionId: question.id, grid: answer.grid }
       }
     })
 }

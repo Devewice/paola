@@ -2,6 +2,7 @@ export const POLL_TABLES = {
   POLLS: 'polls',
   QUESTIONS: 'poll_questions',
   OPTIONS: 'poll_options',
+  ROWS: 'poll_rows',
   RESPONSES: 'poll_responses',
   ANSWERS: 'poll_answers',
   SESSIONS: 'sessions',
@@ -22,7 +23,8 @@ export const POLL_QUERY = {
   FEATURED: 'featured',
 } as const
 
-export const POLL_KINDS = ['single', 'multiple', 'ranking', 'scale', 'text'] as const
+export const POLL_KINDS = ['single', 'multiple', 'ranking', 'scale', 'text', 'grid'] as const
+export const POLL_CONDITION_MODES = ['any', 'none'] as const
 export const POLL_STATUSES = ['draft', 'open', 'closed'] as const
 export const POLL_AUDIENCES = ['public', 'account'] as const
 
@@ -31,10 +33,13 @@ export const POLL_LIMITS = {
   TITLE_MAX: 200,
   PROMPT_MIN: 2,
   PROMPT_MAX: 300,
-  QUESTIONS_MAX: 20,
+  QUESTIONS_MAX: 40,
   OPTIONS_MIN: 2,
-  OPTIONS_MAX: 12,
+  OPTIONS_MAX: 20,
   OPTION_MAX: 200,
+  ROWS_MIN: 1,
+  ROWS_MAX: 12,
+  SECTION_MAX: 160,
   SCALE_MIN: 0,
   SCALE_MAX: 10,
   TEXT_MAX: 1000,
@@ -57,10 +62,15 @@ export const POLL_MESSAGES = {
   ALREADY_VOTED: 'Ya votaste en esta encuesta.',
   TITLE_REQUIRED: 'La encuesta necesita un título.',
   QUESTIONS_REQUIRED: 'La encuesta necesita al menos una pregunta.',
-  QUESTIONS_TOO_MANY: 'Máximo 20 preguntas por encuesta.',
+  QUESTIONS_TOO_MANY: 'Máximo 40 preguntas por encuesta.',
   PROMPT_REQUIRED: 'Cada pregunta necesita un enunciado.',
   KIND_INVALID: 'Tipo de pregunta no válido.',
-  OPTIONS_REQUIRED: 'Las preguntas de opciones necesitan entre 2 y 12 opciones.',
+  OPTIONS_REQUIRED: 'Las preguntas de opciones necesitan entre 2 y 20 opciones.',
+  ROWS_REQUIRED: 'La cuadrícula necesita entre 1 y 12 filas.',
+  OTHER_ONCE: 'Solo puede haber una opción «Otro» por pregunta.',
+  OTHER_TEXT_REQUIRED: 'Escribe cuál es tu opción en «Otro».',
+  EXCLUSIVE_MIXED: 'Esa opción no se puede combinar con otras.',
+  CONDITION_INVALID: 'La condición debe apuntar a una pregunta de opciones anterior.',
   SCALE_INVALID: 'La escala va de 0 a 10 y el mínimo debe ser menor que el máximo.',
   AUDIENCE_INVALID: 'Elige si se vota con o sin cuenta.',
   STATUS_INVALID: 'Estado no válido.',

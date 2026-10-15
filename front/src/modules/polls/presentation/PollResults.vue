@@ -27,6 +27,10 @@ function optionLabel(question: PollQuestion, optionId: string): string {
   return question.options.find((option) => option.id === optionId)?.label ?? ''
 }
 
+function rowLabel(question: PollQuestion, rowId: string): string {
+  return question.rows?.find((row) => row.id === rowId)?.label ?? ''
+}
+
 function optionImage(question: PollQuestion, optionId: string): string | undefined {
   return question.options.find((option) => option.id === optionId)?.imageSrc
 }
@@ -111,6 +115,26 @@ function scaleSpan(question: PollQuestion, average: number): number {
         </p>
       </div>
 
+      <div v-else-if="question.kind === 'grid'" class="poll-results__grid">
+        <div v-for="row in result.rows ?? []" :key="row.rowId" class="poll-results__grid-row">
+          <p class="poll-results__grid-label">{{ rowLabel(question, row.rowId) }}</p>
+          <div class="poll-results__stack" aria-hidden="true">
+            <span
+              v-for="(option, index) in row.options"
+              v-show="option.percent > 0"
+              :key="option.optionId"
+              :style="{ width: `${option.percent}%`, '--poll-tone': index }"
+            />
+          </div>
+          <ul class="poll-results__legend">
+            <li v-for="(option, index) in row.options" :key="option.optionId" :style="{ '--poll-tone': index }">
+              <span class="poll-results__swatch" aria-hidden="true" />
+              {{ optionLabel(question, option.optionId) }} · {{ Math.round(option.percent) }}%
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <div v-else-if="question.kind === 'text'" class="poll-results__texts">
         <template v-if="showTexts">
           <p v-if="!result.texts?.length" class="poll-results__empty">{{ POLLS_ADMIN_COPY.noTexts }}</p>
@@ -146,6 +170,13 @@ function scaleSpan(question: PollQuestion, average: number): number {
           </div>
         </li>
       </ul>
+
+      <div v-if="showTexts && result?.otherTexts?.length" class="poll-results__texts">
+        <p class="poll-results__answered">{{ POLLS_ADMIN_COPY.otherAnswers }}</p>
+        <ul class="poll-results__text-list">
+          <li v-for="(text, index) in result.otherTexts" :key="index">{{ text }}</li>
+        </ul>
+      </div>
     </section>
   </div>
 </template>

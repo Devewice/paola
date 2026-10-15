@@ -8,8 +8,12 @@ import {
   emptyBallot,
   isAnswered,
   moveRank,
+  needsOtherText,
   needsTicket,
+  pickCell,
+  rowsOf,
   toggleChoice,
+  visibleQuestions,
   type Ballot,
   type BallotAnswer,
   type Poll,
@@ -19,6 +23,7 @@ import PollResults from '@modules/polls/presentation/PollResults.vue'
 import { appEncuesta, appRodada } from '@shared/http/constants.ts'
 import Button from '@ui/Button.vue'
 import Chip from '@ui/Chip.vue'
+import Input from '@ui/Input.vue'
 import Textarea from '@ui/Textarea.vue'
 import { showToast } from '@ui/toast.ts'
 
@@ -66,6 +71,23 @@ const closesLabel = computed(() => {
 })
 
 const resultsLead = computed(() => (current.value.isOpen ? copy.alreadyVoted : copy.closedNote))
+const shown = computed(() => visibleQuestions(current.value, ballot.value))
+
+function otherPicked(question: PollQuestion): boolean {
+  return question.options.some((option) => option.isOther && isPicked(question, option.id))
+}
+
+function setOtherText(question: PollQuestion, otherText: string) {
+  setAnswer(question, { ...answerOf(question), otherText })
+}
+
+function isCell(question: PollQuestion, rowId: string, optionId: string): boolean {
+  return answerOf(question).grid[rowId] === optionId
+}
+
+function pickGridCell(question: PollQuestion, rowId: string, optionId: string) {
+  setAnswer(question, pickCell(answerOf(question), rowId, optionId))
+}
 
 function answerOf(question: PollQuestion): BallotAnswer {
   return ballot.value[question.id] ?? EMPTY_ANSWER
@@ -87,6 +109,8 @@ function hintOf(question: PollQuestion): string {
       return copy.rankHint
     case 'scale':
       return copy.scaleHint
+    case 'grid':
+      return copy.gridHint
     case 'text':
       return ''
   }
@@ -200,7 +224,9 @@ async function submit() {
     </div>
 
     <form v-else class="poll-card__form" @submit.prevent="submit">
-      <fieldset v-for="(question, qIndex) in current.questions" :key="question.id" class="poll-q">
+      <template v-for="(question, qIndex) in shown" :key="question.id">
+      <h4 v-if="question.section" class="poll-section">{{ question.section }}</h4>
+      <fieldset class="poll-q">
         <legend class="poll-q__legend">
           <span class="poll-q__num">{{ qIndex + 1 }}</span>
           <span class="poll-q__prompt">{{ question.prompt }}</span>
@@ -240,6 +266,50 @@ async function submit() {
               <span class="poll-option__label">{{ option.label }}</span>
             </span>
           </button>
+          <div v-if="otherPicked(question)" class="poll-other">
+            <Input
+              :model-value="answerOf(question).otherText"
+              :placeholder="copy.otherPlaceholder"
+              :aria-label="copy.otherPlaceholder"
+              @update:model-value="setOtherText(question, $event)"
+            />
+            <p v-if="needsOtherText(question, answerOf(question))" class="poll-q__hint">{{ copy.otherMissing }}</p>
+          </div>
+        </div>
+
+        <div
+          v-else-if="question.kind === 'grid'"
+          class="poll-grid"
+          :style="{ '--poll-grid-cols': question.options.length }"
+        >
+          <div class="poll-grid__head" aria-hidden="true">
+            <span />
+            <span v-for="option in question.options" :key="option.id">{{ option.label }}</span>
+          </div>
+          <div
+            v-for="row in rowsOf(question)"
+            :key="row.id"
+            class="poll-grid__row"
+            :class="{ 'is-done': Boolean(answerOf(question).grid[row.id]) }"
+            role="radiogroup"
+            :aria-label="row.label"
+          >
+            <span class="poll-grid__label">{{ row.label }}</span>
+            <button
+              v-for="option in question.options"
+              :key="option.id"
+              type="button"
+              class="poll-grid__cell"
+              :class="{ 'is-picked': isCell(question, row.id, option.id) }"
+              role="radio"
+              :aria-checked="isCell(question, row.id, option.id)"
+              :aria-label="`${row.label}: ${option.label}`"
+              @click="pickGridCell(question, row.id, option.id)"
+            >
+              <span class="poll-grid__mark" aria-hidden="true" />
+              <span class="poll-grid__cell-label">{{ option.label }}</span>
+            </button>
+          </div>
         </div>
 
         <ol v-else-if="question.kind === 'ranking'" class="poll-rank">
@@ -315,6 +385,7 @@ async function submit() {
           @update:model-value="setText(question, $event)"
         />
       </fieldset>
+      </template>
 
       <footer class="poll-card__foot">
         <p class="poll-card__note">{{ current.audience === 'account' ? copy.accountNote : copy.anonymousNote }}</p>

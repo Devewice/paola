@@ -18,7 +18,29 @@ function tallyQuestion(question: PollQuestion, answers: readonly StoredAnswer[],
       const count = own.filter((answer) => answer.optionId === option.id).length
       return { optionId: option.id, count, percent: percent(count, answered) }
     })
-    return { questionId: question.id, answered, options }
+    const otherIds = new Set(question.options.filter((option) => option.isOther).map((option) => option.id))
+    const otherTexts =
+      withTexts && otherIds.size
+        ? own
+            .filter((answer) => answer.optionId !== null && otherIds.has(answer.optionId))
+            .map((answer) => answer.valueText)
+            .filter((value): value is string => Boolean(value))
+            .slice(0, textLimit)
+        : undefined
+    return { questionId: question.id, answered, options, otherTexts }
+  }
+
+  if (question.kind === 'grid') {
+    const rows = question.rows.map((row) => {
+      const inRow = own.filter((answer) => answer.rowId === row.id)
+      const rowAnswered = inRow.length
+      const options: OptionTally[] = question.options.map((option) => {
+        const count = inRow.filter((answer) => answer.optionId === option.id).length
+        return { optionId: option.id, count, percent: percent(count, rowAnswered) }
+      })
+      return { rowId: row.id, answered: rowAnswered, options }
+    })
+    return { questionId: question.id, answered, options: [], rows }
   }
 
   if (question.kind === 'ranking') {

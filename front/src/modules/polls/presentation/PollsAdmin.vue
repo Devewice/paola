@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import {
+  CONDITION_KINDS,
   buildPollDraft,
   emptyOption,
   emptyPollForm,
@@ -52,8 +53,56 @@ const statusOptions = (['open', 'draft'] as PollStatus[]).map((value) => ({ valu
 const audienceOptions = (['public', 'account'] as const).map((value) => ({ value, label: POLL_AUDIENCE_LABELS[value] }))
 const outingOptions = computed(() => [{ value: '', label: copy.outingNone }, ...props.outings])
 
+const modeOptions = [
+  { value: 'any', label: copy.conditionAny },
+  { value: 'none', label: copy.conditionNone },
+]
+
 function hasOptions(question: QuestionForm): boolean {
-  return question.kind === 'single' || question.kind === 'multiple' || question.kind === 'ranking'
+  return ['single', 'multiple', 'ranking', 'grid'].includes(question.kind)
+}
+
+function canDependOn(question: QuestionForm): boolean {
+  return CONDITION_KINDS.includes(question.kind)
+}
+
+function conditionTargets(index: number) {
+  return [
+    { value: '', label: copy.conditionAlways },
+    ...form.value.questions
+      .slice(0, index)
+      .map((question, position) => ({ question, position }))
+      .filter(({ question }) => canDependOn(question))
+      .map(({ question, position }) => ({ value: String(position), label: `${position + 1}. ${question.prompt || '—'}` })),
+  ]
+}
+
+function conditionTarget(question: QuestionForm): QuestionForm | undefined {
+  const raw = question.showIfQuestion ?? ''
+  return raw ? form.value.questions[Number(raw)] : undefined
+}
+
+function setConditionQuestion(question: QuestionForm, value: string) {
+  question.showIfQuestion = value
+  question.showIfOptions = []
+}
+
+function toggleConditionOption(question: QuestionForm, option: number, on: boolean) {
+  const current = new Set(question.showIfOptions ?? [])
+  if (on) current.add(option)
+  else current.delete(option)
+  question.showIfOptions = [...current].sort((a, b) => a - b)
+}
+
+/** Reubica las condiciones cuando cambian las posiciones de las preguntas. */
+function remapConditions(map: (position: number) => number | null) {
+  for (const question of form.value.questions) {
+    const raw = question.showIfQuestion ?? ''
+    if (!raw) continue
+    const next = map(Number(raw))
+    if (next === null) setConditionQuestion(question, '')
+    else question.showIfQuestion = String(next)
+  }
 }
 
 function addQuestion() {
@@ -63,6 +112,7 @@ function addQuestion() {
 
 function removeQuestion(index: number) {
   form.value.questions.splice(index, 1)
+  remapConditions((position) => (position === index ? null : position > index ? position - 1 : position))
 }
 
 function moveQuestion(index: number, delta: number) {
@@ -71,6 +121,24 @@ function moveQuestion(index: number, delta: number) {
   if (target < 0 || target >= list.length) return
   const [item] = list.splice(index, 1)
   if (item) list.splice(target, 0, item)
+  remapConditions((position) => (position === index ? target : position === target ? index : position))
+  list.forEach((question, position) => {
+    if (question.showIfQuestion && Number(question.showIfQuestion) >= position) setConditionQuestion(question, '')
+  })
+}
+
+function addRow(question: QuestionForm) {
+  const rows = question.rows ?? []
+  if (rows.length >= POLLS_LIMITS.ROWS_MAX) return
+  question.rows = [...rows, '']
+}
+
+function removeRow(question: QuestionForm, index: number) {
+  question.rows = (question.rows ?? []).filter((_, position) => position !== index)
+}
+
+function setRow(question: QuestionForm, index: number, value: string) {
+  question.rows = (question.rows ?? []).map((row, position) => (position === index ? value : row))
 }
 
 function setKind(question: QuestionForm, kind: string) {
@@ -228,6 +296,9 @@ onMounted(() => void load())
             </div>
           </header>
 
+          <Field :label="copy.fieldSection">
+            <Input :model-value="question.section ?? ''" @update:model-value="question.section = $event" />
+          </Field>
           <Field :label="copy.fieldPrompt">
             <Input v-model="question.prompt" />
           </Field>
@@ -255,8 +326,33 @@ onMounted(() => void load())
             </Field>
           </div>
 
+          <div v-if="question.kind === 'grid'" class="poll-editor__options">
+            <p class="poll-editor__subtitle">{{ copy.rowsTitle }}</p>
+            <div v-for="(row, rIndex) in question.rows ?? []" :key="rIndex" class="poll-editor__row">
+              <Field :label="`${copy.rowLabel} ${rIndex + 1}`">
+                <Input :model-value="row" @update:model-value="setRow(question, rIndex, $event)" />
+              </Field>
+              <Button
+                size="sm"
+                variant="ghost"
+                :disabled="(question.rows ?? []).length <= POLLS_LIMITS.ROWS_MIN"
+                @click="removeRow(question, rIndex)"
+              >
+                {{ copy.removeOption }}
+              </Button>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              :disabled="(question.rows ?? []).length >= POLLS_LIMITS.ROWS_MAX"
+              @click="addRow(question)"
+            >
+              {{ copy.addRow }}
+            </Button>
+          </div>
+
           <div v-if="hasOptions(question)" class="poll-editor__options">
-            <p class="poll-editor__subtitle">{{ copy.optionsTitle }}</p>
+            <p class="poll-editor__subtitle">{{ question.kind === 'grid' ? copy.columnsTitle : copy.optionsTitle }}</p>
             <div v-for="(option, oIndex) in question.options" :key="oIndex" class="poll-editor__option">
               <span class="poll-editor__thumb" :class="{ 'is-empty': !option.imageSrc.trim() }">
                 <img v-if="option.imageSrc.trim()" :src="option.imageSrc.trim()" alt="" />
@@ -275,6 +371,19 @@ onMounted(() => void load())
               >
                 {{ copy.removeOption }}
               </Button>
+              <div v-if="canDependOn(question)" class="poll-editor__flags">
+                <Choice
+                  :model-value="option.isOther ?? false"
+                  :label="copy.optionOther"
+                  @update:model-value="option.isOther = $event"
+                />
+                <Choice
+                  v-if="question.kind === 'multiple'"
+                  :model-value="option.exclusive ?? false"
+                  :label="copy.optionExclusive"
+                  @update:model-value="option.exclusive = $event"
+                />
+              </div>
             </div>
             <Button
               size="sm"
@@ -284,6 +393,34 @@ onMounted(() => void load())
             >
               {{ copy.addOption }}
             </Button>
+          </div>
+
+          <div v-if="qIndex > 0" class="poll-editor__options">
+            <p class="poll-editor__subtitle">{{ copy.conditionTitle }}</p>
+            <div class="admin-fields">
+              <Select
+                :model-value="question.showIfQuestion ?? ''"
+                :label="copy.conditionQuestion"
+                :options="conditionTargets(qIndex)"
+                @update:model-value="setConditionQuestion(question, $event)"
+              />
+              <Select
+                v-if="conditionTarget(question)"
+                :model-value="question.showIfMode ?? 'any'"
+                :label="copy.conditionMode"
+                :options="modeOptions"
+                @update:model-value="question.showIfMode = $event === 'none' ? 'none' : 'any'"
+              />
+            </div>
+            <div v-if="conditionTarget(question)" class="poll-editor__flags">
+              <Choice
+                v-for="(option, oIndex) in conditionTarget(question)?.options ?? []"
+                :key="oIndex"
+                :model-value="(question.showIfOptions ?? []).includes(oIndex)"
+                :label="option.label || `${copy.optionLabel} ${oIndex + 1}`"
+                @update:model-value="toggleConditionOption(question, oIndex, $event)"
+              />
+            </div>
           </div>
         </div>
 

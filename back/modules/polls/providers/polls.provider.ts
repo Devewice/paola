@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto'
+import type { Knex } from 'knex'
 import { getDb } from '../../../db/knex.js'
 import { POLL_TABLES } from '../constants/polls.constants.js'
-import type { AnswerRow, Poll, PollOption, Voter } from '../interfaces/polls.interface.js'
+import type { AnswerRow, Poll, PollCondition, PollOption, PollRow, Voter } from '../interfaces/polls.interface.js'
 import type { PollDraft, PollPatch } from '../schemas/polls.schema.js'
-import { toOption, toPollBase, toQuestion } from '../schemas/polls.schema.js'
+import { toOption, toPollBase, toQuestion, toRow } from '../schemas/polls.schema.js'
 
 export type StoredAnswer = AnswerRow & { responseId: string }
 
@@ -26,18 +27,34 @@ async function hydrate(rows: Record<string, unknown>[]): Promise<Poll[]> {
         .whereIn('question_id', questionIds)
         .orderBy('position', 'asc')) as Record<string, unknown>[])
     : []
+  const gridRows = questionIds.length
+    ? ((await getDb()(POLL_TABLES.ROWS)
+        .whereIn('question_id', questionIds)
+        .orderBy('position', 'asc')) as Record<string, unknown>[])
+    : []
 
   const optionsByQuestion = new Map<string, PollOption[]>()
   for (const row of optionRows) {
     const key = String(row.question_id)
     optionsByQuestion.set(key, [...(optionsByQuestion.get(key) ?? []), toOption(row)])
   }
+  const rowsByQuestion = new Map<string, PollRow[]>()
+  for (const row of gridRows) {
+    const key = String(row.question_id)
+    rowsByQuestion.set(key, [...(rowsByQuestion.get(key) ?? []), toRow(row)])
+  }
 
   return rows.map((row) => ({
     ...toPollBase(row),
     questions: questionRows
       .filter((question) => String(question.poll_id) === String(row.id))
-      .map((question) => toQuestion(question, optionsByQuestion.get(String(question.id)) ?? [])),
+      .map((question) =>
+        toQuestion(
+          question,
+          optionsByQuestion.get(String(question.id)) ?? [],
+          rowsByQuestion.get(String(question.id)) ?? [],
+        ),
+      ),
   }))
 }
 
@@ -72,9 +89,10 @@ export async function findInscribedOutingIds(userId: string | null, outingIds: r
   return new Set(rows.map((row) => String(row.outingId)))
 }
 
-export async function insertPoll(draft: PollDraft): Promise<string> {
-  const pollId = randomUUID()
-  await getDb().transaction(async (trx) => {
+/** `db` e `id` existen para migraciones que siembran una encuesta fija. */
+export async function insertPoll(draft: PollDraft, options: { db?: Knex; id?: string } = {}): Promise<string> {
+  const pollId = options.id ?? randomUUID()
+  await (options.db ?? getDb()).transaction(async (trx) => {
     if (draft.featured) await trx(POLL_TABLES.POLLS).update({ featured: false })
     await trx(POLL_TABLES.POLLS).insert({
       id: pollId,
@@ -86,8 +104,21 @@ export async function insertPoll(draft: PollDraft): Promise<string> {
       outing_id: draft.outingId ?? null,
       closes_at: draft.closesAt ?? null,
     })
+    const inserted: { id: string; optionIds: string[] }[] = []
     for (const [position, question] of draft.questions.entries()) {
       const questionId = randomUUID()
+      const optionIds = question.options.map(() => randomUUID())
+      let showIf: PollCondition | null = null
+      if (question.showIf) {
+        const target = inserted[question.showIf.question]
+        if (target) {
+          showIf = {
+            questionId: target.id,
+            optionIds: question.showIf.options.map((index) => target.optionIds[index] ?? '').filter(Boolean),
+            mode: question.showIf.mode,
+          }
+        }
+      }
       await trx(POLL_TABLES.QUESTIONS).insert({
         id: questionId,
         poll_id: pollId,
@@ -95,24 +126,39 @@ export async function insertPoll(draft: PollDraft): Promise<string> {
         kind: question.kind,
         prompt: question.prompt,
         help: question.help ?? null,
+        section: question.section ?? null,
         required: question.required,
         max_choices: question.maxChoices ?? null,
         scale_min: question.scaleMin ?? null,
         scale_max: question.scaleMax ?? null,
         scale_min_label: question.scaleMinLabel ?? null,
         scale_max_label: question.scaleMaxLabel ?? null,
+        show_if: showIf ? JSON.stringify(showIf) : null,
       })
       if (question.options.length) {
         await trx(POLL_TABLES.OPTIONS).insert(
           question.options.map((option, index) => ({
-            id: randomUUID(),
+            id: optionIds[index],
             question_id: questionId,
             position: index,
             label: option.label,
             image_src: option.imageSrc ?? null,
+            is_other: option.isOther === true,
+            exclusive: option.exclusive === true,
           })),
         )
       }
+      if (question.rows.length) {
+        await trx(POLL_TABLES.ROWS).insert(
+          question.rows.map((label, index) => ({
+            id: randomUUID(),
+            question_id: questionId,
+            position: index,
+            label,
+          })),
+        )
+      }
+      inserted.push({ id: questionId, optionIds })
     }
   })
   return pollId
@@ -146,6 +192,7 @@ export async function findAnswers(pollIds: readonly string[]): Promise<Map<strin
       `${POLL_TABLES.ANSWERS}.response_id as responseId`,
       `${POLL_TABLES.ANSWERS}.question_id as questionId`,
       `${POLL_TABLES.ANSWERS}.option_id as optionId`,
+      `${POLL_TABLES.ANSWERS}.row_id as rowId`,
       `${POLL_TABLES.ANSWERS}.rank as rank`,
       `${POLL_TABLES.ANSWERS}.value_number as valueNumber`,
       `${POLL_TABLES.ANSWERS}.value_text as valueText`,
@@ -156,6 +203,7 @@ export async function findAnswers(pollIds: readonly string[]): Promise<Map<strin
       responseId: String(row.responseId),
       questionId: String(row.questionId),
       optionId: row.optionId === null ? null : String(row.optionId),
+      rowId: row.rowId === null || row.rowId === undefined ? null : String(row.rowId),
       rank: row.rank === null ? null : Number(row.rank),
       valueNumber: row.valueNumber === null ? null : Number(row.valueNumber),
       valueText: row.valueText === null ? null : String(row.valueText),
@@ -202,6 +250,7 @@ export async function insertResponse(pollId: string, voter: Voter, answers: read
             response_id: responseId,
             question_id: answer.questionId,
             option_id: answer.optionId,
+            row_id: answer.rowId,
             rank: answer.rank,
             value_number: answer.valueNumber,
             value_text: answer.valueText,

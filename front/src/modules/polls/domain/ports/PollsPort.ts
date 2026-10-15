@@ -4,6 +4,7 @@ import type {
   AnswerPayload,
   Poll,
   PollAudience,
+  PollConditionMode,
   PollKind,
   PollResults,
   PollStatus,
@@ -17,12 +18,24 @@ export type PollFilter = {
 export type OptionDraft = {
   readonly label: string
   readonly imageSrc?: string
+  readonly isOther?: boolean
+  readonly exclusive?: boolean
+}
+
+/** Condición por posiciones: al crear, preguntas y opciones aún no tienen id. */
+export type ConditionDraft = {
+  readonly question: number
+  readonly options: readonly number[]
+  readonly mode: PollConditionMode
 }
 
 export type QuestionDraft = {
   readonly kind: PollKind
   readonly prompt: string
   readonly help?: string
+  readonly section?: string
+  readonly rows?: readonly string[]
+  readonly showIf?: ConditionDraft
   readonly required: boolean
   readonly maxChoices?: number
   readonly scaleMin?: number

@@ -56,6 +56,7 @@ export const POLLS_COPY = {
   moveUp: 'Subir',
   moveDown: 'Bajar',
   scaleHint: 'Toca un número.',
+  gridHint: 'Elige una opción por fila.',
   textPlaceholder: 'Escribe tu respuesta',
   averageLabel: 'Promedio',
   firstPlaceOne: '1 la puso de primera',
@@ -63,6 +64,9 @@ export const POLLS_COPY = {
   averageRankLabel: 'Posición promedio',
   textResultsNote: 'Las respuestas escritas solo las lee el equipo.',
   noVotes: 'Aún no hay votos.',
+  otherPlaceholder: '¿Cuál?',
+  otherMissing: 'Escribe cuál en «Otro».',
+  gridRowHeader: 'Pregunta',
   pageBack: 'Todas las encuestas',
   pageNotFoundTitle: 'Esa encuesta no está',
   pageNotFoundCopy: 'Puede que la hayan quitado o que el enlace esté mal.',
@@ -120,6 +124,20 @@ export const POLLS_ADMIN_COPY = {
   hideResults: 'Ocultar resultados',
   textAnswers: 'Respuestas escritas',
   noTexts: 'Nadie ha escrito todavía.',
+  otherAnswers: 'Escribieron en «Otro»:',
+  fieldSection: 'Arranca sección (opcional)',
+  rowsTitle: 'Filas',
+  rowLabel: 'Fila',
+  addRow: 'Agregar fila',
+  columnsTitle: 'Columnas',
+  optionOther: 'Es «Otro» (pide escribir cuál)',
+  optionExclusive: 'Exclusiva (desmarca las demás)',
+  conditionTitle: 'Mostrar solo si…',
+  conditionQuestion: 'Depende de la pregunta',
+  conditionAlways: 'Siempre visible',
+  conditionMode: 'Cuando',
+  conditionAny: 'eligieron alguna de',
+  conditionNone: 'no eligieron ninguna de',
 } as const
 
 export const POLL_KIND_LABELS: Readonly<Record<PollKind, string>> = {
@@ -128,6 +146,7 @@ export const POLL_KIND_LABELS: Readonly<Record<PollKind, string>> = {
   ranking: 'Ordenar',
   scale: 'Escala',
   text: 'Texto libre',
+  grid: 'Cuadrícula',
 }
 
 export const POLL_STATUS_LABELS: Readonly<Record<PollStatus, string>> = {
@@ -143,8 +162,10 @@ export const POLL_AUDIENCE_LABELS: Readonly<Record<PollAudience, string>> = {
 
 export const POLLS_LIMITS = {
   OPTIONS_MIN: 2,
-  OPTIONS_MAX: 12,
-  QUESTIONS_MAX: 20,
+  OPTIONS_MAX: 20,
+  ROWS_MIN: 1,
+  ROWS_MAX: 12,
+  QUESTIONS_MAX: 40,
   SCALE_MIN: 0,
   SCALE_MAX: 10,
   TEXT_MAX: 1000,
@@ -161,4 +182,8 @@ export const POLLS_EDITOR_MESSAGES = {
   maxInvalid: 'El máximo de opciones no cuadra con las opciones que hay',
   scaleInvalid: `La escala va de ${POLLS_LIMITS.SCALE_MIN} a ${POLLS_LIMITS.SCALE_MAX} y el inicio debe ser menor que el final`,
   dateInvalid: 'La fecha de cierre no es válida.',
+  rowsRequired: `La cuadrícula necesita entre ${POLLS_LIMITS.ROWS_MIN} y ${POLLS_LIMITS.ROWS_MAX} filas con texto`,
+  otherOnce: 'Solo puede haber una opción «Otro»',
+  conditionInvalid: 'La condición debe apuntar a una pregunta anterior de una o varias opciones',
+  conditionOptions: 'Marca al menos una opción para la condición',
 } as const
