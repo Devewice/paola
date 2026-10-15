@@ -4,7 +4,6 @@ import type { PollsModule } from '@modules/polls/composition.ts'
 import { POLLS_COPY, POLLS_DATE_FORMAT, POLLS_INLINE_MAX, POLLS_LOCALE } from '@modules/polls/constants/copy.ts'
 import {
   EMPTY_ANSWER,
-  countQuestions,
   emptyBallot,
   isAnswered,
   needsTicket,
@@ -141,10 +140,7 @@ async function submit() {
       <Button :to="accountTo" size="sm">{{ copy.accountCta }}</Button>
     </div>
 
-    <div v-else-if="long" class="poll-card__gate">
-      <p>{{ countQuestions(current) }} {{ copy.stepQuestions }}</p>
-      <Button :to="appEncuesta(current.id)" size="sm">{{ copy.longCta }}</Button>
-    </div>
+    <PollStepper v-else-if="long" compact :module="module" :poll="current" @voted="onVoted" />
 
     <form v-else class="poll-card__form" @submit.prevent="submit">
       <template v-for="question in shown" :key="question.id">

@@ -1,3 +1,4 @@
+import { PREVIEW_POLL } from '@app/__preview_poll.ts'
 import { ComposedHomeBoardAdapter } from '@app/adapters/ComposedHomeBoardAdapter.ts'
 import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import {
@@ -140,7 +141,7 @@ function wire(
   const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, voice, paola))
   const voter = new BrowserVoterIdentity(SESSION_STORAGE_KEY)
   const polls = createPollsModule(
-    ordersMode === 'http' ? new HttpPollsApi(voter) : new InMemoryPollsApi(),
+    new InMemoryPollsApi([PREVIEW_POLL]),
     ordersMode === 'http' ? new HttpPollsAdminApi() : new InMemoryPollsAdminApi(),
     voter,
     new BrowserBallotDrafts(),

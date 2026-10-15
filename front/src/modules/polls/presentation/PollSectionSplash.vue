@@ -84,7 +84,8 @@ onBeforeUnmount(() => {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: min(62vh, 560px);
+  min-height: min(48vh, 440px);
+  padding-bottom: 32px;
   container-type: inline-size;
   cursor: pointer;
   user-select: none;
@@ -116,18 +117,19 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 0.28em;
+  /* Brush King tiene trazos altos y la clase inclina el bloque: separación vertical amplia entre renglones. */
+  gap: 0.32em 0.3em;
   max-width: 100%;
   margin: 0;
+  padding: 0.2em 0.4em;
   /* Cabe la palabra más larga sin partirla: ~0.9em por letra en Brush King, más la inclinación. */
   font-size: clamp(22px, calc(88cqw / (var(--longest, 10) * 0.95)), 76px) !important;
-  line-height: 1.3;
+  line-height: 1.15 !important;
   transform-origin: center !important;
 }
 .poll-splash__word {
   display: inline-flex;
   white-space: nowrap;
-  padding: 0.06em 0;
 }
 .poll-splash__char {
   display: inline-block;

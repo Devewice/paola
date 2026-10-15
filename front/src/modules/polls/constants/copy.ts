@@ -5,7 +5,7 @@ export const POLLS_HOME_FIGURE = MASCOT.X5
 
 export const POLLS_VOTER_STORAGE_KEY = 'paola_voter_key'
 export const POLLS_DRAFT_STORAGE_PREFIX = 'paola_poll_draft_'
-/** Hasta este número de preguntas se responde dentro de la tarjeta; más largas abren su vista. */
+/** Hasta este número de preguntas se responden todas juntas; más largas van una por una. */
 export const POLLS_INLINE_MAX = 3
 /** Segundos estimados por pregunta para el «te toma N min». */
 export const POLLS_SECONDS_PER_QUESTION = 20
@@ -17,7 +17,7 @@ export const POLLS_STAGE = {
   photos: ['/kit-assets/Rodada anapoimap.png', '/kit-assets/Primera rodada.webp'],
   poses: [MASCOT.EN_PIE, MASCOT.X5, MASCOT.TUMBADA],
   /** Segundos que se sostiene el título de sección antes de pasar solo. */
-  sectionHold: 1.25,
+  sectionHold: 8,
 } as const
 
 /** Lo que dice la cámara según el avance (0 a 1). */
@@ -108,7 +108,6 @@ export const POLLS_COPY = {
   stepAnswered: 'respondidas',
   stepGateEnd: 'Gracias por pasar. Envía para terminar.',
   stepDraftSaved: 'Tus respuestas se guardan en este navegador hasta que envíes.',
-  longCta: 'Responder encuesta',
   stageSkip: 'Toca para seguir',
   stageSubmitLine: 'Última foto. Envía y queda guardado.',
   stageIntroLine: 'Te acompaño en todo el recorrido.',

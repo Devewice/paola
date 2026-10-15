@@ -33,6 +33,8 @@ import { showToast } from '@ui/toast.ts'
 const props = defineProps<{
   module: PollsModule
   poll: Poll
+  /** Dentro de la tarjeta del listado: sin escena, sin pantallas de sección y teclado solo con foco adentro. */
+  compact?: boolean
 }>()
 
 const emit = defineEmits<{ voted: [poll: Poll] }>()
@@ -44,11 +46,14 @@ const currentKey = ref('intro')
 const direction = ref(1)
 const sending = ref(false)
 const nudge = ref(false)
+const root = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
 const heading = ref<HTMLElement | null>(null)
 const field = ref<InstanceType<typeof PollQuestionField> | null>(null)
 const companion = ref<InstanceType<typeof PollCompanion> | null>(null)
 let advanceTimer = 0
+/** Alto de la barra de navegación fija del sitio más un respiro. */
+const SCROLL_OFFSET = 88
 
 function restore(): Ballot {
   const base = emptyBallot(props.poll)
@@ -64,7 +69,10 @@ function restore(): Ballot {
 
 watch(ballot, (next) => props.module.drafts.save(props.poll.id, next), { deep: true })
 
-const steps = computed(() => buildSteps(props.poll, ballot.value))
+const steps = computed(() => {
+  const all = buildSteps(props.poll, ballot.value)
+  return props.compact ? all.filter((item) => item.type !== 'section') : all
+})
 const lastIndex = ref(0)
 const index = computed(() => {
   const found = steps.value.findIndex((step) => step.key === currentKey.value)
@@ -194,15 +202,28 @@ watch(currentKey, async () => {
   nudge.value = false
   await nextTick()
   heading.value?.focus({ preventScroll: true })
+  const top = root.value?.getBoundingClientRect().top ?? 0
+  if (top < 0 || (!props.compact && top > window.innerHeight * 0.4)) {
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + top - SCROLL_OFFSET),
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    })
+  }
   if (step.value.type === 'section' || !stage.value || prefersReducedMotion()) return
   gsap.fromTo(
     stage.value,
-    { x: direction.value * 40, opacity: 0 },
+    { x: direction.value * (props.compact ? 24 : 40), opacity: 0 },
     { x: 0, opacity: 1, duration: MOTION.duration.reveal, ease: MOTION.ease.enter },
   )
 })
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
+function onLocalKeydown(event: KeyboardEvent) {
+  if (props.compact) onKeydown(event)
+}
+
+onMounted(() => {
+  if (!props.compact) window.addEventListener('keydown', onKeydown)
+})
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
   window.clearTimeout(advanceTimer)
@@ -210,8 +231,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="poll-stepper" :class="`poll-stepper--${step.type}`" :aria-label="poll.title">
-    <div class="poll-stepper__backdrop" aria-hidden="true">
+  <section
+    ref="root"
+    class="poll-stepper"
+    :class="[`poll-stepper--${step.type}`, { 'poll-stepper--compact': compact }]"
+    :aria-label="poll.title"
+    @keydown="onLocalKeydown"
+  >
+    <div v-if="!compact" class="poll-stepper__backdrop" aria-hidden="true">
       <Transition name="poll-photo">
         <span :key="photo" class="poll-stepper__photo" :style="{ backgroundImage: `url('${photo}')` }" />
       </Transition>
@@ -236,10 +263,15 @@ onBeforeUnmount(() => {
       </div>
     </header>
 
+    <div class="poll-stepper__body">
     <div ref="stage" class="poll-stepper__stage">
       <!-- Portada -->
       <template v-if="step.type === 'intro'">
-        <div class="poll-stepper__hero">
+        <p v-if="compact" class="poll-stepper__facts">
+          <span>{{ total }} {{ copy.stepQuestions }}</span>
+          <span>{{ minutes }} {{ copy.stepMinutes }}</span>
+        </p>
+        <div v-else class="poll-stepper__hero">
           <div class="poll-stepper__hero-copy">
             <p class="poll-stepper__kicker">{{ copy.kicker }}</p>
             <h1 ref="heading" class="poll-stepper__title" tabindex="-1">{{ poll.title }}</h1>
@@ -271,7 +303,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div v-else class="poll-stepper__nav poll-stepper__nav--start">
-          <Button variant="hero" @click="next">{{ copy.stepStart }}</Button>
+          <Button :variant="compact ? 'primary' : 'hero'" @click="next">{{ copy.stepStart }}</Button>
         </div>
         <p class="poll-stepper__hint">{{ copy.stepDraftSaved }}</p>
       </template>
@@ -319,12 +351,12 @@ onBeforeUnmount(() => {
           <p class="poll-card__note">{{ poll.audience === 'account' ? copy.accountNote : copy.anonymousNote }}</p>
           <div class="poll-stepper__nav poll-stepper__nav--start">
             <Button variant="ghost" @click="back">{{ copy.stepBack }}</Button>
-            <Button variant="hero" :disabled="sending" @click="submit">
+            <Button :variant="compact ? 'primary' : 'hero'" :disabled="sending" @click="submit">
               {{ sending ? copy.sending : copy.voteCta }}
             </Button>
           </div>
         </div>
-        <figure class="poll-stepper__mascot">
+        <figure v-if="!compact" class="poll-stepper__mascot">
           <div class="poll-stepper__mascot-frame"><Mascot3d /></div>
           <figcaption class="poll-stepper__mascot-line">{{ copy.stageSubmitLine }}</figcaption>
         </figure>
@@ -337,20 +369,39 @@ onBeforeUnmount(() => {
       <p v-else class="poll-stepper__hint poll-stepper__hint--keys">{{ copy.stepKeys }}</p>
       <Button :variant="isSkip ? 'ghost' : 'primary'" @click="next">{{ isSkip ? copy.stepSkip : copy.stepNext }}</Button>
     </footer>
+    </div>
 
-    <PollCompanion v-if="step.type === 'question'" ref="companion" :progress="progress / 100" :beat="index" />
+    <PollCompanion v-if="!compact && step.type === 'question'" ref="companion" :progress="progress / 100" :beat="index" />
   </section>
 </template>
 
 <style scoped>
+/* Alto fijo de pantalla: cada paso se centra en vertical y no salta según su contenido. */
 .poll-stepper {
   position: relative;
   isolation: isolate;
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 24px;
-  min-height: min(78vh, 760px);
-  padding-bottom: 120px;
-  align-content: start;
+  min-height: calc(100svh - 220px);
+  padding-bottom: 96px;
+  overflow-x: clip;
+}
+.poll-stepper__bar {
+  grid-row: 1;
+}
+.poll-stepper__body {
+  grid-row: 2;
+  align-self: center;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+@media (max-width: 959px) {
+  .poll-stepper {
+    min-height: calc(100svh - 280px);
+    padding-bottom: 120px;
+  }
 }
 
 .poll-stepper__backdrop {
@@ -458,6 +509,49 @@ onBeforeUnmount(() => {
   .poll-stepper__photo {
     animation: none;
   }
+}
+
+.poll-stepper--compact {
+  gap: 16px;
+  min-height: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+.poll-stepper--compact .poll-stepper__body {
+  align-self: start;
+}
+.poll-stepper--compact .poll-stepper__bar {
+  position: static;
+  padding: 0;
+  background: none;
+}
+.poll-stepper--compact .poll-stepper__hero {
+  grid-template-columns: 1fr;
+}
+.poll-stepper--compact .poll-stepper__title {
+  font-size: clamp(24px, 4vw, 32px);
+}
+.poll-stepper--compact .poll-stepper__prompt {
+  font-size: clamp(18px, 2.6vw, 22px);
+}
+.poll-stepper--compact .poll-stepper__num {
+  min-width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+.poll-stepper--compact .poll-stepper__gate {
+  margin-top: 0;
+  padding: 16px;
+}
+.poll-stepper--compact.poll-stepper--question .poll-stepper__stage {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.poll-stepper--compact .poll-stepper__hint--keys {
+  display: none;
 }
 .poll-stepper__bar {
   position: sticky;
