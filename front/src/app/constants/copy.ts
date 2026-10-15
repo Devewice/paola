@@ -11,8 +11,8 @@ export const ROUTE_TITLES = {
   PARCHESE: 'Parchese',
   TU_VOZ: 'Tu voz',
   TIENDA: 'Tienda',
-  FICHA: 'Ficha',
-  LAVADO: 'Lavado',
+  FICHA: 'Tienda',
+  LAVADO: 'Lavado de casco',
   PAOLA: 'Paola',
   KIT: 'Componentes',
   ADMIN: 'Admin',
@@ -20,8 +20,8 @@ export const ROUTE_TITLES = {
   PRIVACIDAD: 'Privacidad',
   CUENTA: 'Cuenta',
   ENTRAR: 'Entrar',
-  FEED: 'Feed',
-  PARCERO: 'Parcero',
+  FEED: 'El feed',
+  PARCERO: 'Perfil de parcero',
   NOT_FOUND: 'Página no encontrada',
 } as const
 
@@ -33,6 +33,7 @@ export const NOT_FOUND_COPY = {
 
 export const OG_COPY = {
   title: 'Paola Biker',
+  tagline: 'Rodando con propósito',
   description:
     'Rodando con propósito. Rodadas, parche y tienda en Bogotá y Soacha.',
 } as const
@@ -47,7 +48,7 @@ export const PAGE_VACANT_COPY = {
 
 export const MEGA_COPY = {
   whatsappTitle: 'WhatsApp',
-  whatsappLead: 'El chat del día a día. Este camino no se apaga.',
+  whatsappLead: 'El grupo del día a día. Ahí respondo más rápido.',
 } as const
 
 export const FOOTER_COPY = {

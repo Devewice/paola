@@ -45,7 +45,7 @@ const props = withDefaults(
     closeLabel: 'Cerrar',
     embed: false,
     whatsappTitle: 'WhatsApp',
-    whatsappLead: 'El chat del día a día. Este camino no se apaga.',
+    whatsappLead: 'El grupo del día a día.',
   },
 )
 

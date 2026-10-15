@@ -54,7 +54,7 @@ export class HttpShopOrdersApi implements ServiceOrderApiPort {
     if (!response.ok) return fail(response.status, body)
 
     if (!body || typeof body !== 'object' || !Array.isArray((body as Record<string, unknown>).orders)) {
-      return err(appError('INFRASTRUCTURE', 'Respuesta de pedidos no se entiende.'))
+      return err(appError('INFRASTRUCTURE', 'No pudimos leer los pedidos. Recarga la página.'))
     }
 
     return ok(parseServiceOrderList(body))

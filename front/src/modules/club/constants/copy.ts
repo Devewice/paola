@@ -15,7 +15,7 @@ export const CLUB_ROSTER_COPY = {
   rosterLead: 'Solo sale quien dio permiso. Sin WhatsApp ni correo a la vista.',
   rosterEmptyTitle: 'Todavía nadie',
   alliancesHeading: 'Quienes apoyan',
-  alliancesLead: 'Aliados que bancan el parche. No son productos de la tienda.',
+  alliancesLead: 'Marcas y personas que apoyan al parche.',
   alliancesEmptyTitle: 'Sin aliados aún',
   allianceVisit: 'Visitar',
 } as const
@@ -43,6 +43,6 @@ export const CLUB_ADMIN_COPY = {
 } as const
 
 export const CLUB_API_MESSAGES = {
-  ALLIANCE_PARSE_FAIL: 'La API devolvió un aliado que no se entiende.',
-  MEMBER_PARSE_FAIL: 'La API devolvió un integrante que no se entiende.',
+  ALLIANCE_PARSE_FAIL: 'No pudimos leer la alianza. Recarga la página.',
+  MEMBER_PARSE_FAIL: 'No pudimos leer el integrante. Recarga la página.',
 } as const

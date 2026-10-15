@@ -6,7 +6,7 @@ export const HOME_PAOLA_PHOTO = '/kit-assets/paola-moto.png'
 export const HOME_PULSE_COPY = {
   kicker: 'Del parche',
   heading: 'El parche en vivo',
-  lead: 'Lo que se comenta, se sube y se recuerda. Si algo quema, va primero al grupo.',
+  lead: 'Lo último que publicó el parche en el feed. Si es urgente, mejor por el grupo de WhatsApp.',
   emptyTitle: 'El muro está quieto',
   empty: 'Todavía nadie ha subido nada. Sé el primero en contar cómo te fue en la última rodada.',
   cta: 'Ver todo el feed',
@@ -36,15 +36,15 @@ export const HOME_BOARD_COPY = {
 
   voicesKicker: 'Tres voces',
   voicesTitle: 'Así habla el parche',
-  voicesLead: 'Vía, memoria y relato. Cada voz tiene su espacio en el portal.',
+  voicesLead: 'Un consejo para la vía, una foto de ruta y algo de lo que vivo en la moto.',
 
   loigcaTitle: 'Tip de vía',
-  loigcaEmpty: 'Pronto subo tips de vía, ley y comparendos. Mientras, revisa la sección de Tu voz.',
+  loigcaEmpty: 'Pronto subo tips de vía, normas y comparendos. Mientras, date una vuelta por Tu voz.',
   loigcaCta: 'Ir a Tu voz',
   officialCta: 'Consulta oficial',
 
   incautaTitle: 'Memoria de ruta',
-  incautaEmpty: 'Las fotos de cada rodada quedan aquí. Si tienes una buena, súbela.',
+  incautaEmpty: 'Después de cada rodada, las fotos y los kilómetros quedan aquí.',
   incautaCta: 'Ver memorias',
   memoryPhotoLabel: 'Foto de la memoria',
   kmUnit: 'km',

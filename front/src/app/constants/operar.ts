@@ -3,7 +3,7 @@ export const OPERAR_CLAVE_STORAGE_KEY = 'paola_operador_clave'
 export const OPERAR_COPY = {
   kicker: 'Operar',
   title: 'Admin',
-  lead: 'Publicas el oficio desde acá: rodadas, memorias, tips, tienda y parche. WhatsApp no se apaga.',
+  lead: 'Desde aquí publicas rodadas, memorias, tips, productos e integrantes del parche.',
   tabs: [
     { id: 'rodadas', label: 'Rodadas' },
     { id: 'voz', label: 'Tu voz' },
@@ -35,7 +35,7 @@ export const OPERAR_COPY = {
   sectionAuth: 'Inicio de sesión',
   authTitle: 'Login con Gmail',
   authLead:
-    'Arma el acceso con correo de Google para el portal. La clave de operadora de este admin no se apaga.',
+    'Arma el acceso con correo de Google para el portal. La clave de operadora de este panel sigue funcionando igual.',
   authStepEnable: 'Canal',
   authStepEnableMeta: 'Gmail sí o no',
   authStepKeys: 'Claves',

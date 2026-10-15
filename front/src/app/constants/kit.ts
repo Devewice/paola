@@ -81,7 +81,7 @@ export const FEED_COPY = {
   joinCta: 'Unirme',
   whatsappCta: 'Grupo de WhatsApp',
   postHeading: 'Publicar',
-  postLead: 'Cuenta cómo te fue, sube fotos o pregunta algo. Se modera: respeto, nada de doxxing ni menores.',
+  postLead: 'Cuenta cómo te fue, sube fotos o pregunta algo. Revisamos antes de publicar: con respeto, sin menores y sin datos personales de otros.',
   postCommunity: 'Comunidad',
   postMessage: 'Mensaje',
   postCta: 'Publicar',

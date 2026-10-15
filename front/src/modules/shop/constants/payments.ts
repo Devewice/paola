@@ -48,12 +48,12 @@ export type GatewayCatalogItem = {
 
 export const PAYMENT_COPY = {
   humanWhatsappTitle: 'WhatsApp',
-  humanWhatsappCopy: 'El chat del día a día. Este camino no se apaga.',
+  humanWhatsappCopy: 'Me escribes y cuadramos precio, talla y entrega.',
   humanMailTitle: 'Correo',
   humanMailCopy: 'Si prefieres dejarlo por escrito.',
-  paySecureHuman: 'Pago humano primero. La pasarela se suma; el chat no se apaga.',
-  paySecureGateway: 'Pasarela lista para enganchar. Mientras cobramos en vivo, escríbeme.',
-  gatewayDeferred: 'La pasarela está configurada, todavía no cobra en vivo. Te dejo el WhatsApp para cuadrarlo.',
+  paySecureHuman: 'Primero hablamos y después pagas. Nada se cobra sin que lo confirmemos juntos.',
+  paySecureGateway: 'El pago en línea llega pronto. Mientras, escríbeme y lo cuadramos.',
+  gatewayDeferred: 'El pago en línea todavía no está activo. Escríbeme por WhatsApp y lo cuadramos.',
   wizardKicker: 'Pasarela',
   wizardTitle: 'Cobro en tienda',
   wizardLead:
@@ -83,7 +83,7 @@ export const PAYMENT_COPY = {
   unlockFail: 'Esa clave no entra.',
   kitCta: 'Ver componentes',
   humanLockTitle: 'WhatsApp y correo',
-  humanLockCopy: 'Siempre prendidos. La pasarela se suma, no los reemplaza.',
+  humanLockCopy: 'Siempre activos. El pago en línea se suma, no los reemplaza.',
 } as const
 
 export const PAYMENT_CATALOG: readonly GatewayCatalogItem[] = [
@@ -165,7 +165,7 @@ export const PAYMENT_CATALOG: readonly GatewayCatalogItem[] = [
 ]
 
 export const PAYMENT_API_MESSAGES = {
-  PARSE_FAIL: 'La API devolvió un cobro que no se entiende.',
+  PARSE_FAIL: 'No pudimos leer el cobro. Recarga la página.',
   SAVE_FAIL: 'No se pudo guardar la pasarela.',
   TEST_FAIL: 'No se pudo probar la pasarela.',
 } as const

@@ -4,7 +4,7 @@ export const LEGAL_DOMAIN = 'paolabiker.com'
 export const LEGAL_COPY = {
   kicker: 'Paola Biker · Legal',
   title: 'Privacidad',
-  lead: 'Antes de dejarnos un nombre, un WhatsApp o una foto, esto se lee a la vista. No es un bufete.',
+  lead: 'Antes de dejarnos tu nombre, tu WhatsApp o una foto, aquí te cuento qué hacemos con esos datos. En corto y sin letra pequeña.',
   notLegalAdvice:
     'Este aviso es de Paola Biker. No es asesoría jurídica ni sustituye una norma, un abogado o la autoridad.',
   checkboxLabel: 'Leí el aviso de privacidad',
@@ -17,7 +17,7 @@ export const LEGAL_COPY = {
   reportsDisclaimer:
     'Esto es un reporte del parche. No sustituye una denuncia ante la Policía ni un proceso penal. Si hay delito o urgencia, ve al canal oficial.',
   moderationShort:
-    'Linchamiento, menores identificables, doxxing o venganza personal: no se publica. Moderamos qué se ve.',
+    'No publicamos linchamientos, menores identificables, datos personales de otros ni venganzas. Revisamos todo antes de que se vea.',
   contactLine: `Dudas o borrar un dato: ${LEGAL_EMAIL} · ${LEGAL_DOMAIN}`,
 } as const
 
@@ -51,7 +51,7 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
     id: 'whatsapp',
     title: 'WhatsApp',
     paragraphs: [
-      'El parche caliente y el cobro humano van por WhatsApp. Si nos escribes por ahí, ese chat también lo trata WhatsApp (Meta) con sus propias reglas.',
+      'El día a día del parche y los pagos se hablan por WhatsApp. Si nos escribes por ahí, ese chat lo maneja WhatsApp (Meta) con sus propias reglas.',
       'Aquí no guardamos tu historial de WhatsApp. El número que dejas en un cupo o un pedido sí queda, para contactarte por esa vía o por correo.',
     ],
   },
@@ -67,8 +67,8 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
     id: 'donde',
     title: 'Dónde viven',
     paragraphs: [
-      'El sitio y la API viven juntos en Hostinger. Cupos, pedidos, cuenta y constancias se guardan en MySQL.',
-      'Las claves de la base no van en el front ni en este aviso.',
+      'El sitio y su base de datos están alojados en Hostinger. Ahí se guardan cupos, pedidos, cuentas y constancias.',
+      'El acceso a esa base está protegido y no se comparte con nadie.',
     ],
   },
   {
@@ -99,7 +99,7 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
     id: 'moderacion',
     title: 'Criterio corto de moderación',
     paragraphs: [
-      'No se publica linchamiento, dato de menores, doxxing ni venganza personal.',
+      'No se publican linchamientos, datos de menores, datos personales de otros ni venganzas.',
       'Podemos publicar, ocultar o rechazar. Eso no convierte el portal en autoridad.',
     ],
   },
@@ -107,8 +107,8 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
     id: 'social',
     title: 'Cuenta, chat y comunidades',
     paragraphs: [
-      'La cuenta, el feed y el chat web son otro canal del parche. WhatsApp no se apaga.',
-      'En API pública no sale tu WhatsApp ni tu correo. Alias y, si tú lo aceptas, km o moto.',
+      'La cuenta, el feed y el chat web son otro canal del parche. El grupo de WhatsApp sigue igual.',
+      'En tu perfil público nunca sale tu WhatsApp ni tu correo. Solo tu alias y, si lo aceptas, tus kilómetros y tu moto.',
       'Podemos silenciar un hilo. Los mensajes no se venden. Si quieres borrar la cuenta, escríbenos a contacto@paolabiker.com.',
     ],
   },

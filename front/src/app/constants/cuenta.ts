@@ -32,7 +32,7 @@ export const CUENTA_COPY = {
   ordersEmpty: 'Los pedidos de tienda y lavado quedan aquí cuando uses tu cuenta.',
   notices: 'Avisos',
   noticesEmpty: 'No tienes avisos nuevos.',
-  membership: 'Membresía paga: precio y beneficios en definición. No se cobra a ciegas.',
+  membership: 'La membresía del parche viene pronto. Antes de cobrar nada, te cuento el precio y los beneficios.',
   feed: 'Feed',
   friends: 'Amigos',
   friendsLead: 'Tus amigos del parche. El número de WhatsApp no se muestra.',

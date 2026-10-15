@@ -4,7 +4,7 @@ export const PARCHESE_COPY = {
   kicker: 'Moto Loigca',
   title: 'Parchese',
   plate: 'Rodadas con cupo',
-  lead: 'Las rodadas, cómo unirte y quiénes ya son del parche. Cupo propio, sin pasarela: te anotas y lo confirmamos por WhatsApp.',
+  lead: 'Las rodadas, cómo unirte y quiénes ya son del parche. Te anotas aquí y te confirmo el cupo por WhatsApp.',
   navAgenda: 'Próximas',
   navMemories: 'Memorias',
   navMembers: 'El parche',
@@ -12,7 +12,7 @@ export const PARCHESE_COPY = {
   panelKicker: 'Próxima salida',
   panelEmpty: 'Aún no hay fecha. Te aviso por el grupo.',
   panelSpots: 'Cupos libres',
-  panelCta: 'Ver y apuntarme',
+  panelCta: 'Ver y anotarme',
   railJoinTitle: 'Únete al parche',
   railHowTitle: 'Cómo funciona',
   railHowItems: [
@@ -22,7 +22,7 @@ export const PARCHESE_COPY = {
     'Después de rodar, sale la memoria aquí.',
   ],
   railTalkTitle: 'Dónde hablamos',
-  railTalkWa: 'El grupo del día a día. Este camino no se apaga.',
-  railTalkWeb: 'Fechas, cupos y memorias quedan en la web.',
-  railFeed: 'Ver publicaciones',
+  railTalkWa: 'El grupo del día a día, para lo urgente.',
+  railTalkWeb: 'Fechas, cupos y memorias quedan guardados aquí.',
+  railFeed: 'Ir al feed',
 } as const

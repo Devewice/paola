@@ -26,10 +26,10 @@ withDefaults(
   <article class="product-card" :class="{ 'product-card--collab': collab }">
     <div class="product-card__media">
       <img v-if="photoSrc" :src="photoSrc" :alt="title" />
-      <template v-else>{{ collab ? 'Foto collab' : mediaLabel }}</template>
+      <template v-else>{{ mediaLabel }}</template>
     </div>
     <div class="product-card__body">
-      <p class="product-card__shelf">{{ shelf ?? (collab ? 'Estantería collab' : 'Marca Paola') }}</p>
+      <p class="product-card__shelf">{{ shelf ?? (collab ? 'Colaboración' : 'Marca Paola') }}</p>
       <h3 class="product-card__title">{{ title }}</h3>
       <p class="price">
         {{ price }}

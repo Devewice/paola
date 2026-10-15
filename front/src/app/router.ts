@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { ROUTE_TITLES } from '@app/constants/copy.ts'
+import { OG_COPY, ROUTE_TITLES } from '@app/constants/copy.ts'
 import CuentaRoute from '@app/shell/CuentaRoute.vue'
 import FeedRoute from '@app/shell/FeedRoute.vue'
 import HomeRoute from '@app/shell/HomeRoute.vue'
@@ -63,4 +63,9 @@ export const router = createRouter({
     }
     return { top: 0 }
   },
+})
+
+router.afterEach((to) => {
+  const title = typeof to.meta.title === 'string' ? to.meta.title : ''
+  document.title = title && to.name !== 'inicio' ? `${title} · ${OG_COPY.title}` : `${OG_COPY.title} · ${OG_COPY.tagline}`
 })
