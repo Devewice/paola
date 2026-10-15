@@ -3,7 +3,8 @@ import { type Knex } from 'knex'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { KNEX_LOAD_EXTENSIONS, MYSQL, MYSQL_ENV, MYSQL_MESSAGES, PACKAGE_WALK_MAX } from './constants.js'
+import { MYSQL, MYSQL_ENV, MYSQL_MESSAGES, PACKAGE_WALK_MAX } from './constants.js'
+import { CanonicalMigrationSource } from './migrationSource.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
 
@@ -43,9 +44,11 @@ const config: Knex.Config = {
   pool: { min: MYSQL.POOL_MIN, max: MYSQL.POOL_MAX },
   migrations: {
     tableName: MYSQL.MIGRATIONS_TABLE,
-    directory: join(here, 'migrations'),
     extension: MYSQL.EXTENSION,
-    loadExtensions: [...KNEX_LOAD_EXTENSIONS],
+    // Sin directory/loadExtensions: Knex los usaría para reemplazar esta fuente por FsMigrations.
+    migrationSource: new CanonicalMigrationSource(join(here, 'migrations')),
+    // La tabla aún guarda migraciones renombradas (salidas, cupos…): no deben frenar las nuevas.
+    disableMigrationsListValidation: true,
   },
 }
 
