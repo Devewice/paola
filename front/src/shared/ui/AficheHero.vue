@@ -8,8 +8,10 @@ const props = withDefaults(
     plate?: string
     logo?: boolean
     photoSrc?: string
+    /** Subpáginas: menos alto, mismo afiche. */
+    compact?: boolean
   }>(),
-  { logo: false },
+  { logo: false, compact: false },
 )
 
 const slots = useSlots()
@@ -30,7 +32,7 @@ const hasPanel = computed(() => Boolean(slots.panel))
 <template>
   <header
     class="kit-hero kit-hero--classic kit-hero--page"
-    :class="{ 'has-photo': Boolean(photoSrc), 'kit-hero--split': hasPanel }"
+    :class="{ 'has-photo': Boolean(photoSrc), 'kit-hero--split': hasPanel, 'kit-hero--compact': compact }"
   >
     <div class="kit-hero__bg" aria-hidden="true">
       <div class="kit-hero__photo" :style="photoStyle" />
@@ -60,11 +62,7 @@ const hasPanel = computed(() => Boolean(slots.panel))
                 {{ titleParts.accent }}
               </p>
             </div>
-            <p
-              v-if="plate"
-              class="type-condensed type-condensed--blue"
-              style="font-size: clamp(20px, 4vw, 32px); margin: 4px 0 0"
-            >
+            <p v-if="plate" class="type-condensed type-condensed--blue kit-hero__plate">
               {{ plate }}
             </p>
           </div>

@@ -22,21 +22,34 @@ import type {
   Ticket,
 } from '../interfaces/rides.interface.js'
 
-export function parseClaimSpot(draft: Record<string, unknown>): Parsed<ClaimSpotDto> {
-  if (draft.privacyAccepted !== true) {
-    return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.PRIVACY_REQUIRED)
-  }
-  const name = String(draft.name ?? '').trim()
-  const whatsapp = String(draft.whatsapp ?? '').replace(WHATSAPP_NON_DIGIT, '')
-  const moto = String(draft.moto ?? '').trim()
+/** La cuenta pone alias, WhatsApp y moto; el cuerpo solo trae lo que el perfil aún no tiene. */
+export function parseClaimSpot(
+  draft: Record<string, unknown>,
+  user: { alias: string; whatsapp?: string; moto?: string },
+): Parsed<ClaimSpotDto> {
+  const typedWhatsapp = String(draft.whatsapp ?? '').replace(WHATSAPP_NON_DIGIT, '')
+  const typedMoto = String(draft.moto ?? '').trim()
+  const whatsapp = typedWhatsapp || user.whatsapp || ''
+  const moto = typedMoto || user.moto || ''
 
-  if (name.length < RIDES_LIMITS.NAME_MIN) {
+  if (user.alias.length < RIDES_LIMITS.NAME_MIN) {
     return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.NAME_REQUIRED)
   }
   if (whatsapp.length < RIDES_LIMITS.WHATSAPP_MIN || whatsapp.length > RIDES_LIMITS.WHATSAPP_MAX) {
     return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.WHATSAPP_REQUIRED)
   }
-  return { ok: true, value: { name, whatsapp, moto } }
+  return {
+    ok: true,
+    value: {
+      name: user.alias,
+      whatsapp,
+      moto,
+      profilePatch: {
+        whatsapp: typedWhatsapp && typedWhatsapp !== user.whatsapp ? typedWhatsapp : undefined,
+        moto: typedMoto && !user.moto ? typedMoto : undefined,
+      },
+    },
+  }
 }
 
 export function parseCreateOuting(draft: Record<string, unknown>): Parsed<CreateOutingDto> {

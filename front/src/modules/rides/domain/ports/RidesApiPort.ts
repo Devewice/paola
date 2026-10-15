@@ -3,7 +3,13 @@ import type { Result } from '@core/result.ts'
 import type { MemoryDraft } from '@modules/rides/domain/entities/Memory.ts'
 import type { OperatorOutingStatus, Outing, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
 import type { Memory } from '@modules/rides/domain/entities/Memory.ts'
-import type { ClaimedSpot, OutingNotice, Ticket, TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
+import type {
+  ClaimedSpot,
+  OutingCrew,
+  OutingNotice,
+  SignupDraft,
+  Ticket,
+} from '@modules/rides/domain/entities/Ticket.ts'
 
 export type OperatorBoardOuting = Outing & {
   readonly tickets: readonly Ticket[]
@@ -12,8 +18,10 @@ export type OperatorBoardOuting = Outing & {
 export interface RidesApiPort {
   claim(
     outingId: string,
-    draft: TicketDraft,
+    draft: SignupDraft,
   ): Promise<Result<ClaimedSpot & { notice: OutingNotice }, AppError>>
+  crew(outingId: string): Promise<Result<OutingCrew, AppError>>
+  notice(outing: Outing, alias: string): OutingNotice
   setStatus(
     outingId: string,
     status: OperatorOutingStatus,

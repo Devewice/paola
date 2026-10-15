@@ -1319,7 +1319,7 @@ onMounted(async () => {
         <Tabs v-model="navTab" :tabs="navTabs" style="margin: 16px 0 0" />
         <TabPanel :show="navTab === 't1'">Calendario de rodadas y actividades.</TabPanel>
         <TabPanel :show="navTab === 't2'">Km, fotos, participantes.</TabPanel>
-        <TabPanel :show="navTab === 't3'">Quienes apoyan el parche.</TabPanel>
+        <TabPanel :show="navTab === 't3'">Quiénes apoyan el parche.</TabPanel>
 
         <div class="row" style="margin:20px 0">
           <DropMenu :items="dropMenuItems" />

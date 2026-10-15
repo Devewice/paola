@@ -17,15 +17,35 @@ export const HTTP_HEADER = {
   CONTENT_TYPE: 'content-type',
   OPERADOR_CLAVE: 'x-operador-clave',
   SESSION_ID: 'x-session-id',
+  VOTER_KEY: 'x-voter-key',
 } as const
 
 export const CONTENT_TYPE_JSON = 'application/json; charset=utf-8'
 
 export const BODY_CLAVE_FIELD = 'clave'
 
+export const PERMISSION = {
+  RODADAS: 'rodadas',
+  VOZ: 'voz',
+  ENCUESTAS: 'encuestas',
+  TIENDA: 'tienda',
+  PARCHE: 'parche',
+  COMUNIDAD: 'comunidad',
+  AJUSTES: 'ajustes',
+  ROLES: 'roles',
+} as const
+
+export type Permission = (typeof PERMISSION)[keyof typeof PERMISSION]
+
+export const PERMISSION_LIST: readonly Permission[] = Object.values(PERMISSION)
+
+export const ADMIN_ROLE_ID = 'admin'
+export const DEFAULT_ROLE_ID = 'usuario'
+
 export const HTTP_MESSAGES = {
   JSON_INVALID: 'El cuerpo no es JSON.',
-  CLAVE_INVALID: 'Clave de operadora no válida.',
+  CLAVE_INVALID: 'Tu cuenta no tiene permiso para esto.',
+  SESSION_REQUIRED: 'Entra con tu cuenta para usar el panel.',
   MYSQL_FALLBACK: 'mysql',
   INTERNAL: 'error interno',
 } as const

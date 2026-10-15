@@ -72,6 +72,7 @@ export async function findSessionUser(sessionId: string): Promise<SessionUser | 
       `${SOCIAL_TABLES.USERS}.alias`,
       `${SOCIAL_TABLES.USERS}.km`,
       `${SOCIAL_TABLES.USERS}.moto`,
+      `${SOCIAL_TABLES.USERS}.whatsapp`,
       `${SOCIAL_TABLES.USERS}.is_public`,
       `${SOCIAL_TABLES.SESSIONS}.expires_at`,
     )
@@ -86,8 +87,17 @@ export async function findSessionUser(sessionId: string): Promise<SessionUser | 
     alias: String(row.alias),
     km: Number(row.km ?? 0),
     moto: row.moto ? String(row.moto) : undefined,
+    whatsapp: row.whatsapp ? String(row.whatsapp) : undefined,
     isPublic: Boolean(row.is_public),
   }
+}
+
+export async function updateUserContact(userId: string, contact: { whatsapp?: string; moto?: string }): Promise<void> {
+  const patch: Record<string, string> = {}
+  if (contact.whatsapp) patch.whatsapp = contact.whatsapp
+  if (contact.moto) patch.moto = contact.moto
+  if (!Object.keys(patch).length) return
+  await db()(SOCIAL_TABLES.USERS).where({ id: userId }).update(patch)
 }
 
 export async function listPanelRows(userId: string): Promise<{
@@ -96,7 +106,18 @@ export async function listPanelRows(userId: string): Promise<{
   notifications: Record<string, unknown>[]
 }> {
   const [tickets, orders, notifications] = await Promise.all([
-    db()(SOCIAL_TABLES.TICKETS).select('id', 'outing_id', 'name').where({ user_id: userId }).orderBy('created_at', 'desc'),
+    db()(SOCIAL_TABLES.TICKETS)
+      .leftJoin(SOCIAL_TABLES.OUTINGS, `${SOCIAL_TABLES.OUTINGS}.id`, `${SOCIAL_TABLES.TICKETS}.outing_id`)
+      .select(
+        `${SOCIAL_TABLES.TICKETS}.id`,
+        `${SOCIAL_TABLES.TICKETS}.outing_id`,
+        `${SOCIAL_TABLES.TICKETS}.name`,
+        `${SOCIAL_TABLES.OUTINGS}.title as outing_title`,
+        `${SOCIAL_TABLES.OUTINGS}.date as outing_date`,
+        `${SOCIAL_TABLES.OUTINGS}.status as outing_status`,
+      )
+      .where(`${SOCIAL_TABLES.TICKETS}.user_id`, userId)
+      .orderBy(`${SOCIAL_TABLES.TICKETS}.created_at`, 'desc'),
     db()(SOCIAL_TABLES.ORDERS).select('id', 'item_title', 'status').where({ user_id: userId }).orderBy('created_at', 'desc'),
     db()(SOCIAL_TABLES.NOTIFICATIONS).select('id', 'kind', 'message', 'is_read').where({ user_id: userId }).orderBy('created_at', 'desc'),
   ])

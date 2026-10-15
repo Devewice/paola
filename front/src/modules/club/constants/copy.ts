@@ -14,10 +14,20 @@ export const CLUB_ROSTER_COPY = {
   rosterHeading: 'Así va el parche',
   rosterLead: 'Solo sale quien dio permiso. Sin WhatsApp ni correo a la vista.',
   rosterEmptyTitle: 'Todavía nadie',
-  alliancesHeading: 'Quienes apoyan',
+  alliancesHeading: 'Quiénes apoyan',
   alliancesLead: 'Marcas y personas que apoyan al parche.',
   alliancesEmptyTitle: 'Sin aliados aún',
   allianceVisit: 'Visitar',
+  rosterEmptyKicker: 'Cámara Incauta',
+  rosterEmptySteps: [
+    'Entras al grupo de WhatsApp.',
+    'Ruedas una salida con nosotros.',
+    'Si quieres, sales aquí con alias y moto.',
+  ],
+  alliancesEmptyKicker: 'Paola Armargura',
+  alliancesEmptyLead: '¿Tienes taller, marca o tienda y quieres apoyar al parche? Escríbenos y lo hablamos.',
+  alliancesEmptyCta: 'Escríbenos',
+  alliancesEmptyHref: 'mailto:contacto@paolabiker.com',
 } as const
 
 export const CLUB_ADMIN_COPY = {

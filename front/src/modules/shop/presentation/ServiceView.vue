@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ShopModule } from '@modules/shop/index.ts'
-import { SHOP_COPY, SHOP_EMPTY_SERVICE_FICHA } from '@modules/shop/constants/copy.ts'
+import {
+  SHOP_COPY,
+  SHOP_EMPTY_SERVICE_FICHA,
+  SHOP_FIGURES,
+  SHOP_SERVICE_PROMISES,
+} from '@modules/shop/constants/copy.ts'
 import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
 import ShopCheckout from '@modules/shop/presentation/ShopCheckout.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
@@ -12,6 +17,7 @@ import Crumbs from '@ui/Crumbs.vue'
 import Empty from '@ui/Empty.vue'
 import ServiceFicha from '@ui/ServiceFicha.vue'
 import SpecTable from '@ui/SpecTable.vue'
+import StatBand from '@ui/StatBand.vue'
 
 const props = defineProps<{
   module: ShopModule
@@ -48,14 +54,19 @@ const specRows = computed(() => {
 
 <template>
   <article :ref="bindReveal" class="wrap shop-item">
-    <Empty
-      v-if="!service"
-      :title="copy.serviceFichaEmptyTitle"
-      :copy="SHOP_EMPTY_SERVICE_FICHA"
-      :mascot-src="MASCOT.LENTE"
-      :cta-href="contact.whatsappHref"
-      :cta-label="copy.writeCta"
-    />
+    <div v-if="!service" class="shop-item__missing">
+      <Empty
+        compact
+        hide-cta
+        :title="copy.serviceFichaEmptyTitle"
+        :copy="SHOP_EMPTY_SERVICE_FICHA"
+        :mascot-src="MASCOT.LENTE"
+      />
+      <div class="shop-item__missing-actions">
+        <Button :to="APP_PATHS.TIENDA">{{ copy.backCta }}</Button>
+        <Button variant="ghost" :href="contact.whatsappHref" target="_blank">{{ copy.writeCta }}</Button>
+      </div>
+    </div>
     <template v-else>
       <Crumbs :items="crumbs" data-reveal />
       <div class="shop-item__stage" data-reveal>
@@ -77,6 +88,14 @@ const specRows = computed(() => {
           />
         </div>
       </div>
+      <StatBand
+        tone="blue"
+        :kicker="copy.promiseKicker"
+        :title="copy.promiseWashTitle"
+        :items="SHOP_SERVICE_PROMISES"
+        :mascot-src="SHOP_FIGURES.SERVICE_BAND"
+        data-reveal
+      />
     </template>
   </article>
 </template>

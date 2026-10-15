@@ -5,7 +5,7 @@ import {
   RIDES_DEFAULT_STATUS,
   RIDES_TABLES,
 } from '../constants/rides.constants.js'
-import type { CreateOutingDto } from '../dtos/rides.dto.js'
+import type { CreateOutingDto, CrewRiderDto } from '../dtos/rides.dto.js'
 import type { Outing, OutingStatus, Ticket } from '../interfaces/rides.interface.js'
 import { toOuting, toTicket } from '../schemas/rides.schema.js'
 
@@ -96,6 +96,30 @@ export async function insertTicket(db: DbClient, ticket: Ticket): Promise<void> 
     moto: ticket.moto,
     user_id: ticket.userId ?? null,
   })
+}
+
+export async function findUserTicketId(db: DbClient, outingId: string, userId: string): Promise<string | null> {
+  const row = await db(RIDES_TABLES.TICKETS).select('id').where({ outing_id: outingId, user_id: userId }).first()
+  return row ? String(row.id) : null
+}
+
+/** Quién va: alias de la cuenta si la hay; si no, solo el primer nombre del cupo. */
+export async function findCrew(outingId: string): Promise<CrewRiderDto[]> {
+  const rows = (await getDb()(RIDES_TABLES.TICKETS)
+    .leftJoin(RIDES_TABLES.USERS, `${RIDES_TABLES.USERS}.id`, `${RIDES_TABLES.TICKETS}.user_id`)
+    .select(
+      `${RIDES_TABLES.TICKETS}.name`,
+      `${RIDES_TABLES.TICKETS}.moto`,
+      `${RIDES_TABLES.USERS}.alias`,
+      `${RIDES_TABLES.USERS}.avatar_src`,
+    )
+    .where(`${RIDES_TABLES.TICKETS}.outing_id`, outingId)
+    .orderBy(`${RIDES_TABLES.TICKETS}.created_at`, 'asc')) as Record<string, unknown>[]
+  return rows.map((row) => ({
+    alias: row.alias ? String(row.alias) : String(row.name ?? '').trim().split(/\s+/)[0] ?? '',
+    moto: String(row.moto ?? ''),
+    avatarSrc: row.avatar_src ? String(row.avatar_src) : undefined,
+  }))
 }
 
 export async function updateOutingStatusOn(

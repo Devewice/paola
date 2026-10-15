@@ -230,7 +230,7 @@ async function googleStart(): Promise<void> {
         </form>
 
         <div class="login-stage__google" data-neon="block">
-          <p class="login-stage__hint" aria-hidden="true">{{ copy.orEmail }}</p>
+          <p class="login-stage__hint divider-or" aria-hidden="true">{{ copy.orEmail }}</p>
           <Button
             type="button"
             variant="ghost"
@@ -352,7 +352,7 @@ async function googleStart(): Promise<void> {
   .login-screen {
     align-items: flex-start;
     min-height: 0;
-    padding: 24px 16px 40px;
+    padding: 40px 16px 48px;
   }
 }
 
@@ -474,7 +474,7 @@ async function googleStart(): Promise<void> {
 }
 
 .login-stage__hint {
-  margin: 0;
+  margin: 4px 0;
   text-align: center;
   font-size: 12px;
   font-weight: 700;

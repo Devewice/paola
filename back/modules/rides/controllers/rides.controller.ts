@@ -9,6 +9,7 @@ import {
   createOuting,
   listOperatorBoard,
   listOutings,
+  readCrew,
   setOutingStatus,
 } from '../services/rides.service.js'
 
@@ -35,7 +36,7 @@ export const claimSpotController: RouteHandler = async (request, response, _url,
 
   const sid = sessionId(request)
   const user = sid ? await findSessionUser(sid) : null
-  const result = await claimSpot(params.id ?? '', draft, user?.id)
+  const result = await claimSpot(params.id ?? '', draft, user)
   if (!result.ok) {
     sendJson(response, result.status, { ok: false, detail: result.detail })
     return
@@ -46,8 +47,19 @@ export const claimSpotController: RouteHandler = async (request, response, _url,
   sendJson(response, HTTP_STATUS.CREATED, { ok: true, ticket: result.ticket, outing: result.outing })
 }
 
+export const outingCrewController: RouteHandler = async (request, response, _url, params) => {
+  const sid = sessionId(request)
+  const user = sid ? await findSessionUser(sid) : null
+  const result = await readCrew(params.id ?? '', user)
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, crew: result.crew })
+}
+
 export const listOperatorBoardController: RouteHandler = async (request, response) => {
-  if (!ridesOperatorGuard(request, response)) return
+  if (!(await ridesOperatorGuard(request, response))) return
   const outings = await listOperatorBoard()
   sendJson(response, HTTP_STATUS.OK, { ok: true, outings })
 }
@@ -55,7 +67,7 @@ export const listOperatorBoardController: RouteHandler = async (request, respons
 export const createOutingController: RouteHandler = async (request, response) => {
   const body = await ridesJsonBody(request, response)
   if (!body) return
-  if (!ridesOperatorGuard(request, response, body)) return
+  if (!(await ridesOperatorGuard(request, response, body))) return
 
   const result = await createOuting(body)
   if (!result.ok) {
@@ -68,7 +80,7 @@ export const createOutingController: RouteHandler = async (request, response) =>
 export const setOutingStatusController: RouteHandler = async (request, response, _url, params) => {
   const body = await ridesJsonBody(request, response)
   if (!body) return
-  if (!ridesOperatorGuard(request, response, body)) return
+  if (!(await ridesOperatorGuard(request, response, body))) return
 
   const result = await setOutingStatus(params.id ?? '', body.status)
   if (!result.ok) {

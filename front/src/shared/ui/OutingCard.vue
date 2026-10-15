@@ -23,25 +23,31 @@ withDefaults(
 
 <template>
   <article class="paola-outing">
-    <div class="paola-outing__head">
-      <Chip :tone="status">{{ status }}</Chip>
-      <span class="paola-outing__kind">{{ kind === 'rodada' ? 'Rodada' : 'Actividad' }}</span>
+    <div class="paola-outing__body">
+      <div class="paola-outing__info">
+        <div class="paola-outing__head">
+          <Chip :tone="status">{{ status }}</Chip>
+          <span class="paola-outing__kind">{{ kind === 'rodada' ? 'Rodada' : 'Actividad' }}</span>
+        </div>
+        <h3 class="paola-outing__title">{{ title }}</h3>
+        <p class="paola-outing__meta">
+          <Icon name="pin" size="sm" :circle="false" />
+          {{ date }} · {{ meetingPoint }}
+        </p>
+        <MapBlock
+          v-if="routeText"
+          :meeting-point="meetingPoint"
+          :route-text="routeText"
+          :map-href="mapHref"
+        />
+        <p class="paola-outing__meta">
+          Cupo {{ taken }} / {{ capacity }} · {{ paid ? 'De pago · se avisa por WhatsApp' : 'Gratis' }}
+        </p>
+        <p v-if="whatToBring" class="paola-outing__copy">Llevar: {{ whatToBring }}</p>
+      </div>
+      <div v-if="$slots.default" class="paola-outing__aside">
+        <slot />
+      </div>
     </div>
-    <h3 class="paola-outing__title">{{ title }}</h3>
-    <p class="paola-outing__meta">
-      <Icon name="pin" size="sm" :circle="false" />
-      {{ date }} · {{ meetingPoint }}
-    </p>
-    <MapBlock
-      v-if="routeText"
-      :meeting-point="meetingPoint"
-      :route-text="routeText"
-      :map-href="mapHref"
-    />
-    <p class="paola-outing__meta">
-      Cupo {{ taken }} / {{ capacity }} · {{ paid ? 'De pago · se avisa por WhatsApp' : 'Gratis' }}
-    </p>
-    <p v-if="whatToBring" class="paola-outing__copy">Llevar: {{ whatToBring }}</p>
-    <slot />
   </article>
 </template>

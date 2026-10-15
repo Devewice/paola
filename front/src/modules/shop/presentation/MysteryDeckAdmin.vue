@@ -121,7 +121,7 @@ onMounted(() => {
   <section class="stack mystery-admin">
     <header class="stack" style="gap: 8px">
       <h2 class="kit" style="margin: 0">{{ copy.mysteryTitle }}</h2>
-      <p class="meta" style="margin: 0">{{ copy.mysteryLead }}</p>
+      <p class="meta-text" style="margin: 0">{{ copy.mysteryLead }}</p>
     </header>
 
     <Alert v-if="!products.length" tone="warn">{{ copy.mysteryEmptyProducts }}</Alert>

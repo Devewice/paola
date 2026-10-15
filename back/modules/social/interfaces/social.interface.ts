@@ -4,6 +4,7 @@ export interface SessionUser {
   alias: string
   km: number
   moto?: string
+  whatsapp?: string
   isPublic: boolean
 }
 

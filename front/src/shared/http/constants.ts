@@ -6,6 +6,8 @@ export const OPERADOR_CLAVE_HEADER = 'x-operador-clave'
 
 export const SESSION_HEADER = 'x-session-id'
 
+export const VOTER_KEY_HEADER = 'x-voter-key'
+
 export const API_FAIL_FALLBACK = 'No se pudo completar.'
 
 export const HTTP_STATUS = {
@@ -62,10 +64,56 @@ export const API = {
   AUTH_METHODS: '/api/auth/methods',
   AUTH_GOOGLE_START: '/api/auth/google/start',
   OPERAR_AUTH: '/api/operar/auth',
+  POLLS: '/api/polls',
+  OPERAR_POLLS: '/api/operar/polls',
+  OPERAR_ACCESS: '/api/operar/access',
+  OPERAR_ROLES: '/api/operar/roles',
+  OPERAR_USERS: '/api/operar/users',
 } as const
+
+export function apiOperarRole(id: string): string {
+  return `${API.OPERAR_ROLES}/${encodeURIComponent(id)}`
+}
+
+export function apiOperarRoleDelete(id: string): string {
+  return `${apiOperarRole(id)}/delete`
+}
+
+export function apiOperarUserRole(id: string): string {
+  return `${API.OPERAR_USERS}/${encodeURIComponent(id)}/role`
+}
+
+export function apiOperarUsers(query: string): string {
+  return query ? `${API.OPERAR_USERS}?q=${encodeURIComponent(query)}` : API.OPERAR_USERS
+}
+
+export const POLLS_QUERY = {
+  OUTING: 'outingId',
+  FEATURED: 'featured',
+} as const
+
+export function apiPoll(id: string): string {
+  return `${API.POLLS}/${encodeURIComponent(id)}`
+}
+
+export function apiPollVotes(id: string): string {
+  return `${apiPoll(id)}/votes`
+}
+
+export function apiOperarPoll(id: string): string {
+  return `${API.OPERAR_POLLS}/${encodeURIComponent(id)}`
+}
+
+export function apiOperarPollDelete(id: string): string {
+  return `${apiOperarPoll(id)}/delete`
+}
 
 export function apiOutingTickets(id: string): string {
   return `${API.OUTINGS}/${encodeURIComponent(id)}/tickets`
+}
+
+export function apiOutingCrew(id: string): string {
+  return `${API.OUTINGS}/${encodeURIComponent(id)}/crew`
 }
 
 export function apiOutingChat(id: string): string {
@@ -147,7 +195,14 @@ export function apiParcero(alias: string): string {
 export const APP_PATHS = {
   INICIO: '/',
   PARCHESE: '/parchese',
+  PARCHESE_RODADAS: '/parchese/rodadas',
+  PARCHESE_MEMORIAS: '/parchese/memorias',
+  PARCHESE_EL_PARCHE: '/parchese/el-parche',
   TU_VOZ: '/tu-voz',
+  TU_VOZ_TIPS: '/tu-voz/tips',
+  TU_VOZ_COMPARENDOS: '/tu-voz/comparendos',
+  TU_VOZ_REPORTES: '/tu-voz/reportes',
+  TU_VOZ_ENCUESTAS: '/tu-voz/encuestas',
   TIENDA: '/tienda',
   PAOLA: '/paola',
   ADMIN: '/admin',
@@ -173,6 +228,14 @@ export function appTiendaFicha(id: string): string {
 
 export function appTiendaServicio(id: string): string {
   return `${APP_PATHS.TIENDA}/servicio/${encodeURIComponent(id)}`
+}
+
+export function appRodada(id: string): string {
+  return `${APP_PATHS.PARCHESE_RODADAS}/${encodeURIComponent(id)}`
+}
+
+export function appEntrarYVolver(next: string): string {
+  return `${APP_PATHS.ENTRAR}?next=${encodeURIComponent(next)}`
 }
 
 export function appParcero(alias: string): string {

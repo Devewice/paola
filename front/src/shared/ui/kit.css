@@ -474,7 +474,6 @@
 .paola-agenda.is-past {
   opacity: 0.55;
 }
-
 .paola-agenda__date {
   margin: 0;
   text-align: center;
@@ -511,8 +510,48 @@
   border: 1px solid var(--paola-line);
   border-radius: 10px;
   padding: 16px 20px 20px;
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.paola-outing__body {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.paola-outing__info,
+.paola-outing__aside {
   display: grid;
   gap: 8px;
+  align-content: start;
+  min-width: 0;
+}
+
+.paola-outing__aside {
+  gap: 12px;
+}
+
+.paola-outing__aside > :first-child {
+  margin-top: 0;
+}
+
+@container (min-width: 720px) {
+  .paola-outing__body:has(> .paola-outing__aside) {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 16px 24px;
+  }
+
+  .paola-outing__body > .paola-outing__aside {
+    padding-left: 24px;
+    border-left: 1px solid var(--paola-line);
+  }
+
+  .paola-outing__body:has(> .paola-outing__aside) > .paola-outing__info {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+  }
 }
 
 .paola-outing--featured {

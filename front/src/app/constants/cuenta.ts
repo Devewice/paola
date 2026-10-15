@@ -1,3 +1,5 @@
+import { MASCOT } from '@shared/ui/mascot.ts'
+
 export const SESSION_STORAGE_KEY = 'paola_session_id'
 export const ALIAS_STORAGE_KEY = 'paola_alias'
 
@@ -26,7 +28,11 @@ export const CUENTA_COPY = {
   messageLabel: 'Mensaje',
   tickets: 'Tickets',
   ticketsEmptyTitle: 'Sin tickets',
-  ticketsEmpty: 'Cuando te anotes a una rodada, el cupo queda aquí.',
+  ticketsEmpty: 'Cuando te inscribas a una rodada, el cupo queda aquí.',
+  ticketsRide: 'Ver la rodada',
+  ticketsPollsOne: 'encuesta por votar',
+  ticketsPollsMany: 'encuestas por votar',
+  ticketsVote: 'Votar',
   orders: 'Pedidos',
   ordersEmptyTitle: 'Sin pedidos',
   ordersEmpty: 'Los pedidos de tienda y lavado quedan aquí cuando uses tu cuenta.',
@@ -75,7 +81,7 @@ export const LOGIN_COPY = {
   switchToLogin: 'Ya tengo cuenta · Entrar',
   benefitsKicker: 'Si te creas la cuenta',
   benefits: [
-    'Te anotas a rodadas con cupo',
+    'Te inscribes a rodadas con cupo',
     'Entras a la tienda con tu perfil',
     'Sigues parceros y hablas en el chat',
     'Guardas trayectos y kilómetros',
@@ -107,6 +113,10 @@ export const PARCERO_COPY = {
   friendFail: 'No se pudo enviar la solicitud.',
   friendSent: 'Solicitud enviada. Tu WhatsApp no se comparte.',
 } as const
+
+export const PARCERO_FIGURE = MASCOT.EN_PIE
+
+export const CUENTA_FIGURE = MASCOT.X5
 
 export const OPERAR_REPORTS_COPY = {
   heading: 'Cola de denuncias',

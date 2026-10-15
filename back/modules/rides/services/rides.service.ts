@@ -10,10 +10,15 @@ import {
   RIDES_STATUS_FULL,
   RIDES_STATUS_OPEN,
 } from '../constants/rides.constants.js'
+import { updateUserContact } from '../../social/providers/social.provider.js'
+import type { SessionUser } from '../../social/interfaces/social.interface.js'
+import type { OutingCrewDto } from '../dtos/rides.dto.js'
 import type { Outing, OperatorBoardOuting, Ticket } from '../interfaces/rides.interface.js'
 import {
   countTickets,
+  findCrew,
   findOutingById,
+  findUserTicketId,
   findOutings,
   findTickets,
   insertOuting,
@@ -50,9 +55,10 @@ export async function listOperatorBoard(): Promise<OperatorBoardOuting[]> {
 export async function claimSpot(
   outingId: string,
   draft: Record<string, unknown>,
-  userId?: string,
+  user: SessionUser | null,
 ): Promise<Fail | { ok: true; ticket: Ticket; outing: Outing | null }> {
-  const parsed = parseClaimSpot(draft)
+  if (!user) return fail(HTTP_STATUS.FORBIDDEN, RIDES_MESSAGES.ACCOUNT_REQUIRED)
+  const parsed = parseClaimSpot(draft, user)
   if (!parsed.ok) return parsed
 
   type TrxResult = { fail: Fail } | { ticket: Ticket }
@@ -61,6 +67,9 @@ export async function claimSpot(
     const row = await lockOutingRow(trx, outingId)
     if (!row) {
       return { fail: fail(HTTP_STATUS.NOT_FOUND, RIDES_MESSAGES.NOT_FOUND) }
+    }
+    if (await findUserTicketId(trx, outingId, user.id)) {
+      return { fail: fail(HTTP_STATUS.CONFLICT, RIDES_MESSAGES.ALREADY_IN) }
     }
 
     if (row.status === RIDES_STATUS_DONE) {
@@ -86,7 +95,7 @@ export async function claimSpot(
       name: parsed.value.name,
       whatsapp: parsed.value.whatsapp,
       moto: parsed.value.moto,
-      userId,
+      userId: user.id,
     }
     await insertTicket(trx, ticket)
 
@@ -98,8 +107,31 @@ export async function claimSpot(
   })
 
   if ('fail' in result) return result.fail
+  await updateUserContact(user.id, parsed.value.profilePatch)
   const outing = await findOutingById(outingId)
   return { ok: true, ticket: result.ticket, outing }
+}
+
+/** Lo que ve cada quien en la página de la rodada; la lista de quién va es solo para inscritos. */
+export async function readCrew(outingId: string, user: SessionUser | null): Promise<Fail | { ok: true; crew: OutingCrewDto }> {
+  const outing = await findOutingById(outingId)
+  if (!outing) return fail(HTTP_STATUS.NOT_FOUND, RIDES_MESSAGES.NOT_FOUND)
+  if (!user) {
+    return { ok: true, crew: { signedIn: false, inscribed: false, needsWhatsapp: true, riders: [] } }
+  }
+  const ticketId = await findUserTicketId(getDb(), outingId, user.id)
+  return {
+    ok: true,
+    crew: {
+      signedIn: true,
+      alias: user.alias,
+      inscribed: Boolean(ticketId),
+      needsWhatsapp: !user.whatsapp,
+      moto: user.moto,
+      ticketId: ticketId ?? undefined,
+      riders: ticketId ? await findCrew(outingId) : [],
+    },
+  }
 }
 
 export async function createOuting(

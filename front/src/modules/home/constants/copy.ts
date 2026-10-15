@@ -1,8 +1,15 @@
+import { MASCOT } from '@shared/ui/mascot.ts'
+
 export const HOME_JOIN_LABEL = 'Grupo de WhatsApp'
 
-export const HOME_LOGO_SRC = '/logo.png'
-export const HOME_PAOLA_PHOTO = '/kit-assets/paola-moto.png'
+export const HOME_FIGURES = {
+  TIP: MASCOT.EN_PIE,
+  MEMORY: MASCOT.LENTE,
+  PAOLA: '/kit-assets/paola-hero.png',
+  PULSE: MASCOT.X5,
+} as const
 
+export const HOME_LOGO_SRC = '/logo.png'
 export const HOME_PULSE_COPY = {
   kicker: 'Del parche',
   heading: 'El parche en vivo',
@@ -10,6 +17,7 @@ export const HOME_PULSE_COPY = {
   emptyTitle: 'El muro está quieto',
   empty: 'Todavía nadie ha subido nada. Sé el primero en contar cómo te fue en la última rodada.',
   cta: 'Ver todo el feed',
+  emptyCta: 'Contar mi rodada',
 } as const
 
 export const HOME_BOARD_COPY = {

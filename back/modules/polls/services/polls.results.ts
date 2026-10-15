@@ -1,0 +1,66 @@
+import type { OptionTally, Poll, PollQuestion, PollResults, QuestionResult } from '../interfaces/polls.interface.js'
+import type { StoredAnswer } from '../providers/polls.provider.js'
+
+function percent(count: number, total: number): number {
+  return total ? Math.round((count / total) * 100) : 0
+}
+
+function round(value: number): number {
+  return Math.round(value * 10) / 10
+}
+
+function tallyQuestion(question: PollQuestion, answers: readonly StoredAnswer[], withTexts: boolean, textLimit: number): QuestionResult {
+  const own = answers.filter((answer) => answer.questionId === question.id)
+  const answered = new Set(own.map((answer) => answer.responseId)).size
+
+  if (question.kind === 'single' || question.kind === 'multiple') {
+    const options: OptionTally[] = question.options.map((option) => {
+      const count = own.filter((answer) => answer.optionId === option.id).length
+      return { optionId: option.id, count, percent: percent(count, answered) }
+    })
+    return { questionId: question.id, answered, options }
+  }
+
+  if (question.kind === 'ranking') {
+    const options: OptionTally[] = question.options.map((option) => {
+      const ranks = own.filter((answer) => answer.optionId === option.id && answer.rank !== null).map((answer) => answer.rank ?? 0)
+      const firsts = ranks.filter((rank) => rank === 1).length
+      const averageRank = ranks.length ? round(ranks.reduce((sum, rank) => sum + rank, 0) / ranks.length) : undefined
+      return { optionId: option.id, count: firsts, percent: percent(firsts, answered), averageRank }
+    })
+    options.sort((a, b) => (a.averageRank ?? Infinity) - (b.averageRank ?? Infinity))
+    return { questionId: question.id, answered, options }
+  }
+
+  if (question.kind === 'scale') {
+    const values = own.map((answer) => answer.valueNumber).filter((value): value is number => value !== null)
+    const min = question.scaleMin ?? 1
+    const max = question.scaleMax ?? 5
+    const distribution = Array.from({ length: max - min + 1 }, (_, index) => {
+      const value = min + index
+      return { value, count: values.filter((item) => item === value).length }
+    })
+    const average = values.length ? round(values.reduce((sum, value) => sum + value, 0) / values.length) : undefined
+    return { questionId: question.id, answered, options: [], average, distribution }
+  }
+
+  const texts = withTexts
+    ? own
+        .map((answer) => answer.valueText)
+        .filter((value): value is string => Boolean(value))
+        .slice(0, textLimit)
+    : undefined
+  return { questionId: question.id, answered, options: [], texts }
+}
+
+export function tallyPoll(
+  poll: Poll,
+  answers: readonly StoredAnswer[],
+  responses: number,
+  options: { withTexts: boolean; textLimit: number },
+): PollResults {
+  return {
+    responses,
+    questions: poll.questions.map((question) => tallyQuestion(question, answers, options.withTexts, options.textLimit)),
+  }
+}

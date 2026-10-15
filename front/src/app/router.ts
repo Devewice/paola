@@ -9,6 +9,16 @@ import OperarView from '@app/shell/OperarView.vue'
 import PaolaRoute from '@app/shell/PaolaRoute.vue'
 import ParceroRoute from '@app/shell/ParceroRoute.vue'
 import ParcheseRoute from '@app/shell/ParcheseRoute.vue'
+import ParcheseElParche from '@app/shell/parchese/ParcheseElParche.vue'
+import ParcheseHub from '@app/shell/parchese/ParcheseHub.vue'
+import ParcheseMemorias from '@app/shell/parchese/ParcheseMemorias.vue'
+import ParcheseRodada from '@app/shell/parchese/ParcheseRodada.vue'
+import ParcheseRodadas from '@app/shell/parchese/ParcheseRodadas.vue'
+import TuVozComparendos from '@app/shell/tu-voz/TuVozComparendos.vue'
+import TuVozEncuestas from '@app/shell/tu-voz/TuVozEncuestas.vue'
+import TuVozHub from '@app/shell/tu-voz/TuVozHub.vue'
+import TuVozReportes from '@app/shell/tu-voz/TuVozReportes.vue'
+import TuVozTips from '@app/shell/tu-voz/TuVozTips.vue'
 import ProductRoute from '@app/shell/ProductRoute.vue'
 import ServiceRoute from '@app/shell/ServiceRoute.vue'
 import ShopRoute from '@app/shell/ShopRoute.vue'
@@ -17,10 +27,68 @@ import LoginRoute from '@app/shell/LoginRoute.vue'
 import PrivacyView from '@app/shell/PrivacyView.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
+/** Alto del header sticky + aire, para que el ancla no quede debajo. */
+const HEADER_OFFSET = 88
+
 const routes: RouteRecordRaw[] = [
   { path: APP_PATHS.INICIO, name: 'inicio', component: HomeRoute, meta: { title: ROUTE_TITLES.INICIO } },
-  { path: APP_PATHS.PARCHESE, name: 'parchese', component: ParcheseRoute, meta: { title: ROUTE_TITLES.PARCHESE } },
-  { path: APP_PATHS.TU_VOZ, name: 'tu-voz', component: TuVozRoute, meta: { title: ROUTE_TITLES.TU_VOZ } },
+  {
+    path: APP_PATHS.PARCHESE,
+    component: ParcheseRoute,
+    children: [
+      { path: '', name: 'parchese', component: ParcheseHub, meta: { title: ROUTE_TITLES.PARCHESE } },
+      {
+        path: 'rodadas',
+        name: 'parchese-rodadas',
+        component: ParcheseRodadas,
+        meta: { title: ROUTE_TITLES.PARCHESE_RODADAS },
+      },
+      {
+        path: 'rodadas/:id',
+        name: 'parchese-rodada',
+        component: ParcheseRodada,
+        meta: { title: ROUTE_TITLES.PARCHESE_RODADAS },
+      },
+      {
+        path: 'memorias',
+        name: 'parchese-memorias',
+        component: ParcheseMemorias,
+        meta: { title: ROUTE_TITLES.PARCHESE_MEMORIAS },
+      },
+      {
+        path: 'el-parche',
+        name: 'parchese-el-parche',
+        component: ParcheseElParche,
+        meta: { title: ROUTE_TITLES.PARCHESE_EL_PARCHE },
+      },
+    ],
+  },
+  {
+    path: APP_PATHS.TU_VOZ,
+    component: TuVozRoute,
+    children: [
+      { path: '', name: 'tu-voz', component: TuVozHub, meta: { title: ROUTE_TITLES.TU_VOZ } },
+      { path: 'tips', name: 'tu-voz-tips', component: TuVozTips, meta: { title: ROUTE_TITLES.TU_VOZ_TIPS } },
+      {
+        path: 'comparendos',
+        name: 'tu-voz-comparendos',
+        component: TuVozComparendos,
+        meta: { title: ROUTE_TITLES.TU_VOZ_COMPARENDOS },
+      },
+      {
+        path: 'reportes',
+        name: 'tu-voz-reportes',
+        component: TuVozReportes,
+        meta: { title: ROUTE_TITLES.TU_VOZ_REPORTES },
+      },
+      {
+        path: 'encuestas',
+        name: 'tu-voz-encuestas',
+        component: TuVozEncuestas,
+        meta: { title: ROUTE_TITLES.TU_VOZ_ENCUESTAS },
+      },
+    ],
+  },
   { path: APP_PATHS.TIENDA, name: 'tienda', component: ShopRoute, meta: { title: ROUTE_TITLES.TIENDA } },
   {
     path: `${APP_PATHS.TIENDA}/servicio/:id`,
@@ -57,9 +125,12 @@ const routes: RouteRecordRaw[] = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(to) {
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
     if (to.hash) {
-      return { el: to.hash }
+      return { el: to.hash, top: HEADER_OFFSET }
     }
     return { top: 0 }
   },

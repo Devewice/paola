@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { PARCERO_COPY, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
+import { PARCERO_COPY, PARCERO_FIGURE, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import { parsePublicParcero, type PublicParcero } from '@app/parsePublicParcero.ts'
 import { API, APP_PATHS, JSON_HEADERS, SESSION_HEADER, apiParcero, apiUserFollow } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import AficheHero from '@ui/AficheHero.vue'
 import Button from '@ui/Button.vue'
 import Follow from '@ui/Follow.vue'
-import MemberCard from '@ui/MemberCard.vue'
 import PageVacant from '@ui/PageVacant.vue'
 import { showToast } from '@ui/toast.ts'
 
@@ -19,6 +18,7 @@ const parcero = ref<PublicParcero | null>(null)
 const status = ref<'loading' | 'ok' | 'hidden'>('loading')
 const sessionId = ref(typeof localStorage !== 'undefined' ? (localStorage.getItem(SESSION_STORAGE_KEY) ?? '') : '')
 const alias = computed(() => String(route.params.alias ?? ''))
+const initial = computed(() => (parcero.value?.alias ?? alias.value).trim().charAt(0).toUpperCase() || '?')
 
 onMounted(() => {
   void load()
@@ -87,59 +87,53 @@ async function requestFriend(): Promise<void> {
       <template #lead>{{ status === 'loading' ? copy.loading : copy.lead }}</template>
     </AficheHero>
 
-    <article v-if="parcero" class="paola-page paola-page--after-hero">
-      <section class="parcero-card" data-reveal>
-        <MemberCard :alias="parcero.alias" :photo-src="parcero.avatarSrc" :moto="parcero.moto" />
-        <dl class="parcero-stats">
-          <div>
-            <dt>{{ copy.km }}</dt>
-            <dd>{{ parcero.km || '—' }}</dd>
+    <main v-if="parcero" class="wrap board-shell board">
+      <section class="poster poster--armargura poster--profile has-mascot" :aria-label="parcero.alias" data-reveal>
+        <img class="poster__mascot" :src="PARCERO_FIGURE" alt="" aria-hidden="true" loading="lazy" />
+        <img
+          v-if="parcero.avatarSrc"
+          class="poster-avatar"
+          :src="parcero.avatarSrc"
+          :alt="parcero.alias"
+          width="128"
+          height="128"
+        />
+        <span v-else class="poster-avatar" aria-hidden="true">{{ initial }}</span>
+        <div class="poster__copy">
+          <span class="board-kicker">{{ copy.kicker }}</span>
+          <h2 class="type-brush-dry type-brush-dry--xs">{{ parcero.alias }}</h2>
+          <dl class="hub-stats hub-stats--dl">
+            <div class="hub-stat">
+              <dt><span>{{ copy.km }}</span></dt>
+              <dd><strong>{{ parcero.km || '—' }}</strong></dd>
+            </div>
+            <div v-if="parcero.moto" class="hub-stat">
+              <dt><span>{{ copy.moto }}</span></dt>
+              <dd><strong class="parcero-stats__moto">{{ parcero.moto }}</strong></dd>
+            </div>
+          </dl>
+          <div class="parcero-actions">
+            <Follow @click="follow" />
+            <Button size="sm" type="button" @click="requestFriend">{{ copy.friend }}</Button>
+            <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feedCta }}</Button>
           </div>
-          <div v-if="parcero.moto">
-            <dt>{{ copy.moto }}</dt>
-            <dd>{{ parcero.moto }}</dd>
-          </div>
-        </dl>
-        <div class="parcero-actions">
-          <Follow @click="follow" />
-          <Button size="sm" type="button" @click="requestFriend">{{ copy.friend }}</Button>
-          <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feedCta }}</Button>
         </div>
-        <p class="paola-page__copy paola-page__copy--muted">{{ copy.memberNote }}</p>
       </section>
-    </article>
+      <p class="meta-text parcero-note">{{ copy.memberNote }}</p>
+    </main>
   </div>
 </template>
 
 <style scoped>
-.parcero-card {
-  display: grid;
-  gap: 24px;
-  max-width: 40rem;
-}
-.parcero-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  margin: 0;
-}
-.parcero-stats dt {
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paola-muted, #8b9bb0);
-}
-.parcero-stats dd {
-  margin: 4px 0 0;
-  font-family: var(--display, 'Oswald', sans-serif);
-  font-size: 28px;
+.parcero-stats__moto {
+  overflow-wrap: anywhere;
 }
 .parcero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.parcero-actions + p {
+.parcero-note {
   margin: 0;
 }
 </style>

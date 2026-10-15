@@ -128,7 +128,7 @@ onMounted(() => {
   <section class="auth-wizard stack">
     <header class="stack" style="gap: 4px">
       <h2 class="auth-wizard__title">{{ copy.authTitle }}</h2>
-      <p class="meta" style="margin: 0">{{ copy.authLead }}</p>
+      <p class="meta-text">{{ copy.authLead }}</p>
     </header>
 
     <CheckoutSteps :steps="wizardSteps" />
@@ -142,13 +142,13 @@ onMounted(() => {
     </div>
 
     <div v-else-if="step === 1" class="stack">
-      <p v-if="filled.length" class="meta" style="margin: 0">{{ copy.authFilled }}: {{ filled.join(', ') }}</p>
+      <p v-if="filled.length" class="meta-text">{{ copy.authFilled }}: {{ filled.join(', ') }}</p>
       <Field :label="copy.authClientId"><Input v-model="clientId" autocomplete="off" /></Field>
       <PasswordField id="auth-google-secret" v-model="clientSecret" :label="copy.authClientSecret" />
       <Field :label="copy.authRedirect">
         <Input v-model="redirectUri" autocomplete="off" />
       </Field>
-      <p class="meta" style="margin: 0">{{ copy.authRedirectHint }}</p>
+      <p class="meta-text">{{ copy.authRedirectHint }}</p>
       <div class="row">
         <Button size="sm" variant="ghost" @click="step = 0">{{ copy.authBack }}</Button>
         <Button size="sm" @click="step = 2">{{ copy.authNext }}</Button>

@@ -1,6 +1,7 @@
 export type HomeOutingKind = 'rodada' | 'actividad'
 
 export type HomeNextOuting = {
+  readonly id: string
   readonly title: string
   readonly date: string
   readonly kind: HomeOutingKind

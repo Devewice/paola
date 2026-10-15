@@ -183,7 +183,7 @@ watch(
     <header class="stack">
       <p class="meta" style="margin: 0">{{ copy.wizardKicker }}</p>
       <h2 class="pay-wizard__title">{{ copy.wizardTitle }}</h2>
-      <p class="meta" style="margin: 0">{{ copy.wizardLead }}</p>
+      <p class="meta-text">{{ copy.wizardLead }}</p>
     </header>
 
     <ProgressBar :pct="((step + 1) / 4) * 100" />
@@ -208,7 +208,7 @@ watch(
     </div>
 
     <div v-else-if="step === PAYMENT_WIZARD_STEP.KEYS" class="stack">
-      <p v-if="!selectedCatalog.length" class="meta" style="margin: 0">{{ copy.emptyKeys }}</p>
+      <p v-if="!selectedCatalog.length" class="meta-text">{{ copy.emptyKeys }}</p>
       <article v-for="item in selectedCatalog" :key="item.id" class="pay-wizard__card stack">
         <h3>{{ item.title }}</h3>
         <Field :label="copy.modeLabel">
@@ -230,22 +230,22 @@ watch(
             />
           </Field>
         </template>
-        <p v-if="filled[item.id]?.length" class="meta" style="margin: 0">{{ copy.keepHint }}</p>
+        <p v-if="filled[item.id]?.length" class="meta-text">{{ copy.keepHint }}</p>
       </article>
     </div>
 
     <div v-else-if="step === PAYMENT_WIZARD_STEP.TEST" class="stack">
-      <p v-if="!selectedCatalog.length" class="meta" style="margin: 0">{{ copy.emptyKeys }}</p>
+      <p v-if="!selectedCatalog.length" class="meta-text">{{ copy.emptyKeys }}</p>
       <article v-for="item in selectedCatalog" :key="item.id" class="pay-wizard__card stack">
         <h3>{{ item.title }}</h3>
-        <p class="meta" style="margin: 0">{{ item.copy }}</p>
-        <p v-if="tests[item.id]" class="meta" style="margin: 0">{{ tests[item.id]?.detail }}</p>
+        <p class="meta-text">{{ item.copy }}</p>
+        <p v-if="tests[item.id]" class="meta-text">{{ tests[item.id]?.detail }}</p>
         <Button size="sm" :disabled="testing === item.id" @click="testProvider(item.id)">{{ copy.test }}</Button>
       </article>
     </div>
 
     <div v-else class="stack">
-      <p v-if="!selectedCatalog.length" class="meta" style="margin: 0">{{ copy.emptyKeys }}</p>
+      <p v-if="!selectedCatalog.length" class="meta-text">{{ copy.emptyKeys }}</p>
       <Choice
         v-for="item in selectedCatalog"
         :key="item.id"

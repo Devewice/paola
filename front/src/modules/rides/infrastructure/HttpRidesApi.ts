@@ -1,10 +1,15 @@
 import { appError, type AppError } from '@core/errors/AppError.ts'
-import { requirePrivacyNotice } from '@core/requirePrivacyNotice.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
-import { buildOutingNotice } from '@modules/rides/application/buildOutingNotice.ts'
-import type { OperatorOutingStatus, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
-import type { Ticket, TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
+import { buildOutingNotice, buildSignupNotice } from '@modules/rides/application/buildOutingNotice.ts'
+import type { OperatorOutingStatus, Outing, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
+import type {
+  CrewRider,
+  OutingCrew,
+  OutingNotice,
+  SignupDraft,
+  Ticket,
+} from '@modules/rides/domain/entities/Ticket.ts'
 import type { OperatorBoardOuting, RidesApiPort } from '@modules/rides/domain/ports/RidesApiPort.ts'
 import type { MemoryDraft } from '@modules/rides/domain/entities/Memory.ts'
 import { parseMemory } from '@modules/rides/infrastructure/parseMemory.ts'
@@ -17,6 +22,7 @@ import {
   OPERADOR_CLAVE_HEADER,
   SESSION_HEADER,
   apiOperarOutingStatus,
+  apiOutingCrew,
   apiOutingTickets,
 } from '@shared/http/constants.ts'
 
@@ -33,16 +39,30 @@ export class HttpRidesApi implements RidesApiPort {
     this.contact = contact
   }
 
-  async claim(outingId: string, draft: TicketDraft) {
-    const privacy = requirePrivacyNotice(draft.privacyAccepted, RIDES_MESSAGES.PRIVACY_REQUIRED)
-    if (!privacy.ok) return privacy
-
+  private sessionHeaders(): Record<string, string> {
     const headers: Record<string, string> = { ...JSON_HEADERS }
     const session = this.contact.getSessionId?.() ?? ''
     if (session) headers[SESSION_HEADER] = session
+    return headers
+  }
+
+  async crew(outingId: string) {
+    const response = await fetch(apiOutingCrew(outingId), { headers: this.sessionHeaders() })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    const crew = parseCrew(body.crew)
+    if (!crew) return err(appError('INFRASTRUCTURE', RIDES_MESSAGES.CREW_PARSE_FAIL))
+    return ok(crew)
+  }
+
+  notice(outing: Outing, alias: string): OutingNotice {
+    return buildSignupNotice(outing, alias, this.contact)
+  }
+
+  async claim(outingId: string, draft: SignupDraft) {
     const response = await fetch(apiOutingTickets(outingId), {
       method: 'POST',
-      headers,
+      headers: this.sessionHeaders(),
       body: JSON.stringify(draft),
     })
     const body = await readBody(response)
@@ -148,6 +168,33 @@ function parseTicket(raw: unknown): Ticket | null {
     name: row.name,
     whatsapp: row.whatsapp,
     moto: row.moto,
+  }
+}
+
+function parseCrew(raw: unknown): OutingCrew | null {
+  if (!raw || typeof raw !== 'object') return null
+  const row = raw as Record<string, unknown>
+  if (typeof row.signedIn !== 'boolean' || typeof row.inscribed !== 'boolean') return null
+  const riders: CrewRider[] = []
+  if (Array.isArray(row.riders)) {
+    for (const item of row.riders) {
+      if (!item || typeof item !== 'object') continue
+      const rider = item as Record<string, unknown>
+      if (typeof rider.alias !== 'string' || !rider.alias) continue
+      riders.push({
+        alias: rider.alias,
+        moto: typeof rider.moto === 'string' ? rider.moto : '',
+        avatarSrc: typeof rider.avatarSrc === 'string' && rider.avatarSrc ? rider.avatarSrc : undefined,
+      })
+    }
+  }
+  return {
+    signedIn: row.signedIn,
+    alias: typeof row.alias === 'string' && row.alias ? row.alias : undefined,
+    inscribed: row.inscribed,
+    needsWhatsapp: row.needsWhatsapp !== false,
+    moto: typeof row.moto === 'string' && row.moto ? row.moto : undefined,
+    riders,
   }
 }
 

@@ -48,6 +48,7 @@ import Button from '@ui/Button.vue'
 import Choice from '@ui/Choice.vue'
 import DealSpotlight from '@ui/DealSpotlight.vue'
 import Empty from '@ui/Empty.vue'
+import HubTile from '@ui/HubTile.vue'
 import Icon from '@ui/Icon.vue'
 import NoticeBar from '@ui/NoticeBar.vue'
 import ProductCard from '@ui/ProductCard.vue'
@@ -105,6 +106,11 @@ const allProducts = computed(() => [...catalog.value.own, ...catalog.value.colla
 const dailyDeal = computed(() => pickDailyDeal(allProducts.value))
 const registered = computed(() => Boolean(sessionId.value))
 const showMysteryDeck = computed(() => mysteryEnabled.value && mysteryCards.value.length > 0)
+const shelfCounts = computed((): Record<ShopShelfId, number> => ({
+  [SHOP_SHELF.OWN]: catalog.value.own.length,
+  [SHOP_SHELF.COLLAB]: catalog.value.collab.length,
+  [SHOP_SHELF.SERVICE]: services.value.items.length,
+}))
 
 function readSession(): string {
   try {
@@ -251,6 +257,7 @@ const serviceItems = computed(() => {
 const visibleCount = computed(
   () => ownItems.value.length + collabItems.value.length + serviceItems.value.length,
 )
+const catalogEmpty = computed(() => allProducts.value.length + services.value.items.length === 0)
 
 const colorLabels = computed(() => uniqueLabels(allProducts.value.map((item) => item.color)))
 const sizeLabels = computed(() => uniqueLabels(allProducts.value.map((item) => item.size)))
@@ -434,32 +441,32 @@ const filtersDirty = computed(() => chips.value.length > 0)
     <main id="catalogo" class="wrap shop-market">
       <NoticeBar v-if="SHOP_PROMO.on" :kicker="SHOP_PROMO.kicker" :text="SHOP_PROMO.text" data-reveal />
 
-      <div
-        class="shop-market__prefilters filter-pills"
-        role="group"
-        :aria-label="copy.filtersShelf"
-        data-reveal
-      >
-        <button
+      <div class="shop-market__prefilters tile-strip" role="group" :aria-label="copy.filtersShelf" data-reveal>
+        <HubTile
           v-for="item in SHOP_PREFILTERS"
           :key="item.id"
-          type="button"
-          class="filter-pill"
-          :class="{ 'is-on': isShelfOn(item.id) }"
-          :aria-pressed="isShelfOn(item.id)"
+          size="compact"
+          :tone="item.tone"
+          :index="item.tag"
+          :mascot-src="item.mascot"
+          :title="item.label"
+          :cta="isShelfOn(item.id) ? copy.shelfOn : copy.shelfOff"
+          :pressed="isShelfOn(item.id)"
           @click="toggleShelf(item.id)"
         >
-          <span class="shop-market__prefilter-tag">{{ item.tag }}</span>
-          {{ item.label }}
-        </button>
+          <span class="hub-meta">{{ item.lead }}</span>
+          <span class="shop-market__shelf-count">
+            <strong>{{ shelfCounts[item.id] }}</strong> {{ copy.shelfCount }}
+          </span>
+        </HubTile>
       </div>
 
       <div class="shop-market__layout">
         <div class="shop-market__aside">
-          <div class="shop-market__events" data-reveal>
-            <h2>{{ copy.eventsTitle }}</h2>
-            <p class="meta">{{ copy.eventsLead }}</p>
-            <Button size="sm" :to="APP_PATHS.PARCHESE">{{ copy.eventsCta }}</Button>
+          <div class="poster poster--blue" data-reveal>
+            <h2 class="type-brush-dry type-brush-dry--xs">{{ copy.eventsTitle }}</h2>
+            <p>{{ copy.eventsLead }}</p>
+            <Button size="sm" :to="APP_PATHS.PARCHESE_RODADAS">{{ copy.eventsCta }}</Button>
           </div>
           <details
             class="shop-market__filters-panel"
@@ -572,8 +579,8 @@ const filtersDirty = computed(() => chips.value.length > 0)
             compact
             glyph="◎"
             hide-cta
-            :title="copy.emptyFilterTitle"
-            :copy="copy.emptyFilterCopy"
+            :title="catalogEmpty ? copy.emptyCatalogTitle : copy.emptyFilterTitle"
+            :copy="catalogEmpty ? copy.emptyCatalogCopy : copy.emptyFilterCopy"
             :mascot-src="MASCOT.LENTE"
           />
 

@@ -218,7 +218,7 @@ h2,
   justify-content: center;
   width: 100%;
   min-height: min(68vh, 560px);
-  padding: calc(72px + var(--paola-space) * 4) var(--paola-gutter) calc(var(--paola-space) * 8);
+  padding: clamp(32px, 6vw, 64px) var(--paola-gutter) calc(var(--paola-space) * 8);
   box-sizing: border-box;
 }
 
@@ -366,7 +366,7 @@ h2,
   gap: calc(var(--paola-space) * 6);
   width: min(var(--paola-content-max), calc(100% - 2 * var(--paola-gutter)));
   margin-inline: auto;
-  padding: calc(64px + var(--paola-space) * 2) 0 calc(var(--paola-space) * 6);
+  padding: clamp(32px, 6vw, 64px) 0 calc(var(--paola-space) * 6);
 }
 
 .paola-page--after-hero {
@@ -613,7 +613,7 @@ h2,
 
 .paola-site-foot {
   position: relative;
-  margin-top: 0;
+  margin-top: 48px;
   overflow: visible;
   border-top: 1px solid var(--paola-line);
   background:
@@ -623,6 +623,7 @@ h2,
 }
 
 .paola-site-foot--compact {
+  margin-top: 0;
   background: var(--paola-ink);
   border-top: none;
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -759,7 +760,6 @@ h2,
     display: block !important;
   }
 }
-
 @media (min-width: 960px) {
   .paola-nav--desktop {
     display: flex;

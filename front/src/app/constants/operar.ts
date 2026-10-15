@@ -1,20 +1,80 @@
-export const OPERAR_CLAVE_STORAGE_KEY = 'paola_operador_clave'
+export type OperarPermission =
+  | 'rodadas'
+  | 'voz'
+  | 'encuestas'
+  | 'tienda'
+  | 'parche'
+  | 'comunidad'
+  | 'ajustes'
+  | 'roles'
+
+export const OPERAR_PERMISSIONS: readonly { readonly id: OperarPermission; readonly label: string; readonly hint: string }[] = [
+  { id: 'rodadas', label: 'Rodadas', hint: 'Publicar salidas, cupos y memorias' },
+  { id: 'voz', label: 'Tu voz', hint: 'Tips, comparendos y moderar denuncias' },
+  { id: 'encuestas', label: 'Encuestas', hint: 'Crear, editar y cerrar encuestas' },
+  { id: 'tienda', label: 'Tienda', hint: 'Productos, servicios, pedidos y mazo' },
+  { id: 'parche', label: 'Parche', hint: 'Alianzas e integrantes' },
+  { id: 'comunidad', label: 'Comunidad', hint: 'Moderar chats, muro y comunidades' },
+  { id: 'ajustes', label: 'Ajustes', hint: 'Pasarela de pago y login' },
+  { id: 'roles', label: 'Roles', hint: 'Crear roles y asignarlos a cuentas' },
+]
+
+export const OPERAR_TABS: readonly { readonly id: string; readonly label: string; readonly permission: OperarPermission }[] = [
+  { id: 'rodadas', label: 'Rodadas', permission: 'rodadas' },
+  { id: 'voz', label: 'Tu voz', permission: 'voz' },
+  { id: 'encuestas', label: 'Encuestas', permission: 'encuestas' },
+  { id: 'tienda', label: 'Tienda', permission: 'tienda' },
+  { id: 'parche', label: 'Parche', permission: 'parche' },
+  { id: 'roles', label: 'Roles', permission: 'roles' },
+  { id: 'ajustes', label: 'Ajustes', permission: 'ajustes' },
+]
+
+export const OPERAR_ROLES_COPY = {
+  title: 'Roles y permisos',
+  lead: 'Admin lo puede todo y Usuario no entra al panel. Los demás roles los armas tú.',
+  systemTag: 'Fijo',
+  usersOne: '1 cuenta',
+  usersMany: (n: number) => `${n} cuentas`,
+  allPermissions: 'Todos los permisos',
+  noPermissions: 'Sin acceso al panel',
+  newTitle: 'Nuevo rol',
+  nameLabel: 'Nombre del rol',
+  permissionsLabel: 'Permisos',
+  create: 'Crear rol',
+  save: 'Guardar',
+  edit: 'Editar',
+  cancel: 'Cancelar',
+  remove: 'Borrar',
+  removeConfirm: (name: string) => `¿Borrar el rol ${name}? Sus cuentas pasan a Usuario.`,
+  created: 'Rol creado.',
+  saved: 'Rol guardado.',
+  removed: 'Rol borrado.',
+  usersTitle: 'Cuentas',
+  usersLead: 'Busca por correo o alias y cámbiale el rol.',
+  searchLabel: 'Buscar cuenta',
+  searchPlaceholder: 'correo o alias',
+  roleLabel: 'Rol',
+  youTag: 'Tú',
+  userSaved: 'Rol actualizado.',
+  usersEmpty: 'No hay cuentas con esa búsqueda.',
+  loadFail: 'No se pudieron cargar los roles.',
+  saveFail: 'No se pudo guardar.',
+} as const
 
 export const OPERAR_COPY = {
   kicker: 'Operar',
   title: 'Admin',
   lead: 'Desde aquí publicas rodadas, memorias, tips, productos e integrantes del parche.',
-  tabs: [
-    { id: 'rodadas', label: 'Rodadas' },
-    { id: 'voz', label: 'Tu voz' },
-    { id: 'tienda', label: 'Tienda' },
-    { id: 'parche', label: 'Parche' },
-    { id: 'ajustes', label: 'Ajustes' },
-  ],
-  logout: 'Salir',
-  claveLabel: 'Clave de operadora',
-  enter: 'Entrar',
-  unlockFail: 'Esa clave no entra.',
+  logout: 'Volver a mi cuenta',
+  loading: 'Revisando tu acceso…',
+  guestTitle: 'Entra con tu cuenta',
+  guestLead: 'El panel se abre con tu cuenta. Lo que ves depende de tu rol.',
+  guestCta: 'Entrar',
+  deniedTitle: 'Tu cuenta no tiene acceso al panel',
+  deniedLead: 'Si te toca ayudar a operar, pídele a un admin que te asigne un rol.',
+  failTitle: 'No pude revisar tu acceso',
+  retry: 'Reintentar',
+  roleTag: (alias: string, role: string) => `${alias} · ${role}`,
   kitCta: 'Ver componentes',
   sectionPasarela: 'Pasarela',
   sectionMystery: 'Mazo misterioso',
@@ -35,7 +95,7 @@ export const OPERAR_COPY = {
   sectionAuth: 'Inicio de sesión',
   authTitle: 'Login con Gmail',
   authLead:
-    'Arma el acceso con correo de Google para el portal. La clave de operadora de este panel sigue funcionando igual.',
+    'Arma el acceso con correo de Google para el portal. Los permisos del panel siguen saliendo del rol de cada cuenta.',
   authStepEnable: 'Canal',
   authStepEnableMeta: 'Gmail sí o no',
   authStepKeys: 'Claves',

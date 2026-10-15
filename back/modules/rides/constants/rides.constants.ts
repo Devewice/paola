@@ -25,6 +25,7 @@ export const RIDES_TABLES = {
   OUTINGS: 'outings',
   TICKETS: 'tickets',
   OUTING_ROUTES: 'outing_routes',
+  USERS: 'users',
 } as const
 
 export const WHATSAPP_NON_DIGIT = /\D/g
@@ -32,6 +33,7 @@ export const WHATSAPP_NON_DIGIT = /\D/g
 export const RIDES_ROUTES = {
   LIST: '/api/outings',
   CLAIM: '/api/outings/:id/tickets',
+  CREW: '/api/outings/:id/crew',
   OPERATE_LIST: '/api/operar/outings',
   OPERATE_CREATE: '/api/operar/outings',
   OPERATE_STATUS: '/api/operar/outings/:id/status',
@@ -41,6 +43,8 @@ export const RIDES_MESSAGES = {
   PRIVACY_REQUIRED: 'Necesitas leer el aviso de privacidad para continuar.',
   NAME_REQUIRED: 'El cupo necesita un nombre.',
   WHATSAPP_REQUIRED: 'El cupo necesita un WhatsApp (mínimo 10 dígitos).',
+  ACCOUNT_REQUIRED: 'Para inscribirte necesitas entrar a tu cuenta.',
+  ALREADY_IN: 'Ya estás inscrito en esta salida.',
   NOT_FOUND: 'Esa salida no está.',
   ALREADY_RODE: 'Esa salida ya se rodó. Ya no hay cupos.',
   CLOSED: 'La inscripción está cerrada.',

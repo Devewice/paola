@@ -48,7 +48,7 @@ function submit() {
     :title="copy.deckRegisterTitle"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <p class="meta" style="margin: 0 0 16px">{{ copy.deckRegisterLead }}</p>
+    <p class="meta-text" style="margin: 0 0 16px">{{ copy.deckRegisterLead }}</p>
     <div class="row" style="gap: 8px; margin-bottom: 16px">
       <Button
         size="sm"

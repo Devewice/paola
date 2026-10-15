@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { getAppDependencies } from '@app/bootstrap.ts'
 import { LEGAL_COPY } from '@app/constants/legal.ts'
-import { ALIAS_STORAGE_KEY, CUENTA_COPY, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
+import { ALIAS_STORAGE_KEY, CUENTA_COPY, CUENTA_FIGURE, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import OutingThreadBlock from '@app/shell/OutingThreadBlock.vue'
 import {
   API,
@@ -12,6 +13,7 @@ import {
   apiChatMessages,
   apiFriendAccept,
   apiFriendBlock,
+  appRodada,
 } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
@@ -22,11 +24,17 @@ import Choice from '@ui/Choice.vue'
 import Empty from '@ui/Empty.vue'
 import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
-import ProfileHead from '@ui/ProfileHead.vue'
 import Textarea from '@ui/Textarea.vue'
 import UserPanel from '@ui/UserPanel.vue'
 
-type TicketRow = { id: string; outing_id?: string; outingId?: string; name: string }
+type TicketRow = {
+  id: string
+  outing_id?: string
+  outingId?: string
+  name: string
+  outing_title?: string
+  outing_date?: string
+}
 type OrderRow = { id: string; item_title?: string; itemTitle?: string; status: string }
 type NoteRow = { id: string; kind: string; message: string }
 type FriendRow = { id: string; alias: string; userId: string }
@@ -88,6 +96,13 @@ const chatDraft = ref('')
 const chatPhoto = ref('')
 const chatVoice = ref('')
 const outingThreadId = ref('')
+const rideVotes = ref<ReadonlyMap<string, number>>(new Map())
+const heroStats = computed(() => [
+  { value: panel.value?.tickets.length ?? 0, label: copy.tabTickets },
+  { value: panel.value?.orders.length ?? 0, label: copy.tabOrders },
+  { value: accepted.value.length, label: copy.tabFriends },
+  { value: chats.value.length, label: copy.tabChat },
+])
 
 onMounted(async () => {
   if (!sessionId.value) {
@@ -104,7 +119,18 @@ function sessionHeaders(json = false): Record<string, string> {
 }
 
 async function loadSession(): Promise<void> {
-  await Promise.all([loadPanel(), loadFriends(), loadChats()])
+  await Promise.all([loadPanel(), loadFriends(), loadChats(), loadRideVotes()])
+}
+
+async function loadRideVotes(): Promise<void> {
+  const result = await getAppDependencies().polls.list()
+  if (!result.ok) return
+  const counts = new Map<string, number>()
+  for (const poll of result.value) {
+    if (!poll.outingId || !poll.isInscribed || !poll.isOpen || poll.hasVoted) continue
+    counts.set(poll.outingId, (counts.get(poll.outingId) ?? 0) + 1)
+  }
+  rideVotes.value = counts
 }
 
 async function loadPanel(): Promise<void> {
@@ -248,6 +274,11 @@ function ticketOutingId(ticket: TicketRow): string {
   return ''
 }
 
+function pendingPolls(ticket: TicketRow): number {
+  const outingId = ticketOutingId(ticket)
+  return rideVotes.value.get(outingId) ?? 0
+}
+
 function openOutingThread(ticket: TicketRow): void {
   outingThreadId.value = ticketOutingId(ticket)
 }
@@ -304,34 +335,47 @@ function logout(): void {
       </section>
 
       <template v-else>
-        <header class="cuenta-screen__head" data-reveal>
-          <ProfileHead
-            :name="myAlias || copy.title"
-            :meta="copy.profileMeta"
-            :initial="(myAlias || copy.title).charAt(0)"
-          />
-          <div class="cuenta-screen__actions row">
-            <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feed }}</Button>
-            <Button size="sm" variant="ghost" :to="privacyPath">{{ legal.checkboxLink }}</Button>
-            <Button size="sm" variant="ghost" type="button" @click="logout">{{ copy.logout }}</Button>
+        <header class="poster poster--navy poster--profile has-mascot" data-reveal>
+          <img class="poster__mascot" :src="CUENTA_FIGURE" alt="" aria-hidden="true" loading="lazy" />
+          <span class="poster-avatar" aria-hidden="true">{{ (myAlias || copy.title).charAt(0).toUpperCase() }}</span>
+          <div class="poster__copy">
+            <span class="board-kicker">{{ copy.profileMeta }}</span>
+            <h1 class="type-brush-dry type-brush-dry--xs">{{ myAlias || copy.title }}</h1>
+            <dl class="hub-stats hub-stats--dl">
+              <div v-for="item in heroStats" :key="item.label" class="hub-stat">
+                <dt><span>{{ item.label }}</span></dt>
+                <dd><strong>{{ item.value }}</strong></dd>
+              </div>
+            </dl>
+            <div class="cuenta-screen__actions row">
+              <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feed }}</Button>
+              <Button size="sm" variant="ghost" :to="privacyPath">{{ legal.checkboxLink }}</Button>
+              <Button size="sm" variant="ghost" type="button" @click="logout">{{ copy.logout }}</Button>
+            </div>
           </div>
         </header>
 
         <UserPanel class="cuenta-screen__panel" :tabs="panelTabs" :panels="panelSlots" data-reveal>
           <template #tickets>
             <div class="cuenta-pane stack">
-              <ul v-if="panel.tickets.length" class="cuenta-list">
-                <li v-for="ticket in panel.tickets" :key="ticket.id">
-                  {{ ticket.name }}
-                  <Button
-                    v-if="ticketOutingId(ticket)"
-                    size="sm"
-                    variant="ghost"
-                    type="button"
-                    @click="openOutingThread(ticket)"
-                  >
-                    {{ copy.outingThread }}
-                  </Button>
+              <ul v-if="panel.tickets.length" class="cuenta-list cuenta-rides">
+                <li v-for="ticket in panel.tickets" :key="ticket.id" class="cuenta-ride">
+                  <div class="cuenta-ride__info">
+                    <strong>{{ ticket.outing_title ?? ticket.name }}</strong>
+                    <span v-if="ticket.outing_date" class="meta-text">{{ String(ticket.outing_date).slice(0, 10) }}</span>
+                    <span v-if="pendingPolls(ticket)" class="cuenta-ride__polls">
+                      <strong>{{ pendingPolls(ticket) }}</strong>
+                      {{ pendingPolls(ticket) === 1 ? copy.ticketsPollsOne : copy.ticketsPollsMany }}
+                    </span>
+                  </div>
+                  <div v-if="ticketOutingId(ticket)" class="cuenta-ride__actions">
+                    <Button size="sm" :variant="pendingPolls(ticket) ? 'primary' : 'ghost'" :to="appRodada(ticketOutingId(ticket))">
+                      {{ pendingPolls(ticket) ? copy.ticketsVote : copy.ticketsRide }}
+                    </Button>
+                    <Button size="sm" variant="ghost" type="button" @click="openOutingThread(ticket)">
+                      {{ copy.outingThread }}
+                    </Button>
+                  </div>
                 </li>
               </ul>
               <Empty
@@ -476,13 +520,9 @@ function logout(): void {
   gap: 20px;
 }
 
-.cuenta-screen__head {
-  display: grid;
-  gap: 12px;
-}
-
 .cuenta-screen__actions {
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 @media (max-width: 639px) {
@@ -510,6 +550,43 @@ function logout(): void {
   padding-left: 1.2rem;
   display: grid;
   gap: 6px;
+}
+
+.cuenta-rides {
+  padding-left: 0;
+  list-style: none;
+  gap: 10px;
+}
+
+.cuenta-ride {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(72, 180, 252, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 16, 40, 0.45);
+}
+
+.cuenta-ride__info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cuenta-ride__polls {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paola-cyan, #48b4fc);
+}
+
+.cuenta-ride__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .cuenta-inline {

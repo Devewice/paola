@@ -124,7 +124,7 @@ async function askPay() {
         :title="copy.deliveryTitle"
         :copy="cityOk ? copy.cityOk : copy.cityNo"
       />
-      <p v-if="zoneCopy" class="meta" style="margin: 0">{{ zoneCopy }}</p>
+      <p v-if="zoneCopy" class="meta-text" style="margin: 0">{{ zoneCopy }}</p>
       <div class="shop-checkout__nav">
         <Button variant="ghost" @click="step = CHECKOUT_STEP.PAY">{{ copy.checkoutBack }}</Button>
         <Button @click="step = CHECKOUT_STEP.CLOSE">{{ copy.checkoutNext }}</Button>

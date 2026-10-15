@@ -1,3 +1,5 @@
+import { MASCOT } from '@shared/ui/mascot.ts'
+
 export const KIT_LEAD =
   'Catálogo vivo. Las piezas de @ui son las mismas que usa el portal; el markup restante se va migrando de docs/index.html con extract + remap.'
 
@@ -103,4 +105,16 @@ export const FEED_COPY = {
   followed: 'Listo, ahora sigues esa comunidad.',
   shareOk: 'Enlace copiado.',
   shareFail: 'No se pudo copiar. Copia el enlace desde la barra del navegador.',
+  bandKicker: 'En la web',
+  bandTitle: 'Lo que se mueve',
+  bandPosts: 'Publicaciones',
+  bandCommunities: 'Comunidades',
+  bandPhotos: 'Fotos',
+  railJoinTitle: 'Cuenta lo tuyo',
+  railJoinLead: 'Para mirar no necesitas cuenta. Para publicar, reaccionar o unirte a una comunidad, sí.',
+} as const
+
+export const FEED_FIGURES = {
+  BAND: MASCOT.X5,
+  COMPOSER: MASCOT.LENTE,
 } as const

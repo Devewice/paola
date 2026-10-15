@@ -1,12 +1,16 @@
+import { MASCOT } from '@shared/ui/mascot.ts'
+
 export const SHOP_EMPTY_OWN = 'Aún no hay nada a la venta.'
 
 export const SHOP_EMPTY_COLLAB = 'Aún no hay colaboraciones.'
 
-export const SHOP_EMPTY_FICHA = 'Ese producto no está.'
+export const SHOP_EMPTY_FICHA =
+  'Puede que se haya agotado o que el enlace cambió. Mira lo que hay en la tienda o escríbeme y te cuento.'
 
 export const SHOP_EMPTY_SERVICE = 'Aún no hay lavado de casco.'
 
-export const SHOP_EMPTY_SERVICE_FICHA = 'Ese lavado no está.'
+export const SHOP_EMPTY_SERVICE_FICHA =
+  'Puede que ya no esté publicado o que el enlace cambió. Mira los lavados en la tienda o escríbeme.'
 
 export const SHOP_DELIVERY_COPY =
   'La entrega es gratis en Bogotá y Soacha. Al resto del país todavía no llegamos.'
@@ -138,7 +142,7 @@ export const SHOP_COPY = {
   collabAria: 'Colaboraciones',
   collabNote: 'Las colaboraciones van en su propia lista, no mezcladas con la marca propia.',
   collabEmptyTitle: 'Sin colaboraciones aún',
-  fichaEmptyTitle: 'Sin ficha',
+  fichaEmptyTitle: 'Este producto ya no está',
   deliveryAria: 'Entrega y garantía',
   kindOwn: 'Marca propia',
   kindCollab: 'Colaboración',
@@ -150,7 +154,7 @@ export const SHOP_COPY = {
   serviceIncludes: 'Qué incluye',
   serviceHandover: 'Cómo se entrega el casco',
   serviceTurnaround: 'Tiempo',
-  serviceFichaEmptyTitle: 'Sin ficha de lavado',
+  serviceFichaEmptyTitle: 'Este lavado ya no está',
   serviceMediaLabel: 'Lavado',
   mediaLabel: 'Pieza',
   marketKicker: 'Del oficio',
@@ -168,6 +172,8 @@ export const SHOP_COPY = {
   sortColorDesc: 'Z → A',
   countOne: '1 resultado',
   countMany: 'resultados',
+  emptyCatalogTitle: 'La tienda se está surtiendo',
+  emptyCatalogCopy: 'Pronto subo piezas y lavados. Si buscas algo ya, escríbeme y lo cuadramos.',
   emptyFilterTitle: 'Nada con eso',
   emptyFilterCopy: 'Prueba con otro filtro u otra palabra. Si buscas algo puntual, escríbeme y lo cuadramos.',
   filtersTitle: 'Filtros',
@@ -208,6 +214,23 @@ export const SHOP_COPY = {
   featureOwnTitle: 'Marca propia',
   featureCollabTitle: 'Colaboraciones',
   featureWashTitle: 'Lavado de casco',
+  featureOwnLead: 'Ropa, calcas y piezas con el escudo del parche.',
+  featureCollabLead: 'Lo que hacemos con aliados, en estantería aparte.',
+  featureWashLead: 'Te lo dejo limpio. Si quedó mal, se corrige.',
+  promiseKicker: 'Así compras',
+  promiseTitle: 'Sin vueltas',
+  promiseWashTitle: 'Tu casco, en buenas manos',
+  promiseDelivery: 'Gratis',
+  promiseDeliveryLabel: 'Entrega Bogotá y Soacha',
+  promisePay: 'WhatsApp',
+  promisePayLabel: 'Pago humano primero',
+  promiseWarranty: 'Garantía',
+  promiseWarrantyLabel: 'Defectos de fabricación',
+  promiseWashFix: 'Se corrige',
+  promiseWashFixLabel: 'Si quedó mal',
+  shelfCount: 'en la estantería',
+  shelfOn: 'Quitar filtro',
+  shelfOff: 'Ver solo esto',
   tagOwn: 'P',
   tagCollab: 'C',
   tagWash: 'L',
@@ -255,12 +278,48 @@ export const SHOP_PROMO = {
   text: 'Escríbeme por WhatsApp o correo y cuadramos tu pedido.',
 } as const
 
-export const SHOP_PREFILTERS = [
-  { id: SHOP_FILTER.OWN, tag: SHOP_COPY.tagOwn, label: SHOP_COPY.featureOwnTitle },
-  { id: SHOP_FILTER.COLLAB, tag: SHOP_COPY.tagCollab, label: SHOP_COPY.featureCollabTitle },
-  { id: SHOP_FILTER.SERVICE, tag: SHOP_COPY.tagWash, label: SHOP_COPY.featureWashTitle },
+export const SHOP_PRODUCT_PROMISES = [
+  { value: SHOP_COPY.promiseDelivery, label: SHOP_COPY.promiseDeliveryLabel },
+  { value: SHOP_COPY.promisePay, label: SHOP_COPY.promisePayLabel },
+  { value: SHOP_COPY.promiseWarranty, label: SHOP_COPY.promiseWarrantyLabel },
 ] as const
 
+export const SHOP_SERVICE_PROMISES = [
+  { value: SHOP_COPY.promisePay, label: SHOP_COPY.promisePayLabel },
+  { value: SHOP_COPY.promiseWashFix, label: SHOP_COPY.promiseWashFixLabel },
+] as const
+
+export const SHOP_FIGURES = {
+  PRODUCT_BAND: MASCOT.EN_PIE,
+  SERVICE_BAND: MASCOT.LENTE,
+} as const
+
+export const SHOP_PREFILTERS = [
+  {
+    id: SHOP_FILTER.OWN,
+    tag: SHOP_COPY.tagOwn,
+    label: SHOP_COPY.featureOwnTitle,
+    lead: SHOP_COPY.featureOwnLead,
+    tone: 'navy',
+    mascot: MASCOT.EN_PIE,
+  },
+  {
+    id: SHOP_FILTER.COLLAB,
+    tag: SHOP_COPY.tagCollab,
+    label: SHOP_COPY.featureCollabTitle,
+    lead: SHOP_COPY.featureCollabLead,
+    tone: 'blue',
+    mascot: MASCOT.X5,
+  },
+  {
+    id: SHOP_FILTER.SERVICE,
+    tag: SHOP_COPY.tagWash,
+    label: SHOP_COPY.featureWashTitle,
+    lead: SHOP_COPY.featureWashLead,
+    tone: 'navy',
+    mascot: MASCOT.LENTE,
+  },
+] as const
 export const SHOP_SORT_OPTIONS = [
   { value: SHOP_SORT.NEWEST, label: SHOP_COPY.sortNewest },
   { value: SHOP_SORT.PRICE_ASC, label: SHOP_COPY.sortPriceAsc },

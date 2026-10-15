@@ -54,6 +54,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
     return {
       next: upcoming
         ? {
+            id: upcoming.id,
             title: upcoming.title,
             date: upcoming.date,
             kind: upcoming.kind,

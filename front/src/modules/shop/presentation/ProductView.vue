@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ShopModule } from '@modules/shop/index.ts'
-import { SHOP_COPY, SHOP_EMPTY_FICHA, SHOP_KIND, shopStockCopy } from '@modules/shop/constants/copy.ts'
+import {
+  SHOP_COPY,
+  SHOP_EMPTY_FICHA,
+  SHOP_FIGURES,
+  SHOP_KIND,
+  SHOP_PRODUCT_PROMISES,
+  shopStockCopy,
+} from '@modules/shop/constants/copy.ts'
 import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
 import ShopCheckout from '@modules/shop/presentation/ShopCheckout.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
@@ -13,6 +20,7 @@ import Empty from '@ui/Empty.vue'
 import MediaPlaceholder from '@ui/MediaPlaceholder.vue'
 import ShopFicha from '@ui/ShopFicha.vue'
 import SpecTable from '@ui/SpecTable.vue'
+import StatBand from '@ui/StatBand.vue'
 
 const props = defineProps<{
   module: ShopModule
@@ -49,14 +57,13 @@ const specRows = computed(() => {
 
 <template>
   <article :ref="bindReveal" class="wrap shop-item">
-    <Empty
-      v-if="!product"
-      :title="copy.fichaEmptyTitle"
-      :copy="SHOP_EMPTY_FICHA"
-      :mascot-src="MASCOT.LENTE"
-      :cta-href="contact.whatsappHref"
-      :cta-label="copy.writeCta"
-    />
+    <div v-if="!product" class="shop-item__missing">
+      <Empty compact hide-cta :title="copy.fichaEmptyTitle" :copy="SHOP_EMPTY_FICHA" :mascot-src="MASCOT.LENTE" />
+      <div class="shop-item__missing-actions">
+        <Button :to="APP_PATHS.TIENDA">{{ copy.backCta }}</Button>
+        <Button variant="ghost" :href="contact.whatsappHref" target="_blank">{{ copy.writeCta }}</Button>
+      </div>
+    </div>
     <template v-else>
       <Crumbs :items="crumbs" data-reveal />
       <div class="shop-item__stage" data-reveal>
@@ -83,6 +90,13 @@ const specRows = computed(() => {
           />
         </div>
       </div>
+      <StatBand
+        :kicker="copy.promiseKicker"
+        :title="copy.promiseTitle"
+        :items="SHOP_PRODUCT_PROMISES"
+        :mascot-src="SHOP_FIGURES.PRODUCT_BAND"
+        data-reveal
+      />
     </template>
   </article>
 </template>

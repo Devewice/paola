@@ -7,8 +7,9 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 
 ## Cómo armar una vista
 
-1. Hero a todo el ancho: `KitHero` (Inicio portal) o `AficheHero` (páginas).
+1. Hero a todo el ancho: `KitHero` (Inicio portal) o `AficheHero` (páginas; `compact` en subpáginas).
 2. Cuerpo en `.wrap`. Tablero: `HomeDash`.
+   Secciones con subpáginas (Parchese, Tu voz): portada en bento de `HubTile` (`.hub-bento`; `.hub-bento--flip` pone la pieza grande a la derecha, como en Inicio) + una ruta hija por sección. Pestañas `SectionTabs`, cabecera de sección `BoardHead`.
 3. Cascarón: `MegaHeader` + `SiteFooter` en `App.vue`.
 4. Acciones: `Button` (`primary` | `hero` | `ghost` | `dark` | `danger` | `brush`).
 5. Página sin contenido: `PageVacant`. Bloques vacíos: `Empty` / `EmptyBlock`.
@@ -26,7 +27,12 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 | `KitHero` | Hero full-bleed del kit. `portal`: corte del día. `panelSlides`: mazo de rodadas (dots afuera, borde con resplandor) | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, `panelSlides`, slots `voices` `panel` `footer` `actions` |
 | `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `blankMedia` |
 | `KitHeroFooter` | KPIs bajo el hero portal | `stamp`, `rodadas`, `km`, `integrantes` |
-| `AficheHero` | Hero de página (más bajo que el kit) | `kicker`, `title`, `plate`, `logo`, `photoSrc`, slots `lead` `actions` |
+| `AficheHero` | Hero de página (más bajo que el kit). `compact`: subpáginas, sin panel ni CTA hero | `kicker`, `title`, `plate`, `logo`, `photoSrc`, `compact`, slots `lead` `actions` `panel` |
+| `SectionTabs` | Pestañas entre subpáginas (`router-link`, activa exacta) con estilo `filter-pill` | `label`, `items: { to, tag, label }[]` |
+| `HubTile` | Tarjeta-afiche de la portada de sección: foto o mascota, número, voz, título brocha, CTA. Sin `to`/`href` es botón de alternar (`pressed`, emite `click`). Dentro: `.hub-stats`/`.hub-stat`, `.hub-meta`, `.hub-quote`, `.hub-dates`/`.hub-date` | `title`, `cta`, `to`/`href`, `index`, `kicker`, `voice`, `imageSrc`, `mascotSrc`, `tone` (`navy`/`blue`/`armargura`), `size` (`base`/`hero`/`wide`/`compact`), `pressed`, slot default |
+| `StatBand` | Banda-afiche con cifras grandes al abrir una subpágina (cupos, km, encuestas, promesas de tienda) | `items` (`{ value, label }[]`), `title`, `kicker`, `lead`, `mascotSrc`, `tone`, slot default |
+| `StepsPoster` | Afiche con pasos numerados: vacíos que explican qué viene (memorias, integrantes) y rails de "cómo funciona" | `title`, `kicker`, `lead`, `steps`, `mascotSrc`, `tone`, `wide` (pasos en fila, vacío de página), slot default (botones). Acepta `poster--mascot-top` |
+| `BoardHead` | Cabecera de sección: voz, título, lead y "Ver todo" opcional | `title`, `lead`, `voice`, `moreTo`, `moreLabel` |
 | `HomeDash` | Tablero Inicio: próxima + feed + columna lateral | slots `next` `pulse` `aside` |
 | `DualChannel` | WhatsApp vs web (WA no se apaga) | slots `wa` `web` |
 | `DualCta` | Dos CTAs en grid | default slot |
@@ -34,6 +40,14 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 | `BrushDefs` | SVG filters; una vez en `App.vue` | — |
 
 Clases kit (no son Vue): `.wrap` ancho de contenido · `.stack` columna con gap · `.row` flex wrap · `.top` header del catálogo `/admin/ui`.
+
+Tableros (`kit-overrides.css`): `.board-shell` (pestañas + ruta hija) · `.board` / `.board--hub` (separadores entre extractos) · `.board-section` · `.board-split` + `.board-main` / `.board-rail` (columna lateral sticky ≥960px) · `.board-panel` · `.board-grid` + `.board-card` · `.board-kicker` · `.board-more`.
+
+Variantes de grilla: `.board-grid--numbered` (cifra 01, 02… en Oswald cian sobre cada hijo) · `.board-grid--feature` (la primera `.board-card` ocupa todo el ancho con fondo navy).
+
+Afiches de panel (mismos tonos que `HubTile`): `.poster` + `.poster--navy` / `--blue` / `--armargura`. Mascota: `img.poster__mascot` + `.has-mascot` en el contenedor; el texto que no debe pisarla va en `.poster__copy`. `.poster--mascot-top` la sube a la esquina (paneles con formulario o lista). Perfil: `.poster--profile` + `.poster-avatar`. Cifras en `dl`: `.hub-stats.hub-stats--dl` (`dt` etiqueta, `dd > strong` número). Tira deslizable de tiles: `.tile-strip`.
+
+Combinar sin repetir: cada vista elige una o dos piezas (banda, afiche en el rail, grilla numerada o destacada, tiles compactos). La brocha va en títulos de afiche, no en formularios.
 
 ## Marca / afiche / brocha
 

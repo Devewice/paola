@@ -3,18 +3,19 @@ import type { HomeModule } from '@modules/home/index.ts'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import {
   HOME_BOARD_COPY,
+  HOME_FIGURES,
   HOME_LOGO_SRC,
-  HOME_PAOLA_PHOTO,
   HOME_PULSE_COPY,
 } from '@modules/home/constants/copy.ts'
 import type { KitHeroPanelSlide } from '@ui/KitHero.vue'
 import { parsePublicPost, type PublicPost } from '@app/parsePublicPost.ts'
-import { API, APP_PATHS } from '@shared/http/constants.ts'
+import { API, APP_PATHS, appRodada } from '@shared/http/constants.ts'
 import { runKitHeroEntrance } from '@shared/motion/runKitHero.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import BrushSplash from '@ui/BrushSplash.vue'
 import Button from '@ui/Button.vue'
 import FeedPost from '@ui/FeedPost.vue'
+import HubTile from '@ui/HubTile.vue'
 import Icon from '@ui/Icon.vue'
 import KitHero from '@ui/KitHero.vue'
 import KitHeroFooter from '@ui/KitHeroFooter.vue'
@@ -55,7 +56,7 @@ const panelSlides = computed((): readonly KitHeroPanelSlide[] => {
       fecha: card.date,
       splash: card.splash,
       ctaLabel: copy.nextCta,
-      ctaTo: APP_PATHS.PARCHESE,
+      ctaTo: APP_PATHS.PARCHESE_RODADAS,
     }))
   }
   return [
@@ -70,7 +71,7 @@ const panelSlides = computed((): readonly KitHeroPanelSlide[] => {
       fecha: '—',
       splash: copy.splashSoon,
       ctaLabel: copy.nextCta,
-      ctaTo: APP_PATHS.PARCHESE,
+      ctaTo: APP_PATHS.PARCHESE_RODADAS,
     },
   ]
 })
@@ -129,7 +130,7 @@ onMounted(async () => {
         <VoiceBadge voice="armargura" />
       </template>
       <template #actions>
-        <Button variant="brush" :to="APP_PATHS.PARCHESE">{{ copy.nextCta }}</Button>
+        <Button variant="brush" :to="APP_PATHS.PARCHESE_RODADAS">{{ copy.nextCta }}</Button>
         <Button variant="ghost" :href="board.join.href" target="_blank">
           {{ board.join.label }}
           <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
@@ -170,7 +171,7 @@ onMounted(async () => {
             <template v-else>{{ copy.nextNoCapacity }}</template>
           </p>
           <div class="home-next__actions">
-            <Button variant="primary" :to="APP_PATHS.PARCHESE">{{ copy.nextCtaDetail }}</Button>
+            <Button variant="primary" :to="appRodada(next.id)">{{ copy.nextCtaDetail }}</Button>
           </div>
         </div>
 
@@ -185,10 +186,14 @@ onMounted(async () => {
               {{ board.join.label }}
               <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
             </Button>
-            <Button variant="ghost" :to="APP_PATHS.PARCHESE">{{ copy.nextAgendaCta }}</Button>
+            <Button variant="ghost" :to="APP_PATHS.PARCHESE_RODADAS">{{ copy.nextAgendaCta }}</Button>
           </div>
         </div>
       </section>
+
+      <div v-if="$slots.polls" class="home-polls" data-reveal>
+        <slot name="polls" />
+      </div>
 
       <section class="home-voices" data-reveal>
         <header class="home-board__head">
@@ -197,57 +202,45 @@ onMounted(async () => {
           <p>{{ copy.voicesLead }}</p>
         </header>
 
-        <div class="home-voices__grid">
-          <article class="home-voice home-voice--loigca">
-            <VoiceBadge voice="loigca" />
-            <h3>{{ board.voice.tip?.title ?? copy.loigcaTitle }}</h3>
-            <p class="home-voice__text">{{ board.voice.tip?.body ?? copy.loigcaEmpty }}</p>
-            <div class="home-voice__actions">
-              <Button variant="ghost" size="sm" :to="board.voice.to">{{ copy.loigcaCta }}</Button>
-              <Button
-                v-if="board.voice.tip?.officialHref"
-                variant="ghost"
-                size="sm"
-                :href="board.voice.tip.officialHref"
-                target="_blank"
-              >
-                {{ copy.officialCta }}
-              </Button>
-            </div>
-          </article>
-
-          <article class="home-voice home-voice--incauta">
-            <img
-              v-if="board.memory?.photoSrc"
-              :src="board.memory.photoSrc"
-              :alt="board.memory.title"
-              class="home-voice__photo"
-            />
-            <VoiceBadge voice="incauta" />
-            <h3>{{ board.memory?.title ?? copy.incautaTitle }}</h3>
-            <p v-if="board.memory" class="home-voice__meta">
+        <div class="hub-bento hub-bento--flip">
+          <HubTile
+            size="hero"
+            tone="blue"
+            voice="incauta"
+            :to="APP_PATHS.PARCHESE_MEMORIAS"
+            :image-src="board.memory?.photoSrc"
+            :mascot-src="board.memory?.photoSrc ? undefined : HOME_FIGURES.MEMORY"
+            :title="board.memory?.title ?? copy.incautaTitle"
+            :cta="copy.incautaCta"
+          >
+            <p v-if="board.memory" class="hub-tile__kicker">
               {{ board.memory.date }} · {{ board.memory.km }} {{ copy.kmUnit }} · {{ board.memory.credit }}
             </p>
-            <p class="home-voice__text">{{ board.memory?.closingText ?? copy.incautaEmpty }}</p>
-            <div class="home-voice__actions">
-              <Button variant="ghost" size="sm" :to="`${APP_PATHS.PARCHESE}#memorias`">
-                {{ copy.incautaCta }}
-              </Button>
-            </div>
-          </article>
-
-          <article class="home-voice home-voice--armargura">
-            <img :src="HOME_PAOLA_PHOTO" alt="" class="home-voice__backdrop" />
-            <VoiceBadge voice="armargura" />
-            <h3>{{ copy.armarguraTitle }}</h3>
-            <blockquote class="home-voice__quote">
+            <p class="hub-meta">{{ board.memory?.closingText ?? copy.incautaEmpty }}</p>
+          </HubTile>
+          <HubTile
+            tone="navy"
+            voice="loigca"
+            :to="board.voice.to"
+            :mascot-src="HOME_FIGURES.TIP"
+            :title="board.voice.tip?.title ?? copy.loigcaTitle"
+            :cta="copy.loigcaCta"
+          >
+            <p class="hub-quote">{{ board.voice.tip?.body ?? copy.loigcaEmpty }}</p>
+          </HubTile>
+          <HubTile
+            tone="armargura"
+            voice="armargura"
+            :to="board.paola.to"
+            :mascot-src="HOME_FIGURES.PAOLA"
+            :title="copy.armarguraTitle"
+            :cta="copy.paolaCta"
+          >
+            <p class="hub-quote">
               {{ board.paola.phrase }}
-              <cite>{{ copy.paolaCite }}</cite>
-            </blockquote>
-            <div class="home-voice__actions">
-              <Button variant="ghost" size="sm" :to="board.paola.to">{{ copy.paolaCta }}</Button>
-            </div>
-          </article>
+              <strong>{{ copy.paolaCite }}</strong>
+            </p>
+          </HubTile>
         </div>
       </section>
 
@@ -258,7 +251,7 @@ onMounted(async () => {
             <h2>{{ pulseCopy.heading }}</h2>
             <p>{{ pulseCopy.lead }}</p>
           </div>
-          <Button variant="ghost" size="sm" :to="APP_PATHS.FEED">{{ pulseCopy.cta }}</Button>
+          <Button v-if="pulse.length" variant="ghost" size="sm" :to="APP_PATHS.FEED">{{ pulseCopy.cta }}</Button>
         </header>
 
         <div v-if="pulse.length" class="home-pulse__grid">
@@ -273,9 +266,18 @@ onMounted(async () => {
             :highlighted="item.isHighlighted"
           />
         </div>
-        <div v-else class="home-pulse__empty">
-          <strong>{{ pulseCopy.emptyTitle }}</strong>
-          <p>{{ pulseCopy.empty }}</p>
+        <div v-else class="hub-bento">
+          <HubTile
+            size="wide"
+            tone="armargura"
+            :to="APP_PATHS.FEED"
+            :mascot-src="HOME_FIGURES.PULSE"
+            :kicker="pulseCopy.kicker"
+            :title="pulseCopy.emptyTitle"
+            :cta="pulseCopy.emptyCta"
+          >
+            <p class="hub-meta">{{ pulseCopy.empty }}</p>
+          </HubTile>
         </div>
       </section>
     </main>
@@ -471,122 +473,6 @@ onMounted(async () => {
   gap: 24px;
 }
 
-.home-voices__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.home-voice {
-  --voice-accent: var(--paola-cyan, #48b4fc);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 24px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: rgba(0, 16, 40, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-top: 3px solid var(--voice-accent);
-  min-width: 0;
-}
-
-.home-voice--incauta {
-  --voice-accent: var(--paola-incauta, #f2c14e);
-}
-
-.home-voice--armargura {
-  --voice-accent: var(--paola-armargura, #e0566b);
-}
-
-.home-voice > * {
-  position: relative;
-  z-index: 1;
-}
-
-.home-voice h3 {
-  margin: 0;
-  font-family: var(--display, Oswald, sans-serif);
-  font-size: 22px;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.home-voice__text {
-  margin: 0;
-  color: var(--paola-muted, #9aa3b2);
-  font-size: 14px;
-  line-height: 1.55;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.home-voice__meta {
-  margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--voice-accent);
-}
-
-.home-voice__photo {
-  width: calc(100% + 48px);
-  max-width: none;
-  margin: -24px -24px 4px;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-
-.home-voice__backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
-  opacity: 0.22;
-  filter: grayscale(0.4);
-}
-
-.home-voice--armargura::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(180deg, rgba(5, 7, 12, 0.35) 0%, rgba(5, 7, 12, 0.92) 70%);
-}
-
-.home-voice__quote {
-  margin: 0;
-  font-size: 17px;
-  font-style: italic;
-  line-height: 1.5;
-}
-
-.home-voice__quote cite {
-  display: block;
-  margin-top: 8px;
-  font-size: 12px;
-  font-style: normal;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--voice-accent);
-}
-
-.home-voice__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 4px;
-}
-
 /* El parche en vivo */
 .home-pulse {
   display: grid;
@@ -608,40 +494,10 @@ onMounted(async () => {
   align-items: start;
 }
 
-.home-pulse__empty {
-  display: grid;
-  gap: 4px;
-  padding: 20px 24px;
-  border-radius: 14px;
-  border-left: 3px solid var(--paola-cyan, #48b4fc);
-  background: rgba(0, 16, 40, 0.35);
-}
-
-.home-pulse__empty strong {
-  font-family: var(--display, Oswald, sans-serif);
-  font-size: 18px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.home-pulse__empty p {
-  margin: 0;
-  color: var(--paola-muted, #9aa3b2);
-  font-size: 14px;
-}
-
 @media (max-width: 959px) {
   .home-board {
     gap: 40px;
     padding-block: 28px 56px;
-  }
-
-  .home-voices__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .home-voice--armargura {
-    grid-column: 1 / -1;
   }
 }
 
@@ -664,10 +520,6 @@ onMounted(async () => {
 }
 
 @media (max-width: 639px) {
-  .home-voices__grid {
-    grid-template-columns: 1fr;
-  }
-
   .home-next__actions :deep(.btn),
   .home-next__actions > * {
     width: 100%;

@@ -1,23 +1,72 @@
-export const TIPS_EMPTY_COPY = 'Aún no hay tips.'
+import { APP_PATHS } from '@shared/http/constants.ts'
+import { MASCOT } from '@shared/ui/mascot.ts'
 
-export const FINES_EMPTY_COPY = 'Aún no hay guía de comparendos.'
+export const TIPS_EMPTY_COPY = 'Apenas suba uno, sale aquí.'
 
-export const REPORTS_EMPTY_COPY = 'Aún no hay reportes publicados.'
+export const FINES_EMPTY_COPY = 'Apenas publique una guía, sale aquí.'
+
+export const REPORTS_EMPTY_COPY = 'Los que revise y apruebe salen aquí.'
 
 export const VOICE_HERO_PHOTO = '/kit-assets/paola-moto.png'
+
+export const VOICE_TIPS_FIGURE = '/kit-assets/paola-hero.png'
+
+export const VOICE_FIGURES = {
+  TIPS_RAIL: MASCOT.TUMBADA,
+  REPORT_FORM: MASCOT.LENTE,
+  POLLS_BAND: MASCOT.X5,
+  POLLS_RIDE: MASCOT.TUMBADA,
+} as const
 
 export const VOICE_COPY = {
   kicker: 'Moto Loigca',
   title: 'Tu voz',
-  plate: 'Voz',
-  lead: 'Tips de vía, comparendos y reportes del parche. Aquí no tramitamos comparendos ni damos asesoría jurídica.',
+  plate: 'Lo que el parche sabe',
+  lead: 'Tips de vía, comparendos, reportes y encuestas del parche. Aquí no tramitamos comparendos ni damos asesoría jurídica.',
   heroCta: 'Dejar un reporte',
+  navAria: 'Secciones de Tu voz',
+  navHub: 'Resumen',
   navTips: 'Tips',
   navFines: 'Comparendos',
   navReports: 'Reportes',
+  navPolls: 'Encuestas',
+  tileTipsCount: 'Tips publicados',
+  tileTipsCta: 'Ver todos los tips',
+  tileFinesLead: 'Qué suele significar cada comparendo y dónde consultarlo.',
+  tileFinesCount: 'Guías',
+  tileFinesCta: 'Ver guías',
+  tileReportsCount: 'Publicados',
+  tileReportsCta: 'Ver y reportar',
+  tilePollsKicker: 'Tú decides',
+  tilePollsOpen: 'Abiertas',
+  tilePollsEmpty: 'Cuando haya algo para decidir entre todos, sale aquí.',
+  tilePollsCta: 'Ver encuestas',
+  bandPollsTitle: 'Tu voto cuenta',
+  bandPollsOpen: 'Abiertas',
+  bandPollsClosed: 'Cerradas',
+  bandPollsVoted: 'Ya votaste',
+  pollsHowKicker: 'Moto Loigca',
+  pollsHowTitle: 'Cómo se vota',
+  pollsHowSteps: [
+    'Eliges, ordenas o calificas según la pregunta.',
+    'Votas una sola vez por encuesta.',
+    'Ves cómo va apenas votas.',
+    'Lo que gana, lo armamos en la próxima salida.',
+  ],
+  pollsIdeaKicker: 'Paola Armargura',
+  pollsIdeaTitle: '¿Qué preguntamos?',
+  pollsIdeaLead: 'Si tienes una ruta, una fecha o una duda para el parche, escríbeme y la ponemos a votar.',
+  pollsRideKicker: 'En cada salida',
+  pollsRideTitle: 'Encuestas de rodada',
+  pollsRideCta: 'Ver rodadas',
+  pollsRideTo: APP_PATHS.PARCHESE_RODADAS,
+  heroTips: { plate: 'Lo que conviene saber', lead: 'Tips cortos para la calle. Si hay fuente oficial, va el enlace.' },
+  heroFines: { plate: 'Solo educación', lead: 'Qué suele significar cada comparendo y dónde consultarlo. Aquí no se tramita nada.' },
+  heroReports: { plate: 'Constancia del parche', lead: 'Lo que pasó en la vía, revisado antes de publicarse. Sin linchamientos ni datos personales.' },
+  heroPolls: { plate: 'Tú decides', lead: 'Rutas, fechas y lo que sigue. Votas una vez y ves cómo va.' },
   tipsHeading: 'Tips de vía',
   tipsLead: 'Lo que conviene saber en la calle, dicho claro y sin vueltas de abogado.',
-  tipsEmpty: 'Aún no hay tips. Apenas suba uno, sale aquí.',
+  tipsEmpty: 'Aún no hay tips',
   tipsRailTitle: 'Cómo leer esto',
   tipsRailItems: [
     'Es orientación del parche, no un código de tránsito.',
@@ -27,13 +76,13 @@ export const VOICE_COPY = {
   tipOfficial: 'Fuente oficial',
   finesHeading: 'Comparendos',
   finesLead: 'Solo educación: qué suele significar y por dónde consultar. Aquí no tramitamos ni representamos.',
-  finesEmpty: 'Aún no hay guías. Apenas publique una, sale aquí.',
+  finesEmpty: 'Aún no hay guías',
   finesOfficial: 'Consulta oficial',
   finesRailTitle: 'Antes de pagar o pelear',
   reportsHeading: 'Reportes del parche',
-  reportsLead: 'Deja constancia de lo que pasó en la vía para que el parche esté atento. No reemplaza una denuncia ante la autoridad. Sin linchamientos, sin menores y sin datos personales.',
+  reportsLead: 'Deja constancia de lo que pasó en la vía para que el parche esté atento.',
   publishedHeading: 'Publicados',
-  publishedEmpty: 'Aún no hay reportes publicados. Los que revise y apruebe salen aquí.',
+  publishedEmpty: 'Aún no hay reportes',
   formHeading: 'Enviar a moderación',
   formLead: 'Cuenta qué pasó, dónde y cuándo. Yo reviso antes de que se vea en el parche.',
   formTitle: 'Título corto',
@@ -51,6 +100,16 @@ export const VOICE_COPY = {
   featuredKicker: 'Tip del momento',
   featuredEmpty: 'Pronto hay tip de vía aquí.',
 } as const
+
+export const VOICE_NAV = [
+  { to: APP_PATHS.TU_VOZ, tag: '01', label: VOICE_COPY.navHub },
+  { to: APP_PATHS.TU_VOZ_TIPS, tag: '02', label: VOICE_COPY.navTips },
+  { to: APP_PATHS.TU_VOZ_COMPARENDOS, tag: '03', label: VOICE_COPY.navFines },
+  { to: APP_PATHS.TU_VOZ_REPORTES, tag: '04', label: VOICE_COPY.navReports },
+  { to: APP_PATHS.TU_VOZ_ENCUESTAS, tag: '05', label: VOICE_COPY.navPolls },
+] as const
+
+export const VOICE_REPORT_ANCHOR = 'reportar'
 
 export const VOICE_ADMIN_COPY = {
   tipTitle: 'Nuevo tip de vía',

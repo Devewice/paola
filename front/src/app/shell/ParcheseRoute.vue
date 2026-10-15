@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, provide, ref, watch } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
-import { PARCHESE_COPY, PARCHESE_HERO_PHOTO } from '@app/constants/parchese.ts'
-import ClubRoster from '@modules/club/presentation/ClubRoster.vue'
-import { remainingSpots } from '@modules/rides/index.ts'
-import AgendaSection from '@modules/rides/presentation/AgendaSection.vue'
-import MemoriasSection from '@modules/rides/presentation/MemoriasSection.vue'
+import { PARCHESE_COPY, PARCHESE_HERO_PHOTO, PARCHESE_NAV } from '@app/constants/parchese.ts'
+import { PARCHESE_CONTEXT, shortDate } from '@app/shell/parchese/context.ts'
+import type { Poll } from '@modules/polls/index.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
-import { APP_PATHS } from '@shared/http/constants.ts'
 import AficheHero from '@ui/AficheHero.vue'
 import Button from '@ui/Button.vue'
-import DualChannel from '@ui/DualChannel.vue'
-import GuidelinesList from '@ui/GuidelinesList.vue'
 import Icon from '@ui/Icon.vue'
-import VoiceCard from '@ui/VoiceCard.vue'
+import SectionTabs from '@ui/SectionTabs.vue'
 
 const copy = PARCHESE_COPY
+const route = useRoute()
 const bindReveal = usePageReveal()
 const stamp = ref(0)
 
@@ -30,14 +27,62 @@ const deps = computed(() => {
 })
 
 const rides = computed(() => deps.value.rides)
-const club = computed(() => deps.value.club)
-const join = computed(() => club.value.getJoinChannel())
-const nextOuting = computed(() => rides.value.nextOpenOuting())
+const join = computed(() => deps.value.club.getJoinChannel())
+
+const SUBPAGE_HEROES: Record<string, { title: string; plate: string; lead: string }> = {
+  'parchese-rodadas': { title: copy.navAgenda, ...copy.heroRides },
+  'parchese-memorias': { title: copy.navMemories, ...copy.heroMemories },
+  'parchese-el-parche': { title: copy.navMembers, ...copy.heroRoster },
+}
+const rideHero = computed(() => {
+  if (route.name !== 'parchese-rodada') return null
+  const outing = rides.value.getOuting(String(route.params.id ?? ''))
+  if (!outing) return { title: copy.navAgenda, ...copy.heroRides }
+  return {
+    title: outing.title,
+    plate: copy.heroRidePlate,
+    lead: `${shortDate(outing.date)} · ${outing.meetingPoint}`,
+  }
+})
+const subpage = computed(() => rideHero.value ?? SUBPAGE_HEROES[String(route.name)] ?? null)
+
+const polls = ref<readonly Poll[]>([])
+const rideIds = computed(() => new Set(rides.value.listOutings().map((outing) => outing.id)))
+
+async function reloadPolls(): Promise<void> {
+  const result = await deps.value.polls.list()
+  polls.value = result.ok ? result.value.filter((poll) => poll.outingId) : []
+}
+
+watch(() => deps.value.polls, () => void reloadPolls(), { immediate: true })
+
+function pollsFor(outingId: string): readonly Poll[] {
+  return polls.value.filter((poll) => poll.outingId === outingId)
+}
+
+function onVoted(poll: Poll) {
+  polls.value = polls.value.map((item) => (item.id === poll.id ? poll : item))
+}
+
+const orphanPolls = computed(() => polls.value.filter((poll) => poll.outingId && !rideIds.value.has(poll.outingId)))
+
+provide(PARCHESE_CONTEXT, { deps, pollsFor, orphanPolls, onVoted, reloadPolls })
 </script>
 
 <template>
   <div :ref="bindReveal" class="parchese-page">
     <AficheHero
+      v-if="subpage"
+      compact
+      :kicker="copy.title"
+      :title="subpage.title"
+      :plate="subpage.plate"
+      :photo-src="PARCHESE_HERO_PHOTO"
+    >
+      <template #lead>{{ subpage.lead }}</template>
+    </AficheHero>
+    <AficheHero
+      v-else
       :kicker="copy.kicker"
       :title="copy.title"
       :plate="copy.plate"
@@ -51,68 +96,11 @@ const nextOuting = computed(() => rides.value.nextOpenOuting())
           <Icon name="whatsapp" size="sm" tone="white" :circle="false" />
         </Button>
       </template>
-      <template #panel>
-        <VoiceCard voice="loigca">
-          <p class="parchese-page__panel-kicker">{{ copy.panelKicker }}</p>
-          <template v-if="nextOuting">
-            <strong class="parchese-page__panel-title">{{ nextOuting.title }}</strong>
-            <p class="parchese-page__panel-meta">
-              {{ nextOuting.date }} · {{ nextOuting.meetingPoint }}
-            </p>
-            <p class="parchese-page__panel-spots">
-              <span>{{ remainingSpots(nextOuting) }}</span>
-              {{ copy.panelSpots }} · {{ nextOuting.taken }} / {{ nextOuting.capacity }}
-            </p>
-            <Button variant="ghost" size="sm" href="#agenda">{{ copy.panelCta }}</Button>
-          </template>
-          <p v-else class="meta">{{ copy.panelEmpty }}</p>
-        </VoiceCard>
-      </template>
     </AficheHero>
 
-    <main class="wrap parchese-board">
-      <nav class="parchese-board__nav filter-pills" :aria-label="copy.title" data-reveal>
-        <a class="filter-pill" href="#agenda">{{ copy.navAgenda }}</a>
-        <a class="filter-pill" href="#memorias">{{ copy.navMemories }}</a>
-        <a class="filter-pill" href="#integrantes">{{ copy.navMembers }}</a>
-        <a class="filter-pill" href="#alianzas">{{ copy.navAllies }}</a>
-      </nav>
-
-      <div id="agenda" class="parchese-board__split" data-reveal>
-        <AgendaSection :module="rides" />
-
-        <aside class="parchese-board__rail">
-          <div class="parchese-board__rail-block">
-            <h3>{{ copy.railJoinTitle }}</h3>
-            <p class="meta">{{ join.copy }}</p>
-            <Button size="sm" :href="join.href" target="_blank">{{ join.cta }}</Button>
-          </div>
-          <div class="parchese-board__rail-block">
-            <h3>{{ copy.railHowTitle }}</h3>
-            <GuidelinesList :items="copy.railHowItems" />
-          </div>
-          <div class="parchese-board__rail-block">
-            <h3>{{ copy.railTalkTitle }}</h3>
-            <DualChannel>
-              <template #wa>
-                <p class="meta">{{ copy.railTalkWa }}</p>
-              </template>
-              <template #web>
-                <p class="meta">{{ copy.railTalkWeb }}</p>
-                <Button variant="ghost" size="sm" :to="APP_PATHS.FEED">{{ copy.railFeed }}</Button>
-              </template>
-            </DualChannel>
-          </div>
-        </aside>
-      </div>
-
-      <div id="memorias" class="parchese-board__section" data-reveal>
-        <MemoriasSection :module="rides" />
-      </div>
-
-      <div class="parchese-board__section" data-reveal>
-        <ClubRoster :module="club" />
-      </div>
+    <main class="wrap board-shell">
+      <SectionTabs :label="copy.navAria" :items="PARCHESE_NAV" />
+      <RouterView />
     </main>
   </div>
 </template>
@@ -120,114 +108,5 @@ const nextOuting = computed(() => rides.value.nextOpenOuting())
 <style scoped>
 .parchese-page {
   width: 100%;
-}
-
-.parchese-page__panel-kicker {
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--paola-muted, #9aa3b2);
-}
-
-.parchese-page__panel-title {
-  display: block;
-  font-family: var(--display, Oswald, sans-serif);
-  font-size: 20px;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.parchese-page__panel-meta {
-  margin: 6px 0 12px;
-  color: var(--paola-muted, #9aa3b2);
-  font-size: 14px;
-}
-
-.parchese-page__panel-spots {
-  margin: 0 0 14px;
-  font-size: 13px;
-  color: var(--paola-muted, #9aa3b2);
-}
-
-.parchese-page__panel-spots span {
-  font-family: var(--display, Oswald, sans-serif);
-  font-size: 28px;
-  color: var(--paola-cyan, #48b4fc);
-  margin-right: 4px;
-}
-
-.parchese-board {
-  display: grid;
-  gap: 48px;
-  padding-block: 32px 64px;
-}
-
-.parchese-board__nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.parchese-board__nav .filter-pill {
-  text-decoration: none;
-}
-
-.parchese-board__split {
-  display: grid;
-  gap: 24px 32px;
-  align-items: start;
-  scroll-margin-top: 96px;
-}
-
-.parchese-board__section {
-  scroll-margin-top: 96px;
-  min-width: 0;
-}
-
-.parchese-board__rail {
-  display: grid;
-  gap: 16px;
-  min-width: 0;
-}
-
-.parchese-board__rail-block {
-  display: grid;
-  gap: 10px;
-  padding: 16px;
-  border: 1px solid rgba(72, 180, 252, 0.18);
-  border-radius: 12px;
-  background: rgba(0, 16, 40, 0.35);
-}
-
-.parchese-board__rail-block :deep(.where-we-talk) {
-  grid-template-columns: 1fr;
-}
-
-.parchese-board__rail-block h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-@media (min-width: 960px) {
-  .parchese-board__split {
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 20rem);
-  }
-
-  .parchese-board__rail {
-    position: sticky;
-    top: 96px;
-  }
-}
-
-@media (max-width: 959px) {
-  .parchese-board {
-    gap: 32px;
-    padding-block: 24px 48px;
-  }
 }
 </style>

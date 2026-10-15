@@ -12,6 +12,15 @@ import {
 import { createHomeModule, type HomeModule } from '@modules/home/index.ts'
 import { createPaolaModule, type PaolaModule } from '@modules/paola/index.ts'
 import {
+  BrowserVoterIdentity,
+  createPollsModule,
+  HttpPollsAdminApi,
+  HttpPollsApi,
+  InMemoryPollsAdminApi,
+  InMemoryPollsApi,
+  type PollsModule,
+} from '@modules/polls/index.ts'
+import {
   createRidesModule,
   loadMemoryCatalog,
   loadOutingCatalog,
@@ -65,6 +74,7 @@ export type AppDependencies = {
   voice: VoiceModule
   shop: ShopModule
   home: HomeModule
+  polls: PollsModule
 }
 
 let dependencies: AppDependencies | null = null
@@ -127,7 +137,13 @@ function wire(
     ordersMode === 'http' ? new HttpMysteryDeckApi() : new InMemoryMysteryDeckApi(),
   )
   const home = createHomeModule(new ComposedHomeBoardAdapter(rides, club, voice, paola))
-  dependencies = { paola, club, rides, voice, shop, home }
+  const voter = new BrowserVoterIdentity(SESSION_STORAGE_KEY)
+  const polls = createPollsModule(
+    ordersMode === 'http' ? new HttpPollsApi(voter) : new InMemoryPollsApi(),
+    ordersMode === 'http' ? new HttpPollsAdminApi() : new InMemoryPollsAdminApi(),
+    voter,
+  )
+  dependencies = { paola, club, rides, voice, shop, home, polls }
   return dependencies
 }
 

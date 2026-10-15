@@ -34,20 +34,53 @@ export const RIDES_AGENDA_COPY = {
   outingThread: 'Chat de esta salida',
 } as const
 
-export const RIDES_CLAIM_COPY = {
-  kicker: 'Anótate a la rodada',
-  paidNotice: 'Esta rodada tiene costo. Te anotas aquí y el pago lo cuadramos por WhatsApp.',
-  nameLabel: 'Nombre',
-  namePlaceholder: 'Tu nombre',
+export const RIDES_SIGNUP_COPY = {
+  kicker: 'Inscríbete a la rodada',
+  paidNotice: 'Esta rodada tiene costo. Te inscribes aquí y el pago lo cuadramos por WhatsApp.',
+  guestLead: 'Para rodar con nosotros necesitas cuenta: así guardo tu cupo, te paso las encuestas de la salida y ves quién va.',
+  guestCta: 'Entrar e inscribirme',
+  asAlias: 'Te inscribes como',
+  firstTimeLead: 'Es tu primera rodada: déjame tu WhatsApp para confirmarte el cupo. Queda guardado en tu cuenta.',
   whatsappLabel: 'WhatsApp',
   whatsappPlaceholder: '312 000 0000',
   motoLabel: 'Moto (opcional)',
   motoPlaceholder: 'Si vas en moto',
-  submit: 'Anotarme',
-  doneTitle: 'Cupo apartado',
-  doneCopy: 'Tu cupo quedó apartado. Escríbeme por WhatsApp o correo para confirmarlo y te paso los detalles.',
-  doneWhatsapp: 'Avisar por WhatsApp',
-  doneMail: 'Avisar por correo',
+  submit: 'Inscribirme',
+  sending: 'Inscribiendo…',
+  insideTitle: 'Ya estás dentro',
+  insideCopy: 'Tu cupo quedó a tu nombre. Escríbeme para confirmarlo y te paso los detalles.',
+  insideWhatsapp: 'Confirmar por WhatsApp',
+  insideMail: 'Confirmar por correo',
+  loading: 'Revisando tu cupo…',
+  loadFail: 'No pudimos revisar tu cupo. Recarga la página.',
+  noticeBody: (title: string, date: string, alias: string) =>
+    `Hola, ya me inscribí a ${title} (${date}) desde la web. Soy ${alias}.`,
+} as const
+
+export const RIDES_CARD_COPY = {
+  signupCta: 'Inscribirme',
+  detailCta: 'Ver la rodada',
+  pollsOne: 'encuesta para inscritos',
+  pollsMany: 'encuestas para inscritos',
+} as const
+
+export const RIDES_PAGE_COPY = {
+  back: '← Todas las rodadas',
+  notFoundTitle: 'Esa rodada no está',
+  notFoundCopy: 'Puede que ya se haya rodado o que el enlace esté viejo.',
+  pollsTitle: 'Decide con el parche',
+  pollsLead: 'Las ves todos; votan quienes están inscritos.',
+  pollsEmpty: 'Esta salida aún no tiene encuestas.',
+  crewTitle: 'Quiénes van',
+  crewLockedTitle: 'Inscríbete y ves quién va',
+  crewLockedSteps: [
+    'Te inscribes con tu cuenta.',
+    'Votas las encuestas de la salida.',
+    'Ves quién rueda contigo y entras al chat.',
+  ],
+  crewEmpty: 'Vas de primero. Comparte la rodada con tu parche.',
+  crewChat: 'Abrir el chat en mi cuenta',
+  crewNoMoto: 'Moto por confirmar',
 } as const
 
 export const RIDES_MEMORIES_COPY = {
@@ -68,8 +101,20 @@ export const RIDES_MEMORIES_COPY = {
   commentSent: 'Comentario enviado. Sale publicado apenas lo revisemos.',
   commentAuthorFallback: 'parcero',
   emptyTitle: 'Sin recuento aún',
+  archiveHeading: 'Salidas anteriores',
+  archiveCta: 'Ver memoria',
+  bandTitle: 'Kilómetros juntos',
+  emptyKicker: 'Cámara Incauta',
+  emptySteps: [
+    'Rodamos juntos una salida.',
+    'Tomo fotos en ruta y en las paradas.',
+    'Sale aquí el recuento con km, fotos y quién rodó.',
+  ],
+  emptyCta: 'Ver próximas rodadas',
+  railKicker: 'Esta salida',
+  railKm: 'Km',
+  railPhotos: 'Fotos',
 } as const
-
 export const RIDES_ADMIN_COPY = {
   boardTitle: 'Salidas publicadas',
   boardLead: 'Cupos, inscritos y estado. Al terminar una rodada, márcala realizada para poder subir su memoria.',
@@ -140,4 +185,5 @@ export const RIDES_MESSAGES = {
   SALIDA_PARSE_FAIL: 'No pudimos leer la salida. Recarga la página.',
   MEMORIA_PARSE_FAIL: 'No pudimos leer la memoria. Recarga la página.',
   BOARD_PARSE_FAIL: 'No pudimos leer la lista de cupos. Recarga la página.',
+  CREW_PARSE_FAIL: 'No pudimos revisar tu cupo. Recarga la página.',
 } as const

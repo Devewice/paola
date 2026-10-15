@@ -42,9 +42,9 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
       {
         title: 'Parchese',
         links: [
-          { label: 'Próxima rodada', note: 'Fecha, cupo y punto de encuentro', to: `${APP_PATHS.PARCHESE}#agenda` },
-          { label: 'Memorias', note: 'Fotos y kilómetros de cada salida', to: `${APP_PATHS.PARCHESE}#memorias` },
-          { label: 'Integrantes', note: 'Quiénes ruedan con el parche', to: `${APP_PATHS.PARCHESE}#integrantes` },
+          { label: 'Rodadas', note: 'Fecha, cupo y punto de encuentro', to: APP_PATHS.PARCHESE_RODADAS },
+          { label: 'Memorias', note: 'Fotos y kilómetros de cada salida', to: APP_PATHS.PARCHESE_MEMORIAS },
+          { label: 'El parche', note: 'Quiénes ruedan y quiénes apoyan', to: APP_PATHS.PARCHESE_EL_PARCHE },
           { label: 'Feed', note: 'Lo que se comenta y se sube', to: APP_PATHS.FEED },
         ],
       },
@@ -53,15 +53,16 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
   {
     label: 'Tu voz',
     to: APP_PATHS.TU_VOZ,
-    lead: 'Tips de vía, comparendos y reportes.',
+    lead: 'Tips de vía, comparendos, reportes y encuestas.',
     cta: 'Ir a Tu voz',
     columns: [
       {
         title: 'Tu voz',
         links: [
-          { label: 'Tips de vía', note: 'Seguridad y ley, sin rodeos', to: `${APP_PATHS.TU_VOZ}#tips` },
-          { label: 'Comparendos', note: 'Cómo leerlos y dónde consultar', to: `${APP_PATHS.TU_VOZ}#comparendos` },
-          { label: 'Reportes', note: 'Cuenta lo que pasó en la vía', to: `${APP_PATHS.TU_VOZ}#reportes` },
+          { label: 'Tips de vía', note: 'Seguridad y ley, sin rodeos', to: APP_PATHS.TU_VOZ_TIPS },
+          { label: 'Comparendos', note: 'Cómo leerlos y dónde consultar', to: APP_PATHS.TU_VOZ_COMPARENDOS },
+          { label: 'Reportes', note: 'Cuenta lo que pasó en la vía', to: APP_PATHS.TU_VOZ_REPORTES },
+          { label: 'Encuestas', note: 'Decide rutas y fechas con el parche', to: APP_PATHS.TU_VOZ_ENCUESTAS },
         ],
       },
     ],
@@ -104,7 +105,9 @@ export const MEGA_FOOTER_COLUMNS: readonly MegaColumn[] = [
     title: 'Parche',
     links: [
       { label: 'Inicio', to: APP_PATHS.INICIO },
-      { label: 'Parchese', to: APP_PATHS.PARCHESE },
+      { label: 'Rodadas', to: APP_PATHS.PARCHESE_RODADAS },
+      { label: 'Memorias', to: APP_PATHS.PARCHESE_MEMORIAS },
+      { label: 'El parche', to: APP_PATHS.PARCHESE_EL_PARCHE },
       { label: 'Feed', to: APP_PATHS.FEED },
     ],
   },
@@ -119,9 +122,10 @@ export const MEGA_FOOTER_COLUMNS: readonly MegaColumn[] = [
   {
     title: 'Tu voz',
     links: [
-      { label: 'Tips', to: `${APP_PATHS.TU_VOZ}#tips` },
-      { label: 'Comparendos', to: `${APP_PATHS.TU_VOZ}#comparendos` },
-      { label: 'Reportes', to: `${APP_PATHS.TU_VOZ}#reportes` },
+      { label: 'Tips', to: APP_PATHS.TU_VOZ_TIPS },
+      { label: 'Comparendos', to: APP_PATHS.TU_VOZ_COMPARENDOS },
+      { label: 'Reportes', to: APP_PATHS.TU_VOZ_REPORTES },
+      { label: 'Encuestas', to: APP_PATHS.TU_VOZ_ENCUESTAS },
     ],
   },
   {

@@ -3,10 +3,10 @@ import { computed } from 'vue'
 import type { ClubModule } from '@modules/club/composition.ts'
 import { CLUB_ROSTER_COPY } from '@modules/club/constants/copy.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
+import BoardHead from '@ui/BoardHead.vue'
 import Button from '@ui/Button.vue'
-import Empty from '@ui/Empty.vue'
 import MemberCard from '@ui/MemberCard.vue'
-import VoiceBadge from '@ui/VoiceBadge.vue'
+import StepsPoster from '@ui/StepsPoster.vue'
 
 const props = defineProps<{
   module: ClubModule
@@ -15,18 +15,13 @@ const props = defineProps<{
 const copy = CLUB_ROSTER_COPY
 const members = computed(() => props.module.getMembers())
 const alliances = computed(() => props.module.getAlliances())
+const join = computed(() => props.module.getJoinChannel())
 </script>
 
 <template>
   <div class="club-roster">
     <section id="integrantes" class="club-roster__block" :aria-label="copy.rosterHeading">
-      <header class="club-roster__head">
-        <VoiceBadge voice="incauta" />
-        <div>
-          <h2 class="paola-page__heading type-display">{{ copy.rosterHeading }}</h2>
-          <p class="paola-page__copy paola-page__copy--muted">{{ copy.rosterLead }}</p>
-        </div>
-      </header>
+      <BoardHead voice="incauta" :title="copy.rosterHeading" :lead="copy.rosterLead" />
       <div v-if="members.items.length" class="club-roster__members">
         <MemberCard
           v-for="member in members.items"
@@ -37,26 +32,29 @@ const alliances = computed(() => props.module.getAlliances())
           :instagram-href="member.instagramHref"
         />
       </div>
-      <Empty
+      <StepsPoster
         v-else
-        compact
-        hide-cta
+        tone="navy"
+        :kicker="copy.rosterEmptyKicker"
         :title="copy.rosterEmptyTitle"
-        :copy="members.emptyCopy"
+        :lead="members.emptyCopy"
+        :steps="copy.rosterEmptySteps"
         :mascot-src="MASCOT.EN_PIE"
-      />
+      >
+        <Button size="sm" :href="join.href" target="_blank">{{ join.cta }}</Button>
+      </StepsPoster>
     </section>
 
     <section id="alianzas" class="club-roster__block" :aria-label="copy.alliancesHeading">
-      <header class="club-roster__head">
-        <div>
-          <h2 class="paola-page__heading type-display">{{ copy.alliancesHeading }}</h2>
-          <p class="paola-page__copy paola-page__copy--muted">{{ copy.alliancesLead }}</p>
-        </div>
-      </header>
+      <BoardHead voice="armargura" :title="copy.alliancesHeading" :lead="copy.alliancesLead" />
       <div v-if="alliances.items.length" class="club-roster__allies">
-        <article v-for="ally in alliances.items" :key="ally.id" class="club-roster__ally">
-          <h3>{{ ally.name }}</h3>
+        <article
+          v-for="(ally, index) in alliances.items"
+          :key="ally.id"
+          class="poster club-roster__ally"
+          :class="index % 2 ? 'poster--blue' : 'poster--navy'"
+        >
+          <h3 class="type-brush-dry type-brush-dry--xs">{{ ally.name }}</h3>
           <p>{{ ally.support }}</p>
           <Button
             v-if="ally.href"
@@ -69,14 +67,15 @@ const alliances = computed(() => props.module.getAlliances())
           </Button>
         </article>
       </div>
-      <Empty
+      <StepsPoster
         v-else
-        compact
-        hide-cta
-        glyph="◎"
+        tone="armargura"
+        :kicker="copy.alliancesEmptyKicker"
         :title="copy.alliancesEmptyTitle"
-        :copy="alliances.emptyCopy"
-      />
+        :lead="copy.alliancesEmptyLead"
+      >
+        <Button size="sm" variant="ghost" :href="copy.alliancesEmptyHref">{{ copy.alliancesEmptyCta }}</Button>
+      </StepsPoster>
     </section>
   </div>
 </template>
@@ -84,7 +83,7 @@ const alliances = computed(() => props.module.getAlliances())
 <style scoped>
 .club-roster {
   display: grid;
-  gap: 24px 32px;
+  gap: 32px;
   align-items: start;
 }
 
@@ -95,19 +94,7 @@ const alliances = computed(() => props.module.getAlliances())
   scroll-margin-top: 96px;
 }
 
-.club-roster__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 12px 16px;
-}
-
-.club-roster__members {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
-}
-
+.club-roster__members,
 .club-roster__allies {
   display: grid;
   gap: 12px;
@@ -115,25 +102,7 @@ const alliances = computed(() => props.module.getAlliances())
 }
 
 .club-roster__ally {
-  display: grid;
-  gap: 8px;
-  align-content: start;
-  padding: 16px;
-  border: 1px solid rgba(26, 42, 64, 0.95);
-  border-radius: 10px;
-  background: rgba(5, 7, 12, 0.55);
-}
-
-.club-roster__ally h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.club-roster__ally p {
-  margin: 0;
-  color: var(--paola-muted, #9aa3b2);
-  font-size: 14px;
-  line-height: 1.45;
+  justify-items: start;
 }
 
 @media (min-width: 960px) {

@@ -1,0 +1,161 @@
+import type { PollAudience, PollKind, PollStatus } from '@modules/polls/domain/entities/Poll.ts'
+import { MASCOT } from '@shared/ui/mascot.ts'
+
+export const POLLS_HOME_FIGURE = MASCOT.X5
+
+export const POLLS_VOTER_STORAGE_KEY = 'paola_voter_key'
+
+export const POLLS_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'long',
+  hour: 'numeric',
+  minute: '2-digit',
+}
+export const POLLS_LOCALE = 'es-CO'
+
+export const POLLS_COPY = {
+  kicker: 'Encuesta',
+  sectionHeading: 'Encuestas',
+  sectionLead: 'Tu opinión decide rutas, fechas y lo que sigue en el parche. Votas una vez y ves cómo va.',
+  sectionEmptyTitle: 'Sin encuestas por ahora',
+  sectionEmpty: 'Cuando haya algo para decidir entre todos, sale aquí.',
+  openHeading: 'Abiertas',
+  closedHeading: 'Cerradas',
+  rideHeading: 'Decide con el parche',
+  homeKicker: 'Tú decides',
+  homeCta: 'Ver todas las encuestas',
+  homeSteps: ['Eliges tu respuesta.', 'Votas una sola vez.', 'Ves cómo va al instante.'],
+  voteCta: 'Enviar mi voto',
+  sending: 'Enviando…',
+  voted: 'Gracias, tu voto quedó.',
+  voteFail: 'No se pudo enviar el voto. Intenta de nuevo.',
+  loadFail: 'No pudimos cargar las encuestas.',
+  missing: 'Te falta responder:',
+  required: 'Obligatoria',
+  optional: 'Opcional',
+  accountRequired: 'Esta encuesta es solo para quienes tienen cuenta.',
+  accountCta: 'Entrar para votar',
+  ridersOnly: 'Esta encuesta la votan quienes están inscritos a la rodada.',
+  ridersCta: 'Inscribirme a la rodada',
+  anonymousNote: 'Votas sin cuenta. Un voto por persona.',
+  accountNote: 'Votas con tu cuenta. Un voto por persona.',
+  alreadyVoted: 'Ya votaste. Así va:',
+  closedNote: 'Encuesta cerrada. Resultado final:',
+  closesOn: 'Cierra el',
+  closedOn: 'Cerró el',
+  linkedRide: 'Rodada:',
+  responsesOne: '1 voto',
+  responsesMany: 'votos',
+  answeredOne: '1 respuesta',
+  answeredMany: 'respuestas',
+  pickOne: 'Elige una opción.',
+  pickMany: 'Elige las que quieras.',
+  pickUpTo: 'Elige hasta',
+  pickUpToSuffix: 'opciones.',
+  rankHint: 'Arrastra o usa las flechas para ordenar. Arriba va tu favorita.',
+  moveUp: 'Subir',
+  moveDown: 'Bajar',
+  scaleHint: 'Toca un número.',
+  textPlaceholder: 'Escribe tu respuesta',
+  averageLabel: 'Promedio',
+  firstPlaceOne: '1 la puso de primera',
+  firstPlaceMany: 'la pusieron de primera',
+  averageRankLabel: 'Posición promedio',
+  textResultsNote: 'Las respuestas escritas solo las lee el equipo.',
+  noVotes: 'Aún no hay votos.',
+} as const
+
+export const POLLS_ADMIN_COPY = {
+  listTitle: 'Encuestas publicadas',
+  listLead: 'Abre, cierra o destaca en Inicio. Los resultados se actualizan con cada voto.',
+  listEmpty: 'Aún no hay encuestas.',
+  loadFail: 'No se pudieron cargar las encuestas.',
+  formTitle: 'Nueva encuesta',
+  formLead: 'Arma las preguntas, elige quién vota y si va atada a una rodada.',
+  fieldTitle: 'Título',
+  fieldDescription: 'Descripción (opcional)',
+  fieldAudience: 'Quién puede votar',
+  fieldStatus: 'Estado al guardar',
+  fieldOuting: 'Atada a una rodada (opcional)',
+  outingNone: 'Ninguna',
+  fieldClosesAt: 'Cierra el (opcional)',
+  fieldFeatured: 'Destacar en Inicio',
+  questionsTitle: 'Preguntas',
+  addQuestion: 'Agregar pregunta',
+  removeQuestion: 'Quitar pregunta',
+  moveUp: 'Subir',
+  moveDown: 'Bajar',
+  fieldKind: 'Tipo',
+  fieldPrompt: 'Pregunta',
+  fieldHelp: 'Ayuda (opcional)',
+  fieldRequired: 'Obligatoria',
+  fieldMaxChoices: 'Máximo de opciones (vacío = sin límite)',
+  fieldScaleMin: 'Desde',
+  fieldScaleMax: 'Hasta',
+  fieldScaleMinLabel: 'Texto del mínimo',
+  fieldScaleMaxLabel: 'Texto del máximo',
+  optionsTitle: 'Opciones',
+  optionLabel: 'Opción',
+  optionImage: 'Imagen (enlace, opcional)',
+  addOption: 'Agregar opción',
+  removeOption: 'Quitar',
+  createCta: 'Guardar encuesta',
+  createOk: 'Encuesta guardada.',
+  createFail: 'No se pudo guardar la encuesta.',
+  updateOk: 'Encuesta actualizada.',
+  updateFail: 'No se pudo actualizar la encuesta.',
+  deleteCta: 'Borrar',
+  deleteConfirm: 'Toca otra vez para borrar',
+  deleteOk: 'Encuesta borrada.',
+  deleteFail: 'No se pudo borrar la encuesta.',
+  openCta: 'Abrir',
+  closeCta: 'Cerrar',
+  featureCta: 'Destacar en Inicio',
+  unfeatureCta: 'Quitar de Inicio',
+  featuredChip: 'En Inicio',
+  showResults: 'Ver resultados',
+  hideResults: 'Ocultar resultados',
+  textAnswers: 'Respuestas escritas',
+  noTexts: 'Nadie ha escrito todavía.',
+} as const
+
+export const POLL_KIND_LABELS: Readonly<Record<PollKind, string>> = {
+  single: 'Una opción',
+  multiple: 'Varias opciones',
+  ranking: 'Ordenar',
+  scale: 'Escala',
+  text: 'Texto libre',
+}
+
+export const POLL_STATUS_LABELS: Readonly<Record<PollStatus, string>> = {
+  draft: 'Borrador',
+  open: 'Abierta',
+  closed: 'Cerrada',
+}
+
+export const POLL_AUDIENCE_LABELS: Readonly<Record<PollAudience, string>> = {
+  public: 'Cualquiera, sin cuenta',
+  account: 'Solo con cuenta',
+}
+
+export const POLLS_LIMITS = {
+  OPTIONS_MIN: 2,
+  OPTIONS_MAX: 12,
+  QUESTIONS_MAX: 20,
+  SCALE_MIN: 0,
+  SCALE_MAX: 10,
+  TEXT_MAX: 1000,
+} as const
+
+export const POLLS_EDITOR_MESSAGES = {
+  question: 'pregunta',
+  titleRequired: 'Ponle un título a la encuesta.',
+  questionsRequired: 'Agrega al menos una pregunta.',
+  questionsTooMany: `Máximo ${POLLS_LIMITS.QUESTIONS_MAX} preguntas.`,
+  promptRequired: 'Escribe la pregunta',
+  optionsRequired: `Necesita al menos ${POLLS_LIMITS.OPTIONS_MIN} opciones con texto`,
+  optionsTooMany: `Máximo ${POLLS_LIMITS.OPTIONS_MAX} opciones`,
+  maxInvalid: 'El máximo de opciones no cuadra con las opciones que hay',
+  scaleInvalid: `La escala va de ${POLLS_LIMITS.SCALE_MIN} a ${POLLS_LIMITS.SCALE_MAX} y el inicio debe ser menor que el final`,
+  dateInvalid: 'La fecha de cierre no es válida.',
+} as const

@@ -19,6 +19,8 @@ export const LEGAL_COPY = {
   moderationShort:
     'No publicamos linchamientos, menores identificables, datos personales de otros ni venganzas. Revisamos todo antes de que se vea.',
   contactLine: `Dudas o borrar un dato: ${LEGAL_EMAIL} · ${LEGAL_DOMAIN}`,
+  tocTitle: 'En corto',
+  tocAria: 'Secciones del aviso',
 } as const
 
 export type LegalSection = {
@@ -36,6 +38,7 @@ export const LEGAL_SECTIONS: readonly LegalSection[] = [
       'Pedido de lavado: nombre, WhatsApp, talla si aplica y zona (Bogotá, Soacha u “fuera”).',
       'Cuenta: correo, alias y clave. El sitio se mira sin login; la cuenta es para lo que quede a tu nombre.',
       'Constancia comunitaria: qué pasó, dónde, cuándo, y una foto o enlace de evidencia si la subes.',
+      'Encuestas: tus respuestas. Si votas sin cuenta, tu navegador guarda una clave anónima para contar un solo voto por persona; no sabemos quién eres.',
     ],
   },
   {

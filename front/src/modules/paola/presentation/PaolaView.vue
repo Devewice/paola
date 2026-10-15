@@ -212,7 +212,7 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
   gap: calc(var(--paola-space) * 3);
   width: min(var(--paola-content-max), calc(100% - 2 * var(--paola-gutter)));
   margin-inline: auto;
-  padding: calc(64px + var(--paola-space) * 2) 0 calc(var(--paola-space) * 3);
+  padding: clamp(32px, 6vw, 64px) 0 48px;
 }
 
 .paola-who__main {
@@ -234,7 +234,7 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0 12px;
-  margin-top: 18px;
+  margin-top: 8px;
 }
 
 .paola-who__plate {
@@ -390,7 +390,7 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
   }
 
   .paola-who__main {
-    padding: calc(64px + var(--paola-space) * 2) var(--paola-gutter) calc(var(--paola-space) * 3);
+    padding: 64px var(--paola-gutter) 64px;
     max-width: none;
     width: min(38rem, 100%);
     justify-self: end;
