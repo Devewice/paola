@@ -1,4 +1,10 @@
-import { APP_PATHS } from '@shared/http/constants.ts'
+import { APP_PATHS, appTiendaEstanteria } from '@shared/http/constants.ts'
+
+const SHOP_SHELVES = {
+  OWN: 'own',
+  COLLAB: 'collab',
+  SERVICE: 'service',
+} as const
 
 export type NavLink = {
   readonly label: string
@@ -69,9 +75,9 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
       {
         title: 'Tienda',
         links: [
-          { label: 'Marca Paola', note: 'Equipo con la marca del parche', to: APP_PATHS.TIENDA },
-          { label: 'Colaboraciones', note: 'Productos de las alianzas', to: APP_PATHS.TIENDA },
-          { label: 'Lavado de casco', note: 'Si queda mal, se corrige', to: APP_PATHS.TIENDA },
+          { label: 'Marca Paola', note: 'Ropa y recuerdos con la marca del parche', to: appTiendaEstanteria(SHOP_SHELVES.OWN) },
+          { label: 'Colaboraciones', note: 'Productos hechos con las alianzas', to: appTiendaEstanteria(SHOP_SHELVES.COLLAB) },
+          { label: 'Lavado de casco', note: 'Si queda mal, lo corrijo', to: appTiendaEstanteria(SHOP_SHELVES.SERVICE) },
         ],
       },
     ],
@@ -105,9 +111,9 @@ export const MEGA_FOOTER_COLUMNS: readonly MegaColumn[] = [
   {
     title: 'Tienda',
     links: [
-      { label: 'Marca Paola', to: APP_PATHS.TIENDA },
-      { label: 'Colaboraciones', to: APP_PATHS.TIENDA },
-      { label: 'Lavado de casco', to: APP_PATHS.TIENDA },
+      { label: 'Marca Paola', to: appTiendaEstanteria(SHOP_SHELVES.OWN) },
+      { label: 'Colaboraciones', to: appTiendaEstanteria(SHOP_SHELVES.COLLAB) },
+      { label: 'Lavado de casco', to: appTiendaEstanteria(SHOP_SHELVES.SERVICE) },
     ],
   },
   {

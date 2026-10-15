@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { ShopModule } from '@modules/shop/index.ts'
 import type { MysteryDeckCard } from '@modules/shop/domain/entities/MysteryDeck.ts'
 import {
@@ -64,12 +64,23 @@ type FilterChip = {
 
 const props = defineProps<{
   module: ShopModule
+  initialShelf?: string
 }>()
 
 const bindReveal = usePageReveal()
 const copy = SHOP_COPY
 const query = ref('')
-const shelvesOn = ref<ShopShelfId[]>([])
+function shelvesFrom(raw?: string): ShopShelfId[] {
+  const valid = Object.values(SHOP_SHELF) as readonly string[]
+  return raw && valid.includes(raw) ? [raw as ShopShelfId] : []
+}
+const shelvesOn = ref<ShopShelfId[]>(shelvesFrom(props.initialShelf))
+watch(
+  () => props.initialShelf,
+  (raw) => {
+    shelvesOn.value = shelvesFrom(raw)
+  },
+)
 const priceBands = ref<string[]>([])
 const categoriesOn = ref<string[]>([])
 const colorsOn = ref<string[]>([])
@@ -420,7 +431,7 @@ const filtersDirty = computed(() => chips.value.length > 0)
       @login="onLogin"
     />
 
-    <main class="wrap shop-market">
+    <main id="catalogo" class="wrap shop-market">
       <NoticeBar v-if="SHOP_PROMO.on" :kicker="SHOP_PROMO.kicker" :text="SHOP_PROMO.text" data-reveal />
 
       <div

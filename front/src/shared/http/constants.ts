@@ -161,6 +161,12 @@ export const APP_PATHS = {
   PARCERO: '/parcero',
 } as const
 
+export const SHOP_SHELF_QUERY = 'estanteria'
+
+export function appTiendaEstanteria(shelf: string): string {
+  return `${APP_PATHS.TIENDA}?${SHOP_SHELF_QUERY}=${encodeURIComponent(shelf)}#catalogo`
+}
+
 export function appTiendaFicha(id: string): string {
   return `${APP_PATHS.TIENDA}/${encodeURIComponent(id)}`
 }
