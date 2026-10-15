@@ -78,7 +78,7 @@ export const PAYMENT_COPY = {
   emptyKeys: 'Elige una pasarela en el paso anterior.',
   saveOk: 'Quedó guardado.',
   testNeedSave: 'Guarda primero, y después prueba.',
-  lockedLead: 'Entra con la clave de operadora para armar la pasarela.',
+  lockedLead: 'Entra con una cuenta que tenga permiso de Ajustes para armar la pasarela.',
   enter: 'Entrar',
   unlockFail: 'Esa clave no entra.',
   kitCta: 'Ver componentes',

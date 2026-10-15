@@ -35,7 +35,7 @@ export const listProductsController: RouteHandler = async (_request, response) =
 export const createProductController: RouteHandler = async (request, response) => {
   const body = await shopJsonBody(request, response)
   if (!body) return
-  if (!shopOperatorGuard(request, response, body)) return
+  if (!(await shopOperatorGuard(request, response, body))) return
 
   const result = await createProduct(body)
   if (!result.ok) {
@@ -58,7 +58,7 @@ export const listServicesController: RouteHandler = async (_request, response) =
 export const createServiceController: RouteHandler = async (request, response) => {
   const body = await shopJsonBody(request, response)
   if (!body) return
-  if (!shopOperatorGuard(request, response, body)) return
+  if (!(await shopOperatorGuard(request, response, body))) return
 
   const result = await createService(body)
   if (!result.ok) {
@@ -91,7 +91,7 @@ export const revealMysteryCardController: RouteHandler = async (request, respons
 }
 
 export const readOperatorMysteryController: RouteHandler = async (request, response) => {
-  if (!shopOperatorGuard(request, response)) return
+  if (!(await shopOperatorGuard(request, response))) return
   try {
     const config = await readOperatorMystery()
     sendJson(response, HTTP_STATUS.OK, { ok: true, ...config })
@@ -104,7 +104,7 @@ export const readOperatorMysteryController: RouteHandler = async (request, respo
 export const saveOperatorMysteryController: RouteHandler = async (request, response) => {
   const body = await shopJsonBody(request, response)
   if (!body) return
-  if (!shopOperatorGuard(request, response, body)) return
+  if (!(await shopOperatorGuard(request, response, body))) return
   const result = await saveOperatorMystery(body)
   if (!result.ok) {
     sendJson(response, result.status, { ok: false, detail: result.detail })

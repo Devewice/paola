@@ -18,7 +18,7 @@ export const createOrderController: RouteHandler = async (request, response) => 
 }
 
 export const listOperatorOrdersController: RouteHandler = async (request, response) => {
-  if (!ordersOperatorGuard(request, response)) return
+  if (!(await ordersOperatorGuard(request, response))) return
 
   const orders = await findOperatorOrders()
   sendJson(response, HTTP_STATUS.OK, { ok: true, orders })

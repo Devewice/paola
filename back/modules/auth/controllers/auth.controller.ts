@@ -51,7 +51,7 @@ export const googleStartController: RouteHandler = async (_request, response) =>
 }
 
 export const getOperatorAuthController: RouteHandler = async (request, response) => {
-  if (!authOperatorGuard(request, response)) return
+  if (!(await authOperatorGuard(request, response))) return
   try {
     const config = await getOperatorAuthConfig()
     sendJson(response, HTTP_STATUS.OK, { ok: true, config })
@@ -74,7 +74,7 @@ export const getOperatorAuthController: RouteHandler = async (request, response)
 export const saveOperatorAuthController: RouteHandler = async (request, response) => {
   const body = await authJsonBody(request, response)
   if (!body) return
-  if (!authOperatorGuard(request, response, body)) return
+  if (!(await authOperatorGuard(request, response, body))) return
   const parsed = parseSave(body)
   if (!parsed.ok) {
     sendJson(response, parsed.status, { ok: false, detail: parsed.detail })

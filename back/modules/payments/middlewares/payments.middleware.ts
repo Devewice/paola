@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { readBodyOrReject, requireOperador } from '../../../http/guard.js'
+import { PERMISSION } from '../../../http/constants.js'
+import { readBodyOrReject, requirePermission } from '../../../http/guard.js'
 import { withErrors } from '../../../http/middleware/errors.js'
 
 export const withPaymentsErrors = withErrors
@@ -11,10 +12,10 @@ export async function paymentsJsonBody(
   return readBodyOrReject(request, response)
 }
 
-export function paymentsOperatorGuard(
+export async function paymentsOperatorGuard(
   request: IncomingMessage,
   response: ServerResponse,
   body: Record<string, unknown> = {},
-): boolean {
-  return requireOperador(request, response, body)
+): Promise<boolean> {
+  return Boolean(await requirePermission(request, response, PERMISSION.AJUSTES, body))
 }

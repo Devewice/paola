@@ -38,7 +38,7 @@ export const checkoutController: RouteHandler = async (request, response) => {
 }
 
 export const listOperatorGatewaysController: RouteHandler = async (request, response) => {
-  if (!paymentsOperatorGuard(request, response)) return
+  if (!(await paymentsOperatorGuard(request, response))) return
   try {
     const gateways = await listOperatorGateways()
     sendJson(response, HTTP_STATUS.OK, { ok: true, gateways })
@@ -51,7 +51,7 @@ export const listOperatorGatewaysController: RouteHandler = async (request, resp
 export const saveGatewaysController: RouteHandler = async (request, response) => {
   const body = await paymentsJsonBody(request, response)
   if (!body) return
-  if (!paymentsOperatorGuard(request, response, body)) return
+  if (!(await paymentsOperatorGuard(request, response, body))) return
   const parsed = parseSaveGateways(body)
   if (!parsed.ok) {
     sendJson(response, parsed.status, { ok: false, detail: parsed.detail })
@@ -68,7 +68,7 @@ export const saveGatewaysController: RouteHandler = async (request, response) =>
 export const testGatewayController: RouteHandler = async (request, response) => {
   const body = await paymentsJsonBody(request, response)
   if (!body) return
-  if (!paymentsOperatorGuard(request, response, body)) return
+  if (!(await paymentsOperatorGuard(request, response, body))) return
   const parsed = parseTestGateway(body)
   if (!parsed.ok) {
     sendJson(response, parsed.status, { ok: false, detail: parsed.detail })

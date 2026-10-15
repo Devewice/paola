@@ -11,7 +11,7 @@ describe('canHidePost', () => {
     expect(canHidePost({ role: 'moderador', isOperador: false })).toBe(true)
   })
 
-  it('Paola con clave de operadora sí oculta', () => {
+  it('una cuenta con permiso de comunidad sí oculta', () => {
     expect(canHidePost({ role: 'member', isOperador: true })).toBe(true)
   })
 })

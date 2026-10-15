@@ -1,20 +1,40 @@
-import { createHash, timingSafeEqual } from 'node:crypto'
 import type { IncomingMessage } from 'node:http'
-import { ENV } from '../constants.js'
-import { BODY_CLAVE_FIELD, HTTP_HEADER } from './constants.js'
+import { findAccess } from '../modules/roles/providers/roles.provider.js'
+import type { Access } from '../modules/roles/interfaces/roles.interface.js'
+import { BODY_CLAVE_FIELD, HTTP_HEADER, type Permission } from './constants.js'
 
-export function operadorClaveOk(given: string): boolean {
-  const expected = process.env[ENV.OPERADOR_CLAVE]
-  if (!expected || !given) return false
-  const left = createHash('sha256').update(String(given)).digest()
-  const right = createHash('sha256').update(expected).digest()
-  return timingSafeEqual(left, right)
+function headerOf(request: IncomingMessage, name: string): string {
+  const value = request.headers[name]
+  if (typeof value === 'string') return value.trim()
+  if (Array.isArray(value)) return (value[0] ?? '').trim()
+  return ''
 }
 
-export function claveFromRequest(request: IncomingMessage, body: Record<string, unknown> = {}): string {
-  const header = request.headers[HTTP_HEADER.OPERADOR_CLAVE]
-  if (typeof header === 'string' && header) return header
+/** La sesión de panel viaja como `x-operador-clave`, campo `clave` o `x-session-id`. */
+export function operadorSessionFrom(request: IncomingMessage, body: Record<string, unknown> = {}): string {
+  const header = headerOf(request, HTTP_HEADER.OPERADOR_CLAVE)
+  if (header) return header
   const clave = body[BODY_CLAVE_FIELD]
-  if (typeof clave === 'string') return clave
-  return ''
+  if (typeof clave === 'string' && clave.trim()) return clave.trim()
+  return headerOf(request, HTTP_HEADER.SESSION_ID)
+}
+
+export async function operadorAccess(
+  request: IncomingMessage,
+  body: Record<string, unknown> = {},
+): Promise<Access | null> {
+  try {
+    return await findAccess(operadorSessionFrom(request, body))
+  } catch {
+    return null
+  }
+}
+
+export async function hasPermission(
+  request: IncomingMessage,
+  permission: Permission,
+  body: Record<string, unknown> = {},
+): Promise<boolean> {
+  const access = await operadorAccess(request, body)
+  return Boolean(access?.permissions.includes(permission))
 }

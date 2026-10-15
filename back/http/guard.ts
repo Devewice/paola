@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { HTTP_MESSAGES, HTTP_STATUS } from './constants.js'
-import { claveFromRequest, operadorClaveOk } from './operar.js'
+import type { Access } from '../modules/roles/interfaces/roles.interface.js'
+import { HTTP_MESSAGES, HTTP_STATUS, type Permission } from './constants.js'
+import { operadorAccess } from './operar.js'
 import { readJson } from './readJson.js'
 import { sendJson } from './send.js'
 
@@ -19,15 +20,17 @@ export async function readBodyOrReject(
   }
 }
 
-export function requireOperador(
+export async function requirePermission(
   request: IncomingMessage,
   response: ServerResponse,
+  permission: Permission,
   body: Record<string, unknown> = {},
-): boolean {
-  if (operadorClaveOk(claveFromRequest(request, body))) return true
+): Promise<Access | null> {
+  const access = await operadorAccess(request, body)
+  if (access?.permissions.includes(permission)) return access
   sendJson(response, HTTP_STATUS.FORBIDDEN, {
     ok: false,
-    detail: HTTP_MESSAGES.CLAVE_INVALID,
+    detail: access ? HTTP_MESSAGES.CLAVE_INVALID : HTTP_MESSAGES.SESSION_REQUIRED,
   })
-  return false
+  return null
 }

@@ -28,7 +28,6 @@ export const AUTH_MESSAGES = {
   MISSING_KEYS: 'Faltan client ID, secret o redirect de Gmail.',
   NOT_READY: 'Gmail todavía no está activado.',
   SAVE_OK: 'Login con Gmail guardado.',
-  CLAVE: 'Clave de operadora inválida.',
 } as const
 
 export const AUTH_ROUTES = {

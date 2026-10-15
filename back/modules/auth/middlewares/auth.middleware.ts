@@ -1,12 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { requireOperador, readBodyOrReject } from '../../../http/guard.js'
+import { PERMISSION } from '../../../http/constants.js'
+import { readBodyOrReject, requirePermission } from '../../../http/guard.js'
 
-export function authOperatorGuard(
+export async function authOperatorGuard(
   request: IncomingMessage,
   response: ServerResponse,
   body: Record<string, unknown> = {},
-): boolean {
-  return requireOperador(request, response, body)
+): Promise<boolean> {
+  return Boolean(await requirePermission(request, response, PERMISSION.AJUSTES, body))
 }
 
 export async function authJsonBody(

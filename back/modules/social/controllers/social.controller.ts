@@ -1,6 +1,6 @@
-import { HTTP_HEADER, HTTP_STATUS } from '../../../http/constants.js'
-import { readBodyOrReject, requireOperador } from '../../../http/guard.js'
-import { claveFromRequest, operadorClaveOk } from '../../../http/operar.js'
+import { HTTP_HEADER, HTTP_STATUS, PERMISSION } from '../../../http/constants.js'
+import { readBodyOrReject, requirePermission } from '../../../http/guard.js'
+import { hasPermission } from '../../../http/operar.js'
 import { sendJson } from '../../../http/send.js'
 import type { RouteHandler } from '../../../http/types.js'
 import {
@@ -48,8 +48,8 @@ function sessionId(request: RequestLike): string {
   return ''
 }
 
-function operadorOk(request: RequestLike, body: Record<string, unknown> = {}): boolean {
-  return operadorClaveOk(claveFromRequest(request, body))
+function operadorOk(request: RequestLike, body: Record<string, unknown> = {}): Promise<boolean> {
+  return hasPermission(request, PERMISSION.COMUNIDAD, body)
 }
 
 type RequestLike = Parameters<RouteHandler>[0]
@@ -92,7 +92,7 @@ export const listCommunitiesController: RouteHandler = async (_request, response
 export const createCommunityController: RouteHandler = async (request, response) => {
   const body = await readBodyOrReject(request, response)
   if (!body) return
-  if (!requireOperador(request, response, body)) return
+  if (!(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
   const result = await createCommunity(body)
   if (!result.ok) {
     sendJson(response, result.status, result)
@@ -262,7 +262,7 @@ export const createChatMessageController: RouteHandler = async (request, respons
 
 export const silenceChatController: RouteHandler = async (request, response, _url, params) => {
   const body = await readBodyOrReject(request, response)
-  if (!body || !requireOperador(request, response, body)) return
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
   const result = await setChatSilenced(params.id ?? '')
   if (!result.ok) {
     sendJson(response, result.status, result)
@@ -296,7 +296,7 @@ export const activityController: RouteHandler = async (_request, response) => {
 }
 
 export const outingChatController: RouteHandler = async (request, response, _url, params) => {
-  const result = await readOutingChat(params.id ?? '', sessionId(request), operadorOk(request))
+  const result = await readOutingChat(params.id ?? '', sessionId(request), await operadorOk(request))
   if (!result.ok) {
     sendJson(response, result.status, result)
     return
@@ -311,7 +311,7 @@ export const outingChatMessageController: RouteHandler = async (request, respons
     params.id ?? '',
     sessionId(request),
     body,
-    operadorOk(request, body),
+    await operadorOk(request, body),
   )
   if (!result.ok) {
     sendJson(response, result.status, result)
@@ -322,7 +322,7 @@ export const outingChatMessageController: RouteHandler = async (request, respons
 
 export const pinOutingChatController: RouteHandler = async (request, response, _url, params) => {
   const body = await readBodyOrReject(request, response)
-  if (!body || !requireOperador(request, response, body)) return
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
   const result = await pinOutingChatNotice(params.id ?? '', body, sessionId(request))
   if (!result.ok) {
     sendJson(response, result.status, result)
@@ -345,7 +345,7 @@ export const reactPostController: RouteHandler = async (request, response, _url,
 export const hidePostController: RouteHandler = async (request, response, _url, params) => {
   const body = await readBodyOrReject(request, response)
   if (!body) return
-  const result = await hidePost(sessionId(request), params.id ?? '', operadorOk(request, body))
+  const result = await hidePost(sessionId(request), params.id ?? '', await operadorOk(request, body))
   if (!result.ok) {
     sendJson(response, result.status, result)
     return
@@ -356,7 +356,7 @@ export const hidePostController: RouteHandler = async (request, response, _url, 
 export const pinPostController: RouteHandler = async (request, response, _url, params) => {
   const body = await readBodyOrReject(request, response)
   if (!body) return
-  const result = await pinPost(sessionId(request), params.id ?? '', operadorOk(request, body))
+  const result = await pinPost(sessionId(request), params.id ?? '', await operadorOk(request, body))
   if (!result.ok) {
     sendJson(response, result.status, result)
     return
@@ -366,7 +366,7 @@ export const pinPostController: RouteHandler = async (request, response, _url, p
 
 export const highlightPostController: RouteHandler = async (request, response, _url, params) => {
   const body = await readBodyOrReject(request, response)
-  if (!body || !requireOperador(request, response, body)) return
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
   const result = await highlightPost(params.id ?? '')
   if (!result.ok) {
     sendJson(response, result.status, result)
@@ -377,7 +377,7 @@ export const highlightPostController: RouteHandler = async (request, response, _
 
 export const setModeratorController: RouteHandler = async (request, response, _url, params) => {
   const body = await readBodyOrReject(request, response)
-  if (!body || !requireOperador(request, response, body)) return
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
   const result = await setCommunityModerator(params.id ?? '', body)
   if (!result.ok) {
     sendJson(response, result.status, result)

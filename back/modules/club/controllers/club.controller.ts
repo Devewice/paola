@@ -32,7 +32,7 @@ export const listMembersController: RouteHandler = async (_request, response) =>
 export const createAllianceController: RouteHandler = async (request, response) => {
   const body = await clubJsonBody(request, response)
   if (!body) return
-  if (!clubOperatorGuard(request, response, body)) return
+  if (!(await clubOperatorGuard(request, response, body))) return
 
   const result = await createAlliance(body)
   if (!result.ok) {
@@ -45,7 +45,7 @@ export const createAllianceController: RouteHandler = async (request, response) 
 export const createMemberController: RouteHandler = async (request, response) => {
   const body = await clubJsonBody(request, response)
   if (!body) return
-  if (!clubOperatorGuard(request, response, body)) return
+  if (!(await clubOperatorGuard(request, response, body))) return
 
   const result = await createMember(body)
   if (!result.ok) {

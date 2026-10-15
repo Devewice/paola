@@ -17,7 +17,7 @@ export const listMemoriesController: RouteHandler = async (_request, response) =
 export const createMemoryController: RouteHandler = async (request, response) => {
   const body = await memoriesJsonBody(request, response)
   if (!body) return
-  if (!memoriesOperatorGuard(request, response, body)) return
+  if (!(await memoriesOperatorGuard(request, response, body))) return
 
   const result = await createMemory(body)
   if (!result.ok) {
