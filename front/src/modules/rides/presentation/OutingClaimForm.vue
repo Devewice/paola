@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { LEGAL_COPY } from '@app/constants/legal.ts'
 import type { AppError } from '@core/errors/AppError.ts'
 import type { Result } from '@core/result.ts'
-import { RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
+import { RIDES_CLAIM_COPY, RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
 import type { ClaimedSpot, OutingNotice, TicketDraft } from '@modules/rides/index.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
 import Alert from '@ui/Alert.vue'
@@ -12,6 +12,7 @@ import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
 import PrivacyCheck from '@ui/PrivacyCheck.vue'
 import TicketCard from '@ui/TicketCard.vue'
+import { showToast } from '@ui/toast.ts'
 
 const props = defineProps<{
   paid: boolean
@@ -27,19 +28,18 @@ const whatsapp = ref('')
 const moto = ref('')
 const privacyAccepted = ref(false)
 const sending = ref(false)
-const error = ref('')
 const done = ref<(ClaimedSpot & { notice: OutingNotice }) | null>(null)
-const copy = LEGAL_COPY
+const copy = RIDES_CLAIM_COPY
+const legal = LEGAL_COPY
 const privacyPath = APP_PATHS.PRIVACIDAD
 
 async function submit(): Promise<void> {
   if (sending.value) return
   if (!privacyAccepted.value) {
-    error.value = RIDES_MESSAGES.PRIVACY_REQUIRED
+    showToast(RIDES_MESSAGES.PRIVACY_REQUIRED, 'bad')
     return
   }
   sending.value = true
-  error.value = ''
   const result = await props.claim({
     name: name.value,
     whatsapp: whatsapp.value,
@@ -48,7 +48,7 @@ async function submit(): Promise<void> {
   })
   sending.value = false
   if (!result.ok) {
-    error.value = result.error.message
+    showToast(result.error.message, 'bad')
     return
   }
   done.value = result.value
@@ -57,36 +57,33 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <TicketCard v-if="done" title="Cupo a tu nombre" :meta="done.outing.title">
-    <Alert tone="ok">El cupo quedó a tu nombre. Escríbeme por WhatsApp o correo para confirmarlo.</Alert>
+  <TicketCard v-if="done" :title="copy.doneTitle" :meta="done.outing.title">
+    <Alert tone="ok">{{ copy.doneCopy }}</Alert>
     <div class="outing-claim__actions">
-      <Button :href="done.notice.whatsappHref" target="_blank">Avisar por WhatsApp</Button>
-      <Button variant="ghost" :href="done.notice.mailtoHref">Avisar por correo</Button>
+      <Button :href="done.notice.whatsappHref" target="_blank">{{ copy.doneWhatsapp }}</Button>
+      <Button variant="ghost" :href="done.notice.mailtoHref">{{ copy.doneMail }}</Button>
     </div>
   </TicketCard>
 
   <form v-else class="outing-claim" @submit.prevent="submit">
-    <p class="paola-empty__kicker">Anotarse a la rodada</p>
-    <Alert v-if="paid" tone="info">
-      Es de pago. El cupo queda anotado; el cobro se habla por WhatsApp.
-    </Alert>
+    <p class="paola-empty__kicker">{{ copy.kicker }}</p>
+    <Alert v-if="paid" tone="info">{{ copy.paidNotice }}</Alert>
     <PrivacyCheck
       v-model="privacyAccepted"
-      :label="copy.checkboxLabel"
+      :label="legal.checkboxLabel"
       :to="privacyPath"
-      :link-label="copy.checkboxLink"
+      :link-label="legal.checkboxLink"
     />
-    <Field label="Nombre" :error="error && !name.trim() ? error : undefined">
-      <Input v-model="name" placeholder="Tu nombre" :invalid="Boolean(error)" />
+    <Field :label="copy.nameLabel">
+      <Input v-model="name" :placeholder="copy.namePlaceholder" autocomplete="name" />
     </Field>
-    <Field label="WhatsApp">
-      <Input v-model="whatsapp" placeholder="312 000 0000" type="tel" :invalid="Boolean(error)" />
+    <Field :label="copy.whatsappLabel">
+      <Input v-model="whatsapp" :placeholder="copy.whatsappPlaceholder" type="tel" autocomplete="tel" />
     </Field>
-    <Field label="Moto (opcional)">
-      <Input v-model="moto" placeholder="Si vas en moto" />
+    <Field :label="copy.motoLabel">
+      <Input v-model="moto" :placeholder="copy.motoPlaceholder" />
     </Field>
-    <Alert v-if="error" tone="bad">{{ error }}</Alert>
-    <Button type="submit" :disabled="sending || !privacyAccepted">Anotarse a la rodada</Button>
+    <Button type="submit" :disabled="sending || !privacyAccepted">{{ copy.submit }}</Button>
   </form>
 </template>
 
@@ -95,10 +92,6 @@ async function submit(): Promise<void> {
 .outing-claim__actions {
   display: grid;
   gap: 12px;
-  margin-top: 12px;
-}
-
-.outing-claim__actions {
   margin-top: 12px;
 }
 </style>

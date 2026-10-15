@@ -6,6 +6,7 @@ import Button from '@ui/Button.vue'
 
 export type MegaHeaderLink = {
   readonly label: string
+  readonly note?: string
   readonly to?: string
   readonly href?: string
 }
@@ -54,16 +55,15 @@ const mobileOpen = ref(false)
 const root = ref<HTMLElement | null>(null)
 let leaveTimer = 0
 
-const activeItem = computed(() => props.items.find((item) => item.label === openId.value) ?? null)
+const panelColumns = computed((): readonly MegaHeaderColumn[] =>
+  props.items.flatMap((item) => item.columns ?? []),
+)
 
-const panelColumns = computed((): readonly MegaHeaderColumn[] => {
-  if (mobileOpen.value) {
-    return props.items.flatMap((item) => item.columns ?? [])
-  }
-  return activeItem.value?.columns ?? []
-})
+const panelOpen = computed(() => mobileOpen.value)
 
-const panelOpen = computed(() => Boolean(mobileOpen.value || activeItem.value?.columns?.length))
+function dropLinks(item: MegaHeaderItem): readonly MegaHeaderLink[] {
+  return (item.columns ?? []).flatMap((col) => col.links)
+}
 
 function hasMega(item: MegaHeaderItem): boolean {
   return Boolean(item.columns?.length)
@@ -176,11 +176,29 @@ onUnmounted(() => {
             :aria-label="`Abrir menú de ${item.label}`"
             :aria-expanded="openId === item.label"
             aria-haspopup="true"
-            aria-controls="mega-header-panel"
+            :aria-controls="`mega-drop-${item.to}`"
             @click="togglePanel(item.label, $event)"
           >
             <span class="mega-header__caret" aria-hidden="true" />
           </button>
+          <div
+            v-if="hasMega(item) && openId === item.label && !mobileOpen"
+            :id="`mega-drop-${item.to}`"
+            class="mega-header__drop"
+            @mouseenter="cancelClose"
+          >
+            <ul class="mega-header__drop-links">
+              <li v-for="link in dropLinks(item)" :key="link.label">
+                <AppLink :to="link.to" :href="link.href" class="mega-header__drop-link">
+                  <strong>{{ link.label }}</strong>
+                  <span v-if="link.note">{{ link.note }}</span>
+                </AppLink>
+              </li>
+            </ul>
+            <router-link :to="item.to" class="mega-header__drop-all">
+              {{ item.cta ?? item.label }} <span aria-hidden="true">→</span>
+            </router-link>
+          </div>
         </div>
       </nav>
 
@@ -217,20 +235,16 @@ onUnmounted(() => {
       @mouseenter="cancelClose"
     >
       <div class="mega-header__panel-inner">
-        <section v-if="activeItem && !mobileOpen" class="mega-header__featured">
-          <slot name="widget" :item="activeItem">
-            <h3>{{ activeItem.label }}</h3>
-            <p v-if="activeItem.lead" class="sm" style="color: var(--muted); margin: 0 0 16px">{{ activeItem.lead }}</p>
-            <Button size="sm" :to="activeItem.to">{{ activeItem.cta ?? `Ir a ${activeItem.label}` }}</Button>
-          </slot>
-        </section>
-        <div class="mega-header__cols" :class="{ 'mega-header__cols--mobile': mobileOpen }">
+        <div class="mega-header__cols mega-header__cols--mobile">
           <section v-for="col in panelColumns" :key="col.title">
             <h5>{{ col.title }}</h5>
             <p v-if="col.copy" class="meta" style="margin: 0 0 10px">{{ col.copy }}</p>
-            <ul>
+            <ul class="mega-header__links">
               <li v-for="link in col.links" :key="link.label">
-                <AppLink :to="link.to" :href="link.href">{{ link.label }}</AppLink>
+                <AppLink :to="link.to" :href="link.href" class="mega-header__tile">
+                  <strong>{{ link.label }}</strong>
+                  <span v-if="link.note">{{ link.note }}</span>
+                </AppLink>
               </li>
             </ul>
           </section>

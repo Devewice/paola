@@ -34,24 +34,12 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
     cta: 'Ir a Parchese',
     columns: [
       {
-        title: 'Rodar',
+        title: 'Parchese',
         links: [
-          { label: 'Próxima rodada', to: APP_PATHS.PARCHESE },
-          { label: 'Memorias', to: APP_PATHS.PARCHESE },
-        ],
-      },
-      {
-        title: 'Comunidad',
-        links: [
-          { label: 'Publicaciones', to: APP_PATHS.FEED },
-          { label: 'Así va el parche', to: APP_PATHS.PARCHESE },
-        ],
-      },
-      {
-        title: 'Más',
-        links: [
-          { label: 'Inicio', to: APP_PATHS.INICIO },
-          { label: 'Cuenta', to: APP_PATHS.CUENTA },
+          { label: 'Próxima rodada', note: 'Fecha, cupo y punto de encuentro', to: `${APP_PATHS.PARCHESE}#agenda` },
+          { label: 'Memorias', note: 'Fotos y kilómetros de cada salida', to: `${APP_PATHS.PARCHESE}#memorias` },
+          { label: 'Integrantes', note: 'Quiénes ruedan con el parche', to: `${APP_PATHS.PARCHESE}#integrantes` },
+          { label: 'Feed', note: 'Lo que se comenta y se sube', to: APP_PATHS.FEED },
         ],
       },
     ],
@@ -63,24 +51,11 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
     cta: 'Ir a Tu voz',
     columns: [
       {
-        title: 'Educación',
+        title: 'Tu voz',
         links: [
-          { label: 'Tips de vía', to: `${APP_PATHS.TU_VOZ}#tips` },
-          { label: 'Comparendos · guía', to: `${APP_PATHS.TU_VOZ}#comparendos` },
-        ],
-      },
-      {
-        title: 'Parche',
-        links: [
-          { label: 'Reportes', to: `${APP_PATHS.TU_VOZ}#reportes` },
-          { label: 'Moderación', to: `${APP_PATHS.PRIVACIDAD}#moderacion` },
-        ],
-      },
-      {
-        title: 'Legal',
-        links: [
-          { label: 'Aviso de privacidad', to: APP_PATHS.PRIVACIDAD },
-          { label: 'Cómo leer un comparendo', to: `${APP_PATHS.TU_VOZ}#comparendos` },
+          { label: 'Tips de vía', note: 'Seguridad y ley, sin rodeos', to: `${APP_PATHS.TU_VOZ}#tips` },
+          { label: 'Comparendos', note: 'Cómo leerlos y dónde consultar', to: `${APP_PATHS.TU_VOZ}#comparendos` },
+          { label: 'Reportes', note: 'Cuenta lo que pasó en la vía', to: `${APP_PATHS.TU_VOZ}#reportes` },
         ],
       },
     ],
@@ -94,22 +69,9 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
       {
         title: 'Tienda',
         links: [
-          { label: 'Marca Paola', to: APP_PATHS.TIENDA },
-          { label: 'Colaboraciones', to: APP_PATHS.TIENDA },
-        ],
-      },
-      {
-        title: 'Servicio',
-        links: [
-          { label: 'Lavado de casco', to: APP_PATHS.TIENDA },
-          { label: 'Escríbeme', to: APP_PATHS.PAOLA },
-        ],
-      },
-      {
-        title: 'Reglas',
-        links: [
-          { label: 'Bogotá y Soacha', to: APP_PATHS.TIENDA },
-          { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
+          { label: 'Marca Paola', note: 'Equipo con la marca del parche', to: APP_PATHS.TIENDA },
+          { label: 'Colaboraciones', note: 'Productos de las alianzas', to: APP_PATHS.TIENDA },
+          { label: 'Lavado de casco', note: 'Si queda mal, se corrige', to: APP_PATHS.TIENDA },
         ],
       },
     ],
@@ -123,22 +85,8 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
       {
         title: 'Paola',
         links: [
-          { label: 'Quién soy', to: `${APP_PATHS.PAOLA}#quien` },
-          { label: 'Contacto', to: `${APP_PATHS.PAOLA}#contacto` },
-        ],
-      },
-      {
-        title: 'Cuenta',
-        links: [
-          { label: 'Tu cuenta', to: APP_PATHS.CUENTA },
-          { label: 'Feed', to: APP_PATHS.FEED },
-        ],
-      },
-      {
-        title: 'Legal',
-        links: [
-          { label: 'Privacidad', to: APP_PATHS.PRIVACIDAD },
-          { label: 'Moderación', to: `${APP_PATHS.PRIVACIDAD}#moderacion` },
+          { label: 'Quién soy', note: 'De Usme a la carretera', to: `${APP_PATHS.PAOLA}#quien` },
+          { label: 'Contacto', note: 'Escríbeme por WhatsApp o correo', to: `${APP_PATHS.PAOLA}#contacto` },
         ],
       },
     ],

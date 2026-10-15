@@ -28,7 +28,12 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
     const memories = this.rides.getMemories()
     const tips = this.voice.getTips()
     const today = new Date().toISOString().slice(0, 10)
-    const upcoming = agenda.items.find((item) => item.when === 'proxima')
+    const outings = this.rides.listOutings()
+    const upcoming = this.rides.nextOpenOuting()
+    const last =
+      outings
+        .filter((outing) => outing.date < today)
+        .reduce<Outing | null>((acc, outing) => (!acc || outing.date > acc.date ? outing : acc), null)
     const join = this.club.getJoinChannel()
     const members = this.club.getMembers()
     const quien = this.paola.getPage().narrative.find((section) => section.id === 'quien')
@@ -37,8 +42,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
     const photoByOuting = new Map(
       memories.items.map((memory) => [memory.outingId, memory.photos[0]] as const),
     )
-    const rodadas = this.rides
-      .listOutings()
+    const rodadas = outings
       .filter(
         (outing) =>
           outing.kind === RIDES_KIND.RODADA &&
@@ -53,10 +57,15 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
             title: upcoming.title,
             date: upcoming.date,
             kind: upcoming.kind,
-            point: upcoming.point,
+            point: upcoming.meetingPoint,
+            route: upcoming.routeText,
+            spotsLeft: upcoming.capacity > 0 ? remainingSpots(upcoming) : null,
+            capacity: upcoming.capacity > 0 ? upcoming.capacity : null,
+            photoSrc: photoByOuting.get(upcoming.id)?.src,
           }
         : null,
       nextEmptyCopy: agenda.emptyCopy,
+      last: last ? { title: last.title, date: last.date } : null,
       rodadas,
       join: {
         href: join.href,

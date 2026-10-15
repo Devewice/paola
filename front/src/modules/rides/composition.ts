@@ -2,7 +2,12 @@ import { GetAgenda } from '@modules/rides/application/GetAgenda.ts'
 import { GetMemories } from '@modules/rides/application/GetMemories.ts'
 import { ListOutings } from '@modules/rides/application/ListOutings.ts'
 import type { MemoryDraft } from '@modules/rides/domain/entities/Memory.ts'
-import type { OperatorOutingStatus, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
+import {
+  isClaimable,
+  type OperatorOutingStatus,
+  type Outing,
+  type OutingDraft,
+} from '@modules/rides/domain/entities/Outing.ts'
 import type { TicketDraft } from '@modules/rides/domain/entities/Ticket.ts'
 import type { MemoryCatalogPort } from '@modules/rides/domain/ports/MemoryCatalogPort.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
@@ -13,6 +18,8 @@ const today = () => new Date().toISOString().slice(0, 10)
 export type RidesModule = {
   getAgenda: () => ReturnType<GetAgenda['execute']>
   listOutings: () => ReturnType<ListOutings['execute']>
+  nextOpenOuting: () => Outing | null
+  canClaim: (outing: Outing) => boolean
   getMemories: () => ReturnType<GetMemories['execute']>
   claimSpot: RidesApiPort['claim']
   setOutingStatus: (
@@ -37,6 +44,8 @@ export function createRidesModule(
   return {
     getAgenda: () => getAgenda.execute(),
     listOutings: () => listOutings.execute(),
+    nextOpenOuting: () => listOutings.execute().find((item) => isClaimable(item, today())) ?? null,
+    canClaim: (outing) => isClaimable(outing, today()),
     getMemories: () => getMemories.execute(),
     claimSpot: (outingId, draft: TicketDraft) => api.claim(outingId, draft),
     setOutingStatus: (outingId, status, clave) => api.setStatus(outingId, status, clave),

@@ -10,26 +10,37 @@ export const JOIN_COPY = {
   copy: 'Escríbeme y te agrego al grupo.',
 } as const
 
-export const PARCHESE_COPY = {
-  kicker: 'Parchese',
-  title: 'El club',
-  plate: 'Parche',
-  lead: 'Las rodadas, cómo unirse y quiénes ya son del parche.',
-  cycleHeading: 'El ciclo',
-  cyclePending: 'Aún no hay memoria.',
-  cycleDone: 'Ya hay memoria de lo que rodamos.',
+export const CLUB_ROSTER_COPY = {
   rosterHeading: 'Así va el parche',
+  rosterLead: 'Solo sale quien dio permiso. Sin WhatsApp ni correo a la vista.',
   rosterEmptyTitle: 'Todavía nadie',
-  talkHeading: 'Dónde hablamos',
-  feedLink: 'Ver publicaciones',
-  alliancesKicker: 'Alianzas',
-  alliancesTitle: 'Quienes apoyan',
+  alliancesHeading: 'Quienes apoyan',
+  alliancesLead: 'Aliados que bancan el parche. No son productos de la tienda.',
+  alliancesEmptyTitle: 'Sin aliados aún',
+  allianceVisit: 'Visitar',
 } as const
 
-export const PARCHESE_TABS = [
-  { id: 'club', label: 'El club' },
-  { id: 'actividad', label: 'Actividad' },
-] as const
+export const CLUB_ADMIN_COPY = {
+  memberTitle: 'Nuevo integrante',
+  memberLead: 'Solo con permiso. Sin WhatsApp ni correo: alias, moto e Instagram si quiere.',
+  fieldAlias: 'Alias',
+  fieldMoto: 'Moto (opcional)',
+  fieldInstagram: 'Instagram (opcional)',
+  memberCta: 'Agregar integrante',
+  memberOk: 'Integrante agregado.',
+  memberFail: 'No se pudo agregar el integrante.',
+  allianceTitle: 'Nueva alianza',
+  allianceLead: 'Quien apoya al parche. Sale en Parchese y en el pie de página.',
+  fieldName: 'Nombre',
+  fieldSupport: 'Cómo apoya',
+  fieldHref: 'Enlace (opcional)',
+  allianceCta: 'Agregar alianza',
+  allianceOk: 'Alianza agregada.',
+  allianceFail: 'No se pudo agregar la alianza.',
+  currentMembers: 'Integrantes',
+  currentAlliances: 'Alianzas',
+  none: 'Ninguno todavía.',
+} as const
 
 export const CLUB_API_MESSAGES = {
   ALLIANCE_PARSE_FAIL: 'La API devolvió un aliado que no se entiende.',

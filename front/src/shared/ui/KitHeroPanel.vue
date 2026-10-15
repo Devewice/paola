@@ -51,7 +51,7 @@ const mediaStyle = computed(() => {
 
 <template>
   <span class="kit-hero__panel-label">{{ label }}</span>
-  <div class="kit-hero__panel-media" :style="mediaStyle">
+  <div class="kit-hero__panel-media" :class="{ 'is-blank': blankMedia && !mediaSrc }" :style="mediaStyle">
     <span>{{ mediaLabel }}</span>
   </div>
   <div class="kit-hero__panel-title">

@@ -338,6 +338,50 @@ export function shopResultCopy(count: number): string {
   return `${count} ${SHOP_COPY.countMany}`
 }
 
+export const SHOP_ADMIN_COPY = {
+  productTitle: 'Nuevo producto',
+  productLead: 'Marca propia o colaboración. Sin precio queda en «Preguntar».',
+  fieldTitle: 'Nombre',
+  fieldDescription: 'Qué es, en una frase',
+  fieldKind: 'Estantería',
+  kindOwn: 'Marca propia',
+  kindCollab: 'Colaboración',
+  fieldCategory: 'Categoría',
+  categoryNone: 'Sin categoría',
+  fieldPrice: 'Precio (COP, opcional)',
+  fieldStock: 'Stock (opcional)',
+  fieldPhoto: 'Enlace de la foto (opcional)',
+  productCta: 'Publicar producto',
+  productOk: 'Producto publicado.',
+  productFail: 'No se pudo publicar el producto.',
+  serviceTitle: 'Nuevo lavado de casco',
+  serviceLead: 'Qué incluye, cómo se entrega y cuánto tarda.',
+  fieldServiceTitle: 'Nombre del lavado',
+  fieldIncludes: 'Qué incluye',
+  fieldHandover: 'Cómo se entrega',
+  fieldTurnaround: 'Cuánto tarda',
+  serviceCta: 'Publicar lavado',
+  serviceOk: 'Lavado publicado.',
+  serviceFail: 'No se pudo publicar el lavado.',
+  ordersTitle: 'Pedidos',
+  ordersLead: 'Lo que llegó desde la web. El cobro y la entrega se cuadran por WhatsApp.',
+  ordersEmpty: 'Aún no hay pedidos.',
+  ordersLoadFail: 'No se pudieron cargar los pedidos.',
+  ordersWrite: 'Escribir',
+  orderPaid: 'Pagado',
+  orderUnpaid: 'Sin pagar',
+  zoneLabels: {
+    bogota: 'Bogotá',
+    soacha: 'Soacha',
+    fuera: 'Fuera de zona',
+  },
+  statusLabels: {
+    pendiente: 'Pendiente',
+    cancelado: 'Cancelado',
+    entregado: 'Entregado',
+  },
+} as const
+
 export const SHOP_API_MESSAGES = {
   PARSE_FAIL: 'La API devolvió un producto que no se entiende.',
   PARSE_SERVICE_FAIL: 'La API devolvió un lavado que no se entiende.',

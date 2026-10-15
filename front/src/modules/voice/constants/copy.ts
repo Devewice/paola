@@ -52,6 +52,43 @@ export const VOICE_COPY = {
   featuredEmpty: 'Pronto hay tip de vía aquí.',
 } as const
 
+export const VOICE_ADMIN_COPY = {
+  tipTitle: 'Nuevo tip de vía',
+  tipLead: 'Corto y claro. Si hay fuente oficial, pon el enlace.',
+  tipFieldTitle: 'Título',
+  tipFieldBody: 'Qué hay que saber',
+  tipFieldHref: 'Enlace oficial (opcional)',
+  tipCta: 'Publicar tip',
+  tipOk: 'Tip publicado.',
+  tipFail: 'No se pudo publicar el tip.',
+  fineTitle: 'Nueva guía de comparendo',
+  fineLead: 'Solo educación: qué significa y dónde consultar. El aviso legal es obligatorio.',
+  fineFieldTitle: 'Comparendo',
+  fineFieldGuide: 'Qué suele significar',
+  fineFieldHref: 'Enlace de consulta oficial',
+  fineFieldDisclaimer: 'Aviso',
+  fineDisclaimerDefault: 'Orientación del parche. No es asesoría jurídica ni trámite oficial.',
+  fineCta: 'Publicar guía',
+  fineOk: 'Guía publicada.',
+  fineFail: 'No se pudo publicar la guía.',
+  reportsTitle: 'Reportes por moderar',
+  reportsLead: 'Publica solo lo que sea constancia. Sin linchamiento, menores ni doxxing.',
+  reportsEmpty: 'No hay reportes por revisar.',
+  reportsLoadFail: 'No se pudieron cargar los reportes.',
+  reportPublish: 'Publicar',
+  reportHide: 'Ocultar',
+  reportReject: 'Rechazar',
+  reportOk: 'Reporte actualizado.',
+  reportFail: 'No se pudo actualizar el reporte.',
+  reportEvidence: 'Ver evidencia',
+  statusLabels: {
+    in_review: 'En revisión',
+    published: 'Publicado',
+    hidden: 'Oculto',
+    rejected: 'Rechazado',
+  },
+} as const
+
 export const VOICE_LIMITS = {
   TITLE_MIN: 2,
   BODY_MIN: 2,

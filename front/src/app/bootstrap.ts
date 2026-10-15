@@ -49,6 +49,8 @@ import {
   InMemoryReportCatalog,
   HttpReportApi,
   InMemoryReportApi,
+  HttpVoiceAdminApi,
+  InMemoryVoiceAdminApi,
   type VoiceModule,
 } from '@modules/voice/index.ts'
 import type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
@@ -101,7 +103,13 @@ function wire(
       },
     }),
   )
-  const voice = createVoiceModule(tipCatalog, fineCatalog, reportCatalog, reportSubmit)
+  const voice = createVoiceModule(
+    tipCatalog,
+    fineCatalog,
+    reportCatalog,
+    reportSubmit,
+    ordersMode === 'http' ? new HttpVoiceAdminApi() : new InMemoryVoiceAdminApi(),
+  )
   const ordersApi =
     ordersMode === 'http'
       ? new HttpShopOrdersApi({ whatsappHref: contact.whatsapp.href })

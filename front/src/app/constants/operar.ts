@@ -3,7 +3,15 @@ export const OPERAR_CLAVE_STORAGE_KEY = 'paola_operador_clave'
 export const OPERAR_COPY = {
   kicker: 'Operar',
   title: 'Admin',
-  lead: 'Publicas el oficio desde acá. Pasarela, mazo y login con Gmail se arman con asistentes. WhatsApp no se apaga.',
+  lead: 'Publicas el oficio desde acá: rodadas, memorias, tips, tienda y parche. WhatsApp no se apaga.',
+  tabs: [
+    { id: 'rodadas', label: 'Rodadas' },
+    { id: 'voz', label: 'Tu voz' },
+    { id: 'tienda', label: 'Tienda' },
+    { id: 'parche', label: 'Parche' },
+    { id: 'ajustes', label: 'Ajustes' },
+  ],
+  logout: 'Salir',
   claveLabel: 'Clave de operadora',
   enter: 'Entrar',
   unlockFail: 'Esa clave no entra.',

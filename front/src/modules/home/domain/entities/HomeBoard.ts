@@ -5,6 +5,16 @@ export type HomeNextOuting = {
   readonly date: string
   readonly kind: HomeOutingKind
   readonly point: string
+  readonly route: string
+  /** Cupos libres o null si la salida no lleva cupo. */
+  readonly spotsLeft: number | null
+  readonly capacity: number | null
+  readonly photoSrc?: string
+}
+
+export type HomeLastOuting = {
+  readonly title: string
+  readonly date: string
 }
 
 /** Tarjeta del mazo del hero: solo rodadas próximas. */
@@ -55,6 +65,7 @@ export type HomeMemoryFlash = {
 export type HomeBoard = {
   readonly next: HomeNextOuting | null
   readonly nextEmptyCopy: string
+  readonly last: HomeLastOuting | null
   /** Solo rodadas próximas, en orden de fecha. */
   readonly rodadas: readonly HomeRodadaCard[]
   readonly join: HomeJoinCta

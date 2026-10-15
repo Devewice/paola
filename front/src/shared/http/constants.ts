@@ -50,6 +50,7 @@ export const API = {
   OPERAR_PRODUCTS: '/api/operar/products',
   OPERAR_SERVICES: '/api/operar/services',
   OPERAR_ORDERS: '/api/operar/orders',
+  OPERAR_TIPS: '/api/operar/tips',
   OPERAR_FINES: '/api/operar/fines',
   OPERAR_REPORTS: '/api/operar/reports',
   OPERAR_COMMUNITIES: '/api/operar/communities',

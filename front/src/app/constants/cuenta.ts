@@ -88,18 +88,24 @@ export const LOGIN_COPY = {
 } as const
 
 export const PARCERO_COPY = {
+  kicker: 'Parcero',
   title: 'Parcero',
-  lead: 'Perfil público. No se muestra WhatsApp ni correo.',
-  hidden: 'Este perfil no está visible, o no hay permiso para mostrarlo.',
-  km: 'Km (si los contamos)',
+  lead: 'Perfil público del parche. Aquí nunca se muestra WhatsApp ni correo.',
+  loading: 'Cargando perfil…',
+  hiddenTitle: 'Perfil privado',
+  hidden: 'Este perfil no existe o su dueño decidió no mostrarlo.',
+  km: 'Km rodados',
   moto: 'Moto',
   follow: 'Seguir',
   friend: 'Agregar amigo',
-  memberNote: 'Si también aparece en Así va el parche, es con su permiso.',
-  followNeedAccount: 'Entra a tu cuenta para seguir.',
-  followed: 'Ahora lo sigues.',
-  friendNeedAccount: 'Entra a tu cuenta para agregar amigo.',
-  friendSent: 'Solicitud enviada.',
+  feedCta: 'Volver al feed',
+  memberNote: 'Si sale en Parchese, es porque dio permiso.',
+  followNeedAccount: 'Entra a tu cuenta para seguir parceros.',
+  followFail: 'No se pudo seguir. Intenta de nuevo.',
+  followed: 'Listo, ahora lo sigues.',
+  friendNeedAccount: 'Entra a tu cuenta para agregar amigos.',
+  friendFail: 'No se pudo enviar la solicitud.',
+  friendSent: 'Solicitud enviada. Tu WhatsApp no se comparte.',
 } as const
 
 export const OPERAR_REPORTS_COPY = {

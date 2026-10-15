@@ -33,3 +33,8 @@ export type OutingDraft = {
 export function remainingSpots(outing: Outing): number {
   return Math.max(0, outing.capacity - outing.taken)
 }
+
+/** Abierta y con fecha de hoy en adelante. `today` es ISO `YYYY-MM-DD`. */
+export function isClaimable(outing: Outing, today: string): boolean {
+  return outing.status === 'abierto' && outing.date >= today
+}

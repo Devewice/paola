@@ -6,12 +6,17 @@ import type { FineCatalogPort } from '@modules/voice/domain/ports/FineCatalogPor
 import type { ReportCatalogPort } from '@modules/voice/domain/ports/ReportCatalogPort.ts'
 import type { ReportSubmitPort } from '@modules/voice/domain/ports/ReportSubmitPort.ts'
 import type { TipCatalogPort } from '@modules/voice/domain/ports/TipCatalogPort.ts'
+import type { VoiceAdminPort } from '@modules/voice/domain/ports/VoiceAdminPort.ts'
 
 export type VoiceModule = {
   getTips: () => ReturnType<GetTips['execute']>
   getFines: () => ReturnType<GetFines['execute']>
   getReports: () => ReturnType<GetReports['execute']>
   submitReport: (draft: Record<string, unknown>) => ReturnType<SubmitReport['execute']>
+  createTip: VoiceAdminPort['createTip']
+  createFine: VoiceAdminPort['createFine']
+  listOperatorReports: VoiceAdminPort['listReports']
+  moderateReport: VoiceAdminPort['moderateReport']
 }
 
 export function createVoiceModule(
@@ -19,6 +24,7 @@ export function createVoiceModule(
   fines: FineCatalogPort,
   reports: ReportCatalogPort,
   submit: ReportSubmitPort,
+  admin: VoiceAdminPort,
 ): VoiceModule {
   const getTips = new GetTips(tips)
   const getFines = new GetFines(fines)
@@ -30,5 +36,9 @@ export function createVoiceModule(
     getFines: () => getFines.execute(),
     getReports: () => getReports.execute(),
     submitReport: (draft) => submitReport.execute(draft),
+    createTip: (draft, clave) => admin.createTip(draft, clave),
+    createFine: (draft, clave) => admin.createFine(draft, clave),
+    listOperatorReports: (clave) => admin.listReports(clave),
+    moderateReport: (id, status, clave, note) => admin.moderateReport(id, status, clave, note),
   }
 }

@@ -370,6 +370,10 @@ function reportMeta(item: { whereText: string; happenedAt: string }): string {
   gap: 10px;
 }
 
+.voice-board__dual :deep(.where-we-talk) {
+  grid-template-columns: 1fr;
+}
+
 .voice-board__tip-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
+import { RIDES_MEMORIES_COPY } from '@modules/rides/constants/copy.ts'
 import type { RidesModule } from '@modules/rides/index.ts'
 import { APP_PATHS, JSON_HEADERS, apiMemoryComments } from '@shared/http/constants.ts'
+import { MASCOT } from '@shared/ui/mascot.ts'
 import Button from '@ui/Button.vue'
 import Comment from '@ui/Comment.vue'
 import Empty from '@ui/Empty.vue'
@@ -11,6 +14,7 @@ import MemoriaHero from '@ui/MemoriaHero.vue'
 import StatGrid from '@ui/StatGrid.vue'
 import Textarea from '@ui/Textarea.vue'
 import VoiceBadge from '@ui/VoiceBadge.vue'
+import { showToast } from '@ui/toast.ts'
 
 const props = defineProps<{
   module: RidesModule
@@ -18,18 +22,35 @@ const props = defineProps<{
 
 type MemoryCommentRow = { id: string; authorAlias?: string; alias?: string; body: string }
 
-const memories = props.module.getMemories()
-const latest = memories.items[0] ?? null
-const photoCount = memories.items.reduce((sum, item) => sum + item.photos.length, 0)
+const copy = RIDES_MEMORIES_COPY
+const memories = computed(() => props.module.getMemories())
+const latest = computed(() => memories.value.items[0] ?? null)
+const photoCount = computed(() =>
+  memories.value.items.reduce((sum, item) => sum + item.photos.length, 0),
+)
+const stats = computed(() => [
+  { value: String(memories.value.totalKm), label: copy.statKm },
+  { value: String(photoCount.value), label: copy.statPhotos },
+  { value: String(memories.value.items.length), label: copy.statRides },
+])
 const comments = ref<readonly MemoryCommentRow[]>([])
 const commentBody = ref('')
-const sessionId = ref(typeof localStorage !== 'undefined' ? localStorage.getItem('paola_session_id') ?? '' : '')
-const commentError = ref('')
+const sending = ref(false)
+const sessionId = ref(readSession())
+
+function readSession(): string {
+  try {
+    return localStorage.getItem(SESSION_STORAGE_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
 
 onMounted(async () => {
-  if (!latest) return
+  const memory = latest.value
+  if (!memory) return
   try {
-    const response = await fetch(apiMemoryComments(latest.id))
+    const response = await fetch(apiMemoryComments(memory.id))
     if (!response.ok) return
     const body = await response.json()
     comments.value = Array.isArray(body.comments) ? body.comments : []
@@ -39,93 +60,132 @@ onMounted(async () => {
 })
 
 async function sendComment(): Promise<void> {
-  commentError.value = ''
-  if (!latest) return
+  const memory = latest.value
+  if (!memory || sending.value) return
   if (!sessionId.value) {
-    commentError.value = 'Entra a tu cuenta para comentar. WhatsApp sigue abierto.'
+    showToast(copy.commentNeedAccount, 'warn')
     return
   }
-  const response = await fetch(apiMemoryComments(latest.id), {
-    method: 'POST',
-    headers: { ...JSON_HEADERS, 'x-session-id': sessionId.value },
-    body: JSON.stringify({ body: commentBody.value }),
-  })
-  if (!response.ok) {
-    commentError.value = 'No se pudo enviar. Moderamos los comentarios.'
-    return
+  sending.value = true
+  try {
+    const response = await fetch(apiMemoryComments(memory.id), {
+      method: 'POST',
+      headers: { ...JSON_HEADERS, 'x-session-id': sessionId.value },
+      body: JSON.stringify({ body: commentBody.value }),
+    })
+    if (!response.ok) {
+      showToast(copy.commentFail, 'bad')
+      return
+    }
+    commentBody.value = ''
+    showToast(copy.commentSent, 'ok')
+  } catch {
+    showToast(copy.commentFail, 'bad')
+  } finally {
+    sending.value = false
   }
-  commentBody.value = ''
-  commentError.value = 'Enviado. Si entra a revisión, lo ves cuando lo publiquemos.'
 }
 </script>
 
 <template>
-  <section class="parchese-page__memorias" aria-label="Memorias">
-    <VoiceBadge voice="incauta" />
-    <h2 class="paola-page__heading type-display">Memorias</h2>
+  <section class="memorias" :aria-label="copy.aria">
+    <header class="memorias__head">
+      <VoiceBadge voice="incauta" />
+      <h2 class="paola-page__heading type-display">{{ copy.heading }}</h2>
+    </header>
 
-    <template v-if="latest">
-      <MemoriaHero
-        :title="latest.title"
-        :meta="`${latest.date} · ${latest.km} km · ${latest.credit}`"
-      />
-      <Gallery :photos="latest.photos" />
-      <StatGrid
-        :items="[
-          { value: String(memories.totalKm), label: 'Km del parche' },
-          { value: String(photoCount), label: 'Fotos' },
-          { value: String(memories.items.length), label: 'Rodadas' },
-        ]"
-      />
-      <p class="paola-page__copy">{{ latest.participantsText }}</p>
-      <p class="paola-page__copy paola-page__copy--muted">{{ latest.closingText }}</p>
-      <p v-if="latest.instagramHref" class="paola-page__copy paola-page__copy--muted">
-        <a :href="latest.instagramHref" target="_blank" rel="noopener noreferrer">Instagram de la salida</a>
-      </p>
-
-      <h3 class="paola-page__heading">Comentarios</h3>
-      <p class="paola-page__copy paola-page__copy--muted">
-        Respeto, no doxxing, no menores. Moderamos. No es un chat ni un tribunal.
-      </p>
-      <div v-if="comments.length" class="parchese-page__comments">
-        <Comment
-          v-for="item in comments"
-          :key="item.id"
-          :author="item.authorAlias ?? item.alias ?? 'parcero'"
-          :body="item.body"
+    <div v-if="latest" class="memorias__layout">
+      <div class="memorias__main">
+        <MemoriaHero
+          :title="latest.title"
+          :meta="`${latest.date} · ${latest.km} km · ${latest.credit}`"
         />
+        <Gallery :photos="latest.photos" />
+        <p class="paola-page__copy">{{ latest.participantsText }}</p>
+        <p class="paola-page__copy paola-page__copy--muted">{{ latest.closingText }}</p>
+        <p v-if="latest.instagramHref" class="paola-page__copy paola-page__copy--muted">
+          <a :href="latest.instagramHref" target="_blank" rel="noopener noreferrer">{{ copy.instagram }}</a>
+        </p>
       </div>
-      <p v-else class="paola-page__copy paola-page__copy--muted">Aún no hay comentarios publicados.</p>
-      <p v-if="commentError" class="paola-page__copy paola-page__copy--muted">{{ commentError }}</p>
-      <form class="parchese-page__comment-form" @submit.prevent="sendComment">
-        <Field label="Comentar">
-          <Textarea v-model="commentBody" />
-        </Field>
-        <Button type="submit" size="sm">Enviar</Button>
-        <Button v-if="!sessionId" type="button" size="sm" variant="ghost" :to="APP_PATHS.CUENTA">Cuenta</Button>
-      </form>
-    </template>
+
+      <aside class="memorias__rail">
+        <StatGrid :items="stats" />
+        <h3 class="paola-page__heading">{{ copy.commentsHeading }}</h3>
+        <p class="paola-page__copy paola-page__copy--muted">{{ copy.commentsRules }}</p>
+        <div v-if="comments.length" class="memorias__comments">
+          <Comment
+            v-for="item in comments"
+            :key="item.id"
+            :author="item.authorAlias ?? item.alias ?? copy.commentAuthorFallback"
+            :body="item.body"
+          />
+        </div>
+        <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.commentsEmpty }}</p>
+        <form class="memorias__form" @submit.prevent="sendComment">
+          <Field :label="copy.commentLabel">
+            <Textarea v-model="commentBody" />
+          </Field>
+          <div class="memorias__form-actions">
+            <Button type="submit" size="sm" :disabled="sending">{{ copy.commentSend }}</Button>
+            <Button v-if="!sessionId" size="sm" variant="ghost" :to="APP_PATHS.ENTRAR">
+              {{ copy.commentLogin }}
+            </Button>
+          </div>
+        </form>
+      </aside>
+    </div>
 
     <Empty
       v-else
       compact
       hide-cta
-      title="Sin recuento aún"
+      :title="copy.emptyTitle"
       :copy="memories.emptyCopy"
-      mascot-src="/mascota/tumbada.png"
+      :mascot-src="MASCOT.TUMBADA"
     />
   </section>
 </template>
 
 <style scoped>
-.parchese-page__memorias,
-.parchese-page__comments,
-.parchese-page__comment-form {
+.memorias,
+.memorias__main,
+.memorias__rail,
+.memorias__comments,
+.memorias__form {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
-.parchese-page__comments {
-  margin: 0;
-  padding-left: 1.2rem;
+
+.memorias__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.memorias__layout {
+  display: grid;
+  gap: 24px 32px;
+  align-items: start;
+}
+
+.memorias__rail {
+  padding: 16px;
+  border: 1px solid rgba(72, 180, 252, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 16, 40, 0.35);
+}
+
+.memorias__form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 960px) {
+  .memorias__layout {
+    grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr);
+  }
 }
 </style>

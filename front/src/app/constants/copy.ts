@@ -4,9 +4,7 @@ export const CONTACT_COPY = {
   ctaMail: 'Escríbenos por correo',
 } as const
 
-export const COMING_SOON_FALLBACK = 'Esto todavía no está listo. Vuelve pronto o escríbeme.'
 export const COMING_SOON_DEFAULT_TITLE = 'Próximamente'
-export const COMING_SOON_PLATE = 'Loigca'
 
 export const ROUTE_TITLES = {
   INICIO: 'Inicio',
@@ -24,14 +22,13 @@ export const ROUTE_TITLES = {
   ENTRAR: 'Entrar',
   FEED: 'Feed',
   PARCERO: 'Parcero',
-  NOT_FOUND: 'No está',
+  NOT_FOUND: 'Página no encontrada',
 } as const
 
 export const NOT_FOUND_COPY = {
-  kicker: '404',
-  title: 'Esta página no existe',
-  lead: 'Revisa el enlace o vuelve al inicio. También puedes escribirme.',
-  cta: 'Volver al inicio',
+  kicker: 'error 404',
+  title: 'Ruta perdida',
+  lead: 'Esta página no existe o cambió de lugar. Vuelve al inicio, o escríbeme si buscabas algo puntual.',
 } as const
 
 export const OG_COPY = {
@@ -42,7 +39,7 @@ export const OG_COPY = {
 
 export const PAGE_VACANT_COPY = {
   kicker: 'en construcción',
-  lead: 'Esta sección todavía no está lista. Vuelve pronto o escríbeme.',
+  lead: 'Esta sección la estoy armando. Vuelve pronto, o escríbeme si necesitas algo ya.',
   ctaHome: 'Volver al inicio',
   ctaContact: 'Escríbeme',
   contactMail: 'contacto@paolabiker.com',

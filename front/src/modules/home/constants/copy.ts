@@ -1,9 +1,14 @@
 export const HOME_JOIN_LABEL = 'Grupo de WhatsApp'
 
+export const HOME_LOGO_SRC = '/logo.png'
+export const HOME_PAOLA_PHOTO = '/kit-assets/paola-moto.png'
+
 export const HOME_PULSE_COPY = {
+  kicker: 'Del parche',
   heading: 'El parche en vivo',
-  lead: 'Lo que se comenta, se sube y se recuerda. Si algo quema, el grupo de WhatsApp.',
-  empty: 'Aún no hay publicaciones en el feed.',
+  lead: 'Lo que se comenta, se sube y se recuerda. Si algo quema, va primero al grupo.',
+  emptyTitle: 'El muro está quieto',
+  empty: 'Todavía nadie ha subido nada. Sé el primero en contar cómo te fue en la última rodada.',
   cta: 'Ver todo el feed',
 } as const
 
@@ -14,44 +19,37 @@ export const HOME_BOARD_COPY = {
   motto: 'No importa el CC · Aprendamos · Compartamos · Seguridad en la vía',
   scrollLabel: 'Ver más',
   panelLabel: 'Hoy',
-  panelEmptyMedia: 'Aún no hay foto.',
-  panelTitle: 'Rodada Anapoima :)',
+  panelEmptyMedia: 'La foto sale con la próxima rodada.',
+  panelEmptyTitle: 'Sin fecha',
   splashSoon: 'Pronto',
   nextCta: 'Parchese aquí',
-  parcheseCta: 'Parchese',
-  kmHeading: 'Kilómetros',
-  kmLabel: 'Lo que hemos rodado',
-  memoryHeading: 'Memoria',
-  voiceHeading: 'Tu voz',
-  voiceCta: 'Tips de vía',
+  stamp: '¡Nos vemos en la ruta!',
+
+  nextKicker: 'Próxima salida',
+  nextSpotsLabel: 'cupos libres',
+  nextNoCapacity: 'Sin límite de cupo',
+  nextCtaDetail: 'Ver cupo y ruta',
+  nextEmptyTitle: 'Sin fecha por ahora',
+  nextEmptyLead: 'La próxima la anuncio primero en el grupo. Únete y te aviso apenas haya ruta.',
+  nextLastPrefix: 'La última fue',
+  nextAgendaCta: 'Ver agenda',
+
+  voicesKicker: 'Tres voces',
+  voicesTitle: 'Así habla el parche',
+  voicesLead: 'Vía, memoria y relato. Cada voz tiene su espacio en el portal.',
+
+  loigcaTitle: 'Tip de vía',
+  loigcaEmpty: 'Pronto subo tips de vía, ley y comparendos. Mientras, revisa la sección de Tu voz.',
+  loigcaCta: 'Ir a Tu voz',
   officialCta: 'Consulta oficial',
-  paolaHeading: 'Paola',
+
+  incautaTitle: 'Memoria de ruta',
+  incautaEmpty: 'Las fotos de cada rodada quedan aquí. Si tienes una buena, súbela.',
+  incautaCta: 'Ver memorias',
+  memoryPhotoLabel: 'Foto de la memoria',
+  kmUnit: 'km',
+
+  armarguraTitle: 'Desde la moto',
   paolaCite: 'Paola',
   paolaCta: 'Conóceme',
-  stamp: '¡Nos vemos en la ruta!',
-  kpiRodadas: 'rodadas',
-  kpiKm: 'km acumulados',
-  kpiIntegrantes: 'integrantes',
-  boardKicker: 'Del parche',
-  boardTitle: 'Lo que sigue cuando bajas del hero',
-  boardLead:
-    'Próxima salida, kilómetros, memoria de ruta, tips de vía y la voz del parche. Todo en un vistazo.',
-  nextHeading: 'Próxima salida',
-  nextLead: 'Cupo, punto de encuentro y fecha. El detalle completo está en Parchese.',
-  nextPhotoLabel: 'Foto de la rodada',
-  nextCtaDetail: 'Ver cupo y ruta',
-  memoryPhotoLabel: 'Foto de la memoria',
-  shortcutsHeading: 'Entradas del portal',
-  shortcutsLead: 'Las cinco pestañas del parche, sin perderte.',
-  shortcutParchese: 'Parchese · rodadas',
-  shortcutTienda: 'Tienda · equipo',
-  shortcutVoz: 'Tu voz · tips y ley',
-  shortcutFeed: 'Feed · comunidad',
 } as const
-
-export const HOME_SHORTCUTS = [
-  { id: 'parchese', label: HOME_BOARD_COPY.shortcutParchese, to: '/parchese' as const },
-  { id: 'tienda', label: HOME_BOARD_COPY.shortcutTienda, to: '/tienda' as const },
-  { id: 'voz', label: HOME_BOARD_COPY.shortcutVoz, to: '/tu-voz' as const },
-  { id: 'feed', label: HOME_BOARD_COPY.shortcutFeed, to: '/feed' as const },
-] as const
