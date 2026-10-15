@@ -19,7 +19,8 @@
     "demo:rodadas:quitar": "tsx back/scripts/demo-rodadas.ts quitar",
     "demo:encuestas": "tsx back/scripts/demo-encuestas.ts",
     "demo:encuestas:quitar": "tsx back/scripts/demo-encuestas.ts quitar",
-    "start": "node back/dist/index.js"
+    "start": "node back/dist/index.js",
+    "postinstall": "node scripts/build-if-missing.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
