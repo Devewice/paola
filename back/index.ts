@@ -2,18 +2,8 @@ import dotenv from 'dotenv'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { extname, join } from 'node:path'
-import {
-  APP,
-  APP_MESSAGES,
-  ENV,
-  listenMessage,
-  MIME,
-  MIME_FALLBACK,
-  MIME_HTML,
-  migrateFailMessage,
-  mysqlWarnMessage,
-} from './constants.js'
-import { migrate } from './db/migrate.js'
+import { APP, APP_MESSAGES, BOOT_LOG, ENV, MIME, MIME_FALLBACK, MIME_HTML } from './constants.js'
+import { migrate, skipMigrations } from './db/migrate.js'
 import { pingDb } from './db/knex.js'
 import { HTTP_HEADER, HTTP_STATUS } from './http/constants.js'
 import { createRouter } from './http/router.js'
@@ -74,23 +64,17 @@ const server = createServer(async (request, response) => {
 })
 
 async function start(): Promise<void> {
+  console.log(BOOT_LOG.start(new Date().toISOString()))
   const ping = await pingDb().catch((error: unknown) => ({
     ok: false,
     detail: error instanceof Error ? error.message : APP_MESSAGES.MYSQL_FALLBACK,
   }))
-  if (ping.ok) {
-    try {
-      await migrate()
-    } catch (error) {
-      const message = error instanceof Error ? error.message : APP_MESSAGES.MIGRATE_FALLBACK
-      console.warn(migrateFailMessage(message))
-    }
-  } else {
-    console.warn(mysqlWarnMessage(ping.detail))
-  }
+  if (ping.ok) await migrate()
+  else skipMigrations(ping.detail)
 
   server.listen(port, () => {
-    console.log(listenMessage(port))
+    console.log(BOOT_LOG.listen(port))
+    console.log(BOOT_LOG.status)
   })
 }
 

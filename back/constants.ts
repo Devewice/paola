@@ -38,25 +38,25 @@ export const APP_MESSAGES = {
   NO_BUILD: 'sin build; corre npm run build',
   API_NOT_FOUND: HTTP_MESSAGES.HIDDEN,
   BACK_ALIVE: 'back vivo; el front en local lo sirve Vite',
-  MIGRATE_UP_TO_DATE: 'Paola MySQL: migraciones al día',
+  MIGRATE_UP_TO_DATE: '[Paola] Migraciones: al día, no había nada nuevo',
   MYSQL_ERROR: 'error mysql',
   MYSQL_OK: 'mysql ok',
   MYSQL_FALLBACK: 'mysql',
   MIGRATE_FALLBACK: 'migración',
 } as const
 
-export function migrateFailMessage(detail: string): string {
-  return `Paola MySQL: no se pudo migrar (${detail})`
-}
+export const MIGRATION_DETAIL_MAX = 300
 
-export function mysqlWarnMessage(detail: string): string {
-  return `Paola MySQL: ${detail}`
-}
-
-export function migrateAppliedMessage(names: string): string {
-  return `Paola MySQL: aplicadas ${names}`
-}
-
-export function listenMessage(port: number): string {
-  return `Paola back en http://127.0.0.1:${port}`
-}
+/** Líneas del arranque: en Hostinger salen en los logs de la aplicación (no en los del build). */
+export const BOOT_LOG = {
+  start: (at: string) => `[Paola] ===== Arranque ${at} =====`,
+  mysqlUp: '[Paola] MySQL: conectado',
+  mysqlDown: (detail: string) => `[Paola] MySQL: SIN CONEXIÓN (${detail})`,
+  skipped: '[Paola] Migraciones: NO se corrieron (no hay MySQL)',
+  applied: (count: number) => `[Paola] Migraciones: ${count} aplicada${count === 1 ? '' : 's'} ahora`,
+  item: (name: string) => `[Paola]   + ${name}`,
+  last: (name: string, total: number) => `[Paola] Última migración en la base: ${name} (${total} en total)`,
+  failed: (detail: string) => `[Paola] Migraciones: FALLARON (${detail})`,
+  listen: (port: number) => `[Paola] Servidor escuchando en el puerto ${port}`,
+  status: '[Paola] Estado en /api/health',
+} as const
