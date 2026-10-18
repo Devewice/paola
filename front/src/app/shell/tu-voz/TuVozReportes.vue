@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { LEGAL_COPY } from '@app/constants/legal.ts'
+import { refreshInventory } from '@app/bootstrap.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { useTuVoz } from '@app/shell/tu-voz/context.ts'
 import { VOICE_COPY } from '@modules/voice/constants/copy.ts'
 import ReportForm from '@modules/voice/presentation/ReportForm.vue'
@@ -12,6 +14,7 @@ const copy = VOICE_COPY
 const legal = LEGAL_COPY
 const bindReveal = usePageReveal()
 const { deps } = useTuVoz()
+const { claveFor } = useAdminEdit()
 </script>
 
 <template>
@@ -22,7 +25,7 @@ const { deps } = useTuVoz()
       <div class="board-split reports-split">
         <div class="board-main">
           <BoardHead voice="armargura" :title="copy.publishedHeading" />
-          <ReportsList :module="deps.voice" />
+          <ReportsList :module="deps.voice" :edit-clave="claveFor('voz')" @changed="refreshInventory" />
         </div>
         <ReportForm :module="deps.voice" />
       </div>

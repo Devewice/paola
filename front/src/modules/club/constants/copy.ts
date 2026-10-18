@@ -50,6 +50,23 @@ export const CLUB_ADMIN_COPY = {
   currentMembers: 'Integrantes',
   currentAlliances: 'Alianzas',
   none: 'Ninguno todavía.',
+  tabMembers: 'Integrantes',
+  tabAlliances: 'Alianzas',
+  membersLead: 'Quienes salen en Parchese › El parche. Solo con su permiso.',
+  alliancesLead: 'Quienes apoyan al parche. Salen en Parchese y en el pie de página.',
+  newMember: 'Nuevo integrante',
+  newAlliance: 'Nueva alianza',
+  editMemberTitle: 'Editar integrante',
+  editAllianceTitle: 'Editar alianza',
+  save: 'Guardar cambios',
+  cancel: 'Cancelar',
+  edit: 'Editar',
+  remove: 'Borrar',
+  removeConfirm: '¿Borrar? Toca otra vez',
+  memberSaved: 'Integrante actualizado.',
+  allianceSaved: 'Alianza actualizada.',
+  removed: 'Borrado.',
+  removeFail: 'No se pudo borrar.',
 } as const
 
 export const CLUB_API_MESSAGES = {

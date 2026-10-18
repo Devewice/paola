@@ -2,7 +2,9 @@
 import { computed } from 'vue'
 import type { ClubModule } from '@modules/club/composition.ts'
 import { CLUB_ROSTER_COPY } from '@modules/club/constants/copy.ts'
+import ClubItemTools from '@modules/club/presentation/ClubItemTools.vue'
 import { MASCOT } from '@shared/ui/mascot.ts'
+import AdminSpot from '@ui/AdminSpot.vue'
 import BoardHead from '@ui/BoardHead.vue'
 import Button from '@ui/Button.vue'
 import MemberCard from '@ui/MemberCard.vue'
@@ -10,7 +12,11 @@ import StepsPoster from '@ui/StepsPoster.vue'
 
 const props = defineProps<{
   module: ClubModule
+  /** Sesión de quien opera el parche en modo edición; vacía oculta las herramientas. */
+  editClave?: string
 }>()
+
+const emit = defineEmits<{ changed: [] }>()
 
 const copy = CLUB_ROSTER_COPY
 const members = computed(() => props.module.getMembers())
@@ -23,14 +29,17 @@ const join = computed(() => props.module.getJoinChannel())
     <section id="integrantes" class="club-roster__block" :aria-label="copy.rosterHeading">
       <BoardHead voice="incauta" :title="copy.rosterHeading" :lead="copy.rosterLead" />
       <div v-if="members.items.length" class="club-roster__members">
-        <MemberCard
-          v-for="member in members.items"
-          :key="member.id"
-          :alias="member.alias"
-          :photo-src="member.photoSrc"
-          :moto="member.moto"
-          :instagram-href="member.instagramHref"
-        />
+        <AdminSpot v-for="member in members.items" :key="member.id" :active="Boolean(editClave)">
+          <template #tools>
+            <ClubItemTools :module="module" :clave="editClave ?? ''" :member="member" @changed="emit('changed')" />
+          </template>
+          <MemberCard
+            :alias="member.alias"
+            :photo-src="member.photoSrc"
+            :moto="member.moto"
+            :instagram-href="member.instagramHref"
+          />
+        </AdminSpot>
       </div>
       <StepsPoster
         v-else
@@ -54,6 +63,9 @@ const join = computed(() => props.module.getJoinChannel())
           class="poster club-roster__ally"
           :class="index % 2 ? 'poster--blue' : 'poster--navy'"
         >
+          <div v-if="editClave" class="admin-spot__tools">
+            <ClubItemTools :module="module" :clave="editClave" :alliance="ally" @changed="emit('changed')" />
+          </div>
           <h3 class="type-brush-dry type-brush-dry--xs">{{ ally.name }}</h3>
           <p>{{ ally.support }}</p>
           <Button

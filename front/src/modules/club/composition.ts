@@ -9,7 +9,11 @@ export type ClubModule = {
   getJoinChannel: () => ReturnType<GetJoinChannel['execute']>
   getMembers: () => ReturnType<GetMembers['execute']>
   createAlliance: ClubWritePort['createAlliance']
+  updateAlliance: ClubWritePort['updateAlliance']
+  removeAlliance: ClubWritePort['removeAlliance']
   createMember: ClubWritePort['createMember']
+  updateMember: ClubWritePort['updateMember']
+  removeMember: ClubWritePort['removeMember']
 }
 
 export function createClubModule(content: ClubContentPort, write: ClubWritePort): ClubModule {
@@ -22,6 +26,10 @@ export function createClubModule(content: ClubContentPort, write: ClubWritePort)
     getJoinChannel: () => getJoinChannel.execute(),
     getMembers: () => getMembers.execute(),
     createAlliance: (draft, clave) => write.createAlliance(draft, clave),
+    updateAlliance: (id, draft, clave) => write.updateAlliance(id, draft, clave),
+    removeAlliance: (id, clave) => write.removeAlliance(id, clave),
     createMember: (draft, clave) => write.createMember(draft, clave),
+    updateMember: (id, draft, clave) => write.updateMember(id, draft, clave),
+    removeMember: (id, clave) => write.removeMember(id, clave),
   }
 }

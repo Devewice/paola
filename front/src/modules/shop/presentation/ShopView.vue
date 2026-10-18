@@ -32,6 +32,7 @@ import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
 import { pickDailyDeal } from '@modules/shop/application/pickDailyDeal.ts'
 import DealDeck from '@modules/shop/presentation/DealDeck.vue'
 import MysteryAuthGate from '@modules/shop/presentation/MysteryAuthGate.vue'
+import ShopItemTools from '@modules/shop/presentation/ShopItemTools.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import {
@@ -42,6 +43,7 @@ import {
   appTiendaServicio,
 } from '@shared/http/constants.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
+import AdminSpot from '@ui/AdminSpot.vue'
 import AficheHero from '@ui/AficheHero.vue'
 import BrushSplash from '@ui/BrushSplash.vue'
 import Button from '@ui/Button.vue'
@@ -66,7 +68,11 @@ type FilterChip = {
 const props = defineProps<{
   module: ShopModule
   initialShelf?: string
+  /** Sesión de quien opera la tienda en modo edición; vacía oculta las herramientas. */
+  editClave?: string
 }>()
+
+const emit = defineEmits<{ changed: [] }>()
 
 const bindReveal = usePageReveal()
 const copy = SHOP_COPY
@@ -587,9 +593,11 @@ const filtersDirty = computed(() => chips.value.length > 0)
           <section v-if="ownItems.length" :aria-label="copy.ownAria" data-reveal>
             <BrushSplash :label="copy.ownHeading" tone="blue" size="sm" style="margin: 0 0 12px" />
             <div class="grid grid-3 shop-market__shelf">
+              <AdminSpot v-for="item in ownItems" :key="item.id" :active="Boolean(editClave)">
+                <template #tools>
+                  <ShopItemTools :module="module" :clave="editClave ?? ''" :product="item" @changed="emit('changed')" />
+                </template>
               <ProductCard
-                v-for="item in ownItems"
-                :key="item.id"
                 :title="item.title"
                 :price="formatProductPrice(item.priceCop)"
                 :note="item.stock === null ? undefined : shopStockCopy(item.stock)"
@@ -599,15 +607,18 @@ const filtersDirty = computed(() => chips.value.length > 0)
                 :shelf="copy.kindOwnTag"
                 :media-label="copy.mediaLabel"
               />
+              </AdminSpot>
             </div>
           </section>
 
           <section v-if="collabItems.length" :aria-label="copy.collabAria" data-reveal>
             <BrushSplash :label="copy.collabHeading" tone="white" size="sm" style="margin: 0 0 12px" />
             <div class="grid grid-3 shop-market__shelf">
+              <AdminSpot v-for="item in collabItems" :key="item.id" :active="Boolean(editClave)">
+                <template #tools>
+                  <ShopItemTools :module="module" :clave="editClave ?? ''" :product="item" @changed="emit('changed')" />
+                </template>
               <ProductCard
-                v-for="item in collabItems"
-                :key="item.id"
                 collab
                 :title="item.title"
                 :price="formatProductPrice(item.priceCop)"
@@ -618,21 +629,25 @@ const filtersDirty = computed(() => chips.value.length > 0)
                 :shelf="copy.kindCollabTag"
                 :media-label="copy.mediaLabel"
               />
+              </AdminSpot>
             </div>
           </section>
 
           <section v-if="serviceItems.length" :aria-label="copy.serviceAria" data-reveal>
             <BrushSplash :label="copy.serviceHeading" tone="blue" size="sm" style="margin: 0 0 12px" />
             <div class="grid grid-2 shop-market__shelf">
+              <AdminSpot v-for="item in serviceItems" :key="item.id" :active="Boolean(editClave)">
+                <template #tools>
+                  <ShopItemTools :module="module" :clave="editClave ?? ''" :service="item" @changed="emit('changed')" />
+                </template>
               <ServiceCard
-                v-for="item in serviceItems"
-                :key="item.id"
                 :title="item.title"
                 :copy="`${copy.kindWashTag}. ${item.includesText}`"
               >
                 <p class="price">{{ formatProductPrice(item.priceCop) }}</p>
                 <Button size="sm" variant="ghost" :to="appTiendaServicio(item.id)">{{ copy.fichaCta }}</Button>
               </ServiceCard>
+              </AdminSpot>
             </div>
           </section>
         </div>

@@ -21,40 +21,57 @@ function readSession(): string {
   }
 }
 
-/** `title` reemplaza el título genérico de no encontrado solo cuando hay acceso. */
-export function useOperarAccess(title?: string) {
-  const gate = ref<OperarGate>('loading')
-  const access = ref<OperarAccess | null>(null)
-  const session = ref('')
+const gate = ref<OperarGate>('loading')
+const access = ref<OperarAccess | null>(null)
+const session = ref('')
+let pending: Promise<void> | null = null
+let loaded = false
+let runs = 0
 
-  async function load(): Promise<void> {
-    session.value = readSession()
-    access.value = null
-    if (!session.value) {
+async function fetchAccess(): Promise<void> {
+  session.value = readSession()
+  access.value = null
+  if (!session.value) {
+    gate.value = 'hidden'
+    return
+  }
+  gate.value = 'loading'
+  try {
+    const response = await fetch(API.OPERAR_ACCESS, { headers: { [SESSION_HEADER]: session.value } })
+    const body = (await response.json().catch(() => ({}))) as { access?: OperarAccess }
+    if (!response.ok || !body.access?.permissions?.length) {
       gate.value = 'hidden'
       return
     }
-    gate.value = 'loading'
-    try {
-      const response = await fetch(API.OPERAR_ACCESS, { headers: { [SESSION_HEADER]: session.value } })
-      const body = (await response.json().catch(() => ({}))) as { access?: OperarAccess }
-      if (!response.ok || !body.access?.permissions?.length) {
-        gate.value = 'hidden'
-        return
-      }
-      access.value = body.access
-      gate.value = 'ready'
-      if (title) document.title = `${title} · ${OG_COPY.title}`
-    } catch {
-      gate.value = 'hidden'
-    }
+    access.value = body.access
+    gate.value = 'ready'
+  } catch {
+    gate.value = 'hidden'
   }
+}
 
-  function can(permission: OperarPermission): boolean {
-    return Boolean(access.value?.permissions.includes(permission))
-  }
+/** Una sola consulta compartida; `force` la repite (al cambiar de sesión). */
+function load(force = false): Promise<void> {
+  if (!force && (pending || loaded)) return pending ?? Promise.resolve()
+  const run = ++runs
+  const job = (pending ?? Promise.resolve()).then(fetchAccess).finally(() => {
+    loaded = true
+    if (run === runs) pending = null
+  })
+  pending = job
+  return job
+}
 
-  onMounted(load)
+function can(permission: OperarPermission): boolean {
+  return Boolean(access.value?.permissions.includes(permission))
+}
 
-  return { gate, access, session, can, reload: load }
+/** `title` reemplaza el título genérico de no encontrado solo cuando hay acceso. */
+export function useOperarAccess(title?: string) {
+  onMounted(async () => {
+    await load()
+    if (title && gate.value === 'ready') document.title = `${title} · ${OG_COPY.title}`
+  })
+
+  return { gate, access, session, can, reload: () => load(true) }
 }

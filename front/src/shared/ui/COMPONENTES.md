@@ -91,6 +91,12 @@ Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 `Tabs` `TabPanel` `VerticalTabs` `Segmented` · `Crumbs` `BackBar` `PageNav` `Pager` `Accordion` `CollapseCard` `DropMenu` `TreeNav` `SectionIndex` `FilterPills` `SortToolbar`
 
+## Administración
+
+`AdminBar` (barra fija al navegar con sesión de operador) · `AdminNav` (barra lateral del panel) · `AdminPane` (listado con título, conteo y acciones) · `AdminDrawer` (formulario en panel lateral) · `AdminSpot` + `AdminItemTools` (Editar / Borrar sobre una pieza pública; borrar pide doble toque). Textos por defecto en `adminCopy.ts`.
+
+En el panel: listado primero, botón *Nuevo* abre el `AdminDrawer`. En vistas públicas, el módulo recibe `editClave` y envuelve cada pieza en `AdminSpot`.
+
 ## Datos / KPI
 
 `StatBig` `StatGrid` `KpiStrip` `DataBlock` `Timeline` `KitTable` `CompareTable` `SparkBars` `RingProgress`

@@ -1,21 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { RidesModule } from '@modules/rides/composition.ts'
-import { RIDES_ADMIN_COPY, RIDES_KIND, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
-import { remainingSpots, type OperatorOutingStatus, type OutingKind } from '@modules/rides/domain/entities/Outing.ts'
+import { RIDES_ADMIN_COPY, RIDES_STATUS } from '@modules/rides/constants/copy.ts'
+import type { Memory } from '@modules/rides/domain/entities/Memory.ts'
+import { remainingSpots } from '@modules/rides/domain/entities/Outing.ts'
 import type { OperatorBoardOuting } from '@modules/rides/domain/ports/RidesApiPort.ts'
+import MemoryForm from '@modules/rides/presentation/MemoryForm.vue'
+import OutingAdminTools from '@modules/rides/presentation/OutingAdminTools.vue'
+import OutingForm from '@modules/rides/presentation/OutingForm.vue'
+import AdminDrawer from '@ui/AdminDrawer.vue'
+import AdminItemTools from '@ui/AdminItemTools.vue'
+import AdminPane from '@ui/AdminPane.vue'
 import Button from '@ui/Button.vue'
-import Choice from '@ui/Choice.vue'
 import Chip from '@ui/Chip.vue'
-import Field from '@ui/Field.vue'
-import Input from '@ui/Input.vue'
-import Select from '@ui/Select.vue'
-import Textarea from '@ui/Textarea.vue'
+import FilterPills from '@ui/FilterPills.vue'
 import { showToast } from '@ui/toast.ts'
 
 const props = defineProps<{
   module: RidesModule
   clave: string
+  /** `salida` o `memoria`: abre ese formulario al entrar. */
+  create?: string
+  stamp?: number
 }>()
 
 const emit = defineEmits<{ published: [] }>()
@@ -23,54 +29,66 @@ const emit = defineEmits<{ published: [] }>()
 const copy = RIDES_ADMIN_COPY
 const today = new Date().toISOString().slice(0, 10)
 
+const tab = ref(props.create === 'memoria' ? 'memorias' : 'salidas')
+const tabs = [
+  { id: 'salidas', label: copy.tabOutings },
+  { id: 'memorias', label: copy.tabMemories },
+]
+
 const board = ref<readonly OperatorBoardOuting[]>([])
 const openTickets = ref<string | null>(null)
 const busy = ref<string | null>(null)
+const outingOpen = ref(props.create === 'salida')
+const memoryOpen = ref(props.create === 'memoria')
 
-const emptyOuting = () => ({
-  title: '',
-  date: '',
-  kind: RIDES_KIND.RODADA as OutingKind,
-  meetingPoint: '',
-  routeText: '',
-  whatToBring: '',
-  capacity: '20',
-  paid: false,
+watch(
+  () => props.create,
+  (value) => {
+    if (value === 'salida') {
+      tab.value = 'salidas'
+      outingOpen.value = true
+    }
+    if (value === 'memoria') {
+      tab.value = 'memorias'
+      memoryOpen.value = true
+    }
+  },
+)
+
+const upcoming = computed(() =>
+  board.value.filter((item) => item.date >= today && item.status !== RIDES_STATUS.REALIZADO)
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date)),
+)
+const past = computed(() =>
+  board.value.filter((item) => item.date < today || item.status === RIDES_STATUS.REALIZADO)
+    .slice()
+    .sort((a, b) => b.date.localeCompare(a.date)),
+)
+const groups = computed(() =>
+  [
+    { id: 'upcoming', title: copy.upcoming, items: upcoming.value },
+    { id: 'past', title: copy.past, items: past.value },
+  ].filter((group) => group.items.length),
+)
+
+const memories = computed((): readonly Memory[] => {
+  void props.stamp
+  return props.module.getMemories().items
 })
-const outing = ref(emptyOuting())
-
-const emptyMemory = () => ({
-  outingId: '',
-  km: '',
-  closingText: '',
-  credit: '',
-  participantsText: '',
-  instagramHref: '',
-  photos: '',
-})
-const memory = ref(emptyMemory())
-
-const kindOptions = [
-  { value: RIDES_KIND.RODADA, label: copy.kindRodada },
-  { value: RIDES_KIND.ACTIVIDAD, label: copy.kindActividad },
-]
-
-const sortedBoard = computed(() => [...board.value].sort((a, b) => b.date.localeCompare(a.date)))
-
-const memoryOutingIds = computed(() => new Set(props.module.getMemories().items.map((item) => item.outingId)))
-
+const memoryOutingIds = computed(() => new Set(memories.value.map((item) => item.outingId)))
 const doneOutingOptions = computed(() =>
   board.value
     .filter((item) => item.status === RIDES_STATUS.REALIZADO && !memoryOutingIds.value.has(item.id))
     .map((item) => ({ value: item.id, label: `${item.date} · ${item.title}` })),
 )
 
-function chipTone(status: OperatorBoardOuting['status']) {
-  return status
-}
-
 function isPastOpen(item: OperatorBoardOuting): boolean {
   return item.date < today && (item.status === RIDES_STATUS.ABIERTO || item.status === RIDES_STATUS.LLENO)
+}
+
+function firmCount(item: OperatorBoardOuting): number {
+  return item.tickets.filter((ticket) => ticket.confirmation === 'firme').length
 }
 
 async function loadBoard() {
@@ -80,82 +98,33 @@ async function loadBoard() {
     return
   }
   board.value = result.value
-  const firstDone = doneOutingOptions.value[0]
-  if (!memory.value.outingId && firstDone) memory.value.outingId = firstDone.value
 }
 
-async function setStatus(item: OperatorBoardOuting, status: OperatorOutingStatus) {
-  busy.value = item.id
-  const result = await props.module.setOutingStatus(item.id, status, props.clave)
-  busy.value = null
-  if (!result.ok) {
-    showToast(result.error.message || copy.statusFail, 'bad')
-    return
-  }
-  showToast(copy.statusOk, 'ok')
+async function refresh() {
   await loadBoard()
   emit('published')
 }
 
-async function publishOuting() {
-  busy.value = 'outing'
-  const draft = outing.value
-  const result = await props.module.publishOuting(
-    {
-      title: draft.title.trim(),
-      date: draft.date,
-      kind: draft.kind,
-      meetingPoint: draft.meetingPoint.trim(),
-      routeText: draft.routeText.trim(),
-      whatToBring: draft.whatToBring.trim(),
-      capacity: Number(draft.capacity),
-      paid: draft.paid,
-    },
-    props.clave,
-  )
-  busy.value = null
-  if (!result.ok) {
-    showToast(result.error.message || copy.outingFail, 'bad')
-    return
-  }
-  outing.value = emptyOuting()
-  showToast(copy.outingOk, 'ok')
-  await loadBoard()
-  emit('published')
+function onOutingSaved() {
+  outingOpen.value = false
+  void refresh()
 }
 
-function parsePhotos(raw: string) {
-  return raw
-    .split('\n')
-    .map((line) => line.split('|').map((part) => part.trim()))
-    .filter(([src]) => Boolean(src))
-    .map(([src, alt]) => ({ src: src ?? '', alt: alt || memory.value.credit.trim() || 'Foto de la rodada' }))
+function onMemorySaved() {
+  memoryOpen.value = false
+  void refresh()
 }
 
-async function publishMemory() {
-  busy.value = 'memory'
-  const draft = memory.value
-  const result = await props.module.publishMemory(
-    {
-      outingId: draft.outingId,
-      km: Number(draft.km),
-      closingText: draft.closingText.trim(),
-      credit: draft.credit.trim(),
-      participantsText: draft.participantsText.trim(),
-      instagramHref: draft.instagramHref.trim() || undefined,
-      photos: parsePhotos(draft.photos),
-    },
-    props.clave,
-  )
+async function removeMemory(memory: Memory) {
+  busy.value = memory.id
+  const result = await props.module.removeMemory(memory.id, props.clave)
   busy.value = null
   if (!result.ok) {
-    showToast(result.error.message || copy.memoryFail, 'bad')
+    showToast(result.error.message || copy.memoryRemoveFail, 'bad')
     return
   }
-  memory.value = emptyMemory()
-  showToast(copy.memoryOk, 'ok')
-  emit('published')
-  await loadBoard()
+  showToast(copy.memoryRemoved, 'ok')
+  void refresh()
 }
 
 onMounted(() => {
@@ -165,146 +134,114 @@ onMounted(() => {
 
 <template>
   <div class="admin-stack">
-    <section class="admin-card">
-      <header class="admin-card__head">
-        <h3>{{ copy.boardTitle }}</h3>
-        <p>{{ copy.boardLead }}</p>
-      </header>
-      <p v-if="!sortedBoard.length" class="admin-empty">{{ copy.boardEmpty }}</p>
-      <ul v-else class="admin-list">
-        <li v-for="item in sortedBoard" :key="item.id" class="admin-list__item">
-          <div class="admin-list__main">
-            <strong>{{ item.title }}</strong>
-            <span class="admin-list__meta">
-              {{ item.date }} · {{ item.meetingPoint }} · {{ remainingSpots(item) }} / {{ item.capacity }} {{ copy.spots }}
-            </span>
-            <div class="admin-list__chips">
-              <Chip :tone="chipTone(item.status)">{{ copy.statusLabels[item.status] }}</Chip>
-              <Chip v-if="isPastOpen(item)" tone="lleno">{{ copy.pastOpen }}</Chip>
+    <FilterPills v-model="tab" :pills="tabs" />
+
+    <AdminPane
+      v-if="tab === 'salidas'"
+      :title="copy.boardTitle"
+      :lead="copy.boardLead"
+      :count="board.length"
+    >
+      <template #actions>
+        <Button size="sm" @click="outingOpen = true">+ {{ copy.newOuting }}</Button>
+      </template>
+      <p v-if="!board.length" class="admin-empty">{{ copy.boardEmpty }}</p>
+      <template v-for="group in groups" :key="group.id">
+        <p class="meta" style="margin: 0">{{ group.title }}</p>
+        <ul class="admin-list">
+          <li v-for="item in group.items" :key="item.id" class="admin-list__item">
+            <div class="admin-list__main">
+              <strong>{{ item.title }}</strong>
+              <span class="admin-list__meta">
+                {{ item.date }} · {{ item.meetingPoint }} · {{ remainingSpots(item) }} / {{ item.capacity }}
+                {{ copy.spots }}
+              </span>
+              <div class="admin-list__chips">
+                <Chip :tone="item.status">{{ copy.statusLabels[item.status] }}</Chip>
+                <Chip v-if="isPastOpen(item)" tone="lleno">{{ copy.pastOpen }}</Chip>
+              </div>
+              <button
+                type="button"
+                class="admin-link"
+                @click="openTickets = openTickets === item.id ? null : item.id"
+              >
+                {{ openTickets === item.id ? copy.hideTickets : copy.showTickets }} ({{ item.tickets.length }})
+              </button>
+              <ul v-if="openTickets === item.id" class="admin-tickets ride-admin-tickets">
+                <li v-if="!item.tickets.length">{{ copy.noTickets }}</li>
+                <li v-else class="ride-admin-tickets__summary">
+                  {{ copy.ticketSummary(firmCount(item), item.tickets.length) }}
+                </li>
+                <li v-for="ticket in item.tickets" :key="ticket.id" class="ride-admin-ticket">
+                  <div class="ride-admin-ticket__head">
+                    <strong>{{ ticket.name }}</strong>
+                    <Chip :tone="ticket.confirmation === 'firme' ? 'abierto' : 'lleno'">
+                      {{ ticket.confirmation === 'firme' ? copy.ticketFirm : copy.ticketPending }}
+                    </Chip>
+                  </div>
+                  <span>
+                    {{ ticket.moto || copy.ticketNoMoto }}
+                    <template v-if="ticket.level"> · {{ copy.levelLabels[ticket.level] ?? ticket.level }}</template>
+                    <template v-if="ticket.whatsapp"> · {{ ticket.whatsapp }}</template>
+                  </span>
+                  <span v-if="ticket.passengerName">{{ copy.ticketPassenger }}: {{ ticket.passengerName }}</span>
+                  <span v-if="ticket.emergencyName">
+                    {{ copy.ticketEmergency }}: {{ ticket.emergencyName }} · {{ ticket.emergencyPhone }}
+                  </span>
+                  <span v-else class="ride-admin-ticket__warn">{{ copy.ticketNoEmergency }}</span>
+                  <span v-if="ticket.bloodType || ticket.medicalNotes">
+                    <template v-if="ticket.bloodType">{{ copy.ticketBlood }} {{ ticket.bloodType }}</template>
+                    <template v-if="ticket.bloodType && ticket.medicalNotes"> · </template>
+                    <template v-if="ticket.medicalNotes">{{ copy.ticketMedical }}: {{ ticket.medicalNotes }}</template>
+                  </span>
+                </li>
+              </ul>
             </div>
-            <button
-              type="button"
-              class="admin-link"
-              @click="openTickets = openTickets === item.id ? null : item.id"
-            >
-              {{ openTickets === item.id ? copy.hideTickets : copy.showTickets }} ({{ item.tickets.length }})
-            </button>
-            <ul v-if="openTickets === item.id" class="admin-tickets ride-admin-tickets">
-              <li v-if="!item.tickets.length">{{ copy.noTickets }}</li>
-              <li v-else class="ride-admin-tickets__summary">
-                {{ copy.ticketSummary(item.tickets.filter((t) => t.confirmation === 'firme').length, item.tickets.length) }}
-              </li>
-              <li v-for="ticket in item.tickets" :key="ticket.id" class="ride-admin-ticket">
-                <div class="ride-admin-ticket__head">
-                  <strong>{{ ticket.name }}</strong>
-                  <Chip :tone="ticket.confirmation === 'firme' ? 'abierto' : 'lleno'">
-                    {{ ticket.confirmation === 'firme' ? copy.ticketFirm : copy.ticketPending }}
-                  </Chip>
-                </div>
-                <span>
-                  {{ ticket.moto || copy.ticketNoMoto }}
-                  <template v-if="ticket.level"> · {{ copy.levelLabels[ticket.level] ?? ticket.level }}</template>
-                  <template v-if="ticket.whatsapp"> · {{ ticket.whatsapp }}</template>
-                </span>
-                <span v-if="ticket.passengerName">{{ copy.ticketPassenger }}: {{ ticket.passengerName }}</span>
-                <span v-if="ticket.emergencyName">
-                  {{ copy.ticketEmergency }}: {{ ticket.emergencyName }} · {{ ticket.emergencyPhone }}
-                </span>
-                <span v-else class="ride-admin-ticket__warn">{{ copy.ticketNoEmergency }}</span>
-                <span v-if="ticket.bloodType || ticket.medicalNotes">
-                  <template v-if="ticket.bloodType">{{ copy.ticketBlood }} {{ ticket.bloodType }}</template>
-                  <template v-if="ticket.bloodType && ticket.medicalNotes"> · </template>
-                  <template v-if="ticket.medicalNotes">{{ copy.ticketMedical }}: {{ ticket.medicalNotes }}</template>
-                </span>
-              </li>
-            </ul>
+            <div class="admin-list__actions">
+              <OutingAdminTools :module="module" :clave="clave" :outing="item" @changed="refresh" />
+            </div>
+          </li>
+        </ul>
+      </template>
+    </AdminPane>
+
+    <AdminPane v-else :title="copy.tabMemories" :lead="copy.memoriesLead" :count="memories.length">
+      <template #actions>
+        <Button size="sm" @click="memoryOpen = true">+ {{ copy.newMemory }}</Button>
+      </template>
+      <p v-if="!memories.length" class="admin-empty">{{ copy.memoriesEmpty }}</p>
+      <ul v-else class="admin-list">
+        <li v-for="memory in memories" :key="memory.id" class="admin-list__item admin-list__item--compact">
+          <img v-if="memory.photos[0]" class="admin-list__thumb" :src="memory.photos[0].src" :alt="memory.photos[0].alt" />
+          <div class="admin-list__main">
+            <strong>{{ memory.title }}</strong>
+            <span class="admin-list__meta">
+              {{ memory.date }} · {{ copy.memoryKm(memory.km) }} · {{ copy.memoryPhotos(memory.photos.length) }}
+            </span>
           </div>
-          <div class="admin-list__actions">
-            <Button
-              v-if="item.status === 'abierto' || item.status === 'lleno'"
-              size="sm"
-              variant="ghost"
-              :disabled="busy === item.id"
-              @click="setStatus(item, 'cerrado')"
-            >
-              {{ copy.markClosed }}
-            </Button>
-            <Button
-              v-if="item.status !== 'realizado'"
-              size="sm"
-              :disabled="busy === item.id"
-              @click="setStatus(item, 'realizado')"
-            >
-              {{ copy.markDone }}
-            </Button>
-          </div>
+          <AdminItemTools
+            :editable="false"
+            :remove-label="copy.remove"
+            :confirm-label="copy.removeConfirm"
+            :busy="busy === memory.id"
+            @remove="removeMemory(memory)"
+          />
         </li>
       </ul>
-    </section>
+    </AdminPane>
 
-    <div class="admin-grid">
-      <form class="admin-card" @submit.prevent="publishOuting">
-        <header class="admin-card__head">
-          <h3>{{ copy.outingTitle }}</h3>
-          <p>{{ copy.outingLead }}</p>
-        </header>
-        <Field :label="copy.fieldTitle">
-          <Input v-model="outing.title" />
-        </Field>
-        <div class="admin-fields">
-          <Field :label="copy.fieldDate">
-            <Input v-model="outing.date" type="date" />
-          </Field>
-          <Select v-model="outing.kind" :label="copy.fieldKind" :options="kindOptions" />
-        </div>
-        <Field :label="copy.fieldMeeting">
-          <Input v-model="outing.meetingPoint" />
-        </Field>
-        <Field :label="copy.fieldRoute">
-          <Textarea v-model="outing.routeText" />
-        </Field>
-        <Field :label="copy.fieldBring">
-          <Input v-model="outing.whatToBring" />
-        </Field>
-        <Field :label="copy.fieldCapacity">
-          <Input v-model="outing.capacity" type="number" />
-        </Field>
-        <Choice v-model="outing.paid" :label="copy.fieldPaid" />
-        <Button type="submit" size="sm" :disabled="busy === 'outing'">{{ copy.outingCta }}</Button>
-      </form>
-
-      <form class="admin-card" @submit.prevent="publishMemory">
-        <header class="admin-card__head">
-          <h3>{{ copy.memoryTitle }}</h3>
-          <p>{{ copy.memoryLead }}</p>
-        </header>
-        <p v-if="!doneOutingOptions.length" class="admin-empty">{{ copy.memoryNoOutings }}</p>
-        <template v-else>
-          <Select v-model="memory.outingId" :label="copy.fieldOuting" :options="doneOutingOptions" />
-          <Field :label="copy.fieldKm">
-            <Input v-model="memory.km" type="number" />
-          </Field>
-          <Field :label="copy.fieldClosing">
-            <Textarea v-model="memory.closingText" />
-          </Field>
-          <div class="admin-fields">
-            <Field :label="copy.fieldCredit">
-              <Input v-model="memory.credit" />
-            </Field>
-            <Field :label="copy.fieldInstagram">
-              <Input v-model="memory.instagramHref" type="url" placeholder="https://" />
-            </Field>
-          </div>
-          <Field :label="copy.fieldParticipants">
-            <Input v-model="memory.participantsText" />
-          </Field>
-          <Field :label="copy.fieldPhotos">
-            <Textarea v-model="memory.photos" :placeholder="copy.photosPlaceholder" />
-          </Field>
-          <Button type="submit" size="sm" :disabled="busy === 'memory'">{{ copy.memoryCta }}</Button>
-        </template>
-      </form>
-    </div>
+    <AdminDrawer v-model="outingOpen" :title="copy.outingTitle" :lead="copy.outingLead">
+      <OutingForm :module="module" :clave="clave" @saved="onOutingSaved" @cancel="outingOpen = false" />
+    </AdminDrawer>
+    <AdminDrawer v-model="memoryOpen" :title="copy.memoryTitle" :lead="copy.memoryLead">
+      <MemoryForm
+        :module="module"
+        :clave="clave"
+        :outings="doneOutingOptions"
+        @saved="onMemorySaved"
+        @cancel="memoryOpen = false"
+      />
+    </AdminDrawer>
   </div>
 </template>
 

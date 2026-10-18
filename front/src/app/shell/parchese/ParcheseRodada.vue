@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
 import { PARCHESE_FIGURES } from '@app/constants/parchese.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { useParchese } from '@app/shell/parchese/context.ts'
 import PollCard from '@modules/polls/presentation/PollCard.vue'
 import { RIDES_PAGE_COPY, type ClaimedSpot, type Outing, type OutingCrew } from '@modules/rides/index.ts'
+import OutingAdminTools from '@modules/rides/presentation/OutingAdminTools.vue'
 import RideSignup from '@modules/rides/presentation/RideSignup.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { APP_PATHS, appEntrarYVolver, appRodada } from '@shared/http/constants.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
+import AdminSpot from '@ui/AdminSpot.vue'
 import BoardHead from '@ui/BoardHead.vue'
 import Button from '@ui/Button.vue'
 import Empty from '@ui/Empty.vue'
@@ -18,8 +21,11 @@ import StepsPoster from '@ui/StepsPoster.vue'
 
 const copy = RIDES_PAGE_COPY
 const route = useRoute()
+const router = useRouter()
 const bindReveal = usePageReveal()
 const { deps, pollsFor, onVoted, reloadPolls } = useParchese()
+const { claveFor } = useAdminEdit()
+const rideClave = computed(() => claveFor('rodadas'))
 
 const outingId = computed(() => String(route.params.id ?? ''))
 const fresh = ref<Outing | null>(null)
@@ -78,7 +84,16 @@ function initial(alias: string): string {
     />
 
     <template v-else>
-      <div id="inscripcion" class="ride-page__card" data-reveal>
+      <AdminSpot id="inscripcion" class="ride-page__card" :active="Boolean(rideClave)" data-reveal>
+        <template #tools>
+          <OutingAdminTools
+            :module="deps.rides"
+            :clave="rideClave"
+            :outing="outing"
+            @changed="onSpotChanged"
+            @removed="router.push(APP_PATHS.PARCHESE_RODADAS)"
+          />
+        </template>
         <OutingCard
           class="paola-outing--featured"
           :title="outing.title"
@@ -104,7 +119,7 @@ function initial(alias: string): string {
             @changed="onSpotChanged"
           />
         </OutingCard>
-      </div>
+      </AdminSpot>
 
       <div class="board-split" data-reveal>
         <section class="board-main" :aria-label="copy.pollsTitle">

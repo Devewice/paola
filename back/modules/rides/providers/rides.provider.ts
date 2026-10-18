@@ -98,6 +98,40 @@ export async function insertOuting(id: string, draft: CreateOutingDto): Promise<
   }
 }
 
+export async function updateOuting(id: string, draft: CreateOutingDto, status: OutingStatus): Promise<void> {
+  await getDb()(RIDES_TABLES.OUTINGS).where({ id }).update({
+    title: draft.title,
+    date: draft.date,
+    kind: draft.kind,
+    meeting_point: draft.meetingPoint,
+    route_text: draft.routeText,
+    capacity: draft.capacity,
+    what_to_bring: draft.whatToBring,
+    paid: draft.paid,
+    status,
+  })
+  if (await getDb().schema.hasTable(RIDES_TABLES.OUTING_ROUTES)) {
+    await getDb()(RIDES_TABLES.OUTING_ROUTES)
+      .where({ outing_id: id })
+      .update({ preview_text: draft.routeText || null })
+  }
+}
+
+export async function outingHasMemory(id: string): Promise<boolean> {
+  if (!(await getDb().schema.hasTable(RIDES_TABLES.MEMORIES))) return false
+  return Boolean(await getDb()(RIDES_TABLES.MEMORIES).select('id').where({ outing_id: id }).first())
+}
+
+/** Los cupos y la ruta se van con la salida; chats y encuestas los resuelven sus llaves. */
+export async function deleteOuting(id: string): Promise<void> {
+  const hasRoutes = await getDb().schema.hasTable(RIDES_TABLES.OUTING_ROUTES)
+  await getDb().transaction(async (trx) => {
+    await trx(RIDES_TABLES.TICKETS).where({ outing_id: id }).delete()
+    if (hasRoutes) await trx(RIDES_TABLES.OUTING_ROUTES).where({ outing_id: id }).delete()
+    await trx(RIDES_TABLES.OUTINGS).where({ id }).delete()
+  })
+}
+
 export async function updateOutingStatus(id: string, status: OutingStatus): Promise<void> {
   await getDb()(RIDES_TABLES.OUTINGS).where({ id }).update({ status })
 }

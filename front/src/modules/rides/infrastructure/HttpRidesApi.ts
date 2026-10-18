@@ -22,6 +22,8 @@ import {
   JSON_HEADERS,
   OPERADOR_CLAVE_HEADER,
   SESSION_HEADER,
+  apiOperarItem,
+  apiOperarItemDelete,
   apiOperarOutingStatus,
   apiOutingConfirm,
   apiOutingCrew,
@@ -120,6 +122,34 @@ export class HttpRidesApi implements RidesApiPort {
       return err(appError('INFRASTRUCTURE', RIDES_MESSAGES.SALIDA_PARSE_FAIL))
     }
     return ok(outing)
+  }
+
+  async update(outingId: string, draft: OutingDraft, clave: string) {
+    const response = await fetch(apiOperarItem(API.OPERAR_OUTINGS, outingId), {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ ...draft, clave }),
+    })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    const outing = parseOuting(body.outing)
+    if (!outing) return err(appError('INFRASTRUCTURE', RIDES_MESSAGES.SALIDA_PARSE_FAIL))
+    return ok(outing)
+  }
+
+  async remove(outingId: string, clave: string) {
+    return this.postOperar(apiOperarItemDelete(API.OPERAR_OUTINGS, outingId), clave)
+  }
+
+  async removeMemory(memoryId: string, clave: string) {
+    return this.postOperar(apiOperarItemDelete(API.OPERAR_MEMORIES, memoryId), clave)
+  }
+
+  private async postOperar(url: string, clave: string): Promise<Result<true, AppError>> {
+    const response = await fetch(url, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify({ clave }) })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    return ok(true)
   }
 
   async publishMemory(draft: MemoryDraft, clave: string) {

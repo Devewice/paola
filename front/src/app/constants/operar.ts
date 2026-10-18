@@ -29,6 +29,39 @@ export const OPERAR_TABS: readonly { readonly id: string; readonly label: string
   { id: 'ajustes', label: 'Ajustes', permission: 'ajustes' },
 ]
 
+/** Query del panel: `?seccion=tienda&nuevo=producto` abre la sección y su formulario. */
+export const OPERAR_QUERY = { SECTION: 'seccion', CREATE: 'nuevo' } as const
+
+export const ADMIN_EDIT_STORAGE_KEY = 'paola_admin_edit'
+
+export const OPERAR_QUICK_CREATE: readonly {
+  readonly label: string
+  readonly permission: OperarPermission
+  readonly section: string
+  readonly create?: string
+}[] = [
+  { label: 'Salida', permission: 'rodadas', section: 'rodadas', create: 'salida' },
+  { label: 'Memoria', permission: 'rodadas', section: 'rodadas', create: 'memoria' },
+  { label: 'Producto', permission: 'tienda', section: 'tienda', create: 'producto' },
+  { label: 'Lavado', permission: 'tienda', section: 'tienda', create: 'lavado' },
+  { label: 'Tip', permission: 'voz', section: 'voz', create: 'tip' },
+  { label: 'Guía de comparendo', permission: 'voz', section: 'voz', create: 'comparendo' },
+  { label: 'Encuesta', permission: 'encuestas', section: 'encuestas' },
+  { label: 'Integrante', permission: 'parche', section: 'parche', create: 'integrante' },
+  { label: 'Alianza', permission: 'parche', section: 'parche', create: 'alianza' },
+]
+
+export const ADMIN_BAR_COPY = {
+  label: 'Barra de administración',
+  brand: 'Admin',
+  edit: 'Editar en la página',
+  editHint: 'Muestra Editar y Borrar sobre rodadas, productos, tips y el parche.',
+  create: 'Nuevo',
+  panel: 'Panel',
+  site: 'Ver sitio',
+  navLabel: 'Secciones del panel',
+} as const
+
 export const OPERAR_ROLES_COPY = {
   title: 'Roles y permisos',
   lead: 'Admin lo puede todo y Usuario no entra al panel. Los demás roles los armas tú.',

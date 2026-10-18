@@ -16,6 +16,7 @@ export const MEMORY_STATUS_DONE = 'realizado'
 export const MEMORY_ROUTES = {
   LIST: '/api/memories',
   CREATE: '/api/operar/memories',
+  DELETE: '/api/operar/memories/:id/delete',
 } as const
 
 export const MEMORY_MESSAGES = {
@@ -29,4 +30,5 @@ export const MEMORY_MESSAGES = {
   NOT_DONE: 'Solo se recuerda una salida marcada como realizada.',
   ALREADY_EXISTS: 'Esa salida ya tiene memoria.',
   READ_FAIL: 'Se guardó pero no se pudo leer la memoria.',
+  NOT_FOUND: 'Esa memoria no está.',
 } as const

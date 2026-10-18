@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { PARCHESE_COPY, PARCHESE_FIGURES } from '@app/constants/parchese.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { shortDate, useParchese } from '@app/shell/parchese/context.ts'
 import ClubRoster from '@modules/club/presentation/ClubRoster.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
@@ -11,7 +12,8 @@ import StatBand from '@ui/StatBand.vue'
 
 const copy = PARCHESE_COPY
 const bindReveal = usePageReveal()
-const { deps } = useParchese()
+const { deps, reloadInventory } = useParchese()
+const { claveFor } = useAdminEdit()
 const members = computed(() => deps.value.club.getMembers().items)
 const next = computed(() => deps.value.rides.nextOpenOuting())
 const memories = computed(() => deps.value.rides.getMemories())
@@ -36,7 +38,7 @@ const band = computed(() => [
       data-reveal
     />
     <div class="board-section" data-reveal>
-      <ClubRoster :module="deps.club" />
+      <ClubRoster :module="deps.club" :edit-clave="claveFor('parche')" @changed="reloadInventory" />
     </div>
     <section class="board-section" :aria-label="copy.moreTitle" data-reveal>
       <BoardHead :title="copy.moreTitle" :lead="copy.moreLead" />

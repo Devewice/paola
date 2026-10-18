@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { ComposedHomeBoardAdapter } from '@app/adapters/ComposedHomeBoardAdapter.ts'
 import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import {
@@ -79,6 +80,9 @@ export type AppDependencies = {
 }
 
 let dependencies: AppDependencies | null = null
+
+/** Sube cada vez que se recarga el inventario: las vistas que lo leen recalculan sus módulos. */
+export const inventoryVersion = ref(0)
 
 function joinFromPaola(paola: PaolaModule) {
   return buildJoinChannel(paola.getPage().contact.whatsapp.href)
@@ -222,6 +226,7 @@ export async function refreshInventory(): Promise<void> {
     serviceCatalog,
     'http',
   )
+  inventoryVersion.value += 1
 }
 
 export function getAppDependencies(): AppDependencies {

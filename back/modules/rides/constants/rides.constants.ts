@@ -2,7 +2,7 @@ import type { OutingKind, OutingStatus } from '../interfaces/rides.interface.js'
 
 export const RIDES_KINDS: readonly OutingKind[] = ['rodada', 'actividad']
 export const RIDES_STATUSES: readonly OutingStatus[] = ['abierto', 'lleno', 'cerrado', 'realizado']
-export const RIDES_OPERATOR_STATUSES = ['cerrado', 'realizado'] as const
+export const RIDES_OPERATOR_STATUSES = ['abierto', 'cerrado', 'realizado'] as const
 
 export const RIDES_DEFAULT_KIND: OutingKind = 'rodada'
 export const RIDES_DEFAULT_STATUS: OutingStatus = 'abierto'
@@ -45,6 +45,7 @@ export const RIDES_TABLES = {
   OUTING_ROUTES: 'outing_routes',
   USERS: 'users',
   MOTORCYCLES: 'user_motorcycles',
+  MEMORIES: 'memories',
 } as const
 
 export const RIDES_MOTO_LABEL_MAX = 120
@@ -60,6 +61,8 @@ export const RIDES_ROUTES = {
   OPERATE_LIST: '/api/operar/outings',
   OPERATE_CREATE: '/api/operar/outings',
   OPERATE_STATUS: '/api/operar/outings/:id/status',
+  OPERATE_UPDATE: '/api/operar/outings/:id',
+  OPERATE_DELETE: '/api/operar/outings/:id/delete',
 } as const
 
 export const RIDES_MESSAGES = {
@@ -77,7 +80,9 @@ export const RIDES_MESSAGES = {
   TITLE_REQUIRED: 'No se publica una salida sin título.',
   KIND_INVALID: 'La salida es rodada o actividad.',
   MEETING_REQUIRED: 'No se publica una salida sin punto de encuentro.',
-  STATUS_INVALID: 'Solo se marca cerrado o realizado.',
+  STATUS_INVALID: 'Solo se marca abierto, cerrado o realizado.',
+  CAPACITY_BELOW_TAKEN: (taken: number) => `Ya hay ${taken} puestos tomados: el cupo no puede quedar por debajo.`,
+  HAS_MEMORY: 'Esa salida ya tiene memoria. Borra primero la memoria.',
   ALREADY_DONE: 'Ya se marcó realizada. No se reabre desde aquí.',
   LEVEL_REQUIRED: 'Cuéntame tu nivel para armar la fila.',
   DOCS_REQUIRED: 'Para rodar necesitas SOAT, tecnomecánica y licencia al día.',

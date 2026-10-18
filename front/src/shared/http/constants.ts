@@ -144,6 +144,15 @@ export function apiOperarOutingStatus(id: string): string {
   return `${API.OPERAR_OUTINGS}/${encodeURIComponent(id)}/status`
 }
 
+/** `/api/operar/<recurso>/:id` edita; con `/delete` borra. */
+export function apiOperarItem(base: string, id: string): string {
+  return `${base}/${encodeURIComponent(id)}`
+}
+
+export function apiOperarItemDelete(base: string, id: string): string {
+  return `${apiOperarItem(base, id)}/delete`
+}
+
 export function apiOperarReportStatus(id: string): string {
   return `${API.OPERAR_REPORTS}/${encodeURIComponent(id)}/status`
 }

@@ -26,6 +26,31 @@ export async function insertTip(tip: Tip): Promise<void> {
   })
 }
 
+export async function updateTip(tip: Tip): Promise<number> {
+  return getDb()(VOICE_TABLES.TIPS)
+    .where({ id: tip.id })
+    .update({ title: tip.title, body: tip.body, official_href: tip.officialHref ?? null })
+}
+
+export async function deleteTip(id: string): Promise<number> {
+  return getDb()(VOICE_TABLES.TIPS).where({ id }).delete()
+}
+
+export async function updateFine(item: FineGuide): Promise<number> {
+  const table = await resolveVoiceTable(VOICE_TABLES.FINES, VOICE_TABLES.LEGACY_COMPARENDOS)
+  return getDb()(table).where({ id: item.id }).update({
+    title: item.title,
+    guide: item.guide,
+    official_href: item.officialHref,
+    disclaimer: item.disclaimer,
+  })
+}
+
+export async function deleteFine(id: string): Promise<number> {
+  const table = await resolveVoiceTable(VOICE_TABLES.FINES, VOICE_TABLES.LEGACY_COMPARENDOS)
+  return getDb()(table).where({ id }).delete()
+}
+
 export async function findFines(): Promise<FineGuide[]> {
   const table = await resolveVoiceTable(VOICE_TABLES.FINES, VOICE_TABLES.LEGACY_COMPARENDOS)
   const rows = await getDb()(table)

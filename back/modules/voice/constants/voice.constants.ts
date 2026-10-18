@@ -15,6 +15,10 @@ export const VOICE_ROUTES = {
   OPERAR_CREATE_FINE: '/api/operar/fines',
   OPERAR_REPORTS: '/api/operar/reports',
   OPERAR_REPORT_STATUS: '/api/operar/reports/:id/status',
+  OPERAR_UPDATE_TIP: '/api/operar/tips/:id',
+  OPERAR_DELETE_TIP: '/api/operar/tips/:id/delete',
+  OPERAR_UPDATE_FINE: '/api/operar/fines/:id',
+  OPERAR_DELETE_FINE: '/api/operar/fines/:id/delete',
   LEGACY_LIST_COMPARENDOS: '/api/comparendos',
   LEGACY_LIST_DENUNCIAS: '/api/denuncias',
   LEGACY_CREATE_DENUNCIA: '/api/denuncias',
@@ -24,6 +28,8 @@ export const VOICE_ROUTES = {
 } as const
 
 export const VOICE_MESSAGES = {
+  TIP_NOT_FOUND: 'Ese tip no está.',
+  FINE_NOT_FOUND: 'Esa guía de comparendo no está.',
   PRIVACY_REQUIRED: 'Necesitas leer el aviso de privacidad para continuar.',
   REPORT_INCOMPLETE: 'Report incompleto: qué, dónde y cuándo son obligatorios.',
 } as const

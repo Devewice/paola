@@ -19,7 +19,11 @@ export type FineDraft = {
 
 export interface VoiceAdminPort {
   createTip(draft: TipDraft, clave: string): Promise<Result<Tip, AppError>>
+  updateTip(id: string, draft: TipDraft, clave: string): Promise<Result<Tip, AppError>>
+  removeTip(id: string, clave: string): Promise<Result<true, AppError>>
   createFine(draft: FineDraft, clave: string): Promise<Result<FineGuide, AppError>>
+  updateFine(id: string, draft: FineDraft, clave: string): Promise<Result<FineGuide, AppError>>
+  removeFine(id: string, clave: string): Promise<Result<true, AppError>>
   listReports(clave: string): Promise<Result<readonly VoiceReport[], AppError>>
   moderateReport(id: string, status: ReportStatus, clave: string, note?: string): Promise<Result<true, AppError>>
 }

@@ -27,6 +27,26 @@ export async function insertAlliance(alliance: Alliance, draft: CreateAllianceDt
   })
 }
 
+export async function updateAlliance(id: string, draft: CreateAllianceDto): Promise<number> {
+  return getDb()(CLUB_TABLES.ALLIANCES)
+    .where({ id })
+    .update({ name: draft.name, support: draft.support, href: draft.href ?? null })
+}
+
+export async function deleteAlliance(id: string): Promise<number> {
+  return getDb()(CLUB_TABLES.ALLIANCES).where({ id }).delete()
+}
+
+export async function updateMember(member: Member): Promise<number> {
+  return getDb()(CLUB_TABLES.MEMBERS)
+    .where({ id: member.id })
+    .update({ alias: member.alias, moto: member.moto ?? null, instagram_href: member.instagramHref ?? null })
+}
+
+export async function deleteMember(id: string): Promise<number> {
+  return getDb()(CLUB_TABLES.MEMBERS).where({ id }).delete()
+}
+
 export async function insertMember(member: Member): Promise<void> {
   await getDb()(CLUB_TABLES.MEMBERS).insert({
     id: member.id,

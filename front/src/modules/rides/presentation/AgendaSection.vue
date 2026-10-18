@@ -4,16 +4,20 @@ import { RIDES_AGENDA_COPY, RIDES_CARD_COPY } from '@modules/rides/constants/cop
 import { daysUntil, remainingSpots, type Outing } from '@modules/rides/domain/entities/Outing.ts'
 import type { OutingCrew } from '@modules/rides/domain/entities/Ticket.ts'
 import type { RidesModule } from '@modules/rides/index.ts'
+import OutingAdminTools from '@modules/rides/presentation/OutingAdminTools.vue'
 import RideFirm from '@modules/rides/presentation/RideFirm.vue'
 import { outingStatusCopy } from '@modules/rides/presentation/outingStatusCopy.ts'
 import { appRodada } from '@shared/http/constants.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
+import AdminSpot from '@ui/AdminSpot.vue'
 import Button from '@ui/Button.vue'
 import Empty from '@ui/Empty.vue'
 import OutingCard from '@ui/OutingCard.vue'
 
 const props = defineProps<{
   module: RidesModule
+  /** Sesión de quien opera rodadas en modo edición; vacía oculta las herramientas. */
+  editClave?: string
 }>()
 
 const emit = defineEmits<{ changed: [] }>()
@@ -78,9 +82,11 @@ async function onChanged(): Promise<void> {
   <section class="agenda" :aria-label="copy.aria">
     <div v-if="outings.length" class="agenda__dates">
       <div v-for="group in groups" :key="group.id" :class="`agenda__${group.id}`">
+        <AdminSpot v-for="outing in group.items" :key="outing.id" :active="Boolean(editClave)">
+        <template #tools>
+          <OutingAdminTools :module="module" :clave="editClave ?? ''" :outing="outing" @changed="emit('changed')" />
+        </template>
         <OutingCard
-          v-for="outing in group.items"
-          :key="outing.id"
           :class="{ 'paola-outing--featured': group.id === 'featured' }"
           :title="outing.title"
           :date="outing.date"
@@ -136,6 +142,7 @@ async function onChanged(): Promise<void> {
             <slot name="hilo" :outing="outing" />
           </div>
         </OutingCard>
+        </AdminSpot>
       </div>
     </div>
     <Empty

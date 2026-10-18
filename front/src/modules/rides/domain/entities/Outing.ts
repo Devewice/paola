@@ -1,6 +1,6 @@
 export type OutingKind = 'rodada' | 'actividad'
 export type OutingStatus = 'abierto' | 'lleno' | 'cerrado' | 'realizado'
-export type OperatorOutingStatus = Extract<OutingStatus, 'cerrado' | 'realizado'>
+export type OperatorOutingStatus = Extract<OutingStatus, 'abierto' | 'cerrado' | 'realizado'>
 
 /** Salida publicada. `taken` es cuántos cupos ya están a nombre de alguien. */
 export type Outing = {

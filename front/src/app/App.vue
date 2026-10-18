@@ -5,9 +5,12 @@ import { FOOTER_COPY, MEGA_COPY } from '@app/constants/copy.ts'
 import { CUENTA_NAV } from '@app/constants/cuenta.ts'
 import { appSession, clearSession, syncSession } from '@app/shell/session.ts'
 import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
+import { ADMIN_BAR_COPY, OPERAR_COPY, OPERAR_QUERY, OPERAR_QUICK_CREATE } from '@app/constants/operar.ts'
+import AdminBar from '@ui/AdminBar.vue'
 import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
-import { getAppDependencies } from '@app/bootstrap.ts'
+import { getAppDependencies, inventoryVersion } from '@app/bootstrap.ts'
 import { kitUnlocked } from '@app/shell/kitGate.ts'
 import BrushDefs from '@ui/BrushDefs.vue'
 import MegaHeader from '@ui/MegaHeader.vue'
@@ -17,10 +20,13 @@ import { APP_PATHS } from '@shared/http/constants.ts'
 
 const route = useRoute()
 const router = useRouter()
-const { paola, club } = getAppDependencies()
+const { paola } = getAppDependencies()
 const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
-const alliances = computed(() => club.getAlliances())
+const alliances = computed(() => {
+  void inventoryVersion.value
+  return getAppDependencies().club.getAlliances()
+})
 const footerAlliances = computed(() =>
   alliances.value.items.map((item) => ({
     name: item.name,
@@ -28,7 +34,26 @@ const footerAlliances = computed(() =>
   })),
 )
 const operar = useOperarAccess()
+const adminEdit = useAdminEdit()
 const adminTo = computed(() => (operar.gate.value === 'ready' ? APP_PATHS.ADMIN : undefined))
+const showAdminBar = computed(() => operar.gate.value === 'ready' && Boolean(operar.access.value))
+const adminWho = computed(() =>
+  operar.access.value ? OPERAR_COPY.roleTag(operar.access.value.alias, operar.access.value.role.name) : undefined,
+)
+const adminCreateItems = computed(() =>
+  OPERAR_QUICK_CREATE.filter((item) => operar.can(item.permission)).map((item) => ({
+    label: item.label,
+    to: `${APP_PATHS.ADMIN}?${new URLSearchParams({
+      [OPERAR_QUERY.SECTION]: item.section,
+      ...(item.create ? { [OPERAR_QUERY.CREATE]: item.create } : {}),
+    }).toString()}`,
+  })),
+)
+const adminLinks = computed(() =>
+  route.path === APP_PATHS.ADMIN
+    ? [{ label: ADMIN_BAR_COPY.site, to: APP_PATHS.INICIO }]
+    : [{ label: ADMIN_BAR_COPY.panel, to: APP_PATHS.ADMIN }],
+)
 
 const accountMenu = computed(() => (appSession.sessionId.value ? CUENTA_NAV : undefined))
 
@@ -74,7 +99,19 @@ const footerContact = computed(() => [
   <div v-if="isKitCatalog" class="html-kit-root">
     <router-view />
   </div>
-  <v-app v-else>
+  <v-app v-else :class="{ 'has-admin-bar': showAdminBar, 'is-admin-editing': adminEdit.active.value }">
+    <AdminBar
+      v-if="showAdminBar"
+      :label="ADMIN_BAR_COPY.brand"
+      :who="adminWho"
+      :editing="adminEdit.editing.value"
+      :edit-label="ADMIN_BAR_COPY.edit"
+      :edit-hint="ADMIN_BAR_COPY.editHint"
+      :create-label="ADMIN_BAR_COPY.create"
+      :create-items="adminCreateItems"
+      :links="adminLinks"
+      @update:editing="adminEdit.setEditing"
+    />
     <MegaHeader
       :items="MEGA_NAV"
       :whatsapp="whatsapp"

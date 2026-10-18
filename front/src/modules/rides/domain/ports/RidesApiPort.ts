@@ -31,5 +31,8 @@ export interface RidesApiPort {
   ): Promise<Result<Outing, AppError>>
   listBoard(clave: string): Promise<Result<readonly OperatorBoardOuting[], AppError>>
   publish(draft: OutingDraft, clave: string): Promise<Result<Outing, AppError>>
+  update(outingId: string, draft: OutingDraft, clave: string): Promise<Result<Outing, AppError>>
+  remove(outingId: string, clave: string): Promise<Result<true, AppError>>
   publishMemory(draft: MemoryDraft, clave: string): Promise<Result<Memory, AppError>>
+  removeMemory(memoryId: string, clave: string): Promise<Result<true, AppError>>
 }

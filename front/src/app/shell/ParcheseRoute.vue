@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
-import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
+import { getAppDependencies, inventoryVersion, refreshInventory } from '@app/bootstrap.ts'
 import { PARCHESE_COPY, PARCHESE_HERO_PHOTO, PARCHESE_NAV } from '@app/constants/parchese.ts'
 import { PARCHESE_CONTEXT, shortDate } from '@app/shell/parchese/context.ts'
 import type { Poll } from '@modules/polls/index.ts'
@@ -14,15 +14,13 @@ import SectionTabs from '@ui/SectionTabs.vue'
 const copy = PARCHESE_COPY
 const route = useRoute()
 const bindReveal = usePageReveal()
-const stamp = ref(0)
 
 onMounted(async () => {
   await refreshInventory()
-  stamp.value += 1
 })
 
 const deps = computed(() => {
-  stamp.value
+  void inventoryVersion.value
   return getAppDependencies()
 })
 
@@ -68,7 +66,6 @@ const orphanPolls = computed(() => polls.value.filter((poll) => poll.outingId &&
 
 async function reloadInventory(): Promise<void> {
   await refreshInventory()
-  stamp.value += 1
 }
 
 provide(PARCHESE_CONTEXT, { deps, pollsFor, orphanPolls, onVoted, reloadPolls, reloadInventory })

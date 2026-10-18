@@ -4,12 +4,16 @@ import { SHOP_ROUTES } from './constants/shop.constants.js'
 import {
   createProductController,
   createServiceController,
+  deleteProductController,
+  deleteServiceController,
   listMysteryDeckController,
   listProductsController,
   listServicesController,
   readOperatorMysteryController,
   revealMysteryCardController,
   saveOperatorMysteryController,
+  updateProductController,
+  updateServiceController,
 } from './controllers/shop.controller.js'
 import { withShopErrors } from './middlewares/shop.middleware.js'
 
@@ -34,6 +38,10 @@ export const shopRoutes: readonly Route[] = [
     path: SHOP_ROUTES.CREATE_SERVICE,
     handler: withShopErrors(createServiceController),
   },
+  { method: HTTP_METHOD.POST, path: SHOP_ROUTES.UPDATE, handler: withShopErrors(updateProductController) },
+  { method: HTTP_METHOD.POST, path: SHOP_ROUTES.DELETE, handler: withShopErrors(deleteProductController) },
+  { method: HTTP_METHOD.POST, path: SHOP_ROUTES.UPDATE_SERVICE, handler: withShopErrors(updateServiceController) },
+  { method: HTTP_METHOD.POST, path: SHOP_ROUTES.DELETE_SERVICE, handler: withShopErrors(deleteServiceController) },
   {
     method: HTTP_METHOD.GET,
     path: SHOP_ROUTES.MYSTERY_DECK,

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { refreshInventory } from '@app/bootstrap.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { useTuVoz } from '@app/shell/tu-voz/context.ts'
 import { VOICE_COPY, VOICE_FIGURES } from '@modules/voice/constants/copy.ts'
 import TipsGrid from '@modules/voice/presentation/TipsGrid.vue'
@@ -10,13 +12,14 @@ import GuidelinesList from '@ui/GuidelinesList.vue'
 const copy = VOICE_COPY
 const bindReveal = usePageReveal()
 const { deps, whatsapp } = useTuVoz()
+const { claveFor } = useAdminEdit()
 </script>
 
 <template>
   <div :ref="bindReveal" class="board">
     <div class="board-split" data-reveal>
       <div class="board-main">
-        <TipsGrid :module="deps.voice" featured />
+        <TipsGrid :module="deps.voice" featured :edit-clave="claveFor('voz')" @changed="refreshInventory" />
       </div>
       <aside class="board-rail">
         <div class="poster poster--blue poster--mascot-top has-mascot">

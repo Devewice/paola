@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { LEGAL_COPY } from '@app/constants/legal.ts'
+import { refreshInventory } from '@app/bootstrap.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { useTuVoz } from '@app/shell/tu-voz/context.ts'
 import { VOICE_COPY } from '@modules/voice/constants/copy.ts'
 import FinesGrid from '@modules/voice/presentation/FinesGrid.vue'
@@ -12,13 +14,14 @@ const copy = VOICE_COPY
 const legal = LEGAL_COPY
 const bindReveal = usePageReveal()
 const { deps } = useTuVoz()
+const { claveFor } = useAdminEdit()
 </script>
 
 <template>
   <div :ref="bindReveal" class="board">
     <div class="board-split" data-reveal>
       <div class="board-main">
-        <FinesGrid :module="deps.voice" />
+        <FinesGrid :module="deps.voice" :edit-clave="claveFor('voz')" @changed="refreshInventory" />
       </div>
       <aside class="board-rail">
         <div class="poster poster--navy">

@@ -5,15 +5,23 @@ import {
   createFineController,
   createReportController,
   createTipController,
+  deleteFineController,
+  deleteTipController,
   listFinesController,
   listOperatorReportsController,
   listReportsController,
   listTipsController,
   moderateReportController,
+  updateFineController,
+  updateTipController,
 } from './controllers/voice.controller.js'
 import { withVoiceErrors } from './middlewares/voice.middleware.js'
 
 export const voiceRoutes: readonly Route[] = [
+  { method: HTTP_METHOD.POST, path: VOICE_ROUTES.OPERAR_UPDATE_TIP, handler: withVoiceErrors(updateTipController) },
+  { method: HTTP_METHOD.POST, path: VOICE_ROUTES.OPERAR_DELETE_TIP, handler: withVoiceErrors(deleteTipController) },
+  { method: HTTP_METHOD.POST, path: VOICE_ROUTES.OPERAR_UPDATE_FINE, handler: withVoiceErrors(updateFineController) },
+  { method: HTTP_METHOD.POST, path: VOICE_ROUTES.OPERAR_DELETE_FINE, handler: withVoiceErrors(deleteFineController) },
   { method: HTTP_METHOD.GET, path: VOICE_ROUTES.LIST, handler: withVoiceErrors(listTipsController) },
   { method: HTTP_METHOD.POST, path: VOICE_ROUTES.OPERAR_CREATE_TIP, handler: withVoiceErrors(createTipController) },
   { method: HTTP_METHOD.GET, path: VOICE_ROUTES.LIST_FINES, handler: withVoiceErrors(listFinesController) },

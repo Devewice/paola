@@ -145,10 +145,11 @@ export function parseCreateOuting(draft: Record<string, unknown>): Parsed<Create
 }
 
 export function parseSetOutingStatus(status: unknown): Parsed<SetOutingStatusDto> {
-  if (status !== RIDES_OPERATOR_STATUSES[0] && status !== RIDES_OPERATOR_STATUSES[1]) {
+  const allowed = RIDES_OPERATOR_STATUSES.find((item) => item === status)
+  if (!allowed) {
     return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.STATUS_INVALID)
   }
-  return { ok: true, value: { status } }
+  return { ok: true, value: { status: allowed } }
 }
 
 export function toOuting(row: Record<string, unknown>): Outing {

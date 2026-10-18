@@ -18,6 +18,7 @@ export const SHOP_TABLES = {
   MYSTERY_REVEALS: 'shop_mystery_reveals',
   USERS: 'users',
   SESSIONS: 'sessions',
+  ORDERS: 'orders',
 } as const
 
 export const SHOP_ROUTES = {
@@ -25,6 +26,10 @@ export const SHOP_ROUTES = {
   CREATE: '/api/operar/products',
   SERVICES: '/api/services',
   CREATE_SERVICE: '/api/operar/services',
+  UPDATE: '/api/operar/products/:id',
+  DELETE: '/api/operar/products/:id/delete',
+  UPDATE_SERVICE: '/api/operar/services/:id',
+  DELETE_SERVICE: '/api/operar/services/:id/delete',
   MYSTERY_DECK: '/api/shop/mystery-deck',
   MYSTERY_REVEAL: '/api/shop/mystery-deck/reveal',
   OPERAR_MYSTERY: '/api/operar/shop/mystery',
@@ -46,6 +51,9 @@ export const SHOP_MESSAGES = {
   MYSTERY_DECK_SIZE: 'El mazo lleva entre 1 y 8 cartas.',
   MYSTERY_PRODUCT: 'Cada carta necesita un producto del aparador.',
   MYSTERY_COUPON: 'Cada carta necesita un cupón.',
+  PRODUCT_NOT_FOUND: 'Ese producto no está.',
+  SERVICE_NOT_FOUND: 'Ese lavado no está.',
+  SERVICE_HAS_ORDERS: 'Ese lavado ya tiene pedidos: no se borra para no perder el historial.',
 } as const
 
 export const SHOP_MYSTERY_LIMITS = {

@@ -72,6 +72,16 @@ export async function insertMemory(id: string, draft: CreateMemoryDto): Promise<
   })
 }
 
+/** Las fotos no tienen cascada en la llave: se borran antes. Comentarios sí caen solos. */
+export async function deleteMemory(id: string): Promise<number> {
+  let affected = 0
+  await getDb().transaction(async (trx) => {
+    await trx(MEMORY_TABLES.PHOTOS).where({ memory_id: id }).delete()
+    affected = await trx(MEMORY_TABLES.MEMORIES).where({ id }).delete()
+  })
+  return affected
+}
+
 export async function findMemoryById(id: string): Promise<Memory | undefined> {
   const listed = await findMemories()
   return listed.memories.find((item) => item.id === id)

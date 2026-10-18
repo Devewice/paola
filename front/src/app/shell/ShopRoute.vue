@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
+import { getAppDependencies, inventoryVersion, refreshInventory } from '@app/bootstrap.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { SHOP_SHELF_QUERY } from '@shared/http/constants.ts'
 import ShopView from '@modules/shop/presentation/ShopView.vue'
 
 const route = useRoute()
-const stamp = ref(0)
+const { claveFor } = useAdminEdit()
 
 onMounted(async () => {
   await refreshInventory()
-  stamp.value += 1
 })
 
 const module = computed(() => {
-  stamp.value
+  void inventoryVersion.value
   return getAppDependencies().shop
 })
 
@@ -25,5 +25,5 @@ const shelf = computed(() => {
 </script>
 
 <template>
-  <ShopView :module="module" :initial-shelf="shelf" />
+  <ShopView :module="module" :initial-shelf="shelf" :edit-clave="claveFor('tienda')" @changed="refreshInventory" />
 </template>

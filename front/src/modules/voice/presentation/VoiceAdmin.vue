@@ -1,67 +1,78 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { VoiceModule } from '@modules/voice/composition.ts'
 import { VOICE_ADMIN_COPY } from '@modules/voice/constants/copy.ts'
 import type { ReportStatus, VoiceReport } from '@modules/voice/domain/entities/Report.ts'
+import FineForm from '@modules/voice/presentation/FineForm.vue'
+import TipForm from '@modules/voice/presentation/TipForm.vue'
+import VoiceItemTools from '@modules/voice/presentation/VoiceItemTools.vue'
+import AdminDrawer from '@ui/AdminDrawer.vue'
+import AdminPane from '@ui/AdminPane.vue'
 import Button from '@ui/Button.vue'
-import Field from '@ui/Field.vue'
-import Input from '@ui/Input.vue'
-import Textarea from '@ui/Textarea.vue'
+import Chip from '@ui/Chip.vue'
+import FilterPills from '@ui/FilterPills.vue'
 import { showToast } from '@ui/toast.ts'
 
 const props = defineProps<{
   module: VoiceModule
   clave: string
+  /** `tip` o `comparendo`: abre ese formulario al entrar. */
+  create?: string
+  stamp?: number
 }>()
 
 const emit = defineEmits<{ published: [] }>()
 
 const copy = VOICE_ADMIN_COPY
 
-const tip = ref({ title: '', body: '', officialHref: '' })
-const fine = ref({ title: '', guide: '', officialHref: '', disclaimer: copy.fineDisclaimerDefault })
+function tabFor(create?: string): string {
+  if (create === 'tip') return 'tips'
+  if (create === 'comparendo') return 'comparendos'
+  return 'reportes'
+}
+
+const tab = ref(tabFor(props.create))
+const tipOpen = ref(props.create === 'tip')
+const fineOpen = ref(props.create === 'comparendo')
+
+watch(
+  () => props.create,
+  (value) => {
+    if (!value) return
+    tab.value = tabFor(value)
+    tipOpen.value = value === 'tip'
+    fineOpen.value = value === 'comparendo'
+  },
+)
+
 const reports = ref<readonly VoiceReport[]>([])
 const busy = ref<string | null>(null)
 
-async function publishTip() {
-  busy.value = 'tip'
-  const result = await props.module.createTip(
-    {
-      title: tip.value.title.trim(),
-      body: tip.value.body.trim(),
-      officialHref: tip.value.officialHref.trim() || undefined,
-    },
-    props.clave,
-  )
-  busy.value = null
-  if (!result.ok) {
-    showToast(result.error.message || copy.tipFail, 'bad')
-    return
-  }
-  tip.value = { title: '', body: '', officialHref: '' }
-  showToast(copy.tipOk, 'ok')
-  emit('published')
-}
+const tips = computed(() => {
+  void props.stamp
+  return props.module.getTips().items
+})
+const fines = computed(() => {
+  void props.stamp
+  return props.module.getFines().items
+})
+const pending = computed(() => reports.value.filter((item) => item.moderationStatus === 'in_review').length)
+const sortedReports = computed(() =>
+  [...reports.value].sort(
+    (a, b) => Number(b.moderationStatus === 'in_review') - Number(a.moderationStatus === 'in_review'),
+  ),
+)
 
-async function publishFine() {
-  busy.value = 'fine'
-  const result = await props.module.createFine(
-    {
-      title: fine.value.title.trim(),
-      guide: fine.value.guide.trim(),
-      officialHref: fine.value.officialHref.trim(),
-      disclaimer: fine.value.disclaimer.trim(),
-    },
-    props.clave,
-  )
-  busy.value = null
-  if (!result.ok) {
-    showToast(result.error.message || copy.fineFail, 'bad')
-    return
-  }
-  fine.value = { title: '', guide: '', officialHref: '', disclaimer: copy.fineDisclaimerDefault }
-  showToast(copy.fineOk, 'ok')
-  emit('published')
+const tabs = computed(() => [
+  { id: 'reportes', label: pending.value ? `${copy.tabReports} · ${pending.value}` : copy.tabReports },
+  { id: 'tips', label: `${copy.tabTips} · ${tips.value.length}` },
+  { id: 'comparendos', label: `${copy.tabFines} · ${fines.value.length}` },
+])
+
+function statusTone(status: ReportStatus): 'abierto' | 'lleno' | 'cerrado' {
+  if (status === 'published') return 'abierto'
+  if (status === 'in_review') return 'lleno'
+  return 'cerrado'
 }
 
 async function loadReports() {
@@ -88,6 +99,16 @@ async function moderate(report: VoiceReport, status: ReportStatus) {
   emit('published')
 }
 
+function onTipSaved() {
+  tipOpen.value = false
+  emit('published')
+}
+
+function onFineSaved() {
+  fineOpen.value = false
+  emit('published')
+}
+
 onMounted(() => {
   void loadReports()
 })
@@ -95,58 +116,18 @@ onMounted(() => {
 
 <template>
   <div class="admin-stack">
-    <div class="admin-grid">
-      <form class="admin-card" @submit.prevent="publishTip">
-        <header class="admin-card__head">
-          <h3>{{ copy.tipTitle }}</h3>
-          <p>{{ copy.tipLead }}</p>
-        </header>
-        <Field :label="copy.tipFieldTitle">
-          <Input v-model="tip.title" />
-        </Field>
-        <Field :label="copy.tipFieldBody">
-          <Textarea v-model="tip.body" />
-        </Field>
-        <Field :label="copy.tipFieldHref">
-          <Input v-model="tip.officialHref" type="url" placeholder="https://" />
-        </Field>
-        <Button type="submit" size="sm" :disabled="busy === 'tip'">{{ copy.tipCta }}</Button>
-      </form>
+    <FilterPills v-model="tab" :pills="tabs" />
 
-      <form class="admin-card" @submit.prevent="publishFine">
-        <header class="admin-card__head">
-          <h3>{{ copy.fineTitle }}</h3>
-          <p>{{ copy.fineLead }}</p>
-        </header>
-        <Field :label="copy.fineFieldTitle">
-          <Input v-model="fine.title" />
-        </Field>
-        <Field :label="copy.fineFieldGuide">
-          <Textarea v-model="fine.guide" />
-        </Field>
-        <Field :label="copy.fineFieldHref">
-          <Input v-model="fine.officialHref" type="url" placeholder="https://" />
-        </Field>
-        <Field :label="copy.fineFieldDisclaimer">
-          <Textarea v-model="fine.disclaimer" />
-        </Field>
-        <Button type="submit" size="sm" :disabled="busy === 'fine'">{{ copy.fineCta }}</Button>
-      </form>
-    </div>
-
-    <section class="admin-card">
-      <header class="admin-card__head">
-        <h3>{{ copy.reportsTitle }}</h3>
-        <p>{{ copy.reportsLead }}</p>
-      </header>
+    <AdminPane v-if="tab === 'reportes'" :title="copy.reportsTitle" :lead="copy.reportsLead" :count="pending">
       <p v-if="!reports.length" class="admin-empty">{{ copy.reportsEmpty }}</p>
       <ul v-else class="admin-list">
-        <li v-for="report in reports" :key="report.id" class="admin-list__item">
+        <li v-for="report in sortedReports" :key="report.id" class="admin-list__item">
           <div class="admin-list__main">
             <strong>{{ report.title }}</strong>
-            <span class="admin-list__meta">
-              {{ report.whereText }} · {{ report.happenedAt }} · {{ copy.statusLabels[report.moderationStatus] }}
-            </span>
+            <span class="admin-list__meta">{{ report.whereText }} · {{ report.happenedAt }}</span>
+            <div class="admin-list__chips">
+              <Chip :tone="statusTone(report.moderationStatus)">{{ copy.statusLabels[report.moderationStatus] }}</Chip>
+            </div>
             <p class="admin-list__text">{{ report.whatHappened }}</p>
             <a v-if="report.evidenceSrc" :href="report.evidenceSrc" target="_blank" rel="noopener noreferrer">
               {{ copy.reportEvidence }}
@@ -179,6 +160,45 @@ onMounted(() => {
           </div>
         </li>
       </ul>
-    </section>
+    </AdminPane>
+
+    <AdminPane v-else-if="tab === 'tips'" :title="copy.tipsTitle" :lead="copy.tipsLead" :count="tips.length">
+      <template #actions>
+        <Button size="sm" @click="tipOpen = true">+ {{ copy.newTip }}</Button>
+      </template>
+      <p v-if="!tips.length" class="admin-empty">{{ copy.tipsEmpty }}</p>
+      <ul v-else class="admin-list">
+        <li v-for="tip in tips" :key="tip.id" class="admin-list__item admin-list__item--compact">
+          <div class="admin-list__main">
+            <strong>{{ tip.title }}</strong>
+            <span class="admin-list__meta">{{ tip.body }}</span>
+          </div>
+          <VoiceItemTools :module="module" :clave="clave" :tip="tip" @changed="emit('published')" />
+        </li>
+      </ul>
+    </AdminPane>
+
+    <AdminPane v-else :title="copy.finesTitle" :lead="copy.finesLead" :count="fines.length">
+      <template #actions>
+        <Button size="sm" @click="fineOpen = true">+ {{ copy.newFine }}</Button>
+      </template>
+      <p v-if="!fines.length" class="admin-empty">{{ copy.finesEmpty }}</p>
+      <ul v-else class="admin-list">
+        <li v-for="fine in fines" :key="fine.id" class="admin-list__item admin-list__item--compact">
+          <div class="admin-list__main">
+            <strong>{{ fine.title }}</strong>
+            <span class="admin-list__meta">{{ fine.guide }}</span>
+          </div>
+          <VoiceItemTools :module="module" :clave="clave" :fine="fine" @changed="emit('published')" />
+        </li>
+      </ul>
+    </AdminPane>
+
+    <AdminDrawer v-model="tipOpen" :title="copy.tipTitle" :lead="copy.tipLead">
+      <TipForm :module="module" :clave="clave" @saved="onTipSaved" @cancel="tipOpen = false" />
+    </AdminDrawer>
+    <AdminDrawer v-model="fineOpen" :title="copy.fineTitle" :lead="copy.fineLead">
+      <FineForm :module="module" :clave="clave" @saved="onFineSaved" @cancel="fineOpen = false" />
+    </AdminDrawer>
   </div>
 </template>

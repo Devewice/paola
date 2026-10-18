@@ -17,5 +17,9 @@ export type MemberDraft = {
 
 export interface ClubWritePort {
   createAlliance(draft: AllianceDraft, clave: string): Promise<Result<Alliance, AppError>>
+  updateAlliance(id: string, draft: AllianceDraft, clave: string): Promise<Result<Alliance, AppError>>
+  removeAlliance(id: string, clave: string): Promise<Result<true, AppError>>
   createMember(draft: MemberDraft, clave: string): Promise<Result<Member, AppError>>
+  updateMember(id: string, draft: MemberDraft, clave: string): Promise<Result<Member, AppError>>
+  removeMember(id: string, clave: string): Promise<Result<true, AppError>>
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { PARCHESE_COPY, PARCHESE_FIGURES } from '@app/constants/parchese.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import ParcheseRail from '@app/shell/parchese/ParcheseRail.vue'
 import { shortDate, useParchese } from '@app/shell/parchese/context.ts'
 import { POLLS_COPY } from '@modules/polls/index.ts'
@@ -14,6 +15,7 @@ import StatBand from '@ui/StatBand.vue'
 const copy = PARCHESE_COPY
 const bindReveal = usePageReveal()
 const { deps, pollsFor, orphanPolls, onVoted, reloadInventory } = useParchese()
+const { claveFor } = useAdminEdit()
 const rides = computed(() => deps.value.rides)
 const next = computed(() => rides.value.nextOpenOuting())
 const upcoming = computed(() => rides.value.listOutings().filter((item) => rides.value.canClaim(item)))
@@ -39,7 +41,7 @@ const band = computed(() => [
     />
     <div class="board-split" data-reveal>
       <div class="board-main">
-        <AgendaSection :module="rides" @changed="reloadInventory">
+        <AgendaSection :module="rides" :edit-clave="claveFor('rodadas')" @changed="reloadInventory">
           <template #hilo="{ outing }">
             <p v-if="pollsFor(outing.id).length" class="ride-polls-count">
               <strong>{{ pollsFor(outing.id).length }}</strong>

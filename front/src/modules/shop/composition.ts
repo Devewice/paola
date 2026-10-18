@@ -25,6 +25,10 @@ export type ShopModule = {
   getContact: () => ShopContact
   publishProduct: ShopWritePort['publish']
   publishService: ShopWritePort['publishService']
+  updateProduct: ShopWritePort['update']
+  removeProduct: ShopWritePort['remove']
+  updateService: ShopWritePort['updateService']
+  removeService: ShopWritePort['removeService']
   createServiceOrder: (draft: ServiceOrderDraft) => Promise<Result<{ order: ServiceOrder; notice: { whatsappHref: string } }, AppError>>
   listOperatorOrders: (clave: string) => ReturnType<ListOperatorOrders['execute']>
   listPaymentMethods: PaymentPort['listMethods']
@@ -62,6 +66,10 @@ export function createShopModule(
     getContact: () => contact,
     publishProduct: (draft, clave) => write.publish(draft, clave),
     publishService: (draft, clave) => write.publishService(draft, clave),
+    updateProduct: (id, draft, clave) => write.update(id, draft, clave),
+    removeProduct: (id, clave) => write.remove(id, clave),
+    updateService: (id, draft, clave) => write.updateService(id, draft, clave),
+    removeService: (id, clave) => write.removeService(id, clave),
     createServiceOrder: (draft) => createServiceOrder.execute({ ...draft }),
     listOperatorOrders: (clave) => listOperatorOrders.execute(clave),
     listPaymentMethods: () => payments.listMethods(),

@@ -17,6 +17,7 @@ import type { OperatorBoardOuting, OperatorTicket, Outing, Ticket } from '../int
 import {
   confirmTicket,
   countTickets,
+  deleteOuting,
   deleteTicket,
   findCrew,
   findOutingById,
@@ -27,7 +28,9 @@ import {
   insertOuting,
   insertTicket,
   lockOutingRow,
+  outingHasMemory,
   saveUserEmergency,
+  updateOuting,
   updateOutingStatus,
   updateOutingStatusOn,
   userHasEmergency,
@@ -218,7 +221,38 @@ export async function setOutingStatus(
     return fail(HTTP_STATUS.CONFLICT, RIDES_MESSAGES.ALREADY_DONE)
   }
 
-  await updateOutingStatus(outingId, parsed.value.status)
+  const reopenFull = parsed.value.status === RIDES_STATUS_OPEN && current.taken >= current.capacity
+  await updateOutingStatus(outingId, reopenFull ? RIDES_STATUS_FULL : parsed.value.status)
   const outing = await findOutingById(outingId)
   return { ok: true, outing }
+}
+
+/** Editar no cambia cerrado ni realizado; abierto y lleno se recalculan con el cupo nuevo. */
+export async function editOuting(
+  outingId: string,
+  draft: Record<string, unknown>,
+): Promise<Fail | { ok: true; outing: Outing | null }> {
+  const parsed = parseCreateOuting(draft)
+  if (!parsed.ok) return parsed
+  const current = await findOutingById(outingId)
+  if (!current) return fail(HTTP_STATUS.NOT_FOUND, RIDES_MESSAGES.NOT_FOUND)
+  if (parsed.value.capacity < current.taken) {
+    return fail(HTTP_STATUS.CONFLICT, RIDES_MESSAGES.CAPACITY_BELOW_TAKEN(current.taken))
+  }
+  const keeps = current.status === RIDES_STATUS_CLOSED || current.status === RIDES_STATUS_DONE
+  const status = keeps
+    ? current.status
+    : current.taken >= parsed.value.capacity
+      ? RIDES_STATUS_FULL
+      : RIDES_STATUS_OPEN
+  await updateOuting(outingId, parsed.value, status)
+  return { ok: true, outing: await findOutingById(outingId) }
+}
+
+export async function removeOuting(outingId: string): Promise<Fail | { ok: true }> {
+  const current = await findOutingById(outingId)
+  if (!current) return fail(HTTP_STATUS.NOT_FOUND, RIDES_MESSAGES.NOT_FOUND)
+  if (await outingHasMemory(outingId)) return fail(HTTP_STATUS.CONFLICT, RIDES_MESSAGES.HAS_MEMORY)
+  await deleteOuting(outingId)
+  return { ok: true }
 }

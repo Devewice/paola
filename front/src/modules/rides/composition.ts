@@ -34,7 +34,10 @@ export type RidesModule = {
   ) => ReturnType<RidesApiPort['setStatus']>
   listOperatorBoard: RidesApiPort['listBoard']
   publishOuting: RidesApiPort['publish']
+  updateOuting: RidesApiPort['update']
+  removeOuting: RidesApiPort['remove']
   publishMemory: RidesApiPort['publishMemory']
+  removeMemory: RidesApiPort['removeMemory']
 }
 
 export function createRidesModule(
@@ -61,6 +64,9 @@ export function createRidesModule(
     setOutingStatus: (outingId, status, clave) => api.setStatus(outingId, status, clave),
     listOperatorBoard: (clave) => api.listBoard(clave),
     publishOuting: (draft: OutingDraft, clave) => api.publish(draft, clave),
+    updateOuting: (outingId, draft: OutingDraft, clave) => api.update(outingId, draft, clave),
+    removeOuting: (outingId, clave) => api.remove(outingId, clave),
     publishMemory: (draft: MemoryDraft, clave) => api.publishMemory(draft, clave),
+    removeMemory: (memoryId, clave) => api.removeMemory(memoryId, clave),
   }
 }

@@ -10,6 +10,7 @@ import {
   shopStockCopy,
 } from '@modules/shop/constants/copy.ts'
 import { formatProductPrice } from '@modules/shop/presentation/formatPrice.ts'
+import ShopItemTools from '@modules/shop/presentation/ShopItemTools.vue'
 import ShopCheckout from '@modules/shop/presentation/ShopCheckout.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import { APP_PATHS } from '@shared/http/constants.ts'
@@ -25,7 +26,11 @@ import StatBand from '@ui/StatBand.vue'
 const props = defineProps<{
   module: ShopModule
   productId: string
+  /** Sesión de quien opera la tienda en modo edición; vacía oculta las herramientas. */
+  editClave?: string
 }>()
+
+const emit = defineEmits<{ changed: [] }>()
 
 const bindReveal = usePageReveal()
 const copy = SHOP_COPY
@@ -66,6 +71,9 @@ const specRows = computed(() => {
     </div>
     <template v-else>
       <Crumbs :items="crumbs" data-reveal />
+      <div v-if="editClave" class="admin-spot__tools">
+        <ShopItemTools :module="module" :clave="editClave" :product="product" @changed="emit('changed')" />
+      </div>
       <div class="shop-item__stage" data-reveal>
         <div class="shop-item__media">
           <img v-if="product.photoSrc" :src="product.photoSrc" :alt="product.title" />

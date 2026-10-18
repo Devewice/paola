@@ -2,7 +2,20 @@ import { HTTP_MESSAGES, HTTP_STATUS } from '../../../http/constants.js'
 import { sendJson } from '../../../http/send.js'
 import type { RouteHandler } from '../../../http/types.js'
 import { memoriesJsonBody, memoriesOperatorGuard } from '../middlewares/memories.middleware.js'
-import { createMemory, listMemories } from '../services/memories.service.js'
+import { createMemory, listMemories, removeMemory } from '../services/memories.service.js'
+
+export const deleteMemoryController: RouteHandler = async (request, response, _url, params) => {
+  const body = await memoriesJsonBody(request, response)
+  if (!body) return
+  if (!(await memoriesOperatorGuard(request, response, body))) return
+
+  const result = await removeMemory(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
+}
 
 export const listMemoriesController: RouteHandler = async (_request, response) => {
   try {

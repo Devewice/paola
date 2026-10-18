@@ -8,10 +8,12 @@ import {
   claimSpot,
   confirmSpot,
   createOuting,
+  editOuting,
   listOperatorBoard,
   listOutings,
   readCrew,
   releaseSpot,
+  removeOuting,
   setOutingStatus,
 } from '../services/rides.service.js'
 
@@ -99,6 +101,32 @@ export const createOutingController: RouteHandler = async (request, response) =>
     return
   }
   sendJson(response, HTTP_STATUS.CREATED, { ok: true, outing: result.outing })
+}
+
+export const updateOutingController: RouteHandler = async (request, response, _url, params) => {
+  const body = await ridesJsonBody(request, response)
+  if (!body) return
+  if (!(await ridesOperatorGuard(request, response, body))) return
+
+  const result = await editOuting(params.id ?? '', body)
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, outing: result.outing })
+}
+
+export const deleteOutingController: RouteHandler = async (request, response, _url, params) => {
+  const body = await ridesJsonBody(request, response)
+  if (!body) return
+  if (!(await ridesOperatorGuard(request, response, body))) return
+
+  const result = await removeOuting(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
 }
 
 export const setOutingStatusController: RouteHandler = async (request, response, _url, params) => {

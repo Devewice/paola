@@ -16,6 +16,22 @@ export class InMemoryVoiceAdminApi implements VoiceAdminPort {
     return ok({ id: `fine-${Date.now()}`, ...draft })
   }
 
+  async updateTip(id: string, draft: TipDraft): Promise<Result<Tip, AppError>> {
+    return ok({ id, ...draft })
+  }
+
+  async removeTip(): Promise<Result<true, AppError>> {
+    return ok(true)
+  }
+
+  async updateFine(id: string, draft: FineDraft): Promise<Result<FineGuide, AppError>> {
+    return ok({ id, ...draft })
+  }
+
+  async removeFine(): Promise<Result<true, AppError>> {
+    return ok(true)
+  }
+
   async listReports(): Promise<Result<readonly VoiceReport[], AppError>> {
     return ok(this.reports)
   }

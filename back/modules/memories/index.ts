@@ -3,6 +3,7 @@ import type { Route } from '../../http/router.js'
 import { MEMORY_ROUTES } from './constants/memories.constants.js'
 import {
   createMemoryController,
+  deleteMemoryController,
   listMemoriesController,
 } from './controllers/memories.controller.js'
 import { withMemoriesErrors } from './middlewares/memories.middleware.js'
@@ -17,5 +18,10 @@ export const memoriesRoutes: readonly Route[] = [
     method: HTTP_METHOD.POST,
     path: MEMORY_ROUTES.CREATE,
     handler: withMemoriesErrors(createMemoryController),
+  },
+  {
+    method: HTTP_METHOD.POST,
+    path: MEMORY_ROUTES.DELETE,
+    handler: withMemoriesErrors(deleteMemoryController),
   },
 ]

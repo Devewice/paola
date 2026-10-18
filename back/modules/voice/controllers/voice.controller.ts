@@ -7,11 +7,15 @@ import {
   createFine,
   createReport,
   createTip,
+  editFine,
+  editTip,
   listFines,
   listOperatorReports,
   listReports,
   listTips,
   moderateReport,
+  removeFine,
+  removeTip,
 } from '../services/voice.service.js'
 
 export const listTipsController: RouteHandler = async (_request, response) => {
@@ -34,6 +38,29 @@ export const createTipController: RouteHandler = async (request, response) => {
   }
   sendJson(response, HTTP_STATUS.CREATED, { ok: true, tip: result.tip })
 }
+
+type VoiceResult = { ok: true } | { ok: false; status: number; detail: string }
+
+/** Editar y borrar en Tu voz comparten guardia y forma de respuesta. */
+function voiceOperation(
+  run: (id: string, body: Record<string, unknown>) => Promise<VoiceResult & Record<string, unknown>>,
+): RouteHandler {
+  return async (request, response, _url, params) => {
+    const body = await readBodyOrReject(request, response)
+    if (!body || !(await requirePermission(request, response, PERMISSION.VOZ, body))) return
+    const result = await run(params.id ?? '', body)
+    if (!result.ok) {
+      sendJson(response, result.status, { ok: false, detail: result.detail })
+      return
+    }
+    sendJson(response, HTTP_STATUS.OK, result)
+  }
+}
+
+export const updateTipController = voiceOperation((id, body) => editTip(id, body))
+export const deleteTipController = voiceOperation((id) => removeTip(id))
+export const updateFineController = voiceOperation((id, body) => editFine(id, body))
+export const deleteFineController = voiceOperation((id) => removeFine(id))
 
 export const listFinesController: RouteHandler = async (_request, response) => {
   try {

@@ -5,11 +5,13 @@ import {
   claimSpotController,
   confirmSpotController,
   createOutingController,
+  deleteOutingController,
   listOperatorBoardController,
   listOutingsController,
   outingCrewController,
   releaseSpotController,
   setOutingStatusController,
+  updateOutingController,
 } from './controllers/rides.controller.js'
 import { withRidesErrors } from './middlewares/rides.middleware.js'
 
@@ -33,5 +35,15 @@ export const ridesRoutes: readonly Route[] = [
     method: HTTP_METHOD.POST,
     path: RIDES_ROUTES.OPERATE_STATUS,
     handler: withRidesErrors(setOutingStatusController),
+  },
+  {
+    method: HTTP_METHOD.POST,
+    path: RIDES_ROUTES.OPERATE_DELETE,
+    handler: withRidesErrors(deleteOutingController),
+  },
+  {
+    method: HTTP_METHOD.POST,
+    path: RIDES_ROUTES.OPERATE_UPDATE,
+    handler: withRidesErrors(updateOutingController),
   },
 ]

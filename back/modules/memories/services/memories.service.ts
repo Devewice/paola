@@ -5,6 +5,7 @@ import type { Fail } from '../../../http/types.js'
 import { MEMORY_MESSAGES, MEMORY_STATUS_DONE } from '../constants/memories.constants.js'
 import type { Memory, MemoryList } from '../interfaces/memories.interface.js'
 import {
+  deleteMemory,
   findMemories,
   findMemoryById,
   findMemoryByOuting,
@@ -15,6 +16,12 @@ import { parseCreateMemory } from '../schemas/memories.schema.js'
 
 export async function listMemories(): Promise<MemoryList> {
   return findMemories()
+}
+
+export async function removeMemory(id: string): Promise<Fail | { ok: true }> {
+  const affected = await deleteMemory(id)
+  if (!affected) return fail(HTTP_STATUS.NOT_FOUND, MEMORY_MESSAGES.NOT_FOUND)
+  return { ok: true }
 }
 
 export async function createMemory(

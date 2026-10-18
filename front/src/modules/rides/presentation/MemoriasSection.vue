@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
-import { RIDES_MEMORIES_COPY } from '@modules/rides/constants/copy.ts'
+import { RIDES_ADMIN_COPY, RIDES_MEMORIES_COPY } from '@modules/rides/constants/copy.ts'
 import type { RidesModule } from '@modules/rides/index.ts'
 import { APP_PATHS, JSON_HEADERS, apiMemoryComments } from '@shared/http/constants.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
+import AdminItemTools from '@ui/AdminItemTools.vue'
+import AdminSpot from '@ui/AdminSpot.vue'
 import Button from '@ui/Button.vue'
 import Comment from '@ui/Comment.vue'
 import Field from '@ui/Field.vue'
@@ -18,11 +20,32 @@ import { showToast } from '@ui/toast.ts'
 
 const props = defineProps<{
   module: RidesModule
+  /** Sesión de quien opera rodadas en modo edición; vacía oculta las herramientas. */
+  editClave?: string
 }>()
+
+const emit = defineEmits<{ changed: [] }>()
 
 type MemoryCommentRow = { id: string; authorAlias?: string; alias?: string; body: string }
 
 const copy = RIDES_MEMORIES_COPY
+const adminCopy = RIDES_ADMIN_COPY
+const removing = ref(false)
+
+async function removeCurrent(): Promise<void> {
+  const memory = current.value
+  if (!memory || !props.editClave) return
+  removing.value = true
+  const result = await props.module.removeMemory(memory.id, props.editClave)
+  removing.value = false
+  if (!result.ok) {
+    showToast(result.error.message || adminCopy.memoryRemoveFail, 'bad')
+    return
+  }
+  showToast(adminCopy.memoryRemoved, 'ok')
+  selectedId.value = ''
+  emit('changed')
+}
 const memories = computed(() => props.module.getMemories())
 const selectedId = ref('')
 const current = computed(
@@ -115,7 +138,17 @@ async function sendComment(): Promise<void> {
       :mascot-src="MASCOT.LENTE"
     />
     <div v-if="current" ref="layoutEl" class="memorias__layout">
-      <div class="memorias__main">
+      <AdminSpot class="memorias__main" :active="Boolean(editClave)">
+        <template #tools>
+          <AdminItemTools
+            :edit-label="adminCopy.edit"
+            :remove-label="adminCopy.remove"
+            :confirm-label="adminCopy.removeConfirm"
+            :editable="false"
+            :busy="removing"
+            @remove="removeCurrent"
+          />
+        </template>
         <MemoriaHero
           :title="current.title"
           :meta="`${current.date} · ${current.km} km · ${current.credit}`"
@@ -128,7 +161,7 @@ async function sendComment(): Promise<void> {
         <p v-if="current.instagramHref" class="paola-page__copy paola-page__copy--muted">
           <a :href="current.instagramHref" target="_blank" rel="noopener noreferrer">{{ copy.instagram }}</a>
         </p>
-      </div>
+      </AdminSpot>
 
       <aside class="memorias__rail poster poster--navy">
         <span class="board-kicker">{{ copy.railKicker }}</span>

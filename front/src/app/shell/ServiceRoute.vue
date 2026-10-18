@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
+import { getAppDependencies, inventoryVersion, refreshInventory } from '@app/bootstrap.ts'
+import { useAdminEdit } from '@app/shell/adminMode.ts'
 import ServiceView from '@modules/shop/presentation/ServiceView.vue'
 
 const route = useRoute()
-const stamp = ref(0)
+const { claveFor } = useAdminEdit()
 
 onMounted(async () => {
   await refreshInventory()
-  stamp.value += 1
 })
 
 const module = computed(() => {
-  stamp.value
+  void inventoryVersion.value
   return getAppDependencies().shop
 })
 
@@ -24,5 +24,5 @@ const serviceId = computed(() => {
 </script>
 
 <template>
-  <ServiceView :module="module" :service-id="serviceId" />
+  <ServiceView :module="module" :service-id="serviceId" :edit-clave="claveFor('tienda')" @changed="refreshInventory" />
 </template>

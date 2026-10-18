@@ -11,8 +11,12 @@ import {
 import {
   createProduct,
   createService,
+  editProduct,
+  editService,
   listProducts,
   listServices,
+  removeProduct,
+  removeService,
 } from '../services/shop.service.js'
 
 function sessionFrom(request: { headers: Record<string, string | string[] | undefined> }): string {
@@ -66,6 +70,54 @@ export const createServiceController: RouteHandler = async (request, response) =
     return
   }
   sendJson(response, HTTP_STATUS.CREATED, { ok: true, service: result.service })
+}
+
+export const updateProductController: RouteHandler = async (request, response, _url, params) => {
+  const body = await shopJsonBody(request, response)
+  if (!body) return
+  if (!(await shopOperatorGuard(request, response, body))) return
+  const result = await editProduct(params.id ?? '', body)
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, product: result.product })
+}
+
+export const deleteProductController: RouteHandler = async (request, response, _url, params) => {
+  const body = await shopJsonBody(request, response)
+  if (!body) return
+  if (!(await shopOperatorGuard(request, response, body))) return
+  const result = await removeProduct(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
+}
+
+export const updateServiceController: RouteHandler = async (request, response, _url, params) => {
+  const body = await shopJsonBody(request, response)
+  if (!body) return
+  if (!(await shopOperatorGuard(request, response, body))) return
+  const result = await editService(params.id ?? '', body)
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, service: result.service })
+}
+
+export const deleteServiceController: RouteHandler = async (request, response, _url, params) => {
+  const body = await shopJsonBody(request, response)
+  if (!body) return
+  if (!(await shopOperatorGuard(request, response, body))) return
+  const result = await removeService(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
 }
 
 export const listMysteryDeckController: RouteHandler = async (request, response) => {

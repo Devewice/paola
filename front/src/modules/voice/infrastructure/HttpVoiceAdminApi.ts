@@ -14,6 +14,8 @@ import {
   FETCH_TIMEOUT_MS,
   JSON_HEADERS,
   OPERADOR_CLAVE_HEADER,
+  apiOperarItem,
+  apiOperarItemDelete,
   apiOperarReportStatus,
 } from '@shared/http/constants.ts'
 
@@ -34,10 +36,44 @@ function detailOr(body: Body, fallback: string): string {
   return typeof body.detail === 'string' && body.detail ? body.detail : fallback
 }
 
+async function postDone(url: string, clave: string, fallback: string): Promise<Result<true, AppError>> {
+  try {
+    const { response, body } = await post(url, {}, clave)
+    if (!response.ok) return err(appError('VALIDATION', detailOr(body, fallback)))
+    return ok(true)
+  } catch {
+    return err(appError('INFRASTRUCTURE', fallback))
+  }
+}
+
 export class HttpVoiceAdminApi implements VoiceAdminPort {
-  async createTip(draft: TipDraft, clave: string): Promise<Result<Tip, AppError>> {
+  createTip(draft: TipDraft, clave: string) {
+    return this.saveTip(API.OPERAR_TIPS, draft, clave)
+  }
+
+  updateTip(id: string, draft: TipDraft, clave: string) {
+    return this.saveTip(apiOperarItem(API.OPERAR_TIPS, id), draft, clave)
+  }
+
+  removeTip(id: string, clave: string) {
+    return postDone(apiOperarItemDelete(API.OPERAR_TIPS, id), clave, VOICE_ADMIN_COPY.removeFail)
+  }
+
+  createFine(draft: FineDraft, clave: string) {
+    return this.saveFine(API.OPERAR_FINES, draft, clave)
+  }
+
+  updateFine(id: string, draft: FineDraft, clave: string) {
+    return this.saveFine(apiOperarItem(API.OPERAR_FINES, id), draft, clave)
+  }
+
+  removeFine(id: string, clave: string) {
+    return postDone(apiOperarItemDelete(API.OPERAR_FINES, id), clave, VOICE_ADMIN_COPY.removeFail)
+  }
+
+  private async saveTip(url: string, draft: TipDraft, clave: string): Promise<Result<Tip, AppError>> {
     try {
-      const { response, body } = await post(API.OPERAR_TIPS, { ...draft }, clave)
+      const { response, body } = await post(url, { ...draft }, clave)
       if (!response.ok) return err(appError('VALIDATION', detailOr(body, VOICE_ADMIN_COPY.tipFail)))
       const tip = parseTip(body.tip)
       return tip ? ok(tip) : err(appError('INFRASTRUCTURE', VOICE_ADMIN_COPY.tipFail))
@@ -46,9 +82,9 @@ export class HttpVoiceAdminApi implements VoiceAdminPort {
     }
   }
 
-  async createFine(draft: FineDraft, clave: string): Promise<Result<FineGuide, AppError>> {
+  private async saveFine(url: string, draft: FineDraft, clave: string): Promise<Result<FineGuide, AppError>> {
     try {
-      const { response, body } = await post(API.OPERAR_FINES, { ...draft }, clave)
+      const { response, body } = await post(url, { ...draft }, clave)
       if (!response.ok) return err(appError('VALIDATION', detailOr(body, VOICE_ADMIN_COPY.fineFail)))
       const fine = parseFine(body.fine)
       return fine ? ok(fine) : err(appError('INFRASTRUCTURE', VOICE_ADMIN_COPY.fineFail))

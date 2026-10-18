@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from 'vue'
+import { computed, onMounted, provide } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
-import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
+import { getAppDependencies, inventoryVersion, refreshInventory } from '@app/bootstrap.ts'
 import { TU_VOZ_CONTEXT } from '@app/shell/tu-voz/context.ts'
 import {
   VOICE_COPY,
@@ -18,15 +18,13 @@ import SectionTabs from '@ui/SectionTabs.vue'
 const copy = VOICE_COPY
 const route = useRoute()
 const bindReveal = usePageReveal()
-const stamp = ref(0)
 
 onMounted(async () => {
   await refreshInventory()
-  stamp.value += 1
 })
 
 const deps = computed(() => {
-  stamp.value
+  void inventoryVersion.value
   return getAppDependencies()
 })
 

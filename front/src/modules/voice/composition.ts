@@ -15,6 +15,10 @@ export type VoiceModule = {
   submitReport: (draft: Record<string, unknown>) => ReturnType<SubmitReport['execute']>
   createTip: VoiceAdminPort['createTip']
   createFine: VoiceAdminPort['createFine']
+  updateTip: VoiceAdminPort['updateTip']
+  removeTip: VoiceAdminPort['removeTip']
+  updateFine: VoiceAdminPort['updateFine']
+  removeFine: VoiceAdminPort['removeFine']
   listOperatorReports: VoiceAdminPort['listReports']
   moderateReport: VoiceAdminPort['moderateReport']
 }
@@ -38,6 +42,10 @@ export function createVoiceModule(
     submitReport: (draft) => submitReport.execute(draft),
     createTip: (draft, clave) => admin.createTip(draft, clave),
     createFine: (draft, clave) => admin.createFine(draft, clave),
+    updateTip: (id, draft, clave) => admin.updateTip(id, draft, clave),
+    removeTip: (id, clave) => admin.removeTip(id, clave),
+    updateFine: (id, draft, clave) => admin.updateFine(id, draft, clave),
+    removeFine: (id, clave) => admin.removeFine(id, clave),
     listOperatorReports: (clave) => admin.listReports(clave),
     moderateReport: (id, status, clave, note) => admin.moderateReport(id, status, clave, note),
   }
