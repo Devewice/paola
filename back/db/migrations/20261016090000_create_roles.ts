@@ -1,4 +1,5 @@
 import type { Knex } from 'knex'
+import { innodb } from '../table.js'
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('roles', (table) => {
@@ -6,12 +7,14 @@ export async function up(knex: Knex): Promise<void> {
     table.string('name', 80).notNullable().unique()
     table.boolean('is_system').notNullable().defaultTo(false)
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
+    innodb(table)
   })
 
   await knex.schema.createTable('role_permissions', (table) => {
     table.string('role_id', 40).notNullable().references('id').inTable('roles').onDelete('CASCADE')
     table.string('permission', 40).notNullable()
     table.primary(['role_id', 'permission'])
+    innodb(table)
   })
 
   await knex('roles').insert([

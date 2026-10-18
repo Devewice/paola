@@ -9,15 +9,12 @@ import { outingStatusCopy } from '@modules/rides/presentation/outingStatusCopy.t
 import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
 import Choice from '@ui/Choice.vue'
-import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
 import Segmented from '@ui/Segmented.vue'
 import Select from '@ui/Select.vue'
 import { showToast } from '@ui/toast.ts'
 
 const NO_MOTO = '__sin_moto__'
-const SOLO = 'solo'
-const WITH_PASSENGER = 'parrillero'
 
 const props = defineProps<{
   module: RidesModule
@@ -35,7 +32,7 @@ const rules = RIDES_RULES_COPY
 const form = reactive({
   moto: '',
   level: '' as RideLevel | '',
-  passenger: SOLO,
+  passenger: false,
   passengerName: '',
   docsOk: false,
   rulesOk: false,
@@ -44,21 +41,14 @@ const form = reactive({
 })
 const sending = ref(false)
 const problem = ref('')
+const showRules = ref(false)
 
 const garage = computed(() => props.crew?.motorcycles ?? [])
 const motoOptions = computed(() => [
   ...garage.value.map((label) => ({ value: label, label })),
   { value: NO_MOTO, label: copy.motoNone, muted: true },
 ])
-const levelOptions = computed(() => [
-  { value: '', label: copy.levelPlaceholder, muted: true },
-  ...copy.levels.map((level) => ({ value: level.value, label: level.label })),
-])
-const passengerOptions = [
-  { value: SOLO, label: copy.passengerNo },
-  { value: WITH_PASSENGER, label: copy.passengerYes },
-]
-const withPassenger = computed(() => form.passenger === WITH_PASSENGER)
+const levelOptions = copy.levels.map((level) => ({ value: level.value, label: level.label }))
 
 watch(
   garage,
@@ -78,7 +68,7 @@ function missing(): string {
     return copy.missingEmergency
   }
   if (!form.level) return copy.missingLevel
-  if (withPassenger.value && !form.passengerName.trim()) return copy.missingPassenger
+  if (form.passenger && !form.passengerName.trim()) return copy.missingPassenger
   if (!form.docsOk) return copy.missingDocs
   if (!form.rulesOk) return copy.missingRules
   return ''
@@ -93,8 +83,8 @@ async function submit(): Promise<void> {
   const result = await props.module.claimSpot(props.outing.id, {
     moto: !noMoto && form.moto ? form.moto : undefined,
     noMoto: noMoto || undefined,
-    passenger: withPassenger.value,
-    passengerName: withPassenger.value ? form.passengerName : undefined,
+    passenger: form.passenger,
+    passengerName: form.passenger ? form.passengerName : undefined,
     level: form.level,
     docsOk: form.docsOk,
     rulesOk: form.rulesOk,
@@ -112,7 +102,12 @@ async function submit(): Promise<void> {
 
 <template>
   <div class="ride-signup">
-    <p class="paola-empty__kicker">{{ copy.kicker }}</p>
+    <p class="paola-empty__kicker">
+      {{ copy.kicker }}
+      <span v-if="crew?.signedIn && !crew.inscribed && open" class="ride-signup__as">
+        {{ copy.asAlias }} <strong>{{ crew.alias }}</strong>
+      </span>
+    </p>
 
     <p v-if="failed" class="meta-text">{{ copy.loadFail }}</p>
     <p v-else-if="!crew" class="meta-text">{{ copy.loading }}</p>
@@ -144,62 +139,65 @@ async function submit(): Promise<void> {
       </template>
 
       <form v-else class="ride-signup__form" novalidate @submit.prevent="submit">
-        <p class="meta-text">
-          {{ copy.asAlias }} <strong>{{ crew.alias }}</strong>
-        </p>
-
-        <fieldset v-if="crew.needsEmergency" class="ride-signup__group">
-          <legend class="ride-signup__legend">{{ copy.emergencyTitle }}</legend>
-          <p class="meta-text">{{ copy.emergencyLead }}</p>
+        <section v-if="crew.needsEmergency" class="ride-signup__block ride-signup__block--sos">
+          <header class="ride-signup__row-head">
+            <span class="ride-signup__label">{{ copy.emergencyTitle }}</span>
+            <span class="ride-signup__hint">{{ copy.emergencyNote }}</span>
+          </header>
           <div class="ride-signup__pair">
-            <Field :label="copy.emergencyName">
-              <Input v-model="form.emergencyName" :placeholder="copy.emergencyNamePlaceholder" autocomplete="off" />
-            </Field>
-            <Field :label="copy.emergencyPhone">
-              <Input
-                v-model="form.emergencyPhone"
-                type="tel"
-                :placeholder="copy.emergencyPhonePlaceholder"
-                autocomplete="off"
-              />
-            </Field>
+            <Input
+              v-model="form.emergencyName"
+              :aria-label="copy.emergencyName"
+              :placeholder="copy.emergencyNamePlaceholder"
+              autocomplete="off"
+            />
+            <Input
+              v-model="form.emergencyPhone"
+              type="tel"
+              :aria-label="copy.emergencyPhone"
+              :placeholder="copy.emergencyPhonePlaceholder"
+              autocomplete="off"
+            />
           </div>
-        </fieldset>
+        </section>
 
-        <template v-if="garage.length">
-          <Select v-model="form.moto" :label="copy.motoPick" :options="motoOptions" />
-          <RouterLink :to="garageTo" class="meta-text ride-signup__garage">{{ copy.garageEdit }}</RouterLink>
-        </template>
-        <template v-else>
-          <Field :label="copy.motoLabel">
-            <Input v-model="form.moto" :placeholder="copy.motoPlaceholder" />
-          </Field>
-          <RouterLink :to="garageTo" class="meta-text ride-signup__garage">{{ copy.garageCta }}</RouterLink>
-        </template>
+        <section class="ride-signup__block">
+          <header class="ride-signup__row-head">
+            <span class="ride-signup__label">{{ copy.motoPick }}</span>
+            <RouterLink :to="garageTo" class="ride-signup__link">
+              {{ garage.length ? copy.garageEdit : copy.garageCta }}
+            </RouterLink>
+          </header>
+          <div class="ride-signup__pair ride-signup__pair--moto">
+            <Select v-if="garage.length" v-model="form.moto" :options="motoOptions" />
+            <Input v-else v-model="form.moto" :aria-label="copy.motoLabel" :placeholder="copy.motoPlaceholder" />
+            <Choice v-model="form.passenger" kind="switch" :label="copy.passengerYes" />
+          </div>
+          <div v-if="form.passenger" class="ride-signup__passenger">
+            <Input v-model="form.passengerName" :aria-label="copy.passengerName" :placeholder="copy.passengerName" />
+            <span class="ride-signup__hint">{{ copy.passengerNote }}</span>
+          </div>
+        </section>
 
-        <Select v-model="form.level" :label="copy.levelLabel" :options="levelOptions" />
+        <section class="ride-signup__block">
+          <span class="ride-signup__label">{{ copy.levelLabel }}</span>
+          <Segmented v-model="form.level" :options="levelOptions" class="ride-signup__levels" />
+        </section>
 
-        <div class="ride-signup__group">
-          <span class="ride-signup__legend">{{ copy.passengerLabel }}</span>
-          <Segmented v-model="form.passenger" :options="passengerOptions" />
-          <template v-if="withPassenger">
-            <Field :label="copy.passengerName" :hint="copy.passengerNote">
-              <Input v-model="form.passengerName" autocomplete="off" />
-            </Field>
-          </template>
-        </div>
-
-        <div class="ride-signup__checks">
-          <Choice v-model="form.docsOk" :label="copy.docsLabel" />
-          <Choice v-model="form.rulesOk" :label="copy.rulesLabel" />
-          <details class="ride-signup__rules">
-            <summary>{{ copy.rulesToggle }}</summary>
-            <strong class="ride-signup__legend">{{ rules.title }}</strong>
-            <ol>
-              <li v-for="item in rules.items" :key="item">{{ item }}</li>
-            </ol>
-          </details>
-        </div>
+        <section class="ride-signup__block">
+          <div class="ride-signup__checks">
+            <Choice v-model="form.docsOk" :label="copy.docsLabel" />
+            <span class="ride-signup__rules-check">
+              <Choice v-model="form.rulesOk" :label="copy.rulesLabel" />
+              <button type="button" class="ride-signup__link" @click="showRules = !showRules">
+                {{ showRules ? copy.rulesHide : copy.rulesToggle }}
+              </button>
+            </span>
+          </div>
+          <ol v-if="showRules" class="ride-signup__rules" :aria-label="rules.title">
+            <li v-for="item in rules.items" :key="item">{{ item }}</li>
+          </ol>
+        </section>
 
         <Alert v-if="problem" tone="bad">{{ problem }}</Alert>
         <Button type="submit" :disabled="sending">{{ sending ? copy.sending : copy.submit }}</Button>
@@ -212,65 +210,123 @@ async function submit(): Promise<void> {
 
 <style scoped>
 .ride-signup,
-.ride-signup__form,
-.ride-signup__actions,
-.ride-signup__group,
-.ride-signup__checks {
+.ride-signup__actions {
   display: grid;
   gap: 12px;
 }
 
-.ride-signup__group {
-  margin: 0;
+.ride-signup__as {
+  margin-left: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ride-signup__form {
+  display: grid;
+  gap: 8px;
+}
+
+.ride-signup__block {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(72, 180, 252, 0.14);
+  border-radius: 10px;
+  background: rgba(0, 16, 40, 0.45);
+}
+
+.ride-signup__block--sos {
+  border-color: rgba(246, 178, 107, 0.35);
+}
+
+.ride-signup__row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.ride-signup__label {
+  font-family: Oswald, sans-serif;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ride-signup__hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ride-signup__link {
   padding: 0;
   border: 0;
-  min-width: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--paola-cyan, #48b4fc);
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.ride-signup__group .meta-text {
-  margin: 0;
-}
-
-.ride-signup__legend {
-  padding: 0;
-  font-family: Oswald, sans-serif;
-  font-size: 0.9375rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.ride-signup__link:hover {
+  text-decoration: underline;
 }
 
 .ride-signup__pair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 
-.ride-signup__garage {
-  justify-self: start;
-  margin-top: -4px;
-  color: var(--paola-cyan, #48b4fc);
+.ride-signup__pair--moto {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.ride-signup__pair :deep(.check--switch) {
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.ride-signup__passenger {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.ride-signup__levels {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .ride-signup__checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  font-size: 0.875rem;
+}
+
+.ride-signup__rules-check {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
 }
 
 .ride-signup__rules {
-  padding: 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-}
-
-.ride-signup__rules summary {
-  cursor: pointer;
-  color: var(--paola-cyan, #48b4fc);
-}
-
-.ride-signup__rules ol {
   display: grid;
-  gap: 8px;
-  margin: 8px 0 0;
-  padding-left: 24px;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .ride-signup__actions {
@@ -283,7 +339,9 @@ async function submit(): Promise<void> {
     grid-auto-flow: row;
   }
 
-  .ride-signup__pair {
+  .ride-signup__pair,
+  .ride-signup__pair--moto,
+  .ride-signup__passenger {
     grid-template-columns: 1fr;
   }
 }
