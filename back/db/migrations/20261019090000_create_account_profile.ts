@@ -1,4 +1,5 @@
 import type { Knex } from 'knex'
+import { createTableOnce } from '../table.js'
 
 type CatalogSeed = readonly [brand: string, model: string, cc: number]
 
@@ -234,13 +235,23 @@ function slug(value: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+/** MySQL no deshace DDL si algo falla a mitad: cada paso revisa qué ya quedó hecho. */
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.alterTable('users', (table) => {
-    table.string('display_name', 80).nullable()
-    table.string('full_name', 120).nullable()
-  })
+  const hasDisplayName = await knex.schema.hasColumn('users', 'display_name')
+  const hasFullName = await knex.schema.hasColumn('users', 'full_name')
+  if (!hasDisplayName || !hasFullName) {
+    await knex.schema.alterTable('users', (table) => {
+      if (!hasDisplayName) table.string('display_name', 80).nullable()
+      if (!hasFullName) table.string('full_name', 120).nullable()
+    })
+  }
 
-  await knex.schema.createTable('motorcycle_catalog', (table) => {
+  // Un intento previo pudo dejar el catálogo con otra intercalación; sin motos de usuarios aún, se rehace.
+  if (!(await knex.schema.hasTable('user_motorcycles'))) {
+    await knex.schema.dropTableIfExists('motorcycle_catalog')
+  }
+
+  await createTableOnce(knex, 'motorcycle_catalog', (table) => {
     table.string('id', 64).primary()
     table.string('brand', 80).notNullable()
     table.string('model', 120).notNullable()
@@ -248,7 +259,7 @@ export async function up(knex: Knex): Promise<void> {
     table.unique(['brand', 'model'])
   })
 
-  await knex.schema.createTable('user_motorcycles', (table) => {
+  await createTableOnce(knex, 'user_motorcycles', (table) => {
     table.string('id', 64).primary()
     table.string('user_id', 64).notNullable()
     table.string('catalog_id', 64).nullable()
@@ -261,9 +272,10 @@ export async function up(knex: Knex): Promise<void> {
     table.foreign('catalog_id').references('id').inTable('motorcycle_catalog').onDelete('SET NULL')
   })
 
-  await knex('motorcycle_catalog').insert(
-    CATALOG.map(([brand, model, cc]) => ({ id: `${slug(brand)}-${slug(model)}`, brand, model, cc })),
-  )
+  await knex('motorcycle_catalog')
+    .insert(CATALOG.map(([brand, model, cc]) => ({ id: `${slug(brand)}-${slug(model)}`, brand, model, cc })))
+    .onConflict('id')
+    .ignore()
 }
 
 export async function down(knex: Knex): Promise<void> {
