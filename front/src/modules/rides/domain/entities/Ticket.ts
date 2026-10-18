@@ -24,6 +24,8 @@ export type ClaimedSpot = {
 export type SignupDraft = {
   readonly whatsapp?: string
   readonly moto?: string
+  /** Va de parrillero o sin moto: el cupo no toma la moto del perfil. */
+  readonly noMoto?: boolean
 }
 
 export type CrewRider = {
@@ -39,6 +41,8 @@ export type OutingCrew = {
   readonly inscribed: boolean
   readonly needsWhatsapp: boolean
   readonly moto?: string
+  /** Garaje de la cuenta, principal primero. */
+  readonly motorcycles: readonly string[]
   readonly riders: readonly CrewRider[]
 }
 

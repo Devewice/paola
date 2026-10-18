@@ -20,6 +20,8 @@ export interface OutingCrewDto {
   inscribed: boolean
   needsWhatsapp: boolean
   moto?: string
+  /** Garaje de la cuenta, principal primero. */
+  motorcycles: string[]
   ticketId?: string
   riders: CrewRiderDto[]
 }

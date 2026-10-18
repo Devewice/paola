@@ -92,6 +92,7 @@ function initial(alias: string): string {
             :crew="crew"
             :failed="crewFailed"
             :enter-to="enterTo"
+            :garage-to="APP_PATHS.CUENTA"
             @inscribed="onInscribed"
           />
         </OutingCard>

@@ -18,6 +18,7 @@ import {
   countTickets,
   findCrew,
   findOutingById,
+  findUserMotoLabels,
   findUserTicketId,
   findOutings,
   findTickets,
@@ -117,9 +118,10 @@ export async function readCrew(outingId: string, user: SessionUser | null): Prom
   const outing = await findOutingById(outingId)
   if (!outing) return fail(HTTP_STATUS.NOT_FOUND, RIDES_MESSAGES.NOT_FOUND)
   if (!user) {
-    return { ok: true, crew: { signedIn: false, inscribed: false, needsWhatsapp: true, riders: [] } }
+    return { ok: true, crew: { signedIn: false, inscribed: false, needsWhatsapp: true, motorcycles: [], riders: [] } }
   }
   const ticketId = await findUserTicketId(getDb(), outingId, user.id)
+  const motorcycles = await findUserMotoLabels(user.id)
   return {
     ok: true,
     crew: {
@@ -127,7 +129,8 @@ export async function readCrew(outingId: string, user: SessionUser | null): Prom
       alias: user.alias,
       inscribed: Boolean(ticketId),
       needsWhatsapp: !user.whatsapp,
-      moto: user.moto,
+      moto: motorcycles[0] ?? user.moto,
+      motorcycles,
       ticketId: ticketId ?? undefined,
       riders: ticketId ? await findCrew(outingId) : [],
     },

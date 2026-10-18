@@ -8,6 +8,7 @@ import {
   RIDES_KIND_SET,
   RIDES_LIMITS,
   RIDES_MESSAGES,
+  RIDES_MOTO_LABEL_MAX,
   RIDES_OPERATOR_STATUSES,
   RIDES_STATUS_FULL,
   RIDES_STATUS_OPEN,
@@ -28,9 +29,10 @@ export function parseClaimSpot(
   user: { alias: string; whatsapp?: string; moto?: string },
 ): Parsed<ClaimSpotDto> {
   const typedWhatsapp = String(draft.whatsapp ?? '').replace(WHATSAPP_NON_DIGIT, '')
-  const typedMoto = String(draft.moto ?? '').trim()
+  const noMoto = draft.noMoto === true
+  const typedMoto = noMoto ? '' : String(draft.moto ?? '').trim().slice(0, RIDES_MOTO_LABEL_MAX)
   const whatsapp = typedWhatsapp || user.whatsapp || ''
-  const moto = typedMoto || user.moto || ''
+  const moto = noMoto ? '' : typedMoto || user.moto || ''
 
   if (user.alias.length < RIDES_LIMITS.NAME_MIN) {
     return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.NAME_REQUIRED)

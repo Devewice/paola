@@ -3,6 +3,7 @@ import type { DbClient } from '../../../db/knex.js'
 import { getDb, rowsOf } from '../../../db/knex.js'
 import {
   RIDES_DEFAULT_STATUS,
+  RIDES_MOTO_LABEL_MAX,
   RIDES_TABLES,
 } from '../constants/rides.constants.js'
 import type { CreateOutingDto, CrewRiderDto } from '../dtos/rides.dto.js'
@@ -101,6 +102,25 @@ export async function insertTicket(db: DbClient, ticket: Ticket): Promise<void> 
 export async function findUserTicketId(db: DbClient, outingId: string, userId: string): Promise<string | null> {
   const row = await db(RIDES_TABLES.TICKETS).select('id').where({ outing_id: outingId, user_id: userId }).first()
   return row ? String(row.id) : null
+}
+
+/** Motos del garaje como texto para el cupo; la principal primero. */
+export async function findUserMotoLabels(userId: string): Promise<string[]> {
+  const rows = (await getDb()(RIDES_TABLES.MOTORCYCLES)
+    .select('brand', 'model', 'cc')
+    .where({ user_id: userId })
+    .orderBy([
+      { column: 'is_primary', order: 'desc' },
+      { column: 'created_at', order: 'asc' },
+    ])) as Record<string, unknown>[]
+  return rows.map((row) => {
+    const model = String(row.model ?? '')
+    const cc = row.cc ? String(row.cc) : ''
+    const label = [String(row.brand ?? ''), model, cc && !model.includes(cc) ? `${cc}cc` : '']
+      .filter(Boolean)
+      .join(' ')
+    return label.slice(0, RIDES_MOTO_LABEL_MAX)
+  })
 }
 
 /** Quién va: alias de la cuenta si la hay; si no, solo el primer nombre del cupo. */

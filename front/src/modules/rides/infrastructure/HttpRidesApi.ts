@@ -194,6 +194,9 @@ function parseCrew(raw: unknown): OutingCrew | null {
     inscribed: row.inscribed,
     needsWhatsapp: row.needsWhatsapp !== false,
     moto: typeof row.moto === 'string' && row.moto ? row.moto : undefined,
+    motorcycles: Array.isArray(row.motorcycles)
+      ? row.motorcycles.filter((item): item is string => typeof item === 'string' && Boolean(item))
+      : [],
     riders,
   }
 }

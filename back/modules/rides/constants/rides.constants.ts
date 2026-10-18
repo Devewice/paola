@@ -26,7 +26,10 @@ export const RIDES_TABLES = {
   TICKETS: 'tickets',
   OUTING_ROUTES: 'outing_routes',
   USERS: 'users',
+  MOTORCYCLES: 'user_motorcycles',
 } as const
+
+export const RIDES_MOTO_LABEL_MAX = 120
 
 export const WHATSAPP_NON_DIGIT = /\D/g
 

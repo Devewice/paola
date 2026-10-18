@@ -9,7 +9,10 @@ import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
 import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
+import Select from '@ui/Select.vue'
 import { showToast } from '@ui/toast.ts'
+
+const NO_MOTO = '__sin_moto__'
 
 const props = defineProps<{
   module: RidesModule
@@ -17,6 +20,7 @@ const props = defineProps<{
   crew: OutingCrew | null
   failed?: boolean
   enterTo: string
+  garageTo: string
 }>()
 
 const emit = defineEmits<{ inscribed: [spot: ClaimedSpot] }>()
@@ -26,10 +30,16 @@ const whatsapp = ref('')
 const moto = ref('')
 const sending = ref(false)
 
+const garage = computed(() => props.crew?.motorcycles ?? [])
+const motoOptions = computed(() => [
+  ...garage.value.map((label) => ({ value: label, label })),
+  { value: NO_MOTO, label: copy.motoNone, muted: true },
+])
+
 watch(
-  () => props.crew?.moto,
-  (value) => {
-    if (value && !moto.value) moto.value = value
+  garage,
+  (list) => {
+    if (list.length && !moto.value) moto.value = list[0] ?? ''
   },
   { immediate: true },
 )
@@ -42,9 +52,11 @@ const notice = computed(() =>
 async function submit(): Promise<void> {
   if (sending.value) return
   sending.value = true
+  const noMoto = moto.value === NO_MOTO
   const result = await props.module.claimSpot(props.outing.id, {
     whatsapp: props.crew?.needsWhatsapp ? whatsapp.value : undefined,
-    moto: moto.value && moto.value !== props.crew?.moto ? moto.value : undefined,
+    moto: !noMoto && moto.value ? moto.value : undefined,
+    noMoto: noMoto || undefined,
   })
   sending.value = false
   if (!result.ok) {
@@ -90,9 +102,16 @@ async function submit(): Promise<void> {
             <Input v-model="whatsapp" :placeholder="copy.whatsappPlaceholder" type="tel" autocomplete="tel" />
           </Field>
         </template>
-        <Field v-if="crew.needsWhatsapp || !crew.moto" :label="copy.motoLabel">
-          <Input v-model="moto" :placeholder="copy.motoPlaceholder" />
-        </Field>
+        <template v-if="garage.length">
+          <Select v-model="moto" :label="copy.motoPick" :options="motoOptions" />
+          <RouterLink :to="garageTo" class="meta-text ride-signup__garage">{{ copy.garageEdit }}</RouterLink>
+        </template>
+        <template v-else>
+          <Field :label="copy.motoLabel">
+            <Input v-model="moto" :placeholder="copy.motoPlaceholder" />
+          </Field>
+          <RouterLink :to="garageTo" class="meta-text ride-signup__garage">{{ copy.garageCta }}</RouterLink>
+        </template>
         <Button type="submit" :disabled="sending">{{ sending ? copy.sending : copy.submit }}</Button>
       </form>
     </template>
@@ -107,6 +126,12 @@ async function submit(): Promise<void> {
 .ride-signup__actions {
   display: grid;
   gap: 12px;
+}
+
+.ride-signup__garage {
+  justify-self: start;
+  margin-top: -4px;
+  color: var(--paola-cyan, #48b4fc);
 }
 
 .ride-signup__actions {
