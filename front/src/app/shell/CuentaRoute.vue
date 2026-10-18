@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAppDependencies } from '@app/bootstrap.ts'
 import { LEGAL_COPY } from '@app/constants/legal.ts'
 import { ALIAS_STORAGE_KEY, CUENTA_COPY, CUENTA_FIGURE, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
 import OutingThreadBlock from '@app/shell/OutingThreadBlock.vue'
+import CuentaDatos from '@app/shell/cuenta/CuentaDatos.vue'
+import CuentaMotos from '@app/shell/cuenta/CuentaMotos.vue'
+import { useCuentaAccount } from '@app/shell/cuenta/useCuentaAccount.ts'
 import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
 import {
   API,
@@ -21,7 +24,6 @@ import { MASCOT } from '@shared/ui/mascot.ts'
 import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
 import ChatBubble from '@ui/ChatBubble.vue'
-import Choice from '@ui/Choice.vue'
 import Empty from '@ui/Empty.vue'
 import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
@@ -69,7 +71,6 @@ const panelTabs = computed(() => [
   { id: 'notices', label: copy.tabNotices },
   { id: 'friends', label: copy.tabFriends },
   { id: 'chat', label: copy.tabChat },
-  { id: 'profile', label: copy.tabProfile },
 ])
 
 const panelSlots = computed(() =>
@@ -86,7 +87,9 @@ const panel = ref<{ tickets: TicketRow[]; orders: OrderRow[]; notifications: Not
   null,
 )
 const error = ref('')
-const profilePublic = ref(false)
+const account = useCuentaAccount(sessionId)
+const accountProfile = account.profile
+const heroName = computed(() => accountProfile.value?.displayName || myAlias.value || copy.title)
 const friendAlias = ref('')
 const pending = ref<FriendRow[]>([])
 const outgoing = ref<FriendRow[]>([])
@@ -103,8 +106,14 @@ const heroStats = computed(() => [
   { value: panel.value?.tickets.length ?? 0, label: copy.tabTickets },
   { value: panel.value?.orders.length ?? 0, label: copy.tabOrders },
   { value: accepted.value.length, label: copy.tabFriends },
-  { value: chats.value.length, label: copy.tabChat },
+  { value: account.motorcycles.value.length, label: copy.motorcycles },
 ])
+
+watch(accountProfile, (profile) => {
+  if (!profile?.alias || profile.alias === myAlias.value) return
+  myAlias.value = profile.alias
+  localStorage.setItem(ALIAS_STORAGE_KEY, profile.alias)
+})
 
 onMounted(async () => {
   if (!sessionId.value) {
@@ -121,7 +130,14 @@ function sessionHeaders(json = false): Record<string, string> {
 }
 
 async function loadSession(): Promise<void> {
-  await Promise.all([loadPanel(), loadFriends(), loadChats(), loadRideVotes()])
+  await Promise.all([
+    loadPanel(),
+    loadFriends(),
+    loadChats(),
+    loadRideVotes(),
+    account.load(),
+    account.loadCatalog(),
+  ])
 }
 
 async function loadRideVotes(): Promise<void> {
@@ -296,19 +312,6 @@ function chatLabel(row: ChatRow): string {
   return row.title || row.peerAlias || row.kind
 }
 
-async function saveVisibility(): Promise<void> {
-  error.value = ''
-  const response = await fetch(API.ME_VISIBILITY, {
-    method: 'POST',
-    headers: sessionHeaders(true),
-    body: JSON.stringify({ isPublic: profilePublic.value }),
-  })
-  if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    error.value = typeof body.detail === 'string' ? body.detail : copy.failGeneric
-  }
-}
-
 function logout(): void {
   sessionId.value = ''
   myAlias.value = ''
@@ -339,10 +342,11 @@ function logout(): void {
       <template v-else>
         <header class="poster poster--navy poster--profile has-mascot" data-reveal>
           <img class="poster__mascot" :src="CUENTA_FIGURE" alt="" aria-hidden="true" loading="lazy" />
-          <span class="poster-avatar" aria-hidden="true">{{ (myAlias || copy.title).charAt(0).toUpperCase() }}</span>
+          <span class="poster-avatar" aria-hidden="true">{{ heroName.charAt(0).toUpperCase() }}</span>
           <div class="poster__copy">
             <span class="board-kicker">{{ copy.profileMeta }}</span>
-            <h1 class="type-brush-dry type-brush-dry--xs">{{ myAlias || copy.title }}</h1>
+            <h1 class="type-brush-dry type-brush-dry--xs">{{ heroName }}</h1>
+            <p v-if="accountProfile?.displayName && myAlias" class="meta-text cuenta-screen__alias">@{{ myAlias }}</p>
             <dl class="hub-stats hub-stats--dl">
               <div v-for="item in heroStats" :key="item.label" class="hub-stat">
                 <dt><span>{{ item.label }}</span></dt>
@@ -357,6 +361,11 @@ function logout(): void {
             </div>
           </div>
         </header>
+
+        <div class="cuenta-screen__grid" data-reveal>
+          <CuentaDatos :account="account" @logout="logout" />
+          <CuentaMotos :account="account" />
+        </div>
 
         <UserPanel class="cuenta-screen__panel" :tabs="panelTabs" :panels="panelSlots" data-reveal>
           <template #tickets>
@@ -499,16 +508,6 @@ function logout(): void {
               </div>
             </div>
           </template>
-
-          <template #profile>
-            <div class="cuenta-pane stack">
-              <p class="paola-page__copy paola-page__copy--muted">{{ copy.visibilityLead }}</p>
-              <Choice v-model="profilePublic" :label="copy.visibilityCta" />
-              <Button size="sm" type="button" @click="saveVisibility">
-                {{ profilePublic ? copy.visibilityCta : copy.visibilityOff }}
-              </Button>
-            </div>
-          </template>
         </UserPanel>
       </template>
     </article>
@@ -526,6 +525,25 @@ function logout(): void {
 .cuenta-screen__actions {
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.cuenta-screen__alias {
+  margin: -4px 0 8px;
+  color: var(--paola-cyan, #48b4fc);
+}
+
+.cuenta-screen__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 959px) {
+  .cuenta-screen__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 @media (max-width: 639px) {

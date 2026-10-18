@@ -32,6 +32,9 @@ export const API = {
   USERS_LOGIN: '/api/users/login',
   ME_PANEL: '/api/me/panel',
   ME_VISIBILITY: '/api/me/visibility',
+  ME_PROFILE: '/api/me/profile',
+  ME_MOTORCYCLES: '/api/me/motorcycles',
+  MOTORCYCLE_CATALOG: '/api/motorcycles/catalog',
   COMMUNITIES: '/api/communities',
   FEED: '/api/feed',
   ACTIVITY: '/api/activity',
@@ -178,6 +181,10 @@ export function apiFriendAccept(id: string): string {
 
 export function apiFriendBlock(id: string): string {
   return `${API.FRIENDS}/${encodeURIComponent(id)}/block`
+}
+
+export function apiMeMotorcycleDelete(id: string): string {
+  return `${API.ME_MOTORCYCLES}/${encodeURIComponent(id)}/delete`
 }
 
 export function apiChatMessages(id: string): string {
