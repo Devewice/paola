@@ -147,7 +147,7 @@ async function remove(id: string): Promise<void> {
         />
       </div>
 
-      <div v-if="brand && isOtherModel" class="cuenta-motos__custom">
+      <div v-if="(brand || catalogFailed) && isOtherModel" class="cuenta-motos__custom">
         <Field v-if="isOtherBrand" :label="copy.brand">
           <Input v-model="customBrand" :placeholder="copy.customBrand" />
         </Field>
