@@ -56,6 +56,9 @@ export const PAGE_VACANT_COPY = {
 export const MEGA_COPY = {
   whatsappTitle: 'WhatsApp',
   whatsappLead: 'El grupo del día a día. Ahí respondo más rápido.',
+  adminLabel: 'Panel',
+  adminTitle: 'Administración',
+  adminLead: 'Rodadas, tienda, encuestas, roles y todo el sitio.',
 } as const
 
 export const FOOTER_COPY = {

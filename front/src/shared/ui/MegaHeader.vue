@@ -31,6 +31,11 @@ const props = withDefaults(
     logoSrc?: string
     accountTo?: string
     accountLabel?: string
+    /** Solo para cuentas con permisos de administración. */
+    adminTo?: string
+    adminLabel?: string
+    adminTitle?: string
+    adminLead?: string
     menuLabel?: string
     closeLabel?: string
     embed?: boolean
@@ -41,6 +46,7 @@ const props = withDefaults(
   {
     logoSrc: '/logo.png',
     accountLabel: 'Cuenta',
+    adminLabel: 'Panel',
     menuLabel: 'Menú',
     closeLabel: 'Cerrar',
     embed: false,
@@ -203,6 +209,7 @@ onUnmounted(() => {
       </nav>
 
       <div class="mega-header__cta">
+        <Button v-if="adminTo" class="mega-header__admin" variant="dark" size="sm" :to="adminTo">{{ adminLabel }}</Button>
         <Button v-if="accountTo" variant="ghost" size="sm" :to="accountTo">{{ accountLabel }}</Button>
         <Button
           v-if="whatsapp"
@@ -236,6 +243,17 @@ onUnmounted(() => {
     >
       <div class="mega-header__panel-inner">
         <div class="mega-header__cols mega-header__cols--mobile">
+          <section v-if="adminTo" class="mega-header__admin-panel">
+            <h5>{{ adminTitle ?? adminLabel }}</h5>
+            <p v-if="adminLead" class="meta" style="margin: 0 0 10px">{{ adminLead }}</p>
+            <ul class="mega-header__links">
+              <li>
+                <AppLink :to="adminTo" class="mega-header__tile">
+                  <strong>{{ adminLabel }}</strong>
+                </AppLink>
+              </li>
+            </ul>
+          </section>
           <section v-for="col in panelColumns" :key="col.title">
             <h5>{{ col.title }}</h5>
             <p v-if="col.copy" class="meta" style="margin: 0 0 10px">{{ col.copy }}</p>

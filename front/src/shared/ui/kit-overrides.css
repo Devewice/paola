@@ -1694,3 +1694,9 @@ a.hub-tile:focus-visible {
   align-items: end;
   gap: 12px;
 }
+/* Acceso al panel: en celular vive dentro del menú para no apretar la barra. */
+@media (max-width: 600px) {
+  .mega-header__admin {
+    display: none !important;
+  }
+}

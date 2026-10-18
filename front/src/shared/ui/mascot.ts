@@ -1,11 +1,11 @@
 export const MASCOT = {
   TUMBADA: '/mascota/tumbada.png',
   EN_PIE: '/mascota/en-pie.png',
-  LENTE: '/mascota/lente.png',
+  LENTE: '/mascota/x5.png',
   X5: '/mascota/x5.png',
 } as const
 
-export const MASCOT_FRAMES = [MASCOT.TUMBADA, MASCOT.EN_PIE, MASCOT.LENTE, MASCOT.X5] as const
+export const MASCOT_FRAMES = [MASCOT.TUMBADA, MASCOT.EN_PIE, MASCOT.X5] as const
 
 export const MASCOT_FLASH = {
   hold: 2.4,
