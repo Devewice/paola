@@ -70,16 +70,30 @@ export async function findCatalogEntry(id: string): Promise<CatalogMotorcycle | 
 
 export async function listUserMotorcycles(userId: string): Promise<UserMotorcycle[]> {
   const rows = await db()(ACCOUNT_TABLES.MOTORCYCLES)
-    .select('id', 'catalog_id', 'brand', 'model', 'cc')
+    .select('id', 'catalog_id', 'brand', 'model', 'cc', 'is_primary')
     .where({ user_id: userId })
-    .orderBy('created_at', 'asc')
-  return rows.map((row) => ({
+    .orderBy([
+      { column: 'is_primary', order: 'desc' },
+      { column: 'created_at', order: 'asc' },
+    ])
+  return rows.map((row, index) => ({
     id: String(row.id),
     catalogId: optional(row.catalog_id),
     brand: String(row.brand),
     model: String(row.model),
     cc: row.cc === null || row.cc === undefined ? undefined : Number(row.cc),
+    isPrimary: index === 0,
   }))
+}
+
+export async function setPrimaryMotorcycle(userId: string, id: string): Promise<boolean> {
+  return db().transaction(async (trx) => {
+    const owned = await trx(ACCOUNT_TABLES.MOTORCYCLES).select('id').where({ id, user_id: userId }).first()
+    if (!owned) return false
+    await trx(ACCOUNT_TABLES.MOTORCYCLES).where({ user_id: userId }).update({ is_primary: false })
+    await trx(ACCOUNT_TABLES.MOTORCYCLES).where({ id, user_id: userId }).update({ is_primary: true })
+    return true
+  })
 }
 
 export async function insertUserMotorcycle(

@@ -12,6 +12,7 @@ import {
   insertUserMotorcycle,
   listCatalog,
   listUserMotorcycles,
+  setPrimaryMotorcycle,
   setUserMotoLabel,
   updateProfile,
 } from '../providers/account.provider.js'
@@ -75,6 +76,16 @@ export async function addMotorcycle(sessionId: string, draft: Record<string, unk
     await insertUserMotorcycle(user.value, { catalogId: entry.id, brand: entry.brand, model: entry.model, cc: entry.cc })
   } else {
     await insertUserMotorcycle(user.value, parsed.value)
+  }
+  await syncMotoLabel(user.value)
+  return viewOf(user.value)
+}
+
+export async function makePrimaryMotorcycle(sessionId: string, id: string): Promise<Parsed<AccountView>> {
+  const user = await requireUser(sessionId)
+  if (!user.ok) return user
+  if (!(await setPrimaryMotorcycle(user.value, id))) {
+    return fail(HTTP_STATUS.NOT_FOUND, ACCOUNT_MESSAGES.MOTORCYCLE_NOT_FOUND)
   }
   await syncMotoLabel(user.value)
   return viewOf(user.value)

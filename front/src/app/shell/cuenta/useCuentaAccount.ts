@@ -1,5 +1,12 @@
 import { computed, ref, type Ref } from 'vue'
-import { API, API_FAIL_FALLBACK, JSON_HEADERS, SESSION_HEADER, apiMeMotorcycleDelete } from '@shared/http/constants.ts'
+import {
+  API,
+  API_FAIL_FALLBACK,
+  JSON_HEADERS,
+  SESSION_HEADER,
+  apiMeMotorcycleDelete,
+  apiMeMotorcyclePrimary,
+} from '@shared/http/constants.ts'
 
 export type AccountProfile = {
   id: string
@@ -18,6 +25,7 @@ export type UserMotorcycle = {
   brand: string
   model: string
   cc?: number
+  isPrimary?: boolean
 }
 
 export type CatalogMotorcycle = {
@@ -101,6 +109,10 @@ export function useCuentaAccount(sessionId: Ref<string>) {
     return send(apiMeMotorcycleDelete(id), { method: 'POST', body: '{}' })
   }
 
+  function makePrimary(id: string): Promise<Outcome> {
+    return send(apiMeMotorcyclePrimary(id), { method: 'POST', body: '{}' })
+  }
+
   return {
     profile,
     motorcycles,
@@ -113,6 +125,7 @@ export function useCuentaAccount(sessionId: Ref<string>) {
     saveVisibility,
     addMotorcycle,
     removeMotorcycle,
+    makePrimary,
   }
 }
 

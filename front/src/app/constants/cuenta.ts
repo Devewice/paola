@@ -146,7 +146,7 @@ export const CUENTA_LIMITS = {
 export const CUENTA_MOTOS_COPY = {
   kicker: 'Garaje',
   title: 'Tus motos',
-  lead: 'Las que ruedas. La primera es la que sale en tus cupos de rodada.',
+  lead: 'Las que ruedas. La principal es la que sale en tus cupos de rodada.',
   empty: 'Todavía no tienes motos registradas.',
   brand: 'Marca',
   model: 'Modelo',
@@ -162,6 +162,7 @@ export const CUENTA_MOTOS_COPY = {
   remove: 'Quitar',
   removeConfirm: '¿Seguro?',
   main: 'Principal',
+  makeMain: 'Hacer principal',
   max: 'Llegaste al máximo de 10 motos.',
   catalogFail: 'No pude cargar la lista de motos. Puedes escribirla en «Otra marca».',
 } as const

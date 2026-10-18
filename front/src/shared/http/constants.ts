@@ -187,6 +187,10 @@ export function apiMeMotorcycleDelete(id: string): string {
   return `${API.ME_MOTORCYCLES}/${encodeURIComponent(id)}/delete`
 }
 
+export function apiMeMotorcyclePrimary(id: string): string {
+  return `${API.ME_MOTORCYCLES}/${encodeURIComponent(id)}/primary`
+}
+
 export function apiChatMessages(id: string): string {
   return `${API.CHATS}/${encodeURIComponent(id)}/messages`
 }

@@ -5,6 +5,7 @@ import { sendJson } from '../../../http/send.js'
 import type { Parsed, RouteHandler } from '../../../http/types.js'
 import {
   addMotorcycle,
+  makePrimaryMotorcycle,
   readAccount,
   readCatalog,
   removeMotorcycle,
@@ -45,6 +46,10 @@ export const addMotorcycleController: RouteHandler = async (request, response) =
   const body = await readBodyOrReject(request, response)
   if (!body) return
   sendView(response, await addMotorcycle(sessionOf(request), body))
+}
+
+export const primaryMotorcycleController: RouteHandler = async (request, response, _url, params) => {
+  sendView(response, await makePrimaryMotorcycle(sessionOf(request), params.id ?? ''))
 }
 
 export const removeMotorcycleController: RouteHandler = async (request, response, _url, params) => {

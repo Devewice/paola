@@ -22,4 +22,5 @@ export type UserMotorcycle = {
   readonly brand: string
   readonly model: string
   readonly cc?: number
+  readonly isPrimary: boolean
 }

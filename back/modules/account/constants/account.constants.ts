@@ -2,6 +2,7 @@ export const ACCOUNT_ROUTES = {
   PROFILE: '/api/me/profile',
   MOTORCYCLES: '/api/me/motorcycles',
   MOTORCYCLE_DELETE: '/api/me/motorcycles/:id/delete',
+  MOTORCYCLE_PRIMARY: '/api/me/motorcycles/:id/primary',
   CATALOG: '/api/motorcycles/catalog',
 } as const
 

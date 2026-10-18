@@ -4,6 +4,7 @@ import { ACCOUNT_ROUTES } from './constants/account.constants.js'
 import {
   addMotorcycleController,
   catalogController,
+  primaryMotorcycleController,
   readAccountController,
   removeMotorcycleController,
   saveProfileController,
@@ -16,4 +17,5 @@ export const accountRoutes: readonly Route[] = [
   { method: HTTP_METHOD.GET, path: ACCOUNT_ROUTES.CATALOG, handler: withAccountErrors(catalogController) },
   { method: HTTP_METHOD.POST, path: ACCOUNT_ROUTES.MOTORCYCLES, handler: withAccountErrors(addMotorcycleController) },
   { method: HTTP_METHOD.POST, path: ACCOUNT_ROUTES.MOTORCYCLE_DELETE, handler: withAccountErrors(removeMotorcycleController) },
+  { method: HTTP_METHOD.POST, path: ACCOUNT_ROUTES.MOTORCYCLE_PRIMARY, handler: withAccountErrors(primaryMotorcycleController) },
 ]

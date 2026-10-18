@@ -63,6 +63,17 @@ function label(moto: UserMotorcycle): string {
   return [moto.brand, moto.model].join(' ')
 }
 
+function isMain(moto: UserMotorcycle, index: number): boolean {
+  return moto.isPrimary ?? index === 0
+}
+
+async function makeMain(id: string): Promise<void> {
+  confirmId.value = ''
+  error.value = ''
+  const result = await props.account.makePrimary(id)
+  if (!result.ok) error.value = result.detail
+}
+
 function reset(): void {
   brand.value = ''
   modelId.value = ''
@@ -112,22 +123,38 @@ async function remove(id: string): Promise<void> {
     <Alert v-if="error" tone="bad">{{ error }}</Alert>
 
     <ul v-if="motorcycles.length" class="cuenta-motos">
-      <li v-for="(moto, index) in motorcycles" :key="moto.id" class="cuenta-moto">
+      <li
+        v-for="(moto, index) in motorcycles"
+        :key="moto.id"
+        class="cuenta-moto"
+        :class="{ 'is-main': isMain(moto, index) }"
+      >
         <div class="cuenta-moto__info">
           <strong>{{ label(moto) }}</strong>
-          <span class="meta-text">
-            <template v-if="moto.cc">{{ moto.cc }} cc</template>
-            <span v-if="index === 0" class="cuenta-moto__main">{{ copy.main }}</span>
+          <span class="cuenta-moto__meta">
+            <span v-if="moto.cc" class="meta-text">{{ moto.cc }} cc</span>
+            <span v-if="isMain(moto, index)" class="cuenta-moto__main">{{ copy.main }}</span>
           </span>
         </div>
-        <Button
-          :variant="confirmId === moto.id ? 'danger' : 'ghost'"
-          size="sm"
-          :disabled="busy"
-          @click="remove(moto.id)"
-        >
-          {{ confirmId === moto.id ? copy.removeConfirm : copy.remove }}
-        </Button>
+        <div class="cuenta-moto__actions">
+          <Button
+            v-if="!isMain(moto, index)"
+            variant="ghost"
+            size="sm"
+            :disabled="busy"
+            @click="makeMain(moto.id)"
+          >
+            {{ copy.makeMain }}
+          </Button>
+          <Button
+            :variant="confirmId === moto.id ? 'danger' : 'ghost'"
+            size="sm"
+            :disabled="busy"
+            @click="remove(moto.id)"
+          >
+            {{ confirmId === moto.id ? copy.removeConfirm : copy.remove }}
+          </Button>
+        </div>
       </li>
     </ul>
     <p v-else class="meta-text cuenta-motos__empty">{{ copy.empty }}</p>
@@ -177,6 +204,7 @@ async function remove(id: string): Promise<void> {
 
 .cuenta-moto {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -201,8 +229,30 @@ async function remove(id: string): Promise<void> {
   overflow-wrap: anywhere;
 }
 
+.cuenta-moto.is-main {
+  border-color: rgba(72, 180, 252, 0.55);
+  background: rgba(0, 136, 248, 0.1);
+}
+
+.cuenta-moto__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.cuenta-moto__meta .meta-text {
+  margin: 0;
+}
+
+.cuenta-moto__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .cuenta-moto__main {
-  margin-left: 8px;
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 11px;
