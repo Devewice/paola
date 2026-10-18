@@ -59,9 +59,90 @@
   margin: 0;
 }
 
+.cuenta-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.cuenta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(72, 180, 252, 0.18);
+  border-radius: 10px;
+  background: rgba(5, 7, 12, 0.5);
+}
+
+.cuenta-row__info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cuenta-row__info .meta-text {
+  margin: 0;
+}
+
+.cuenta-row__title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.cuenta-row__badge {
+  justify-self: start;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #48b4fc;
+  border: 1px solid rgba(72, 180, 252, 0.45);
+}
+
+.cuenta-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cuenta-row__thread {
+  flex-basis: 100%;
+}
+
+.cuenta-row.is-active {
+  border-color: rgba(72, 180, 252, 0.6);
+  background: rgba(0, 136, 248, 0.12);
+}
+
+.cuenta-card__inline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.cuenta-card__inline .field {
+  margin: 0;
+}
+
 @media (max-width: 639px) {
   .cuenta-card {
     padding: 16px;
+  }
+
+  .cuenta-card__inline {
+    grid-template-columns: 1fr;
   }
 
   .cuenta-card__actions .btn {

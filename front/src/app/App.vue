@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { FOOTER_COPY, MEGA_COPY } from '@app/constants/copy.ts'
-import { SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
+import { CUENTA_NAV } from '@app/constants/cuenta.ts'
+import { appSession, clearSession, syncSession } from '@app/shell/session.ts'
 import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
 import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
@@ -15,6 +16,7 @@ import ToastHost from '@ui/ToastHost.vue'
 import { APP_PATHS } from '@shared/http/constants.ts'
 
 const route = useRoute()
+const router = useRouter()
 const { paola, club } = getAppDependencies()
 const page = paola.getPage()
 const whatsapp = page.contact.whatsapp
@@ -28,19 +30,25 @@ const footerAlliances = computed(() =>
 const operar = useOperarAccess()
 const adminTo = computed(() => (operar.gate.value === 'ready' ? APP_PATHS.ADMIN : undefined))
 
+const accountMenu = computed(() => (appSession.sessionId.value ? CUENTA_NAV : undefined))
+
 /** Al entrar o salir de la cuenta cambia la sesión guardada: se vuelve a preguntar si tiene panel. */
-watch(
-  () => route.fullPath,
-  () => {
-    let current = ''
-    try {
-      current = localStorage.getItem(SESSION_STORAGE_KEY) ?? ''
-    } catch {
-      current = ''
-    }
-    if (current !== operar.session.value) void operar.reload()
-  },
-)
+watch(() => route.fullPath, syncSession)
+watch(appSession.sessionId, (current) => {
+  if (current !== operar.session.value) void operar.reload()
+})
+
+function onStorage(): void {
+  syncSession()
+}
+
+onMounted(() => window.addEventListener('storage', onStorage))
+onUnmounted(() => window.removeEventListener('storage', onStorage))
+
+function signOut(): void {
+  clearSession()
+  void router.push(APP_PATHS.ENTRAR)
+}
 
 const isKitCatalog = computed(() => kitUnlocked.value && route.path === APP_PATHS.ADMIN_UI)
 
@@ -73,10 +81,15 @@ const footerContact = computed(() => [
       :whatsapp-title="MEGA_COPY.whatsappTitle"
       :whatsapp-lead="MEGA_COPY.whatsappLead"
       :account-to="APP_PATHS.CUENTA"
+      :account-menu="accountMenu"
+      :account-name="appSession.alias.value"
+      :account-title="MEGA_COPY.accountTitle"
+      :sign-out-label="MEGA_COPY.signOut"
       :admin-to="adminTo"
       :admin-label="MEGA_COPY.adminLabel"
       :admin-title="MEGA_COPY.adminTitle"
       :admin-lead="MEGA_COPY.adminLead"
+      @sign-out="signOut"
     />
 
     <v-main class="paola-main">

@@ -1,126 +1,49 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, provide, ref, watch } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { getAppDependencies } from '@app/bootstrap.ts'
-import { LEGAL_COPY } from '@app/constants/legal.ts'
-import { ALIAS_STORAGE_KEY, CUENTA_COPY, CUENTA_FIGURE, SESSION_STORAGE_KEY } from '@app/constants/cuenta.ts'
-import OutingThreadBlock from '@app/shell/OutingThreadBlock.vue'
-import CuentaDatos from '@app/shell/cuenta/CuentaDatos.vue'
-import CuentaMotos from '@app/shell/cuenta/CuentaMotos.vue'
-import { useCuentaAccount } from '@app/shell/cuenta/useCuentaAccount.ts'
-import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
+import { CUENTA_COPY, CUENTA_FIGURE, CUENTA_NAV, CUENTA_NAV_COPY } from '@app/constants/cuenta.ts'
 import {
-  API,
-  APP_PATHS,
-  JSON_HEADERS,
-  SESSION_HEADER,
-  apiChatMessages,
-  apiFriendAccept,
-  apiFriendBlock,
-  appRodada,
-} from '@shared/http/constants.ts'
+  CUENTA_CONTEXT,
+  type FriendRow,
+  type PanelData,
+} from '@app/shell/cuenta/context.ts'
+import { useCuentaAccount } from '@app/shell/cuenta/useCuentaAccount.ts'
+import { appSession, clearSession, rememberAlias } from '@app/shell/session.ts'
+import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
+import { API, APP_PATHS, JSON_HEADERS, SESSION_HEADER } from '@shared/http/constants.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
-import { MASCOT } from '@shared/ui/mascot.ts'
-import Alert from '@ui/Alert.vue'
 import Button from '@ui/Button.vue'
-import ChatBubble from '@ui/ChatBubble.vue'
-import Empty from '@ui/Empty.vue'
-import Field from '@ui/Field.vue'
-import Input from '@ui/Input.vue'
-import Textarea from '@ui/Textarea.vue'
-import UserPanel from '@ui/UserPanel.vue'
-
-type TicketRow = {
-  id: string
-  outing_id?: string
-  outingId?: string
-  name: string
-  outing_title?: string
-  outing_date?: string
-}
-type OrderRow = { id: string; item_title?: string; itemTitle?: string; status: string }
-type NoteRow = { id: string; kind: string; message: string }
-type FriendRow = { id: string; alias: string; userId: string }
-type ChatRow = {
-  id: string
-  kind: string
-  title?: string
-  peerAlias?: string
-  peerId?: string
-  silenced: boolean
-}
-type ChatLine = {
-  id: string
-  authorAlias: string
-  body?: string
-  photoSrc?: string
-  voiceSrc?: string
-  pinned?: boolean
-}
+import SectionTabs from '@ui/SectionTabs.vue'
 
 const copy = CUENTA_COPY
-const legal = LEGAL_COPY
-const privacyPath = APP_PATHS.PRIVACIDAD
 const bindReveal = usePageReveal()
 const router = useRouter()
 const operar = useOperarAccess()
 
-const panelTabs = computed(() => [
-  { id: 'tickets', label: copy.tabTickets },
-  { id: 'orders', label: copy.tabOrders },
-  { id: 'notices', label: copy.tabNotices },
-  { id: 'friends', label: copy.tabFriends },
-  { id: 'chat', label: copy.tabChat },
-])
-
-const panelSlots = computed(() =>
-  panelTabs.value.map((tab) => ({ id: tab.id, content: '' })),
-)
-
-const sessionId = ref(
-  typeof localStorage !== 'undefined' ? localStorage.getItem(SESSION_STORAGE_KEY) ?? '' : '',
-)
-const myAlias = ref(
-  typeof localStorage !== 'undefined' ? localStorage.getItem(ALIAS_STORAGE_KEY) ?? '' : '',
-)
-const panel = ref<{ tickets: TicketRow[]; orders: OrderRow[]; notifications: NoteRow[] } | null>(
-  null,
-)
-const error = ref('')
+const sessionId = ref(appSession.sessionId.value)
+const myAlias = ref(appSession.alias.value)
 const account = useCuentaAccount(sessionId)
 const accountProfile = account.profile
-const heroName = computed(() => accountProfile.value?.displayName || myAlias.value || copy.title)
-const friendAlias = ref('')
+const panel = ref<PanelData | null>(null)
+const loading = ref(true)
 const pending = ref<FriendRow[]>([])
 const outgoing = ref<FriendRow[]>([])
 const accepted = ref<FriendRow[]>([])
-const chats = ref<ChatRow[]>([])
-const activeChatId = ref('')
-const messages = ref<ChatLine[]>([])
-const chatDraft = ref('')
-const chatPhoto = ref('')
-const chatVoice = ref('')
-const outingThreadId = ref('')
 const rideVotes = ref<ReadonlyMap<string, number>>(new Map())
+
+const heroName = computed(() => accountProfile.value?.displayName || myAlias.value || copy.title)
 const heroStats = computed(() => [
-  { value: panel.value?.tickets.length ?? 0, label: copy.tabTickets },
-  { value: panel.value?.orders.length ?? 0, label: copy.tabOrders },
-  { value: accepted.value.length, label: copy.tabFriends },
-  { value: account.motorcycles.value.length, label: copy.motorcycles },
+  { value: panel.value?.tickets.length ?? 0, label: CUENTA_NAV_COPY.rides, to: APP_PATHS.CUENTA_RODADAS },
+  { value: panel.value?.orders.length ?? 0, label: CUENTA_NAV_COPY.orders, to: APP_PATHS.CUENTA_PEDIDOS },
+  { value: accepted.value.length, label: CUENTA_NAV_COPY.friends, to: APP_PATHS.CUENTA_AMIGOS },
+  { value: account.motorcycles.value.length, label: copy.motorcycles, to: APP_PATHS.CUENTA },
 ])
 
 watch(accountProfile, (profile) => {
   if (!profile?.alias || profile.alias === myAlias.value) return
   myAlias.value = profile.alias
-  localStorage.setItem(ALIAS_STORAGE_KEY, profile.alias)
-})
-
-onMounted(async () => {
-  if (!sessionId.value) {
-    await router.replace({ path: APP_PATHS.ENTRAR, query: { next: APP_PATHS.CUENTA } })
-    return
-  }
-  await loadSession()
+  rememberAlias(profile.alias)
 })
 
 function sessionHeaders(json = false): Record<string, string> {
@@ -129,45 +52,23 @@ function sessionHeaders(json = false): Record<string, string> {
     : { [SESSION_HEADER]: sessionId.value }
 }
 
-async function loadSession(): Promise<void> {
-  await Promise.all([
-    loadPanel(),
-    loadFriends(),
-    loadChats(),
-    loadRideVotes(),
-    account.load(),
-    account.loadCatalog(),
-  ])
-}
-
-async function loadRideVotes(): Promise<void> {
-  const result = await getAppDependencies().polls.list()
-  if (!result.ok) return
-  const counts = new Map<string, number>()
-  for (const poll of result.value) {
-    if (!poll.outingId || !poll.isInscribed || !poll.isOpen || poll.hasVoted) continue
-    counts.set(poll.outingId, (counts.get(poll.outingId) ?? 0) + 1)
-  }
-  rideVotes.value = counts
-}
-
 async function loadPanel(): Promise<void> {
   try {
     const response = await fetch(API.ME_PANEL, { headers: sessionHeaders() })
     const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
     if (!response.ok) return
-    panel.value = body.panel as typeof panel.value
+    panel.value = body.panel as PanelData
     const user = body.user as { alias?: string } | undefined
     if (typeof user?.alias === 'string' && user.alias) {
       myAlias.value = user.alias
-      localStorage.setItem(ALIAS_STORAGE_KEY, user.alias)
+      rememberAlias(user.alias)
     }
   } catch {
     /* panel vacío */
   }
 }
 
-async function loadFriends(): Promise<void> {
+async function reloadFriends(): Promise<void> {
   try {
     const response = await fetch(API.FRIENDS, { headers: sessionHeaders() })
     if (!response.ok) return
@@ -182,164 +83,63 @@ async function loadFriends(): Promise<void> {
   }
 }
 
-async function loadChats(): Promise<void> {
-  try {
-    const response = await fetch(API.CHATS, { headers: sessionHeaders() })
-    if (!response.ok) return
-    const body = (await response.json()) as Record<string, unknown>
-    chats.value = Array.isArray(body.chats) ? (body.chats as ChatRow[]) : []
-  } catch {
-    chats.value = []
+async function loadRideVotes(): Promise<void> {
+  const result = await getAppDependencies().polls.list()
+  if (!result.ok) return
+  const counts = new Map<string, number>()
+  for (const poll of result.value) {
+    if (!poll.outingId || !poll.isInscribed || !poll.isOpen || poll.hasVoted) continue
+    counts.set(poll.outingId, (counts.get(poll.outingId) ?? 0) + 1)
   }
-}
-
-async function requestFriend(): Promise<void> {
-  error.value = ''
-  const response = await fetch(API.FRIEND_REQUEST, {
-    method: 'POST',
-    headers: sessionHeaders(true),
-    body: JSON.stringify({ alias: friendAlias.value }),
-  })
-  if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    error.value = typeof body.detail === 'string' ? body.detail : copy.failGeneric
-    return
-  }
-  friendAlias.value = ''
-  await loadFriends()
-}
-
-async function acceptFriend(id: string): Promise<void> {
-  error.value = ''
-  const response = await fetch(apiFriendAccept(id), {
-    method: 'POST',
-    headers: sessionHeaders(true),
-    body: '{}',
-  })
-  if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    error.value = typeof body.detail === 'string' ? body.detail : copy.failGeneric
-    return
-  }
-  await loadFriends()
-}
-
-async function blockFriend(id: string): Promise<void> {
-  error.value = ''
-  const response = await fetch(apiFriendBlock(id), {
-    method: 'POST',
-    headers: sessionHeaders(true),
-    body: '{}',
-  })
-  if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    error.value = typeof body.detail === 'string' ? body.detail : copy.failGeneric
-    return
-  }
-  await loadFriends()
-}
-
-async function openChat(id: string): Promise<void> {
-  activeChatId.value = id
-  const response = await fetch(apiChatMessages(id), { headers: sessionHeaders() })
-  if (!response.ok) return
-  const body = (await response.json()) as Record<string, unknown>
-  messages.value = Array.isArray(body.messages) ? (body.messages as ChatLine[]) : []
-}
-
-async function startChat(peerUserId: string): Promise<void> {
-  error.value = ''
-  const response = await fetch(API.CHATS, {
-    method: 'POST',
-    headers: sessionHeaders(true),
-    body: JSON.stringify({ peerUserId }),
-  })
-  const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-  if (!response.ok) {
-    error.value = typeof body.detail === 'string' ? body.detail : copy.failGeneric
-    return
-  }
-  await loadChats()
-  if (typeof body.chatId === 'string') await openChat(body.chatId)
-}
-
-async function sendChat(): Promise<void> {
-  if (!activeChatId.value) return
-  error.value = ''
-  const response = await fetch(apiChatMessages(activeChatId.value), {
-    method: 'POST',
-    headers: sessionHeaders(true),
-    body: JSON.stringify({
-      body: chatDraft.value,
-      photoSrc: chatPhoto.value.trim() || undefined,
-      voiceSrc: chatVoice.value.trim() || undefined,
-    }),
-  })
-  if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
-    error.value = typeof body.detail === 'string' ? body.detail : copy.failGeneric
-    return
-  }
-  chatDraft.value = ''
-  chatPhoto.value = ''
-  chatVoice.value = ''
-  await openChat(activeChatId.value)
-}
-
-function ticketOutingId(ticket: TicketRow): string {
-  if (typeof ticket.outingId === 'string' && ticket.outingId) return ticket.outingId
-  if (typeof ticket.outing_id === 'string' && ticket.outing_id) return ticket.outing_id
-  return ''
-}
-
-function pendingPolls(ticket: TicketRow): number {
-  const outingId = ticketOutingId(ticket)
-  return rideVotes.value.get(outingId) ?? 0
-}
-
-function openOutingThread(ticket: TicketRow): void {
-  outingThreadId.value = ticketOutingId(ticket)
-}
-
-function messageBody(line: ChatLine): string {
-  if (line.body) return line.body
-  if (line.photoSrc) return copy.photoFallback
-  if (line.voiceSrc) return copy.voiceFallback
-  return ''
-}
-
-function chatLabel(row: ChatRow): string {
-  return row.title || row.peerAlias || row.kind
+  rideVotes.value = counts
 }
 
 function logout(): void {
+  clearSession()
   sessionId.value = ''
-  myAlias.value = ''
   panel.value = null
-  pending.value = []
-  outgoing.value = []
-  accepted.value = []
-  chats.value = []
-  messages.value = []
-  activeChatId.value = ''
-  outingThreadId.value = ''
-  localStorage.removeItem(SESSION_STORAGE_KEY)
-  localStorage.removeItem(ALIAS_STORAGE_KEY)
   void router.push(APP_PATHS.ENTRAR)
 }
+
+provide(CUENTA_CONTEXT, {
+  sessionId,
+  myAlias,
+  account,
+  panel,
+  pending,
+  outgoing,
+  accepted,
+  rideVotes,
+  sessionHeaders,
+  reloadFriends,
+  logout,
+})
+
+onMounted(async () => {
+  if (!sessionId.value) {
+    await router.replace({ path: APP_PATHS.ENTRAR, query: { next: router.currentRoute.value.fullPath } })
+    return
+  }
+  await Promise.all([
+    loadPanel(),
+    reloadFriends(),
+    loadRideVotes(),
+    account.load(),
+    account.loadCatalog(),
+  ])
+  loading.value = false
+})
 </script>
 
 <template>
   <div :ref="bindReveal" class="cuenta-screen">
-    <article class="wrap cuenta-screen__body">
-      <Alert v-if="error" tone="bad" data-reveal>{{ error }}</Alert>
-
-      <section v-if="!panel" class="cuenta-screen__gate stack" data-reveal>
+    <div class="wrap cuenta-screen__body">
+      <section v-if="!loading && !panel" class="cuenta-screen__gate stack" data-reveal>
         <p class="paola-page__copy">{{ copy.needLogin }}</p>
         <Button :to="APP_PATHS.ENTRAR">{{ copy.goLogin }}</Button>
       </section>
 
-      <template v-else>
+      <template v-else-if="panel">
         <header class="poster poster--navy poster--profile has-mascot" data-reveal>
           <img class="poster__mascot" :src="CUENTA_FIGURE" alt="" aria-hidden="true" loading="lazy" />
           <span class="poster-avatar" aria-hidden="true">{{ heroName.charAt(0).toUpperCase() }}</span>
@@ -348,169 +148,25 @@ function logout(): void {
             <h1 class="type-brush-dry type-brush-dry--xs">{{ heroName }}</h1>
             <p v-if="accountProfile?.displayName && myAlias" class="meta-text cuenta-screen__alias">@{{ myAlias }}</p>
             <dl class="hub-stats hub-stats--dl">
-              <div v-for="item in heroStats" :key="item.label" class="hub-stat">
+              <div v-for="item in heroStats" :key="item.label" class="hub-stat cuenta-screen__stat">
                 <dt><span>{{ item.label }}</span></dt>
-                <dd><strong>{{ item.value }}</strong></dd>
+                <dd>
+                  <RouterLink :to="item.to" class="cuenta-screen__stat-link"><strong>{{ item.value }}</strong></RouterLink>
+                </dd>
               </div>
             </dl>
-            <div class="cuenta-screen__actions row">
-              <Button v-if="operar.gate.value === 'ready'" size="sm" :to="APP_PATHS.ADMIN">{{ copy.adminPanel }}</Button>
-              <Button size="sm" variant="ghost" :to="APP_PATHS.FEED">{{ copy.feed }}</Button>
-              <Button size="sm" variant="ghost" :to="privacyPath">{{ legal.checkboxLink }}</Button>
-              <Button size="sm" variant="ghost" type="button" @click="logout">{{ copy.logout }}</Button>
+            <div v-if="operar.gate.value === 'ready'" class="cuenta-screen__actions row">
+              <Button size="sm" variant="dark" :to="APP_PATHS.ADMIN">{{ copy.adminPanel }}</Button>
             </div>
           </div>
         </header>
 
-        <div class="cuenta-screen__grid" data-reveal>
-          <CuentaDatos :account="account" @logout="logout" />
-          <CuentaMotos :account="account" />
-        </div>
-
-        <UserPanel class="cuenta-screen__panel" :tabs="panelTabs" :panels="panelSlots" data-reveal>
-          <template #tickets>
-            <div class="cuenta-pane stack">
-              <ul v-if="panel.tickets.length" class="cuenta-list cuenta-rides">
-                <li v-for="ticket in panel.tickets" :key="ticket.id" class="cuenta-ride">
-                  <div class="cuenta-ride__info">
-                    <strong>{{ ticket.outing_title ?? ticket.name }}</strong>
-                    <span v-if="ticket.outing_date" class="meta-text">{{ String(ticket.outing_date).slice(0, 10) }}</span>
-                    <span v-if="pendingPolls(ticket)" class="cuenta-ride__polls">
-                      <strong>{{ pendingPolls(ticket) }}</strong>
-                      {{ pendingPolls(ticket) === 1 ? copy.ticketsPollsOne : copy.ticketsPollsMany }}
-                    </span>
-                  </div>
-                  <div v-if="ticketOutingId(ticket)" class="cuenta-ride__actions">
-                    <Button size="sm" :variant="pendingPolls(ticket) ? 'primary' : 'ghost'" :to="appRodada(ticketOutingId(ticket))">
-                      {{ pendingPolls(ticket) ? copy.ticketsVote : copy.ticketsRide }}
-                    </Button>
-                    <Button size="sm" variant="ghost" type="button" @click="openOutingThread(ticket)">
-                      {{ copy.outingThread }}
-                    </Button>
-                  </div>
-                </li>
-              </ul>
-              <Empty
-                v-else
-                compact
-                hide-cta
-                :title="copy.ticketsEmptyTitle"
-                :copy="copy.ticketsEmpty"
-                :mascot-src="MASCOT.TUMBADA"
-              />
-              <OutingThreadBlock v-if="outingThreadId" :outing-id="outingThreadId" compact />
-            </div>
-          </template>
-
-          <template #orders>
-            <div class="cuenta-pane stack">
-              <ul v-if="panel.orders.length" class="cuenta-list">
-                <li v-for="order in panel.orders" :key="order.id">
-                  {{ order.itemTitle ?? order.item_title }} · {{ order.status }}
-                </li>
-              </ul>
-              <Empty
-                v-else
-                compact
-                hide-cta
-                :title="copy.ordersEmptyTitle"
-                :copy="copy.ordersEmpty"
-                :mascot-src="MASCOT.EN_PIE"
-              />
-            </div>
-          </template>
-
-          <template #notices>
-            <div class="cuenta-pane stack">
-              <ul v-if="panel.notifications.length" class="cuenta-list">
-                <li v-for="note in panel.notifications" :key="note.id">{{ note.message }}</li>
-              </ul>
-              <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.noticesEmpty }}</p>
-              <Alert tone="info">{{ copy.membership }}</Alert>
-            </div>
-          </template>
-
-          <template #friends>
-            <div class="cuenta-pane stack">
-              <p class="paola-page__copy paola-page__copy--muted">{{ copy.friendsLead }}</p>
-              <form class="cuenta-inline" @submit.prevent="requestFriend">
-                <Field :label="copy.aliasLabel">
-                  <Input v-model="friendAlias" :placeholder="copy.aliasPlaceholder" />
-                </Field>
-                <Button type="submit" size="sm">{{ copy.request }}</Button>
-              </form>
-              <h4 class="paola-page__heading">{{ copy.pending }}</h4>
-              <ul v-if="pending.length" class="cuenta-list">
-                <li v-for="row in pending" :key="row.id">
-                  {{ row.alias }}
-                  <Button size="sm" type="button" @click="acceptFriend(row.id)">{{ copy.accept }}</Button>
-                  <Button size="sm" variant="ghost" type="button" @click="blockFriend(row.id)">
-                    {{ copy.block }}
-                  </Button>
-                </li>
-              </ul>
-              <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.pendingEmpty }}</p>
-              <h4 class="paola-page__heading">{{ copy.outgoing }}</h4>
-              <ul v-if="outgoing.length" class="cuenta-list">
-                <li v-for="row in outgoing" :key="row.id">{{ row.alias }}</li>
-              </ul>
-              <ul v-if="accepted.length" class="cuenta-list">
-                <li v-for="row in accepted" :key="row.id">
-                  <router-link
-                    class="cuenta-legal"
-                    :to="`${APP_PATHS.PARCERO}/${encodeURIComponent(row.alias)}`"
-                  >
-                    {{ row.alias }}
-                  </router-link>
-                  <Button size="sm" variant="ghost" type="button" @click="startChat(row.userId)">
-                    {{ copy.chatOpen }}
-                  </Button>
-                </li>
-              </ul>
-              <Empty
-                v-else-if="!pending.length && !outgoing.length"
-                compact
-                hide-cta
-                :title="copy.friends"
-                :copy="copy.friendsEmpty"
-                :mascot-src="MASCOT.TUMBADA"
-              />
-            </div>
-          </template>
-
-          <template #chat>
-            <div class="cuenta-pane stack">
-              <p class="paola-page__copy paola-page__copy--muted">{{ copy.chatLead }}</p>
-              <ul v-if="chats.length" class="cuenta-list">
-                <li v-for="row in chats" :key="row.id">
-                  <Button size="sm" variant="ghost" type="button" @click="openChat(row.id)">
-                    {{ chatLabel(row) }}
-                  </Button>
-                </li>
-              </ul>
-              <p v-else class="paola-page__copy paola-page__copy--muted">{{ copy.chatEmpty }}</p>
-              <div v-if="activeChatId" class="cuenta-chat">
-                <ChatBubble
-                  v-for="line in messages"
-                  :key="line.id"
-                  :mine="line.authorAlias === myAlias"
-                  :body="line.body ?? messageBody(line)"
-                  :photo-src="line.photoSrc"
-                  :voice-src="line.voiceSrc"
-                  :pinned="line.pinned"
-                />
-                <form class="cuenta-inline" @submit.prevent="sendChat">
-                  <Field :label="copy.messageLabel"><Textarea v-model="chatDraft" /></Field>
-                  <Field :label="copy.photoUrl"><Input v-model="chatPhoto" /></Field>
-                  <Field :label="copy.voiceUrl"><Input v-model="chatVoice" /></Field>
-                  <Button type="submit" size="sm">{{ copy.chatSend }}</Button>
-                </form>
-              </div>
-            </div>
-          </template>
-        </UserPanel>
+        <main class="board-shell cuenta-screen__shell">
+          <SectionTabs :label="CUENTA_NAV_COPY.aria" :items="CUENTA_NAV" />
+          <RouterView />
+        </main>
       </template>
-    </article>
+    </div>
   </div>
 </template>
 
@@ -522,28 +178,43 @@ function logout(): void {
   gap: 20px;
 }
 
-.cuenta-screen__actions {
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .cuenta-screen__alias {
   margin: -4px 0 8px;
   color: var(--paola-cyan, #48b4fc);
 }
 
-.cuenta-screen__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  align-items: start;
+.cuenta-screen__stat {
+  position: relative;
+  border-radius: 10px;
+  transition: background 160ms ease;
 }
 
-@media (max-width: 959px) {
-  .cuenta-screen__grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+.cuenta-screen__stat:hover,
+.cuenta-screen__stat:focus-within {
+  background: rgba(0, 136, 248, 0.14);
+}
+
+.cuenta-screen__stat-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cuenta-screen__stat-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.cuenta-screen__actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cuenta-screen__shell {
+  padding: 0;
+  display: grid;
+  gap: 20px;
+  min-width: 0;
 }
 
 @media (max-width: 639px) {
@@ -552,77 +223,5 @@ function logout(): void {
     padding-bottom: 24px;
     gap: 16px;
   }
-
-  .cuenta-screen__actions {
-    justify-content: stretch;
-  }
-
-  .cuenta-screen__actions :deep(.btn) {
-    width: 100%;
-  }
-}
-
-.cuenta-pane {
-  gap: 12px;
-}
-
-.cuenta-list {
-  margin: 0;
-  padding-left: 1.2rem;
-  display: grid;
-  gap: 6px;
-}
-
-.cuenta-rides {
-  padding-left: 0;
-  list-style: none;
-  gap: 10px;
-}
-
-.cuenta-ride {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid rgba(72, 180, 252, 0.18);
-  border-radius: 12px;
-  background: rgba(0, 16, 40, 0.45);
-}
-
-.cuenta-ride__info {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.cuenta-ride__polls {
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--paola-cyan, #48b4fc);
-}
-
-.cuenta-ride__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.cuenta-inline {
-  display: grid;
-  gap: 8px;
-}
-
-.cuenta-chat {
-  display: grid;
-  gap: 8px;
-}
-
-.cuenta-legal {
-  color: var(--paola-cyan, #48b4fc);
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 </style>

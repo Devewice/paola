@@ -26,6 +26,11 @@ export const ROUTE_TITLES = {
   OPERAR: 'Admin',
   PRIVACIDAD: 'Privacidad',
   CUENTA: 'Cuenta',
+  CUENTA_RODADAS: 'Mis rodadas',
+  CUENTA_PEDIDOS: 'Mis pedidos',
+  CUENTA_AMIGOS: 'Amigos',
+  CUENTA_CHAT: 'Chat',
+  CUENTA_AVISOS: 'Avisos',
   ENTRAR: 'Entrar',
   FEED: 'El feed',
   PARCERO: 'Perfil de parcero',
@@ -59,6 +64,8 @@ export const MEGA_COPY = {
   adminLabel: 'Panel',
   adminTitle: 'Administración',
   adminLead: 'Rodadas, tienda, encuestas, roles y todo el sitio.',
+  accountTitle: 'Tu cuenta',
+  signOut: 'Cerrar sesión',
 } as const
 
 export const FOOTER_COPY = {

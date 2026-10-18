@@ -31,6 +31,11 @@ const props = withDefaults(
     logoSrc?: string
     accountTo?: string
     accountLabel?: string
+    /** Con sesión iniciada: el botón Cuenta despliega estas opciones y «Cerrar sesión». */
+    accountMenu?: readonly MegaHeaderLink[]
+    accountName?: string
+    accountTitle?: string
+    signOutLabel?: string
     /** Solo para cuentas con permisos de administración. */
     adminTo?: string
     adminLabel?: string
@@ -46,6 +51,8 @@ const props = withDefaults(
   {
     logoSrc: '/logo.png',
     accountLabel: 'Cuenta',
+    accountTitle: 'Tu cuenta',
+    signOutLabel: 'Cerrar sesión',
     adminLabel: 'Panel',
     menuLabel: 'Menú',
     closeLabel: 'Cerrar',
@@ -55,9 +62,24 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{ signOut: [] }>()
+
 const route = useRoute()
 const openId = ref<string | null>(null)
 const mobileOpen = ref(false)
+const accountOpen = ref(false)
+const accountRoot = ref<HTMLElement | null>(null)
+const hasAccountMenu = computed(() => Boolean(props.accountMenu?.length))
+
+function toggleAccount(): void {
+  accountOpen.value = !accountOpen.value
+  if (accountOpen.value) openId.value = null
+}
+
+function signOut(): void {
+  closeAll()
+  emit('signOut')
+}
 const root = ref<HTMLElement | null>(null)
 let leaveTimer = 0
 
@@ -121,10 +143,16 @@ function toggleMobile(): void {
 function closeAll(): void {
   openId.value = null
   mobileOpen.value = false
+  accountOpen.value = false
 }
 
 function onDocClick(event: MouseEvent): void {
-  if (!root.value?.contains(event.target as Node)) closeAll()
+  const target = event.target as Node
+  if (!root.value?.contains(target)) {
+    closeAll()
+    return
+  }
+  if (accountOpen.value && !accountRoot.value?.contains(target)) accountOpen.value = false
 }
 
 function onKey(event: KeyboardEvent): void {
@@ -209,8 +237,42 @@ onUnmounted(() => {
       </nav>
 
       <div class="mega-header__cta">
-        <Button v-if="adminTo" class="mega-header__admin" variant="dark" size="sm" :to="adminTo">{{ adminLabel }}</Button>
-        <Button v-if="accountTo" variant="ghost" size="sm" :to="accountTo">{{ accountLabel }}</Button>
+        <Button v-if="adminTo && !hasAccountMenu" class="mega-header__admin" variant="dark" size="sm" :to="adminTo">{{ adminLabel }}</Button>
+        <div v-if="hasAccountMenu" ref="accountRoot" class="mega-header__account" :class="{ 'is-open': accountOpen }">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mega-header__account-btn"
+            aria-haspopup="true"
+            :aria-expanded="accountOpen"
+            aria-controls="mega-account-drop"
+            @click.stop="toggleAccount"
+          >
+            {{ accountLabel }}
+            <span class="mega-header__caret" aria-hidden="true" />
+          </button>
+          <div v-if="accountOpen" id="mega-account-drop" class="mega-header__drop mega-header__drop--account">
+            <p v-if="accountName" class="mega-header__account-name">
+              <span>{{ accountTitle }}</span>
+              <strong>{{ accountName }}</strong>
+            </p>
+            <ul class="mega-header__drop-links">
+              <li v-if="adminTo">
+                <AppLink :to="adminTo" class="mega-header__drop-link mega-header__drop-link--admin">
+                  <strong>{{ adminLabel }}</strong>
+                  <span v-if="adminLead">{{ adminLead }}</span>
+                </AppLink>
+              </li>
+              <li v-for="link in accountMenu" :key="link.label">
+                <AppLink :to="link.to" :href="link.href" class="mega-header__drop-link">
+                  <strong>{{ link.label }}</strong>
+                  <span v-if="link.note">{{ link.note }}</span>
+                </AppLink>
+              </li>
+            </ul>
+            <button type="button" class="mega-header__signout" @click="signOut">{{ signOutLabel }}</button>
+          </div>
+        </div>
+        <Button v-else-if="accountTo" variant="ghost" size="sm" :to="accountTo">{{ accountLabel }}</Button>
         <Button
           v-if="whatsapp"
           size="sm"
@@ -253,6 +315,18 @@ onUnmounted(() => {
                 </AppLink>
               </li>
             </ul>
+          </section>
+          <section v-if="hasAccountMenu" class="mega-header__account-panel">
+            <h5>{{ accountName ? `${accountTitle} · ${accountName}` : accountTitle }}</h5>
+            <ul class="mega-header__links">
+              <li v-for="link in accountMenu" :key="link.label">
+                <AppLink :to="link.to" :href="link.href" class="mega-header__tile">
+                  <strong>{{ link.label }}</strong>
+                  <span v-if="link.note">{{ link.note }}</span>
+                </AppLink>
+              </li>
+            </ul>
+            <button type="button" class="mega-header__signout" @click="signOut">{{ signOutLabel }}</button>
           </section>
           <section v-for="col in panelColumns" :key="col.title">
             <h5>{{ col.title }}</h5>

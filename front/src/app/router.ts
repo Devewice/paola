@@ -1,6 +1,12 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { OG_COPY, ROUTE_TITLES } from '@app/constants/copy.ts'
 import CuentaRoute from '@app/shell/CuentaRoute.vue'
+import CuentaAmigos from '@app/shell/cuenta/CuentaAmigos.vue'
+import CuentaAvisos from '@app/shell/cuenta/CuentaAvisos.vue'
+import CuentaChat from '@app/shell/cuenta/CuentaChat.vue'
+import CuentaPedidos from '@app/shell/cuenta/CuentaPedidos.vue'
+import CuentaPerfil from '@app/shell/cuenta/CuentaPerfil.vue'
+import CuentaRodadas from '@app/shell/cuenta/CuentaRodadas.vue'
 import FeedRoute from '@app/shell/FeedRoute.vue'
 import HomeRoute from '@app/shell/HomeRoute.vue'
 import KitRoute from '@app/shell/KitRoute.vue'
@@ -120,7 +126,19 @@ const routes: RouteRecordRaw[] = [
   { path: APP_PATHS.ADMIN_UI, name: 'admin-ui', component: KitRoute, meta: { title: ROUTE_TITLES.NOT_FOUND } },
   { path: APP_PATHS.PRIVACIDAD, name: 'privacidad', component: PrivacyView, meta: { title: ROUTE_TITLES.PRIVACIDAD } },
   { path: APP_PATHS.ENTRAR, name: 'entrar', component: LoginRoute, meta: { title: ROUTE_TITLES.ENTRAR } },
-  { path: APP_PATHS.CUENTA, name: 'cuenta', component: CuentaRoute, meta: { title: ROUTE_TITLES.CUENTA } },
+  {
+    path: APP_PATHS.CUENTA,
+    component: CuentaRoute,
+    meta: { title: ROUTE_TITLES.CUENTA, compactFooter: true },
+    children: [
+      { path: '', name: 'cuenta', component: CuentaPerfil, meta: { title: ROUTE_TITLES.CUENTA } },
+      { path: 'rodadas', name: 'cuenta-rodadas', component: CuentaRodadas, meta: { title: ROUTE_TITLES.CUENTA_RODADAS } },
+      { path: 'pedidos', name: 'cuenta-pedidos', component: CuentaPedidos, meta: { title: ROUTE_TITLES.CUENTA_PEDIDOS } },
+      { path: 'amigos', name: 'cuenta-amigos', component: CuentaAmigos, meta: { title: ROUTE_TITLES.CUENTA_AMIGOS } },
+      { path: 'chat', name: 'cuenta-chat', component: CuentaChat, meta: { title: ROUTE_TITLES.CUENTA_CHAT } },
+      { path: 'avisos', name: 'cuenta-avisos', component: CuentaAvisos, meta: { title: ROUTE_TITLES.CUENTA_AVISOS } },
+    ],
+  },
   { path: APP_PATHS.FEED, name: 'feed', component: FeedRoute, meta: { title: ROUTE_TITLES.FEED } },
   {
     path: `${APP_PATHS.PARCERO}/:alias`,

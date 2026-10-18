@@ -217,6 +217,11 @@ export const APP_PATHS = {
   OPERAR: '/operar',
   PRIVACIDAD: '/privacidad',
   CUENTA: '/cuenta',
+  CUENTA_RODADAS: '/cuenta/rodadas',
+  CUENTA_PEDIDOS: '/cuenta/pedidos',
+  CUENTA_AMIGOS: '/cuenta/amigos',
+  CUENTA_CHAT: '/cuenta/chat',
+  CUENTA_AVISOS: '/cuenta/avisos',
   ENTRAR: '/entrar',
   FEED: '/feed',
   PARCERO: '/parcero',
@@ -246,6 +251,12 @@ export function appEncuesta(id: string): string {
 
 export function appEntrarYVolver(next: string): string {
   return `${APP_PATHS.ENTRAR}?next=${encodeURIComponent(next)}`
+}
+
+export const CUENTA_CHAT_QUERY = 'con'
+
+export function appCuentaChat(chatId: string): string {
+  return `${APP_PATHS.CUENTA_CHAT}?${CUENTA_CHAT_QUERY}=${encodeURIComponent(chatId)}`
 }
 
 export function appParcero(alias: string): string {

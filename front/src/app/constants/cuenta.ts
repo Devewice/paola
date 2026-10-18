@@ -1,3 +1,4 @@
+import { APP_PATHS } from '@shared/http/constants.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
 
 export const SESSION_STORAGE_KEY = 'paola_session_id'
@@ -92,6 +93,50 @@ export const CUENTA_DATOS_COPY = {
   saved: 'Listo, tus datos quedaron guardados.',
   visibilityTitle: 'Perfil público',
   logoutLead: '¿Este no es tu equipo? Cierra la sesión al terminar.',
+} as const
+
+export const CUENTA_NAV_COPY = {
+  aria: 'Secciones de tu cuenta',
+  profile: 'Perfil',
+  profileNote: 'Tus datos y tus motos',
+  rides: 'Rodadas',
+  ridesNote: 'Tus tickets y encuestas',
+  orders: 'Pedidos',
+  ordersNote: 'Tienda y lavado',
+  friends: 'Amigos',
+  friendsNote: 'Solicitudes y tu parche',
+  chat: 'Chat',
+  chatNote: 'Tus conversaciones',
+  notices: 'Avisos',
+  noticesNote: 'Lo nuevo para ti',
+} as const
+
+/** Pestañas dentro de Cuenta y opciones del menú «Cuenta» del header: el mismo set. */
+export const CUENTA_NAV = [
+  { to: APP_PATHS.CUENTA, tag: '01', label: CUENTA_NAV_COPY.profile, note: CUENTA_NAV_COPY.profileNote },
+  { to: APP_PATHS.CUENTA_RODADAS, tag: '02', label: CUENTA_NAV_COPY.rides, note: CUENTA_NAV_COPY.ridesNote },
+  { to: APP_PATHS.CUENTA_PEDIDOS, tag: '03', label: CUENTA_NAV_COPY.orders, note: CUENTA_NAV_COPY.ordersNote },
+  { to: APP_PATHS.CUENTA_AMIGOS, tag: '04', label: CUENTA_NAV_COPY.friends, note: CUENTA_NAV_COPY.friendsNote },
+  { to: APP_PATHS.CUENTA_CHAT, tag: '05', label: CUENTA_NAV_COPY.chat, note: CUENTA_NAV_COPY.chatNote },
+  { to: APP_PATHS.CUENTA_AVISOS, tag: '06', label: CUENTA_NAV_COPY.notices, note: CUENTA_NAV_COPY.noticesNote },
+] as const
+
+export const CUENTA_SECTIONS_COPY = {
+  ridesTitle: 'Mis rodadas',
+  ridesLead: 'Los cupos que tienes a tu nombre. Si hay encuesta abierta, vota antes de salir.',
+  ridesBrowse: 'Ver la agenda',
+  ordersTitle: 'Mis pedidos',
+  ordersLead: 'Lo que pediste en la tienda o para lavado. El pago lo cuadramos por WhatsApp.',
+  ordersBrowse: 'Ir a la tienda',
+  friendsTitle: 'Amigos',
+  friendsAdd: 'Agregar por apodo',
+  friendsMine: 'Tu parche',
+  chatTitle: 'Chat',
+  chatList: 'Conversaciones',
+  chatPick: 'Elige una conversación para leerla.',
+  chatAttach: 'Adjuntar enlace',
+  noticesTitle: 'Avisos',
+  noticesLead: 'Lo que te llega del parche: cupos, pedidos y novedades.',
 } as const
 
 export const CUENTA_LIMITS = {
