@@ -1,8 +1,8 @@
 import { fail } from '../../../http/fail.js'
 import { HTTP_STATUS } from '../../../http/constants.js'
 import type { Parsed } from '../../../http/types.js'
-import { ACCOUNT_LIMITS, ACCOUNT_MESSAGES, WHATSAPP_NON_DIGIT } from '../constants/account.constants.js'
-import type { MotorcycleDraftDto, ProfilePatchDto } from '../dtos/account.dto.js'
+import { ACCOUNT_LIMITS, ACCOUNT_MESSAGES, BLOOD_TYPES, WHATSAPP_NON_DIGIT } from '../constants/account.constants.js'
+import type { MotorcycleDraftDto, ProfilePatchDto, SafetyPatchDto } from '../dtos/account.dto.js'
 import type { UserMotorcycle } from '../interfaces/account.interface.js'
 
 function text(value: unknown): string {
@@ -28,6 +28,40 @@ export function parseProfilePatch(draft: Record<string, unknown>): Parsed<Profil
       alias,
       fullName: fullName || null,
       whatsapp: whatsapp || null,
+    },
+  }
+}
+
+/** Nombre y teléfono van juntos: o ambos o ninguno. */
+export function parseSafetyPatch(draft: Record<string, unknown>): Parsed<SafetyPatchDto> {
+  const emergencyName = text(draft.emergencyName)
+  const emergencyPhone = text(draft.emergencyPhone).replace(WHATSAPP_NON_DIGIT, '')
+  const bloodType = text(draft.bloodType).toUpperCase()
+  const medicalNotes = text(draft.medicalNotes)
+  if (emergencyName || emergencyPhone) {
+    if (emergencyName.length < ACCOUNT_LIMITS.EMERGENCY_NAME_MIN || emergencyName.length > ACCOUNT_LIMITS.EMERGENCY_NAME_MAX) {
+      return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.EMERGENCY_NAME_INVALID)
+    }
+    if (
+      emergencyPhone.length < ACCOUNT_LIMITS.EMERGENCY_PHONE_MIN ||
+      emergencyPhone.length > ACCOUNT_LIMITS.EMERGENCY_PHONE_MAX
+    ) {
+      return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.EMERGENCY_PHONE_INVALID)
+    }
+  }
+  if (bloodType && !(BLOOD_TYPES as readonly string[]).includes(bloodType)) {
+    return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.BLOOD_TYPE_INVALID)
+  }
+  if (medicalNotes.length > ACCOUNT_LIMITS.MEDICAL_NOTES_MAX) {
+    return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.MEDICAL_NOTES_INVALID)
+  }
+  return {
+    ok: true,
+    value: {
+      emergencyName: emergencyName || null,
+      emergencyPhone: emergencyPhone || null,
+      bloodType: bloodType || null,
+      medicalNotes: medicalNotes || null,
     },
   }
 }

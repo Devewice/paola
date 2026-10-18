@@ -10,6 +10,7 @@ import {
   readCatalog,
   removeMotorcycle,
   saveProfile,
+  saveSafety,
   type AccountView,
 } from '../services/account.service.js'
 
@@ -36,6 +37,12 @@ export const saveProfileController: RouteHandler = async (request, response) => 
   const body = await readBodyOrReject(request, response)
   if (!body) return
   sendView(response, await saveProfile(sessionOf(request), body))
+}
+
+export const saveSafetyController: RouteHandler = async (request, response) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body) return
+  sendView(response, await saveSafety(sessionOf(request), body))
 }
 
 export const catalogController: RouteHandler = async (_request, response) => {

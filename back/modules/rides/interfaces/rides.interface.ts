@@ -24,9 +24,22 @@ export interface Ticket {
   whatsapp: string
   moto: string
   userId?: string
+  passengerName?: string
+  level: string
+  docsOk: boolean
+  rulesOk: boolean
+  confirmation: string
+}
+
+/** Lo que ve la operadora en el tablero: el cupo más los datos de emergencia de la cuenta. */
+export interface OperatorTicket extends Ticket {
+  emergencyName?: string
+  emergencyPhone?: string
+  bloodType?: string
+  medicalNotes?: string
 }
 
 export interface OperatorBoardOuting extends Outing {
-  tickets: Ticket[]
+  tickets: OperatorTicket[]
 }
 

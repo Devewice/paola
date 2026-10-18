@@ -93,6 +93,34 @@ export const CUENTA_DATOS_COPY = {
   logoutLead: '¿Este no es tu equipo? Cierra la sesión al terminar.',
 } as const
 
+export const CUENTA_EMERGENCIA_COPY = {
+  kicker: 'Solo para rodar',
+  title: 'En caso de emergencia',
+  lead: 'Privado: solo lo ves tú y lo veo yo en la lista de la rodada. Se usa si pasa algo en carretera.',
+  name: 'Contacto de emergencia',
+  nameHint: 'A quién llamo si te pasa algo.',
+  namePlaceholder: 'Mamá, pareja, parcero…',
+  phone: 'Teléfono del contacto',
+  phonePlaceholder: '312 000 0000',
+  blood: 'Tipo de sangre (RH)',
+  bloodNone: 'No lo sé / prefiero no decir',
+  bloodTypes: ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'],
+  medical: 'Alergias o condición médica',
+  medicalHint: 'Opcional. Ej.: diabético, asmático, alérgico a la penicilina.',
+  empty: 'Sin llenar',
+  edit: 'Editar',
+  fill: 'Llenar ahora',
+  save: 'Guardar',
+  cancel: 'Cancelar',
+  saved: 'Listo, quedó guardado.',
+  missingNote: 'Te lo pido para inscribirte a cualquier rodada.',
+} as const
+
+export const CUENTA_FIRM_WINDOW_COPY = {
+  pendingNotice: (title: string) => `¿Sigues firme para ${title}? Confírmame o suelta el cupo.`,
+  cta: 'Responder',
+} as const
+
 export const CUENTA_NAV_COPY = {
   aria: 'Secciones de tu cuenta',
   profile: 'Perfil',

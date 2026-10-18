@@ -5,6 +5,7 @@ import { buildOutingNotice, buildSignupNotice } from '@modules/rides/application
 import type { OperatorOutingStatus, Outing, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
 import type {
   CrewRider,
+  OperatorTicket,
   OutingCrew,
   OutingNotice,
   SignupDraft,
@@ -22,7 +23,9 @@ import {
   OPERADOR_CLAVE_HEADER,
   SESSION_HEADER,
   apiOperarOutingStatus,
+  apiOutingConfirm,
   apiOutingCrew,
+  apiOutingRelease,
   apiOutingTickets,
 } from '@shared/http/constants.ts'
 
@@ -53,6 +56,21 @@ export class HttpRidesApi implements RidesApiPort {
     const crew = parseCrew(body.crew)
     if (!crew) return err(appError('INFRASTRUCTURE', RIDES_MESSAGES.CREW_PARSE_FAIL))
     return ok(crew)
+  }
+
+  async confirm(outingId: string) {
+    return this.postSession(apiOutingConfirm(outingId))
+  }
+
+  async release(outingId: string) {
+    return this.postSession(apiOutingRelease(outingId))
+  }
+
+  private async postSession(url: string): Promise<Result<true, AppError>> {
+    const response = await fetch(url, { method: 'POST', headers: this.sessionHeaders(), body: '{}' })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    return ok(true)
   }
 
   notice(outing: Outing, alias: string): OutingNotice {
@@ -136,7 +154,7 @@ export class HttpRidesApi implements RidesApiPort {
       if (!outing) continue
       const rawTickets = (row as { tickets?: unknown }).tickets
       const tickets = Array.isArray(rawTickets)
-        ? rawTickets.map(parseTicket).filter((item): item is Ticket => item !== null)
+        ? rawTickets.map(parseOperatorTicket).filter((item): item is OperatorTicket => item !== null)
         : []
       outings.push({ ...outing, tickets })
     }
@@ -160,14 +178,35 @@ function parseTicket(raw: unknown): Ticket | null {
   if (typeof row.id !== 'string' || !row.id) return null
   if (typeof row.outingId !== 'string' || !row.outingId) return null
   if (typeof row.name !== 'string' || !row.name) return null
-  if (typeof row.whatsapp !== 'string' || !row.whatsapp) return null
   if (typeof row.moto !== 'string') return null
   return {
     id: row.id,
     outingId: row.outingId,
     name: row.name,
-    whatsapp: row.whatsapp,
+    whatsapp: typeof row.whatsapp === 'string' ? row.whatsapp : '',
     moto: row.moto,
+    passengerName: text(row.passengerName),
+    level: text(row.level),
+    docsOk: row.docsOk === true,
+    rulesOk: row.rulesOk === true,
+    confirmation: row.confirmation === 'firme' ? 'firme' : 'pendiente',
+  }
+}
+
+function text(value: unknown): string | undefined {
+  return typeof value === 'string' && value ? value : undefined
+}
+
+function parseOperatorTicket(raw: unknown): OperatorTicket | null {
+  const ticket = parseTicket(raw)
+  if (!ticket) return null
+  const row = raw as Record<string, unknown>
+  return {
+    ...ticket,
+    emergencyName: text(row.emergencyName),
+    emergencyPhone: text(row.emergencyPhone),
+    bloodType: text(row.bloodType),
+    medicalNotes: text(row.medicalNotes),
   }
 }
 
@@ -192,7 +231,9 @@ function parseCrew(raw: unknown): OutingCrew | null {
     signedIn: row.signedIn,
     alias: typeof row.alias === 'string' && row.alias ? row.alias : undefined,
     inscribed: row.inscribed,
-    needsWhatsapp: row.needsWhatsapp !== false,
+    needsEmergency: row.needsEmergency !== false,
+    confirmation: row.confirmation === 'firme' ? 'firme' : row.confirmation === 'pendiente' ? 'pendiente' : undefined,
+    confirmOpen: row.confirmOpen === true,
     moto: typeof row.moto === 'string' && row.moto ? row.moto : undefined,
     motorcycles: Array.isArray(row.motorcycles)
       ? row.motorcycles.filter((item): item is string => typeof item === 'string' && Boolean(item))

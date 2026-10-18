@@ -6,13 +6,13 @@ import type { Memory } from '@modules/rides/domain/entities/Memory.ts'
 import type {
   ClaimedSpot,
   OutingCrew,
+  OperatorTicket,
   OutingNotice,
   SignupDraft,
-  Ticket,
 } from '@modules/rides/domain/entities/Ticket.ts'
 
 export type OperatorBoardOuting = Outing & {
-  readonly tickets: readonly Ticket[]
+  readonly tickets: readonly OperatorTicket[]
 }
 
 export interface RidesApiPort {
@@ -21,6 +21,8 @@ export interface RidesApiPort {
     draft: SignupDraft,
   ): Promise<Result<ClaimedSpot & { notice: OutingNotice }, AppError>>
   crew(outingId: string): Promise<Result<OutingCrew, AppError>>
+  confirm(outingId: string): Promise<Result<true, AppError>>
+  release(outingId: string): Promise<Result<true, AppError>>
   notice(outing: Outing, alias: string): OutingNotice
   setStatus(
     outingId: string,

@@ -189,10 +189,33 @@ onMounted(() => {
             >
               {{ openTickets === item.id ? copy.hideTickets : copy.showTickets }} ({{ item.tickets.length }})
             </button>
-            <ul v-if="openTickets === item.id" class="admin-tickets">
+            <ul v-if="openTickets === item.id" class="admin-tickets ride-admin-tickets">
               <li v-if="!item.tickets.length">{{ copy.noTickets }}</li>
-              <li v-for="ticket in item.tickets" :key="ticket.id">
-                {{ ticket.name }} · {{ ticket.whatsapp }}<template v-if="ticket.moto"> · {{ ticket.moto }}</template>
+              <li v-else class="ride-admin-tickets__summary">
+                {{ copy.ticketSummary(item.tickets.filter((t) => t.confirmation === 'firme').length, item.tickets.length) }}
+              </li>
+              <li v-for="ticket in item.tickets" :key="ticket.id" class="ride-admin-ticket">
+                <div class="ride-admin-ticket__head">
+                  <strong>{{ ticket.name }}</strong>
+                  <Chip :tone="ticket.confirmation === 'firme' ? 'abierto' : 'lleno'">
+                    {{ ticket.confirmation === 'firme' ? copy.ticketFirm : copy.ticketPending }}
+                  </Chip>
+                </div>
+                <span>
+                  {{ ticket.moto || copy.ticketNoMoto }}
+                  <template v-if="ticket.level"> · {{ copy.levelLabels[ticket.level] ?? ticket.level }}</template>
+                  <template v-if="ticket.whatsapp"> · {{ ticket.whatsapp }}</template>
+                </span>
+                <span v-if="ticket.passengerName">{{ copy.ticketPassenger }}: {{ ticket.passengerName }}</span>
+                <span v-if="ticket.emergencyName">
+                  {{ copy.ticketEmergency }}: {{ ticket.emergencyName }} · {{ ticket.emergencyPhone }}
+                </span>
+                <span v-else class="ride-admin-ticket__warn">{{ copy.ticketNoEmergency }}</span>
+                <span v-if="ticket.bloodType || ticket.medicalNotes">
+                  <template v-if="ticket.bloodType">{{ copy.ticketBlood }} {{ ticket.bloodType }}</template>
+                  <template v-if="ticket.bloodType && ticket.medicalNotes"> · </template>
+                  <template v-if="ticket.medicalNotes">{{ copy.ticketMedical }}: {{ ticket.medicalNotes }}</template>
+                </span>
               </li>
             </ul>
           </div>
@@ -284,3 +307,34 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.ride-admin-tickets {
+  gap: 8px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.ride-admin-tickets__summary {
+  color: var(--paola-cyan, #48b4fc);
+}
+
+.ride-admin-ticket {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ride-admin-ticket__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+}
+
+.ride-admin-ticket__warn {
+  color: #f6b26b;
+}
+</style>

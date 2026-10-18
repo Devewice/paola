@@ -15,8 +15,9 @@ import {
   setPrimaryMotorcycle,
   setUserMotoLabel,
   updateProfile,
+  updateSafety,
 } from '../providers/account.provider.js'
-import { motoLabel, parseMotorcycleDraft, parseProfilePatch } from '../schemas/account.schema.js'
+import { motoLabel, parseMotorcycleDraft, parseProfilePatch, parseSafetyPatch } from '../schemas/account.schema.js'
 
 export type AccountView = { profile: AccountProfile; motorcycles: UserMotorcycle[] }
 
@@ -54,6 +55,15 @@ export async function saveProfile(sessionId: string, draft: Record<string, unkno
     return fail(HTTP_STATUS.CONFLICT, ACCOUNT_MESSAGES.ALIAS_TAKEN)
   }
   await updateProfile(user.value, parsed.value)
+  return viewOf(user.value)
+}
+
+export async function saveSafety(sessionId: string, draft: Record<string, unknown>): Promise<Parsed<AccountView>> {
+  const user = await requireUser(sessionId)
+  if (!user.ok) return user
+  const parsed = parseSafetyPatch(draft)
+  if (!parsed.ok) return parsed
+  await updateSafety(user.value, parsed.value)
   return viewOf(user.value)
 }
 

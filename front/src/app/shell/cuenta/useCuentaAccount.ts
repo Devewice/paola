@@ -16,6 +16,14 @@ export type AccountProfile = {
   whatsapp?: string
   isPublic: boolean
   createdAt?: string
+  safety?: AccountSafety
+}
+
+export type AccountSafety = {
+  emergencyName?: string
+  emergencyPhone?: string
+  bloodType?: string
+  medicalNotes?: string
 }
 
 export type UserMotorcycle = {
@@ -99,6 +107,10 @@ export function useCuentaAccount(sessionId: Ref<string>) {
     return result
   }
 
+  function saveSafety(draft: AccountSafety): Promise<Outcome> {
+    return send(API.ME_SAFETY, { method: 'POST', body: JSON.stringify(draft) })
+  }
+
   function addMotorcycle(draft: MotorcycleDraft): Promise<Outcome> {
     return send(API.ME_MOTORCYCLES, { method: 'POST', body: JSON.stringify(draft) })
   }
@@ -121,6 +133,7 @@ export function useCuentaAccount(sessionId: Ref<string>) {
     loadCatalog,
     saveProfile,
     saveVisibility,
+    saveSafety,
     addMotorcycle,
     removeMotorcycle,
     makePrimary,

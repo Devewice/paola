@@ -24,6 +24,8 @@ export type RidesModule = {
   getMemories: () => ReturnType<GetMemories['execute']>
   claimSpot: RidesApiPort['claim']
   loadCrew: RidesApiPort['crew']
+  confirmSpot: RidesApiPort['confirm']
+  releaseSpot: RidesApiPort['release']
   noticeFor: RidesApiPort['notice']
   setOutingStatus: (
     outingId: string,
@@ -53,6 +55,8 @@ export function createRidesModule(
     getMemories: () => getMemories.execute(),
     claimSpot: (outingId, draft: SignupDraft) => api.claim(outingId, draft),
     loadCrew: (outingId) => api.crew(outingId),
+    confirmSpot: (outingId) => api.confirm(outingId),
+    releaseSpot: (outingId) => api.release(outingId),
     noticeFor: (outing, alias) => api.notice(outing, alias),
     setOutingStatus: (outingId, status, clave) => api.setStatus(outingId, status, clave),
     listOperatorBoard: (clave) => api.listBoard(clave),

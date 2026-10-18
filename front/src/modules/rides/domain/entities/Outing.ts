@@ -38,3 +38,14 @@ export function remainingSpots(outing: Outing): number {
 export function isClaimable(outing: Outing, today: string): boolean {
   return outing.status === 'abierto' && outing.date >= today
 }
+
+export const CONFIRM_WINDOW_DAYS = 2
+
+/** "¿Sigues firme?" va desde `CONFIRM_WINDOW_DAYS` antes hasta el día de la salida. Fechas ISO. */
+export function isConfirmOpen(date: string, status: string, today: string): boolean {
+  if (status === 'realizado' || date < today) return false
+  const opens = new Date(`${date}T00:00:00Z`)
+  if (Number.isNaN(opens.valueOf())) return false
+  opens.setUTCDate(opens.getUTCDate() - CONFIRM_WINDOW_DAYS)
+  return today >= opens.toISOString().slice(0, 10)
+}

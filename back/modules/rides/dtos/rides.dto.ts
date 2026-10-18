@@ -1,11 +1,14 @@
+import type { RideConfirmation, RideLevel } from '../constants/rides.constants.js'
 import type { OutingKind, OperatorOutingStatus } from '../interfaces/rides.interface.js'
 
 export interface ClaimSpotDto {
   name: string
   whatsapp: string
   moto: string
-  /** Datos nuevos para guardar en el perfil (solo los que no tenía). */
-  profilePatch: { whatsapp?: string; moto?: string }
+  passengerName?: string
+  level: RideLevel
+  /** Contacto de emergencia nuevo para guardar en el perfil (solo si no tenía). */
+  emergency?: { name: string; phone: string }
 }
 
 export interface CrewRiderDto {
@@ -18,7 +21,11 @@ export interface OutingCrewDto {
   signedIn: boolean
   alias?: string
   inscribed: boolean
-  needsWhatsapp: boolean
+  needsEmergency: boolean
+  /** Solo si está inscrito. */
+  confirmation?: RideConfirmation
+  /** Ya se puede responder "¿Sigues firme?". */
+  confirmOpen: boolean
   moto?: string
   /** Garaje de la cuenta, principal primero. */
   motorcycles: string[]

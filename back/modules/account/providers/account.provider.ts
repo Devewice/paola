@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from '../../../db/knex.js'
 import { ACCOUNT_TABLES } from '../constants/account.constants.js'
-import type { ProfilePatchDto } from '../dtos/account.dto.js'
+import type { ProfilePatchDto, SafetyPatchDto } from '../dtos/account.dto.js'
 import type { AccountProfile, CatalogMotorcycle, UserMotorcycle } from '../interfaces/account.interface.js'
 
 const db = getDb
@@ -24,7 +24,19 @@ export async function findSessionUserId(sessionId: string): Promise<string | nul
 
 export async function findProfile(userId: string): Promise<AccountProfile | null> {
   const row = await db()(ACCOUNT_TABLES.USERS)
-    .select('id', 'email', 'alias', 'full_name', 'whatsapp', 'is_public', 'created_at')
+    .select(
+      'id',
+      'email',
+      'alias',
+      'full_name',
+      'whatsapp',
+      'is_public',
+      'created_at',
+      'emergency_name',
+      'emergency_phone',
+      'blood_type',
+      'medical_notes',
+    )
     .where({ id: userId })
     .first()
   if (!row) return null
@@ -36,7 +48,22 @@ export async function findProfile(userId: string): Promise<AccountProfile | null
     whatsapp: optional(row.whatsapp),
     isPublic: Boolean(row.is_public),
     createdAt: row.created_at ? new Date(String(row.created_at)).toISOString() : undefined,
+    safety: {
+      emergencyName: optional(row.emergency_name),
+      emergencyPhone: optional(row.emergency_phone),
+      bloodType: optional(row.blood_type),
+      medicalNotes: optional(row.medical_notes),
+    },
   }
+}
+
+export async function updateSafety(userId: string, patch: SafetyPatchDto): Promise<void> {
+  await db()(ACCOUNT_TABLES.USERS).where({ id: userId }).update({
+    emergency_name: patch.emergencyName,
+    emergency_phone: patch.emergencyPhone,
+    blood_type: patch.bloodType,
+    medical_notes: patch.medicalNotes,
+  })
 }
 
 export async function aliasTakenByOther(alias: string, userId: string): Promise<boolean> {

@@ -112,6 +112,7 @@ provide(CUENTA_CONTEXT, {
   rideVotes,
   sessionHeaders,
   reloadFriends,
+  reloadPanel: loadPanel,
   logout,
 })
 

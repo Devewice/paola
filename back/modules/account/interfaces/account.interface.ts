@@ -1,3 +1,10 @@
+export type AccountSafety = {
+  readonly emergencyName?: string
+  readonly emergencyPhone?: string
+  readonly bloodType?: string
+  readonly medicalNotes?: string
+}
+
 export type AccountProfile = {
   readonly id: string
   readonly email: string
@@ -6,6 +13,7 @@ export type AccountProfile = {
   readonly whatsapp?: string
   readonly isPublic: boolean
   readonly createdAt?: string
+  readonly safety: AccountSafety
 }
 
 export type CatalogMotorcycle = {

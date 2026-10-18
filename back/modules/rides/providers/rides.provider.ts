@@ -2,16 +2,23 @@ import { randomUUID } from 'node:crypto'
 import type { DbClient } from '../../../db/knex.js'
 import { getDb, rowsOf } from '../../../db/knex.js'
 import {
+  RIDES_CONFIRM_FIRM,
+  RIDES_CONFIRM_PENDING,
   RIDES_DEFAULT_STATUS,
   RIDES_MOTO_LABEL_MAX,
   RIDES_TABLES,
+  type RideConfirmation,
 } from '../constants/rides.constants.js'
 import type { CreateOutingDto, CrewRiderDto } from '../dtos/rides.dto.js'
-import type { Outing, OutingStatus, Ticket } from '../interfaces/rides.interface.js'
-import { toOuting, toTicket } from '../schemas/rides.schema.js'
+import type { OperatorTicket, Outing, OutingStatus, Ticket } from '../interfaces/rides.interface.js'
+import { toOperatorTicket, toOuting } from '../schemas/rides.schema.js'
 
 const OUTING_GROUP = `s.id, s.title, s.date, s.kind, s.meeting_point, s.route_text, s.capacity,
          s.what_to_bring, s.paid, s.status`
+
+/** Cada cupo ocupa uno; con parrillero, dos. */
+const SEATS_OF = (alias: string) =>
+  `CASE WHEN ${alias}.passenger_name IS NOT NULL AND ${alias}.passenger_name <> '' THEN 2 ELSE 1 END`
 
 async function outingSelect(extraWhere = '', params: readonly string[] = [], order = false): Promise<Outing[]> {
   const hasRoutes = await getDb().schema.hasTable(RIDES_TABLES.OUTING_ROUTES)
@@ -21,7 +28,8 @@ async function outingSelect(extraWhere = '', params: readonly string[] = [], ord
   const orderSql = order ? ' ORDER BY s.date ASC' : ''
   const raw = await getDb().raw(
     `SELECT s.id, s.title, s.date, s.kind, s.meeting_point, s.route_text, s.capacity,
-            s.what_to_bring, s.paid, s.status, COUNT(c.id) AS taken${mapSelect}
+            s.what_to_bring, s.paid, s.status,
+            COALESCE(SUM(CASE WHEN c.id IS NULL THEN 0 ELSE ${SEATS_OF('c')} END), 0) AS taken${mapSelect}
      FROM ${RIDES_TABLES.OUTINGS} s
      LEFT JOIN ${RIDES_TABLES.TICKETS} c ON c.outing_id = s.id
      ${mapJoin}
@@ -41,11 +49,30 @@ export async function findOutingById(id: string): Promise<Outing | null> {
   return rows[0] ?? null
 }
 
-export async function findTickets(): Promise<Ticket[]> {
-  const rows = await getDb()(RIDES_TABLES.TICKETS)
-    .select('id', 'outing_id', 'name', 'whatsapp', 'moto')
-    .orderBy('created_at', 'asc')
-  return rows.map((row) => toTicket(row as Record<string, unknown>))
+export async function findTickets(): Promise<OperatorTicket[]> {
+  const t = RIDES_TABLES.TICKETS
+  const u = RIDES_TABLES.USERS
+  const rows = (await getDb()(t)
+    .leftJoin(u, `${u}.id`, `${t}.user_id`)
+    .select(
+      `${t}.id`,
+      `${t}.outing_id`,
+      `${t}.name`,
+      `${t}.whatsapp`,
+      `${t}.moto`,
+      `${t}.user_id`,
+      `${t}.passenger_name`,
+      `${t}.level`,
+      `${t}.docs_ok`,
+      `${t}.rules_ok`,
+      `${t}.confirmation`,
+      `${u}.emergency_name`,
+      `${u}.emergency_phone`,
+      `${u}.blood_type`,
+      `${u}.medical_notes`,
+    )
+    .orderBy(`${t}.created_at`, 'asc')) as Record<string, unknown>[]
+  return rows.map(toOperatorTicket)
 }
 
 export async function insertOuting(id: string, draft: CreateOutingDto): Promise<void> {
@@ -83,9 +110,13 @@ export async function lockOutingRow(
   return rowsOf(locked)[0]
 }
 
+/** Puestos ocupados: el parrillero cuenta como uno más. */
 export async function countTickets(db: DbClient, outingId: string): Promise<number> {
-  const countRaw = await db(RIDES_TABLES.TICKETS).where({ outing_id: outingId }).count({ taken: 'id' })
-  return Number((countRaw[0] as { taken?: number | string } | undefined)?.taken ?? 0)
+  const raw = await db.raw(
+    `SELECT COALESCE(SUM(${SEATS_OF('t')}), 0) AS taken FROM ${RIDES_TABLES.TICKETS} t WHERE t.outing_id = ?`,
+    [outingId],
+  )
+  return Number(rowsOf(raw)[0]?.taken ?? 0)
 }
 
 export async function insertTicket(db: DbClient, ticket: Ticket): Promise<void> {
@@ -96,12 +127,47 @@ export async function insertTicket(db: DbClient, ticket: Ticket): Promise<void> 
     whatsapp: ticket.whatsapp,
     moto: ticket.moto,
     user_id: ticket.userId ?? null,
+    passenger_name: ticket.passengerName ?? null,
+    level: ticket.level,
+    docs_ok: ticket.docsOk,
+    rules_ok: ticket.rulesOk,
+    confirmation: ticket.confirmation,
   })
 }
 
-export async function findUserTicketId(db: DbClient, outingId: string, userId: string): Promise<string | null> {
-  const row = await db(RIDES_TABLES.TICKETS).select('id').where({ outing_id: outingId, user_id: userId }).first()
-  return row ? String(row.id) : null
+export async function findUserTicket(
+  db: DbClient,
+  outingId: string,
+  userId: string,
+): Promise<{ id: string; confirmation: RideConfirmation } | null> {
+  const row = await db(RIDES_TABLES.TICKETS)
+    .select('id', 'confirmation')
+    .where({ outing_id: outingId, user_id: userId })
+    .first()
+  if (!row) return null
+  return {
+    id: String(row.id),
+    confirmation: row.confirmation === RIDES_CONFIRM_FIRM ? RIDES_CONFIRM_FIRM : RIDES_CONFIRM_PENDING,
+  }
+}
+
+export async function confirmTicket(id: string): Promise<void> {
+  await getDb()(RIDES_TABLES.TICKETS).where({ id }).update({ confirmation: RIDES_CONFIRM_FIRM, confirmed_at: getDb().fn.now() })
+}
+
+export async function deleteTicket(db: DbClient, id: string): Promise<void> {
+  await db(RIDES_TABLES.TICKETS).where({ id }).delete()
+}
+
+export async function userHasEmergency(userId: string): Promise<boolean> {
+  const row = await getDb()(RIDES_TABLES.USERS).select('emergency_name', 'emergency_phone').where({ id: userId }).first()
+  return Boolean(row?.emergency_name && row?.emergency_phone)
+}
+
+export async function saveUserEmergency(userId: string, emergency: { name: string; phone: string }): Promise<void> {
+  await getDb()(RIDES_TABLES.USERS)
+    .where({ id: userId })
+    .update({ emergency_name: emergency.name, emergency_phone: emergency.phone })
 }
 
 /** Motos del garaje como texto para el cupo; la principal primero. */

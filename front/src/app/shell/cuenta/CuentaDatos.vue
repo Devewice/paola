@@ -134,56 +134,11 @@ async function toggleVisibility(isPublic: boolean): Promise<void> {
 </template>
 
 <style scoped>
-.cuenta-facts {
-  margin: 0;
-  display: grid;
-  gap: 0;
-}
-
-.cuenta-facts__row {
-  display: grid;
-  grid-template-columns: minmax(120px, 38%) 1fr;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(72, 180, 252, 0.12);
-}
-
-.cuenta-facts__row:last-child {
-  border-bottom: 0;
-}
-
-.cuenta-facts dt {
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.cuenta-facts dd {
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-weight: 600;
-}
-
-.cuenta-facts dd.is-empty {
-  font-weight: 400;
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.45);
-}
-
 .cuenta-card__logout {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-@media (max-width: 480px) {
-  .cuenta-facts__row {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
 }
 </style>

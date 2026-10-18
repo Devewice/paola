@@ -6,10 +6,12 @@ import { ensureOutingChatMembership } from '../../social/services/social.service
 import { ridesJsonBody, ridesOperatorGuard } from '../middlewares/rides.middleware.js'
 import {
   claimSpot,
+  confirmSpot,
   createOuting,
   listOperatorBoard,
   listOutings,
   readCrew,
+  releaseSpot,
   setOutingStatus,
 } from '../services/rides.service.js'
 
@@ -45,6 +47,28 @@ export const claimSpotController: RouteHandler = async (request, response, _url,
     await ensureOutingChatMembership(user.id, params.id ?? '')
   }
   sendJson(response, HTTP_STATUS.CREATED, { ok: true, ticket: result.ticket, outing: result.outing })
+}
+
+export const confirmSpotController: RouteHandler = async (request, response, _url, params) => {
+  const sid = sessionId(request)
+  const user = sid ? await findSessionUser(sid) : null
+  const result = await confirmSpot(params.id ?? '', user)
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
+}
+
+export const releaseSpotController: RouteHandler = async (request, response, _url, params) => {
+  const sid = sessionId(request)
+  const user = sid ? await findSessionUser(sid) : null
+  const result = await releaseSpot(params.id ?? '', user)
+  if (!result.ok) {
+    sendJson(response, result.status, { ok: false, detail: result.detail })
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
 }
 
 export const outingCrewController: RouteHandler = async (request, response, _url, params) => {

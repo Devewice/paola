@@ -19,7 +19,25 @@ export const RIDES_LIMITS = {
   WHATSAPP_MIN: 10,
   WHATSAPP_MAX: 15,
   CAPACITY_MIN: 1,
+  PASSENGER_MIN: 2,
+  PASSENGER_MAX: 80,
+  EMERGENCY_NAME_MIN: 2,
+  EMERGENCY_NAME_MAX: 80,
+  EMERGENCY_PHONE_MIN: 7,
+  EMERGENCY_PHONE_MAX: 15,
+  /** Días antes de la salida en que se abre el "¿Sigues firme?". */
+  CONFIRM_WINDOW_DAYS: 2,
 } as const
+
+export const RIDES_LEVELS = ['primera', 'rodado', 'veterano'] as const
+export type RideLevel = (typeof RIDES_LEVELS)[number]
+export const RIDES_LEVEL_SET = new Set<string>(RIDES_LEVELS)
+
+export const RIDES_CONFIRM_PENDING = 'pendiente'
+export const RIDES_CONFIRM_FIRM = 'firme'
+export type RideConfirmation = typeof RIDES_CONFIRM_PENDING | typeof RIDES_CONFIRM_FIRM
+
+export const RIDES_TIMEZONE = 'America/Bogota'
 
 export const RIDES_TABLES = {
   OUTINGS: 'outings',
@@ -37,6 +55,8 @@ export const RIDES_ROUTES = {
   LIST: '/api/outings',
   CLAIM: '/api/outings/:id/tickets',
   CREW: '/api/outings/:id/crew',
+  CONFIRM: '/api/outings/:id/confirm',
+  RELEASE: '/api/outings/:id/release',
   OPERATE_LIST: '/api/operar/outings',
   OPERATE_CREATE: '/api/operar/outings',
   OPERATE_STATUS: '/api/operar/outings/:id/status',
@@ -59,4 +79,13 @@ export const RIDES_MESSAGES = {
   MEETING_REQUIRED: 'No se publica una salida sin punto de encuentro.',
   STATUS_INVALID: 'Solo se marca cerrado o realizado.',
   ALREADY_DONE: 'Ya se marcó realizada. No se reabre desde aquí.',
+  LEVEL_REQUIRED: 'Cuéntame tu nivel para armar la fila.',
+  DOCS_REQUIRED: 'Para rodar necesitas SOAT, tecnomecánica y licencia al día.',
+  RULES_REQUIRED: 'Necesitas aceptar las reglas de la rodada.',
+  PASSENGER_REQUIRED: 'Escribe el nombre de tu parrillero.',
+  PASSENGER_NO_ROOM: 'Solo queda un cupo: no alcanza para ti y tu parrillero.',
+  EMERGENCY_REQUIRED: 'Déjame un contacto de emergencia: nombre y teléfono (7 a 15 dígitos).',
+  NOT_INSCRIBED: 'No estás inscrito en esta salida.',
+  CONFIRM_TOO_EARLY: 'La confirmación se abre dos días antes de la salida.',
+  RIDE_OVER: 'Esa salida ya pasó.',
 } as const

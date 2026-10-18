@@ -112,6 +112,7 @@ export async function listPanelRows(userId: string): Promise<{
         `${SOCIAL_TABLES.TICKETS}.id`,
         `${SOCIAL_TABLES.TICKETS}.outing_id`,
         `${SOCIAL_TABLES.TICKETS}.name`,
+        `${SOCIAL_TABLES.TICKETS}.confirmation`,
         `${SOCIAL_TABLES.OUTINGS}.title as outing_title`,
         `${SOCIAL_TABLES.OUTINGS}.date as outing_date`,
         `${SOCIAL_TABLES.OUTINGS}.status as outing_status`,

@@ -33,6 +33,7 @@ export const API = {
   ME_PANEL: '/api/me/panel',
   ME_VISIBILITY: '/api/me/visibility',
   ME_PROFILE: '/api/me/profile',
+  ME_SAFETY: '/api/me/safety',
   ME_MOTORCYCLES: '/api/me/motorcycles',
   MOTORCYCLE_CATALOG: '/api/motorcycles/catalog',
   COMMUNITIES: '/api/communities',
@@ -117,6 +118,14 @@ export function apiOutingTickets(id: string): string {
 
 export function apiOutingCrew(id: string): string {
   return `${API.OUTINGS}/${encodeURIComponent(id)}/crew`
+}
+
+export function apiOutingConfirm(id: string): string {
+  return `${API.OUTINGS}/${encodeURIComponent(id)}/confirm`
+}
+
+export function apiOutingRelease(id: string): string {
+  return `${API.OUTINGS}/${encodeURIComponent(id)}/release`
 }
 
 export function apiOutingChat(id: string): string {

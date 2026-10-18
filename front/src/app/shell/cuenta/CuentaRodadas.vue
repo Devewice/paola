@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { getAppDependencies } from '@app/bootstrap.ts'
 import { CUENTA_COPY, CUENTA_NAV_COPY, CUENTA_SECTIONS_COPY } from '@app/constants/cuenta.ts'
 import OutingThreadBlock from '@app/shell/OutingThreadBlock.vue'
-import { useCuenta, type TicketRow } from '@app/shell/cuenta/context.ts'
+import {
+  ticketDateIso,
+  ticketOutingId,
+  todayIso,
+  useCuenta,
+  type TicketRow,
+} from '@app/shell/cuenta/context.ts'
+import { isConfirmOpen, type RideConfirmation } from '@modules/rides/index.ts'
+import RideFirm from '@modules/rides/presentation/RideFirm.vue'
 import { APP_PATHS, appRodada } from '@shared/http/constants.ts'
 import { MASCOT } from '@shared/ui/mascot.ts'
 import Button from '@ui/Button.vue'
@@ -11,17 +20,23 @@ import './cuenta-card.css'
 
 const copy = CUENTA_COPY
 const sections = CUENTA_SECTIONS_COPY
-const { panel, rideVotes } = useCuenta()
+const { panel, rideVotes, reloadPanel } = useCuenta()
+const rides = getAppDependencies().rides
 const threadId = ref('')
+const today = todayIso()
 
 const tickets = computed(() => panel.value?.tickets ?? [])
 
-function outingIdOf(ticket: TicketRow): string {
-  return ticket.outingId || ticket.outing_id || ''
+function pendingPolls(ticket: TicketRow): number {
+  return rideVotes.value.get(ticketOutingId(ticket)) ?? 0
 }
 
-function pendingPolls(ticket: TicketRow): number {
-  return rideVotes.value.get(outingIdOf(ticket)) ?? 0
+function firmOpen(ticket: TicketRow): boolean {
+  return Boolean(ticketOutingId(ticket)) && isConfirmOpen(ticketDateIso(ticket), ticket.outing_status ?? '', today)
+}
+
+function confirmationOf(ticket: TicketRow): RideConfirmation {
+  return ticket.confirmation === 'firme' ? 'firme' : 'pendiente'
 }
 
 function dateOf(ticket: TicketRow): string {
@@ -33,7 +48,7 @@ function dateOf(ticket: TicketRow): string {
 }
 
 function toggleThread(ticket: TicketRow): void {
-  const id = outingIdOf(ticket)
+  const id = ticketOutingId(ticket)
   threadId.value = threadId.value === id ? '' : id
 }
 </script>
@@ -56,14 +71,23 @@ function toggleThread(ticket: TicketRow): void {
             {{ pendingPolls(ticket) === 1 ? copy.ticketsPollsOne : copy.ticketsPollsMany }}
           </span>
         </div>
-        <div v-if="outingIdOf(ticket)" class="cuenta-row__actions">
-          <Button size="sm" :variant="pendingPolls(ticket) ? 'primary' : 'ghost'" :to="appRodada(outingIdOf(ticket))">
+        <div v-if="ticketOutingId(ticket)" class="cuenta-row__actions">
+          <Button size="sm" :variant="pendingPolls(ticket) ? 'primary' : 'ghost'" :to="appRodada(ticketOutingId(ticket))">
             {{ pendingPolls(ticket) ? copy.ticketsVote : copy.ticketsRide }}
           </Button>
           <Button size="sm" variant="ghost" @click="toggleThread(ticket)">{{ copy.outingThread }}</Button>
         </div>
+        <RideFirm
+          v-if="firmOpen(ticket)"
+          class="cuenta-row__thread"
+          :module="rides"
+          :outing-id="ticketOutingId(ticket)"
+          :confirmation="confirmationOf(ticket)"
+          @confirmed="reloadPanel"
+          @released="reloadPanel"
+        />
         <OutingThreadBlock
-          v-if="threadId && threadId === outingIdOf(ticket)"
+          v-if="threadId && threadId === ticketOutingId(ticket)"
           class="cuenta-row__thread"
           :outing-id="threadId"
           compact

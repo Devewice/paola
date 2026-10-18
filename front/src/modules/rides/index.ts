@@ -8,12 +8,15 @@ export type {
   OutingKind,
   OutingStatus,
 } from '@modules/rides/domain/entities/Outing.ts'
-export { isClaimable, remainingSpots } from '@modules/rides/domain/entities/Outing.ts'
+export { isClaimable, isConfirmOpen, remainingSpots } from '@modules/rides/domain/entities/Outing.ts'
 export type {
   ClaimedSpot,
   CrewRider,
   OutingCrew,
+  OperatorTicket,
   OutingNotice,
+  RideConfirmation,
+  RideLevel,
   SignupDraft,
   Ticket,
   TicketDraft,

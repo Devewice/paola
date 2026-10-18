@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { getAppDependencies, refreshInventory } from '@app/bootstrap.ts'
 import { PARCHESE_FIGURES } from '@app/constants/parchese.ts'
 import { useParchese } from '@app/shell/parchese/context.ts'
 import PollCard from '@modules/polls/presentation/PollCard.vue'
@@ -50,6 +51,12 @@ async function onInscribed(spot: ClaimedSpot): Promise<void> {
   await Promise.all([loadCrew(), reloadPolls()])
 }
 
+async function onSpotChanged(): Promise<void> {
+  await refreshInventory()
+  fresh.value = getAppDependencies().rides.getOuting(outingId.value)
+  await loadCrew()
+}
+
 function initial(alias: string): string {
   return alias.trim().charAt(0).toUpperCase() || '·'
 }
@@ -94,6 +101,7 @@ function initial(alias: string): string {
             :enter-to="enterTo"
             :garage-to="APP_PATHS.CUENTA"
             @inscribed="onInscribed"
+            @changed="onSpotChanged"
           />
         </OutingCard>
       </div>
