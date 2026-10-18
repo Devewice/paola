@@ -35,6 +35,10 @@ function firmOpen(ticket: TicketRow): boolean {
   return Boolean(ticketOutingId(ticket)) && isConfirmOpen(ticketDateIso(ticket), ticket.outing_status ?? '', today)
 }
 
+function upcoming(ticket: TicketRow): boolean {
+  return Boolean(ticketOutingId(ticket)) && ticket.outing_status !== 'realizado' && ticketDateIso(ticket) >= today
+}
+
 function confirmationOf(ticket: TicketRow): RideConfirmation {
   return ticket.confirmation === 'firme' ? 'firme' : 'pendiente'
 }
@@ -78,11 +82,13 @@ function toggleThread(ticket: TicketRow): void {
           <Button size="sm" variant="ghost" @click="toggleThread(ticket)">{{ copy.outingThread }}</Button>
         </div>
         <RideFirm
-          v-if="firmOpen(ticket)"
+          v-if="upcoming(ticket)"
           class="cuenta-row__thread"
           :module="rides"
           :outing-id="ticketOutingId(ticket)"
           :confirmation="confirmationOf(ticket)"
+          :ask="firmOpen(ticket)"
+          compact
           @confirmed="reloadPanel"
           @released="reloadPanel"
         />

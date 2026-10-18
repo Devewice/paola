@@ -8,6 +8,7 @@ export type ParcheseContext = {
   orphanPolls: ComputedRef<readonly Poll[]>
   onVoted: (poll: Poll) => void
   reloadPolls: () => Promise<void>
+  reloadInventory: () => Promise<void>
 }
 
 export const PARCHESE_CONTEXT: InjectionKey<ParcheseContext> = Symbol('parchese')

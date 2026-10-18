@@ -66,7 +66,12 @@ function onVoted(poll: Poll) {
 
 const orphanPolls = computed(() => polls.value.filter((poll) => poll.outingId && !rideIds.value.has(poll.outingId)))
 
-provide(PARCHESE_CONTEXT, { deps, pollsFor, orphanPolls, onVoted, reloadPolls })
+async function reloadInventory(): Promise<void> {
+  await refreshInventory()
+  stamp.value += 1
+}
+
+provide(PARCHESE_CONTEXT, { deps, pollsFor, orphanPolls, onVoted, reloadPolls, reloadInventory })
 </script>
 
 <template>

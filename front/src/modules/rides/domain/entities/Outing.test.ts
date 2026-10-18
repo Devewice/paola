@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isClaimable, isConfirmOpen, type Outing } from '@modules/rides/domain/entities/Outing.ts'
+import { daysUntil, isClaimable, isConfirmOpen, type Outing } from '@modules/rides/domain/entities/Outing.ts'
 
 function outing(partial: Partial<Outing>): Outing {
   return {
@@ -29,6 +29,14 @@ describe('isClaimable', () => {
 
   it('rechaza una salida llena aunque la fecha venga', () => {
     expect(isClaimable(outing({ status: 'lleno' }), '2026-10-14')).toBe(false)
+  })
+})
+
+describe('daysUntil', () => {
+  it('cuenta los días que faltan, cruzando meses', () => {
+    expect(daysUntil('2026-10-27', '2026-10-18')).toBe(9)
+    expect(daysUntil('2026-11-02', '2026-10-30')).toBe(3)
+    expect(daysUntil('2026-10-18', '2026-10-18')).toBe(0)
   })
 })
 

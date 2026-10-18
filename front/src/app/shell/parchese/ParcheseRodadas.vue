@@ -13,7 +13,7 @@ import StatBand from '@ui/StatBand.vue'
 
 const copy = PARCHESE_COPY
 const bindReveal = usePageReveal()
-const { deps, pollsFor, orphanPolls, onVoted } = useParchese()
+const { deps, pollsFor, orphanPolls, onVoted, reloadInventory } = useParchese()
 const rides = computed(() => deps.value.rides)
 const next = computed(() => rides.value.nextOpenOuting())
 const upcoming = computed(() => rides.value.listOutings().filter((item) => rides.value.canClaim(item)))
@@ -39,7 +39,7 @@ const band = computed(() => [
     />
     <div class="board-split" data-reveal>
       <div class="board-main">
-        <AgendaSection :module="rides">
+        <AgendaSection :module="rides" @changed="reloadInventory">
           <template #hilo="{ outing }">
             <p v-if="pollsFor(outing.id).length" class="ride-polls-count">
               <strong>{{ pollsFor(outing.id).length }}</strong>

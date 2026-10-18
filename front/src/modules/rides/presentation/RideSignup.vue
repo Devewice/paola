@@ -114,16 +114,14 @@ async function submit(): Promise<void> {
 
     <template v-else-if="crew.inscribed">
       <RideFirm
-        v-if="crew.confirmOpen"
         :module="module"
         :outing-id="outing.id"
         :confirmation="crew.confirmation"
+        :ask="crew.confirmOpen"
         @confirmed="emit('changed')"
         @released="emit('changed')"
       />
-      <Alert v-else tone="ok">
-        <strong>{{ copy.insideTitle }}.</strong> {{ copy.insideCopy }}
-      </Alert>
+      <p v-if="!crew.confirmOpen" class="meta-text">{{ copy.insideCopy }}</p>
       <div v-if="notice" class="ride-signup__actions">
         <Button size="sm" variant="ghost" :href="notice.whatsappHref" target="_blank">{{ copy.insideWhatsapp }}</Button>
         <Button size="sm" variant="ghost" :href="notice.mailtoHref">{{ copy.insideMail }}</Button>

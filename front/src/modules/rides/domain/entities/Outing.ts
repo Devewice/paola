@@ -39,6 +39,14 @@ export function isClaimable(outing: Outing, today: string): boolean {
   return outing.status === 'abierto' && outing.date >= today
 }
 
+/** Días que faltan para la salida (0 = hoy, negativo = ya pasó). Fechas ISO. */
+export function daysUntil(date: string, today: string): number {
+  const target = Date.parse(`${date}T00:00:00Z`)
+  const now = Date.parse(`${today}T00:00:00Z`)
+  if (Number.isNaN(target) || Number.isNaN(now)) return 0
+  return Math.round((target - now) / 86_400_000)
+}
+
 export const CONFIRM_WINDOW_DAYS = 2
 
 /** "¿Sigues firme?" va desde `CONFIRM_WINDOW_DAYS` antes hasta el día de la salida. Fechas ISO. */
