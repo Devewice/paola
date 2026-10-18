@@ -1,19 +1,15 @@
 import { fail } from '../../../http/fail.js'
 import { ADMIN_ROLE_ID, HTTP_MESSAGES, HTTP_STATUS, PERMISSION_LIST } from '../../../http/constants.js'
 import type { Parsed } from '../../../http/types.js'
-import { hashPassword } from '../../social/schemas/social.schema.js'
 import { ROLES_LIMITS, ROLES_MESSAGES } from '../constants/roles.constants.js'
 import type { AccessDto } from '../dtos/roles.dto.js'
 import type { Access, RoleRecord, UserRoleRow } from '../interfaces/roles.interface.js'
 import {
-  aliasTaken,
   countAdmins,
   deleteRole,
   findAccess,
   findRole,
   findUserById,
-  findUserIdByEmail,
-  insertAdminUser,
   insertRole,
   listRoles,
   listUsers,
@@ -22,7 +18,7 @@ import {
   setUserRole,
   updateRole,
 } from '../providers/roles.provider.js'
-import { aliasFromEmail, parseRoleDraft, roleIdFromName } from '../schemas/roles.schema.js'
+import { parseRoleDraft, roleIdFromName } from '../schemas/roles.schema.js'
 
 export async function readAccess(sessionId: string): Promise<Parsed<AccessDto>> {
   const access = await findAccess(sessionId)
@@ -99,28 +95,4 @@ export async function changeUserRole(
   }
   await setUserRole(user.id, roleId)
   return { ok: true, value: { id: user.id } }
-}
-
-async function freeAlias(email: string): Promise<string> {
-  const base = aliasFromEmail(email)
-  let alias = base
-  for (let n = 2; n < ROLES_LIMITS.ALIAS_TRIES && (await aliasTaken(alias)); n += 1) {
-    alias = `${base}${n}`
-  }
-  return alias
-}
-
-export type MakeAdminResult = 'promoted' | 'created' | 'needs-password'
-
-/** Solo para el comando de consola: nunca se expone por HTTP. */
-export async function makeAdmin(email: string, password = ''): Promise<MakeAdminResult> {
-  const clean = email.trim().toLowerCase()
-  const existing = await findUserIdByEmail(clean)
-  if (existing) {
-    await setUserRole(existing, ADMIN_ROLE_ID)
-    return 'promoted'
-  }
-  if (password.trim().length < ROLES_LIMITS.PASSWORD_MIN) return 'needs-password'
-  await insertAdminUser({ email: clean, alias: await freeAlias(clean), passwordHash: hashPassword(password.trim()) })
-  return 'created'
 }

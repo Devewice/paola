@@ -32,9 +32,3 @@ export function roleIdFromName(name: string): string {
     .slice(0, ROLES_LIMITS.ID_MAX)
   return slug || 'rol'
 }
-
-export function aliasFromEmail(email: string): string {
-  const local = email.split('@')[0] ?? ''
-  const clean = local.replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, ROLES_LIMITS.ALIAS_MAX - 4)
-  return clean.length >= 2 ? clean : 'admin'
-}

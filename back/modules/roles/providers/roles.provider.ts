@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { getDb } from '../../../db/knex.js'
 import { ADMIN_ROLE_ID, DEFAULT_ROLE_ID, PERMISSION_LIST, type Permission } from '../../../http/constants.js'
 import { ROLES_LIMITS, ROLES_TABLES } from '../constants/roles.constants.js'
@@ -147,23 +146,4 @@ export async function setUserRole(userId: string, roleId: string): Promise<void>
 export async function countAdmins(): Promise<number> {
   const row = await db()(ROLES_TABLES.USERS).where({ role_id: ADMIN_ROLE_ID }).count({ total: '*' }).first()
   return Number((row as { total?: unknown } | undefined)?.total ?? 0)
-}
-
-export async function findUserIdByEmail(email: string): Promise<string | null> {
-  const row = await db()(ROLES_TABLES.USERS).select('id').where({ email }).first()
-  return row ? String(row.id) : null
-}
-
-export async function aliasTaken(alias: string): Promise<boolean> {
-  return Boolean(await db()(ROLES_TABLES.USERS).select('id').where({ alias }).first())
-}
-
-export async function insertAdminUser(user: { email: string; alias: string; passwordHash: string }): Promise<void> {
-  await db()(ROLES_TABLES.USERS).insert({
-    id: randomUUID(),
-    email: user.email,
-    alias: user.alias,
-    password_hash: user.passwordHash,
-    role_id: ADMIN_ROLE_ID,
-  })
 }

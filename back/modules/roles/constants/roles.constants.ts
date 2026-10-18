@@ -20,9 +20,6 @@ export const ROLES_LIMITS = {
   ID_MAX: 40,
   USERS_PAGE: 50,
   QUERY_MAX: 80,
-  ALIAS_MAX: 80,
-  ALIAS_TRIES: 20,
-  PASSWORD_MIN: 6,
 } as const
 
 export const ROLES_MESSAGES = {
@@ -34,16 +31,4 @@ export const ROLES_MESSAGES = {
   USER_NOT_FOUND: 'Esa cuenta no existe.',
   SELF_LOCKED: 'No puedes cambiar tu propio rol.',
   LAST_ADMIN: 'Tiene que quedar al menos un admin.',
-} as const
-
-export const ADMIN_CLI_COPY = {
-  askEmail: 'Correo de la cuenta admin: ',
-  askPassword: 'Contraseña (no se ve al escribir): ',
-  askRepeat: 'Repite la contraseña: ',
-  emailInvalid: 'Ese correo no sirve.',
-  passwordShort: 'La contraseña necesita mínimo 6 caracteres.',
-  passwordMismatch: 'Las contraseñas no coinciden.',
-  promoted: (email: string) => `Listo: ${email} ya es admin. Su contraseña no cambió.`,
-  created: (email: string) => `Listo: cuenta ${email} creada como admin. Entra en /entrar.`,
-  failed: 'Error:',
 } as const
