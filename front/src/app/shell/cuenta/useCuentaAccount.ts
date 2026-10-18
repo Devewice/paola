@@ -12,7 +12,6 @@ export type AccountProfile = {
   id: string
   email: string
   alias: string
-  displayName?: string
   fullName?: string
   whatsapp?: string
   isPublic: boolean
@@ -37,7 +36,6 @@ export type CatalogMotorcycle = {
 
 export type ProfileDraft = {
   alias: string
-  displayName: string
   fullName: string
   whatsapp: string
 }

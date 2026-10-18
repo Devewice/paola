@@ -16,7 +16,6 @@ export const ACCOUNT_TABLES = {
 export const ACCOUNT_LIMITS = {
   ALIAS_MIN: 2,
   ALIAS_MAX: 80,
-  DISPLAY_NAME_MAX: 80,
   FULL_NAME_MAX: 120,
   WHATSAPP_MIN: 10,
   WHATSAPP_MAX: 15,
@@ -35,7 +34,6 @@ export const ACCOUNT_MESSAGES = {
   SESSION_INVALID: 'Sesión inválida o vencida.',
   ALIAS_INVALID: 'El apodo necesita de 2 a 80 caracteres.',
   ALIAS_TAKEN: 'Ese apodo ya lo tiene otro parcero.',
-  DISPLAY_NAME_INVALID: 'El nombre a mostrar es de máximo 80 caracteres.',
   FULL_NAME_INVALID: 'El nombre es de máximo 120 caracteres.',
   WHATSAPP_INVALID: 'El WhatsApp necesita de 10 a 15 dígitos.',
   CATALOG_NOT_FOUND: 'Esa moto no está en la lista.',

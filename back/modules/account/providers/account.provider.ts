@@ -24,7 +24,7 @@ export async function findSessionUserId(sessionId: string): Promise<string | nul
 
 export async function findProfile(userId: string): Promise<AccountProfile | null> {
   const row = await db()(ACCOUNT_TABLES.USERS)
-    .select('id', 'email', 'alias', 'display_name', 'full_name', 'whatsapp', 'is_public', 'created_at')
+    .select('id', 'email', 'alias', 'full_name', 'whatsapp', 'is_public', 'created_at')
     .where({ id: userId })
     .first()
   if (!row) return null
@@ -32,7 +32,6 @@ export async function findProfile(userId: string): Promise<AccountProfile | null
     id: String(row.id),
     email: String(row.email),
     alias: String(row.alias),
-    displayName: optional(row.display_name),
     fullName: optional(row.full_name),
     whatsapp: optional(row.whatsapp),
     isPublic: Boolean(row.is_public),
@@ -48,7 +47,6 @@ export async function aliasTakenByOther(alias: string, userId: string): Promise<
 export async function updateProfile(userId: string, patch: ProfilePatchDto): Promise<void> {
   await db()(ACCOUNT_TABLES.USERS).where({ id: userId }).update({
     alias: patch.alias,
-    display_name: patch.displayName,
     full_name: patch.fullName,
     whatsapp: patch.whatsapp,
   })

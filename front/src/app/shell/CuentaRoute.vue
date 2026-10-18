@@ -32,7 +32,7 @@ const outgoing = ref<FriendRow[]>([])
 const accepted = ref<FriendRow[]>([])
 const rideVotes = ref<ReadonlyMap<string, number>>(new Map())
 
-const heroName = computed(() => accountProfile.value?.displayName || myAlias.value || copy.title)
+const heroName = computed(() => accountProfile.value?.alias || myAlias.value || copy.title)
 const heroStats = computed(() => [
   { value: panel.value?.tickets.length ?? 0, label: CUENTA_NAV_COPY.rides, to: APP_PATHS.CUENTA_RODADAS },
   { value: panel.value?.orders.length ?? 0, label: CUENTA_NAV_COPY.orders, to: APP_PATHS.CUENTA_PEDIDOS },
@@ -146,7 +146,6 @@ onMounted(async () => {
           <div class="poster__copy">
             <span class="board-kicker">{{ copy.profileMeta }}</span>
             <h1 class="type-brush-dry type-brush-dry--xs">{{ heroName }}</h1>
-            <p v-if="accountProfile?.displayName && myAlias" class="meta-text cuenta-screen__alias">@{{ myAlias }}</p>
             <dl class="hub-stats hub-stats--dl">
               <div v-for="item in heroStats" :key="item.label" class="hub-stat cuenta-screen__stat">
                 <dt><span>{{ item.label }}</span></dt>
@@ -176,11 +175,6 @@ onMounted(async () => {
   padding-bottom: 32px;
   display: grid;
   gap: 20px;
-}
-
-.cuenta-screen__alias {
-  margin: -4px 0 8px;
-  color: var(--paola-cyan, #48b4fc);
 }
 
 .cuenta-screen__stat {

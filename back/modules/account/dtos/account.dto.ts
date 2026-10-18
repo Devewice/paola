@@ -1,6 +1,5 @@
 export type ProfilePatchDto = {
   readonly alias: string
-  readonly displayName: string | null
   readonly fullName: string | null
   readonly whatsapp: string | null
 }

@@ -14,10 +14,6 @@ export function parseProfilePatch(draft: Record<string, unknown>): Parsed<Profil
   if (alias.length < ACCOUNT_LIMITS.ALIAS_MIN || alias.length > ACCOUNT_LIMITS.ALIAS_MAX) {
     return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.ALIAS_INVALID)
   }
-  const displayName = text(draft.displayName)
-  if (displayName.length > ACCOUNT_LIMITS.DISPLAY_NAME_MAX) {
-    return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.DISPLAY_NAME_INVALID)
-  }
   const fullName = text(draft.fullName)
   if (fullName.length > ACCOUNT_LIMITS.FULL_NAME_MAX) {
     return fail(HTTP_STATUS.BAD_REQUEST, ACCOUNT_MESSAGES.FULL_NAME_INVALID)
@@ -30,7 +26,6 @@ export function parseProfilePatch(draft: Record<string, unknown>): Parsed<Profil
     ok: true,
     value: {
       alias,
-      displayName: displayName || null,
       fullName: fullName || null,
       whatsapp: whatsapp || null,
     },

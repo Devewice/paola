@@ -19,7 +19,7 @@ const { profile, busy } = props.account
 const editing = ref(false)
 const error = ref('')
 const notice = ref('')
-const draft = reactive({ alias: '', displayName: '', fullName: '', whatsapp: '' })
+const draft = reactive({ alias: '', fullName: '', whatsapp: '' })
 
 const since = computed(() => {
   const raw = profile.value?.createdAt
@@ -34,7 +34,6 @@ const rows = computed(() => {
   const p = profile.value
   if (!p) return []
   return [
-    { label: copy.displayName, value: p.displayName },
     { label: copy.alias, value: p.alias },
     { label: copy.fullName, value: p.fullName },
     { label: copy.whatsapp, value: p.whatsapp },
@@ -47,7 +46,6 @@ function startEdit(): void {
   const p = profile.value
   if (!p) return
   draft.alias = p.alias
-  draft.displayName = p.displayName ?? ''
   draft.fullName = p.fullName ?? ''
   draft.whatsapp = p.whatsapp ?? ''
   error.value = ''
@@ -88,9 +86,6 @@ async function toggleVisibility(isPublic: boolean): Promise<void> {
       <form v-if="editing" class="cuenta-card__form" @submit.prevent="save">
         <Field :label="copy.email" :hint="copy.emailHint">
           <Input :model-value="profile.email" disabled />
-        </Field>
-        <Field :label="copy.displayName" :hint="copy.displayNameHint">
-          <Input v-model="draft.displayName" :placeholder="draft.alias" />
         </Field>
         <Field :label="copy.alias" :hint="copy.aliasHint">
           <Input v-model="draft.alias" />

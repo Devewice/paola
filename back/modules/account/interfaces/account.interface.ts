@@ -2,7 +2,6 @@ export type AccountProfile = {
   readonly id: string
   readonly email: string
   readonly alias: string
-  readonly displayName?: string
   readonly fullName?: string
   readonly whatsapp?: string
   readonly isPublic: boolean
