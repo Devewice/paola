@@ -21,7 +21,7 @@ export type {
   Ticket,
   TicketDraft,
 } from '@modules/rides/domain/entities/Ticket.ts'
-export { RIDES_CARD_COPY, RIDES_PAGE_COPY } from '@modules/rides/constants/copy.ts'
+export { RIDES_CARD_COPY, RIDES_KIND_LABEL, RIDES_PAGE_COPY } from '@modules/rides/constants/copy.ts'
 export type { OperatorBoardOuting } from '@modules/rides/domain/ports/RidesApiPort.ts'
 export type { RidesModule } from '@modules/rides/composition.ts'
 export { createRidesModule } from '@modules/rides/composition.ts'

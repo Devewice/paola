@@ -1,4 +1,4 @@
-export type HomeOutingKind = 'rodada' | 'actividad'
+export type HomeOutingKind = 'rodada' | 'actividad' | 'tintada'
 
 export type HomeNextOuting = {
   readonly id: string

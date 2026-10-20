@@ -1,6 +1,6 @@
 import type { OutingKind, OutingStatus } from '../interfaces/rides.interface.js'
 
-export const RIDES_KINDS: readonly OutingKind[] = ['rodada', 'actividad']
+export const RIDES_KINDS: readonly OutingKind[] = ['rodada', 'actividad', 'tintada']
 export const RIDES_STATUSES: readonly OutingStatus[] = ['abierto', 'lleno', 'cerrado', 'realizado']
 export const RIDES_OPERATOR_STATUSES = ['abierto', 'cerrado', 'realizado'] as const
 
@@ -78,7 +78,7 @@ export const RIDES_MESSAGES = {
   DATE_INVALID: 'No se publica una salida sin fecha válida.',
   CAPACITY_INVALID: 'No se publica una salida sin cupo máximo (entero ≥ 1).',
   TITLE_REQUIRED: 'No se publica una salida sin título.',
-  KIND_INVALID: 'La salida es rodada o actividad.',
+  KIND_INVALID: 'La salida es rodada, actividad o tintada.',
   MEETING_REQUIRED: 'No se publica una salida sin punto de encuentro.',
   STATUS_INVALID: 'Solo se marca abierto, cerrado o realizado.',
   CAPACITY_BELOW_TAKEN: (taken: number) => `Ya hay ${taken} puestos tomados: el cupo no puede quedar por debajo.`,

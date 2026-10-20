@@ -37,6 +37,15 @@ export const PAOLA_PAGE: PaolaPage = {
       href: 'https://wa.me/573123136679',
       label: 'WhatsApp',
     },
+    business: {
+      href: 'https://wa.me/573228475423',
+      label: 'Negocios y servicios',
+      display: '322 847 5423',
+    },
+    community: {
+      href: 'https://chat.whatsapp.com/CRDP1hSnmbMGxibE7BCf0C',
+      label: 'Grupo de la comunidad',
+    },
     social: [
       { id: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/5.paola.3/' },
       {
@@ -65,6 +74,12 @@ export const PAOLA_VIEW_COPY = {
   contactHeading: 'Escríbeme',
   contactLead: 'Correo o WhatsApp. Te respondo personalmente.',
   socialHeading: 'Redes',
+  businessHeading: 'Negocios y servicios',
+  businessLead:
+    'Lavado de cascos, pedidos de la tienda, alianzas o patrocinios: escríbeme a esta línea y lo cuadramos.',
+  communityHeading: 'Únete al parche',
+  communityLead: 'Rodadas, cambios de última hora y fotos de ruta salen primero en el grupo de WhatsApp.',
+  communityCta: 'Entrar al grupo',
   closing: 'Si llegaste hasta acá, ya eres del parche. Nos vemos en la vía.',
   photoAlt: 'Paola con casco AGV, señalando a cámara',
   byline: 'Escrito por: Paola Biker',

@@ -27,6 +27,7 @@ function fromService(service?: ShopService | null) {
     handoverText: service?.handoverText ?? '',
     turnaroundText: service?.turnaroundText ?? '',
     priceCop: service?.priceCop === null || service?.priceCop === undefined ? '' : String(service.priceCop),
+    photoSrc: service?.photoSrc ?? '',
   }
 }
 
@@ -56,6 +57,7 @@ async function submit() {
     handoverText: value.handoverText.trim(),
     turnaroundText: value.turnaroundText.trim(),
     priceCop: optionalCount(value.priceCop),
+    photoSrc: value.photoSrc.trim() || undefined,
   }
   const result = props.service
     ? await props.module.updateService(props.service.id, payload, props.clave)
@@ -90,6 +92,9 @@ async function submit() {
         <Input v-model="draft.priceCop" inputmode="numeric" />
       </Field>
     </div>
+    <Field :label="copy.fieldPhoto">
+      <Input v-model="draft.photoSrc" placeholder="https://" />
+    </Field>
     <div class="admin-form__actions">
       <Button type="submit" :disabled="busy">{{ editing ? copy.save : copy.serviceCta }}</Button>
       <Button type="button" variant="ghost" @click="emit('cancel')">{{ copy.cancel }}</Button>

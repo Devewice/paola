@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { RIDES_AGENDA_COPY, RIDES_CARD_COPY } from '@modules/rides/constants/copy.ts'
+import { RIDES_AGENDA_COPY, RIDES_CARD_COPY, RIDES_KIND_LABEL } from '@modules/rides/constants/copy.ts'
 import { daysUntil, remainingSpots, type Outing } from '@modules/rides/domain/entities/Outing.ts'
 import type { OutingCrew } from '@modules/rides/domain/entities/Ticket.ts'
 import type { RidesModule } from '@modules/rides/index.ts'
@@ -90,7 +90,7 @@ async function onChanged(): Promise<void> {
           :class="{ 'paola-outing--featured': group.id === 'featured' }"
           :title="outing.title"
           :date="outing.date"
-          :kind="outing.kind"
+          :kind-label="RIDES_KIND_LABEL[outing.kind]"
           :status="outing.status"
           :meeting-point="outing.meetingPoint"
           :route-text="outing.routeText"

@@ -8,6 +8,7 @@ import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
 import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { ADMIN_BAR_COPY, OPERAR_COPY, OPERAR_QUERY, OPERAR_QUICK_CREATE } from '@app/constants/operar.ts'
 import AdminBar from '@ui/AdminBar.vue'
+import SectionGate from '@app/shell/SectionGate.vue'
 import { MEGA_FOOTER_COLUMNS, MEGA_NAV } from '@app/constants/nav.ts'
 import { TABS } from '@app/navigation.ts'
 import { getAppDependencies, inventoryVersion } from '@app/bootstrap.ts'
@@ -90,6 +91,8 @@ const footerLinks = [
 const footerContact = computed(() => [
   { label: page.contact.email, href: `mailto:${page.contact.email}` },
   { label: FOOTER_COPY.writeLabel, href: whatsapp.href },
+  { label: FOOTER_COPY.businessLabel(page.contact.business.display), href: page.contact.business.href },
+  { label: FOOTER_COPY.communityLabel, href: page.contact.community.href },
 ])
 </script>
 
@@ -130,7 +133,9 @@ const footerContact = computed(() => [
     />
 
     <v-main class="paola-main">
-      <router-view />
+      <SectionGate>
+        <router-view />
+      </SectionGate>
     </v-main>
 
     <footer class="paola-site-foot" :class="{ 'paola-site-foot--compact': footerCompact }">

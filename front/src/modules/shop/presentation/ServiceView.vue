@@ -78,13 +78,24 @@ const specRows = computed(() => {
         <ShopItemTools :module="module" :clave="editClave" :service="service" @changed="emit('changed')" />
       </div>
       <div class="shop-item__stage" data-reveal>
+        <div v-if="service.photoSrc" class="shop-item__media shop-item__media--flyer">
+          <img :src="service.photoSrc" :alt="service.title" loading="lazy" />
+        </div>
         <ServiceFicha
+          v-else
           :title="service.title"
           :copy="formatProductPrice(service.priceCop)"
           :steps="steps"
           :note="board.warrantyCopy"
         />
         <div class="shop-item__buy">
+          <ServiceFicha
+            v-if="service.photoSrc"
+            :title="service.title"
+            :copy="formatProductPrice(service.priceCop)"
+            :steps="steps"
+            :note="board.warrantyCopy"
+          />
           <SpecTable :rows="specRows" />
           <Button variant="ghost" size="sm" :to="APP_PATHS.TIENDA">{{ copy.backCta }}</Button>
           <ShopCheckout

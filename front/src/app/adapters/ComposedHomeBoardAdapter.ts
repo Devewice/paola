@@ -1,3 +1,5 @@
+import { TIPS_BUILDING_COPY } from '@app/constants/sections.ts'
+import { sectionState } from '@app/shell/siteSections.ts'
 import type { ClubModule } from '@modules/club/index.ts'
 import { HOME_BOARD_COPY, HOME_JOIN_LABEL } from '@modules/home/constants/copy.ts'
 import type { HomeBoard, HomeBoardPort, HomeRodadaCard } from '@modules/home/index.ts'
@@ -39,6 +41,7 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
     const quien = this.paola.getPage().narrative.find((section) => section.id === 'quien')
     const latest = memories.items[0] ?? null
     const featuredTip = tips.items[0] ?? null
+    const tipsState = sectionState('tu-voz-tips')
     const photoByOuting = new Map(
       memories.items.map((memory) => [memory.outingId, memory.photos[0]] as const),
     )
@@ -87,7 +90,9 @@ export class ComposedHomeBoardAdapter implements HomeBoardPort {
         : null,
       memoryEmptyCopy: memories.emptyCopy,
       voice: {
-        tip: featuredTip
+        tip: !tipsState.enabled
+          ? { title: TIPS_BUILDING_COPY.title, body: tipsState.note ?? TIPS_BUILDING_COPY.body }
+          : featuredTip
           ? {
               title: featuredTip.title,
               body: featuredTip.body,

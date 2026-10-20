@@ -32,7 +32,7 @@ export class PublishOuting {
       return err(appError('VALIDATION', RIDES_MESSAGES.TITLE_REQUIRED))
     }
 
-    if (draft.kind !== RIDES_KIND.RODADA && draft.kind !== RIDES_KIND.ACTIVIDAD) {
+    if (!Object.values(RIDES_KIND).includes(draft.kind)) {
       return err(appError('VALIDATION', RIDES_MESSAGES.KIND_INVALID))
     }
 

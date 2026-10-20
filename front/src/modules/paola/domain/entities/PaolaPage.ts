@@ -20,6 +20,10 @@ export type PaolaContact = {
   readonly email: string
   readonly domain: string
   readonly whatsapp: PaolaWhatsApp
+  /** Línea para negocios, pedidos y servicios (lavado de cascos, alianzas). */
+  readonly business: PaolaWhatsApp & { readonly display: string }
+  /** Grupo de WhatsApp de la comunidad. */
+  readonly community: PaolaWhatsApp
   readonly social: readonly PaolaSocialLink[]
   readonly youtube: PaolaSocialLink
 }

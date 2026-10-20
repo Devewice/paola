@@ -216,7 +216,7 @@ export const SHOP_COPY = {
   featureWashTitle: 'Lavado de casco',
   featureOwnLead: 'Ropa, calcas y piezas con el escudo del parche.',
   featureCollabLead: 'Lo que hacemos con aliados, en estantería aparte.',
-  featureWashLead: 'Te lo dejo limpio. Si quedó mal, se corrige.',
+  featureWashLead: 'Lo recogemos en tu casa, lo desinfectamos y te lo devolvemos en máximo 24 horas.',
   promiseKicker: 'Así compras',
   promiseTitle: 'Sin vueltas',
   promiseWashTitle: 'Tu casco, en buenas manos',
@@ -228,6 +228,8 @@ export const SHOP_COPY = {
   promiseWarrantyLabel: 'Defectos de fabricación',
   promiseWashFix: 'Se corrige',
   promiseWashFixLabel: 'Si quedó mal',
+  promiseWashTime: '24 h',
+  promiseWashTimeLabel: 'Recogida y entrega a domicilio',
   shelfCount: 'en la estantería',
   shelfOn: 'Quitar filtro',
   shelfOff: 'Ver solo esto',
@@ -285,6 +287,7 @@ export const SHOP_PRODUCT_PROMISES = [
 ] as const
 
 export const SHOP_SERVICE_PROMISES = [
+  { value: SHOP_COPY.promiseWashTime, label: SHOP_COPY.promiseWashTimeLabel },
   { value: SHOP_COPY.promisePay, label: SHOP_COPY.promisePayLabel },
   { value: SHOP_COPY.promiseWashFix, label: SHOP_COPY.promiseWashFixLabel },
 ] as const

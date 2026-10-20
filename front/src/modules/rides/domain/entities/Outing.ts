@@ -1,4 +1,4 @@
-export type OutingKind = 'rodada' | 'actividad'
+export type OutingKind = 'rodada' | 'actividad' | 'tintada'
 export type OutingStatus = 'abierto' | 'lleno' | 'cerrado' | 'realizado'
 export type OperatorOutingStatus = Extract<OutingStatus, 'abierto' | 'cerrado' | 'realizado'>
 

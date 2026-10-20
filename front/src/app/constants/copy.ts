@@ -82,4 +82,6 @@ export const FOOTER_COPY = {
   legalName: 'Paola Biker',
   domain: 'paolabiker.com',
   writeLabel: 'Escríbeme',
+  businessLabel: (phone: string) => `Negocios y lavado: ${phone}`,
+  communityLabel: 'Grupo de WhatsApp',
 } as const

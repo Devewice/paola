@@ -1,3 +1,5 @@
+import type { OutingKind } from '@modules/rides/domain/entities/Outing.ts'
+
 export const AGENDA_EMPTY_COPY = 'Aún no hay fecha.'
 
 export const MEMORIES_EMPTY_COPY = 'Aún no hay memoria de rodada.'
@@ -21,7 +23,14 @@ export const RIDES_STATUS = {
 export const RIDES_KIND = {
   RODADA: 'rodada',
   ACTIVIDAD: 'actividad',
+  TINTADA: 'tintada',
 } as const
+
+export const RIDES_KIND_LABEL: Readonly<Record<OutingKind, string>> = {
+  rodada: 'Rodada',
+  actividad: 'Actividad',
+  tintada: 'Tintada',
+}
 
 export const RIDES_AGENDA_COPY = {
   heading: 'Próximas',
@@ -210,6 +219,7 @@ export const RIDES_ADMIN_COPY = {
   fieldKind: 'Tipo',
   kindRodada: 'Rodada',
   kindActividad: 'Actividad',
+  kindTintada: 'Tintada (encuentro, sin rodar)',
   fieldMeeting: 'Punto de encuentro',
   fieldRoute: 'Ruta',
   fieldBring: 'Qué llevar',
@@ -276,7 +286,7 @@ export const RIDES_MESSAGES = {
   DATE_INVALID: 'No se publica una salida sin fecha válida.',
   CAPACITY_INVALID: 'No se publica una salida sin cupo máximo (entero ≥ 1).',
   TITLE_REQUIRED: 'No se publica una salida sin título.',
-  KIND_INVALID: 'La salida es rodada o actividad.',
+  KIND_INVALID: 'La salida es rodada, actividad o tintada.',
   MEETING_REQUIRED: 'No se publica una salida sin punto de encuentro.',
   ALREADY_DONE: 'Ya se marcó realizada. No se reabre desde aquí.',
   CUPO_PARSE_FAIL: 'No pudimos leer el cupo. Recarga la página e intenta de nuevo.',

@@ -73,6 +73,8 @@ export const API = {
   OPERAR_ACCESS: '/api/operar/access',
   OPERAR_ROLES: '/api/operar/roles',
   OPERAR_USERS: '/api/operar/users',
+  SECTIONS: '/api/sections',
+  OPERAR_SECTIONS: '/api/operar/sections',
 } as const
 
 export function apiOperarRole(id: string): string {

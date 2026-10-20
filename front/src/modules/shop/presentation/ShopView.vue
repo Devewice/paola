@@ -644,6 +644,7 @@ const filtersDirty = computed(() => chips.value.length > 0)
                 :title="item.title"
                 :copy="`${copy.kindWashTag}. ${item.includesText}`"
               >
+                <img v-if="item.photoSrc" class="service-card__flyer" :src="item.photoSrc" :alt="item.title" loading="lazy" />
                 <p class="price">{{ formatProductPrice(item.priceCop) }}</p>
                 <Button size="sm" variant="ghost" :to="appTiendaServicio(item.id)">{{ copy.fichaCta }}</Button>
               </ServiceCard>

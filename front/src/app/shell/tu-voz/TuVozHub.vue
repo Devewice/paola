@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { TIPS_BUILDING_COPY } from '@app/constants/sections.ts'
+import { sectionState } from '@app/shell/siteSections.ts'
 import { useTuVoz } from '@app/shell/tu-voz/context.ts'
 import type { Poll } from '@modules/polls/index.ts'
 import { VOICE_COPY, VOICE_TIPS_FIGURE } from '@modules/voice/constants/copy.ts'
@@ -14,6 +16,7 @@ const { deps } = useTuVoz()
 
 const tips = computed(() => deps.value.voice.getTips().items)
 const featured = computed(() => tips.value[0] ?? null)
+const tipsState = computed(() => sectionState('tu-voz-tips'))
 const fines = computed(() => deps.value.voice.getFines().items)
 const reports = computed(() => deps.value.voice.getReports().items)
 
@@ -44,12 +47,16 @@ watch(
         :cta="copy.tileTipsCta"
         data-reveal
       >
-        <p v-if="featured" class="hub-quote">
+        <p v-if="!tipsState.enabled" class="hub-quote">
+          <strong>{{ TIPS_BUILDING_COPY.title }}</strong>
+          {{ tipsState.note ?? TIPS_BUILDING_COPY.body }}
+        </p>
+        <p v-else-if="featured" class="hub-quote">
           <strong>{{ featured.title }}</strong>
           {{ featured.body }}
         </p>
         <p v-else class="hub-meta">{{ copy.featuredEmpty }}</p>
-        <span class="hub-stats">
+        <span v-if="tipsState.enabled" class="hub-stats">
           <span class="hub-stat">
             <strong>{{ tips.length }}</strong>
             <span>{{ copy.tileTipsCount }}</span>

@@ -1,5 +1,5 @@
 /** Ítem de agenda (fase 6). Sin cupo, km ni fotos. */
-export type AgendaKind = 'rodada' | 'actividad'
+export type AgendaKind = 'rodada' | 'actividad' | 'tintada'
 export type AgendaWhen = 'proxima' | 'pasada'
 
 export type AgendaItem = {

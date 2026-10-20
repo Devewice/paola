@@ -38,6 +38,7 @@ export function parseService(raw: unknown): ShopService | null {
     handoverText,
     turnaroundText,
     priceCop,
+    photoSrc: typeof row.photoSrc === 'string' && row.photoSrc.trim() ? row.photoSrc.trim() : undefined,
     createdAt: optionalTime(row.createdAt),
   }
 }

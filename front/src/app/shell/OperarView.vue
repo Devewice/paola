@@ -5,6 +5,7 @@ import { getAppDependencies, inventoryVersion, refreshInventory } from '@app/boo
 import AuthWizard from '@app/shell/AuthWizard.vue'
 import NotFoundView from '@app/shell/NotFoundView.vue'
 import RolesAdmin from '@app/shell/RolesAdmin.vue'
+import SectionsAdmin from '@app/shell/SectionsAdmin.vue'
 import { useOperarAccess } from '@app/shell/useOperarAccess.ts'
 import { ADMIN_BAR_COPY, OPERAR_COPY, OPERAR_PERMISSIONS, OPERAR_QUERY, OPERAR_TABS } from '@app/constants/operar.ts'
 import { ROUTE_TITLES } from '@app/constants/copy.ts'
@@ -35,7 +36,7 @@ const navItems = computed(() =>
   tabs.value.map((item) => ({
     id: item.id,
     label: item.label,
-    hint: OPERAR_PERMISSIONS.find((permission) => permission.id === item.permission)?.hint,
+    hint: item.hint ?? OPERAR_PERMISSIONS.find((permission) => permission.id === item.permission)?.hint,
   })),
 )
 const outingOptions = computed(() =>
@@ -132,6 +133,8 @@ async function onPublished() {
         />
 
         <RolesAdmin v-else-if="tab === 'roles'" :session="key" />
+
+        <SectionsAdmin v-else-if="tab === 'secciones'" :session="key" />
 
         <div v-else-if="tab === 'ajustes'" class="admin-stack operar-page__section--narrow">
           <section id="pasarela">

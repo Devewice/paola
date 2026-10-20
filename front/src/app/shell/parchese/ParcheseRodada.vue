@@ -6,7 +6,7 @@ import { PARCHESE_FIGURES } from '@app/constants/parchese.ts'
 import { useAdminEdit } from '@app/shell/adminMode.ts'
 import { useParchese } from '@app/shell/parchese/context.ts'
 import PollCard from '@modules/polls/presentation/PollCard.vue'
-import { RIDES_PAGE_COPY, type ClaimedSpot, type Outing, type OutingCrew } from '@modules/rides/index.ts'
+import { RIDES_KIND_LABEL, RIDES_PAGE_COPY, type ClaimedSpot, type Outing, type OutingCrew } from '@modules/rides/index.ts'
 import OutingAdminTools from '@modules/rides/presentation/OutingAdminTools.vue'
 import RideSignup from '@modules/rides/presentation/RideSignup.vue'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
@@ -98,7 +98,7 @@ function initial(alias: string): string {
           class="paola-outing--featured"
           :title="outing.title"
           :date="outing.date"
-          :kind="outing.kind"
+          :kind-label="RIDES_KIND_LABEL[outing.kind]"
           :status="outing.status"
           :meeting-point="outing.meetingPoint"
           :route-text="outing.routeText"

@@ -12,6 +12,7 @@ import { authRoutes } from './auth/index.js'
 import { pollsRoutes } from './polls/index.js'
 import { rolesRoutes } from './roles/index.js'
 import { accountRoutes } from './account/index.js'
+import { sectionsRoutes } from './sections/index.js'
 
 export const apiRoutes: readonly Route[] = [
   ...healthRoutes,
@@ -27,4 +28,5 @@ export const apiRoutes: readonly Route[] = [
   ...pollsRoutes,
   ...rolesRoutes,
   ...accountRoutes,
+  ...sectionsRoutes,
 ]

@@ -85,7 +85,7 @@ let dependencies: AppDependencies | null = null
 export const inventoryVersion = ref(0)
 
 function joinFromPaola(paola: PaolaModule) {
-  return buildJoinChannel(paola.getPage().contact.whatsapp.href)
+  return buildJoinChannel(paola.getPage().contact.community.href)
 }
 
 function wire(
@@ -127,8 +127,8 @@ function wire(
   )
   const ordersApi =
     ordersMode === 'http'
-      ? new HttpShopOrdersApi({ whatsappHref: contact.whatsapp.href })
-      : new InMemoryServiceOrderApi({ whatsappHref: contact.whatsapp.href })
+      ? new HttpShopOrdersApi({ whatsappHref: contact.business.href })
+      : new InMemoryServiceOrderApi({ whatsappHref: contact.business.href })
   const shop = createShopModule(
     productCatalog,
     serviceCatalog,
@@ -136,7 +136,7 @@ function wire(
     ordersApi,
     {
       email: contact.email,
-      whatsappHref: contact.whatsapp.href,
+      whatsappHref: contact.business.href,
     },
     ordersMode === 'http' ? new HttpPaymentsApi() : new InMemoryPaymentsApi(),
     ordersMode === 'http' ? new HttpMysteryDeckApi() : new InMemoryMysteryDeckApi(),

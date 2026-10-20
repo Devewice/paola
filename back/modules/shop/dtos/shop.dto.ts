@@ -18,4 +18,5 @@ export interface CreateServiceDto {
   handoverText: string
   turnaroundText: string
   priceCop: number | null
+  photoSrc?: string
 }

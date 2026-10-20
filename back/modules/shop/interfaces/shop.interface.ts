@@ -21,5 +21,6 @@ export interface ShopService {
   handoverText: string
   turnaroundText: string
   priceCop: number | null
+  photoSrc?: string
   createdAt?: string
 }

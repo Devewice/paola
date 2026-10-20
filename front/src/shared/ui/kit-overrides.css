@@ -2148,6 +2148,22 @@ html.admin-drawer-open {
   gap: 8px;
 }
 
+/* Flyer de un servicio: se ve completo, sin recorte cuadrado. */
+.shop-item__media--flyer img {
+  aspect-ratio: auto;
+  height: auto;
+  object-fit: contain;
+}
+.service-card__flyer {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 8px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+}
+
 .operar-page__intro {
   display: flex;
   flex-wrap: wrap;
@@ -2250,3 +2266,18 @@ html.admin-drawer-open {
   object-fit: cover;
   background: var(--navy);
 }
+
+.section-gate__banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 16px;
+  padding: 8px 16px;
+  background: rgba(255, 176, 32, 0.12);
+  border-bottom: 1px solid rgba(255, 176, 32, 0.4);
+  color: #ffd27a;
+  font-size: 0.875rem;
+  text-align: center;
+}
+

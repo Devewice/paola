@@ -49,6 +49,7 @@ watch(
 const kindOptions = [
   { value: RIDES_KIND.RODADA, label: copy.kindRodada },
   { value: RIDES_KIND.ACTIVIDAD, label: copy.kindActividad },
+  { value: RIDES_KIND.TINTADA, label: copy.kindTintada },
 ]
 
 async function submit() {

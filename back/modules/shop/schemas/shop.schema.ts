@@ -70,6 +70,7 @@ export function parseCreateService(draft: Record<string, unknown>): Parsed<Creat
   const includesText = String(draft.includesText ?? '').trim()
   const handoverText = String(draft.handoverText ?? '').trim()
   const turnaroundText = String(draft.turnaroundText ?? '').trim()
+  const photoSrc = optionalText(draft.photoSrc)
   const price = parseOptionalCount(draft.priceCop)
 
   if (title.length < SHOP_LIMITS.TITLE_MIN) {
@@ -96,6 +97,7 @@ export function parseCreateService(draft: Record<string, unknown>): Parsed<Creat
       handoverText,
       turnaroundText,
       priceCop: price.value,
+      photoSrc,
     },
   }
 }
@@ -137,6 +139,7 @@ export function toService(row: Record<string, unknown>): ShopService {
     handoverText: String(row.handover_text),
     turnaroundText: String(row.turnaround_text),
     priceCop: price === null || price === undefined ? null : Number(price),
+    photoSrc: optionalText(row.photo_src),
     createdAt: toIso(row.created_at),
   }
 }

@@ -19,13 +19,19 @@ export const OPERAR_PERMISSIONS: readonly { readonly id: OperarPermission; reado
   { id: 'roles', label: 'Roles', hint: 'Crear roles y asignarlos a cuentas' },
 ]
 
-export const OPERAR_TABS: readonly { readonly id: string; readonly label: string; readonly permission: OperarPermission }[] = [
+export const OPERAR_TABS: readonly {
+  readonly id: string
+  readonly label: string
+  readonly permission: OperarPermission
+  readonly hint?: string
+}[] = [
   { id: 'rodadas', label: 'Rodadas', permission: 'rodadas' },
   { id: 'voz', label: 'Tu voz', permission: 'voz' },
   { id: 'encuestas', label: 'Encuestas', permission: 'encuestas' },
   { id: 'tienda', label: 'Tienda', permission: 'tienda' },
   { id: 'parche', label: 'Parche', permission: 'parche' },
   { id: 'roles', label: 'Roles', permission: 'roles' },
+  { id: 'secciones', label: 'Secciones', permission: 'ajustes', hint: 'Publicar o poner en construcción' },
   { id: 'ajustes', label: 'Ajustes', permission: 'ajustes' },
 ]
 

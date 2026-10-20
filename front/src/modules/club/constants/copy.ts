@@ -5,9 +5,9 @@ export const MEMBERS_EMPTY_COPY = 'Aún no hay integrantes.'
 export const JOIN_WHATSAPP_TEXT = 'Quiero unirme al parche'
 
 export const JOIN_COPY = {
-  cta: 'Únete',
+  cta: 'Únete al grupo',
   title: 'Únete',
-  copy: 'Escríbeme y te agrego al grupo.',
+  copy: 'Entra al grupo de WhatsApp: ahí salen primero las rodadas, el punto de encuentro y los cambios de última hora.',
 } as const
 
 export const CLUB_ROSTER_COPY = {

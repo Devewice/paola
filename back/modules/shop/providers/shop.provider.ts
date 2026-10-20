@@ -79,6 +79,7 @@ export async function updateService(service: ShopService): Promise<number> {
       handover_text: service.handoverText,
       turnaround_text: service.turnaroundText,
       price_cop: service.priceCop,
+      photo_src: service.photoSrc ?? null,
     })
 }
 
@@ -93,7 +94,7 @@ export async function deleteService(id: string): Promise<number> {
 
 export async function findServices(): Promise<ShopService[]> {
   const rows = await getDb()(SHOP_TABLES.SERVICES)
-    .select('id', 'title', 'includes_text', 'handover_text', 'turnaround_text', 'price_cop', 'created_at')
+    .select('id', 'title', 'includes_text', 'handover_text', 'turnaround_text', 'price_cop', 'photo_src', 'created_at')
     .orderBy('created_at', 'desc')
   return rows.map((row) => toService(row as Record<string, unknown>))
 }
@@ -106,5 +107,6 @@ export async function insertService(service: ShopService): Promise<void> {
     handover_text: service.handoverText,
     turnaround_text: service.turnaroundText,
     price_cop: service.priceCop,
+    photo_src: service.photoSrc ?? null,
   })
 }

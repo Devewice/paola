@@ -7,7 +7,7 @@ withDefaults(
   defineProps<{
     title: string
     date: string
-    kind: 'rodada' | 'actividad'
+    kindLabel: string
     status: 'abierto' | 'lleno' | 'cerrado' | 'realizado'
     meetingPoint: string
     routeText: string
@@ -27,7 +27,7 @@ withDefaults(
       <div class="paola-outing__info">
         <div class="paola-outing__head">
           <Chip :tone="status">{{ status }}</Chip>
-          <span class="paola-outing__kind">{{ kind === 'rodada' ? 'Rodada' : 'Actividad' }}</span>
+          <span class="paola-outing__kind">{{ kindLabel }}</span>
         </div>
         <h3 class="paola-outing__title">{{ title }}</h3>
         <p class="paola-outing__meta">

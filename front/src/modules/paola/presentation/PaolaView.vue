@@ -168,6 +168,22 @@ function bindRoot(el: Element | ComponentPublicInstance | null): void {
             </a>
           </div>
 
+          <h3 class="paola-who__social-label">{{ copy.businessHeading }}</h3>
+          <p class="paola-page__copy paola-page__copy--muted">{{ copy.businessLead }}</p>
+          <div class="paola-who__actions">
+            <Button variant="ghost" :href="page.contact.business.href" target="_blank">
+              {{ page.contact.business.display }}
+            </Button>
+          </div>
+
+          <h3 class="paola-who__social-label">{{ copy.communityHeading }}</h3>
+          <p class="paola-page__copy paola-page__copy--muted">{{ copy.communityLead }}</p>
+          <div class="paola-who__actions">
+            <Button variant="ghost" :href="page.contact.community.href" target="_blank">
+              {{ copy.communityCta }}
+            </Button>
+          </div>
+
           <h3 class="paola-who__social-label">{{ copy.socialHeading }}</h3>
           <ul class="paola-who__social">
             <li v-for="link in page.contact.social" :key="link.id">

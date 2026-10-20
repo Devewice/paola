@@ -1,6 +1,6 @@
 import type { Outing, OutingKind, OutingStatus } from '@modules/rides/domain/entities/Outing.ts'
 
-const KINDS = new Set<OutingKind>(['rodada', 'actividad'])
+const KINDS = new Set<OutingKind>(['rodada', 'actividad', 'tintada'])
 const STATUSES = new Set<OutingStatus>(['abierto', 'lleno', 'cerrado', 'realizado'])
 
 export function parseOuting(raw: unknown): Outing | null {
