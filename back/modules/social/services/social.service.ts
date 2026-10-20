@@ -43,6 +43,14 @@ import {
   listFeedRows,
   listFriendshipsForUser,
   listMemoryComments,
+  listOperatorMemoryComments,
+  countMemoryCommentsByStatus,
+  findMemoryComment,
+  memoryExists,
+  setMemoryCommentStatus,
+  toggleMemoryCommentPinned,
+  deleteMemoryComment,
+  toggleMemoryCommentLike,
   listPanelRows,
   listPublicFeedRows,
   listUserChats,
@@ -55,7 +63,15 @@ import {
   togglePostHighlighted,
   togglePostPinned,
 } from '../providers/social.provider.js'
-import { SOCIAL_MESSAGES, SOCIAL_POST_STATUS, SOCIAL_ROLE } from '../constants/social.constants.js'
+import {
+  MEMORY_COMMENT_LIMITS,
+  MEMORY_COMMENT_STATUS,
+  MEMORY_COMMENT_STATUS_SET,
+  SOCIAL_MESSAGES,
+  SOCIAL_POST_STATUS,
+  SOCIAL_ROLE,
+  type MemoryCommentStatus,
+} from '../constants/social.constants.js'
 import {
   canHidePost,
   canNestReply,
@@ -220,21 +236,74 @@ export async function readFeed(sessionId: string) {
 export async function createMemoryComment(sessionId: string, memoryId: string, draft: Record<string, unknown>) {
   const user = await resolveSessionUser(sessionId)
   if (!user.ok) return user
+  if (!(await memoryExists(memoryId))) return fail(404, SOCIAL_MESSAGES.COMMENT_NOT_FOUND)
   const body = parseBodyDraft(draft, 'body')
   if (!body.ok) return body
-  await insertMemoryComment({
-    id: randomUUID(),
-    memoryId,
-    userId: user.value.id,
-    body: body.value,
-    parentId: typeof draft.parentId === 'string' ? draft.parentId : undefined,
-  })
+  if (body.value.length > MEMORY_COMMENT_LIMITS.BODY_MAX) return fail(400, SOCIAL_MESSAGES.COMMENT_TOO_LONG)
+  const parentId = typeof draft.parentId === 'string' && draft.parentId ? draft.parentId : undefined
+  if (parentId) {
+    const parent = await findMemoryComment(parentId)
+    if (!parent || parent.memoryId !== memoryId || parent.status !== MEMORY_COMMENT_STATUS.PUBLISHED) {
+      return fail(404, SOCIAL_MESSAGES.COMMENT_NOT_FOUND)
+    }
+    if (parent.parentId) return fail(400, SOCIAL_MESSAGES.REPLY_ONLY_ONE_LEVEL)
+  }
+  await insertMemoryComment({ id: randomUUID(), memoryId, userId: user.value.id, body: body.value, parentId })
   return { ok: true as const }
 }
 
-export async function readMemoryComments(memoryId: string) {
-  const comments = await listMemoryComments(memoryId)
+async function viewerId(sessionId: string): Promise<string | undefined> {
+  if (!sessionId) return undefined
+  const user = await resolveSessionUser(sessionId)
+  return user.ok ? user.value.id : undefined
+}
+
+export async function readMemoryComments(memoryId: string, sessionId = '') {
+  const comments = await listMemoryComments(memoryId, await viewerId(sessionId))
   return { ok: true as const, comments }
+}
+
+export async function likeMemoryComment(sessionId: string, commentId: string) {
+  const user = await resolveSessionUser(sessionId)
+  if (!user.ok) return user
+  const comment = await findMemoryComment(commentId)
+  if (!comment || comment.status !== MEMORY_COMMENT_STATUS.PUBLISHED) return fail(404, SOCIAL_MESSAGES.COMMENT_NOT_FOUND)
+  const tally = await toggleMemoryCommentLike(commentId, user.value.id)
+  return { ok: true as const, ...tally }
+}
+
+export async function readOperatorMemoryComments(query: URLSearchParams) {
+  const status = query.get('status') ?? ''
+  const memoryId = query.get('memoryId') ?? ''
+  const filter = {
+    status: MEMORY_COMMENT_STATUS_SET.has(status) ? (status as MemoryCommentStatus) : undefined,
+    memoryId: memoryId || undefined,
+  }
+  const [comments, counts] = await Promise.all([
+    listOperatorMemoryComments(filter),
+    countMemoryCommentsByStatus(filter.memoryId),
+  ])
+  return { ok: true as const, comments, counts }
+}
+
+export async function moderateMemoryComment(commentId: string, draft: Record<string, unknown>) {
+  const status = typeof draft.status === 'string' ? draft.status : ''
+  if (!MEMORY_COMMENT_STATUS_SET.has(status)) return fail(400, SOCIAL_MESSAGES.COMMENT_STATUS_INVALID)
+  if (!(await findMemoryComment(commentId))) return fail(404, SOCIAL_MESSAGES.COMMENT_NOT_FOUND)
+  await setMemoryCommentStatus(commentId, status as MemoryCommentStatus)
+  return { ok: true as const }
+}
+
+export async function pinMemoryComment(commentId: string) {
+  if (!(await findMemoryComment(commentId))) return fail(404, SOCIAL_MESSAGES.COMMENT_NOT_FOUND)
+  await toggleMemoryCommentPinned(commentId)
+  return { ok: true as const }
+}
+
+export async function removeMemoryComment(commentId: string) {
+  if (!(await findMemoryComment(commentId))) return fail(404, SOCIAL_MESSAGES.COMMENT_NOT_FOUND)
+  await deleteMemoryComment(commentId)
+  return { ok: true as const }
 }
 
 export async function reactToComment(sessionId: string, commentId: string, draft: Record<string, unknown>) {

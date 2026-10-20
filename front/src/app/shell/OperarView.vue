@@ -12,6 +12,7 @@ import { ROUTE_TITLES } from '@app/constants/copy.ts'
 import { ADMIN_COPY } from '@app/constants/kit.ts'
 import ClubAdmin from '@modules/club/presentation/ClubAdmin.vue'
 import PollsAdmin from '@modules/polls/presentation/PollsAdmin.vue'
+import MemoryCommentsAdmin from '@modules/rides/presentation/MemoryCommentsAdmin.vue'
 import RidesAdmin from '@modules/rides/presentation/RidesAdmin.vue'
 import PaymentWizard from '@modules/shop/presentation/PaymentWizard.vue'
 import ShopAdmin from '@modules/shop/presentation/ShopAdmin.vue'
@@ -131,6 +132,8 @@ async function onPublished() {
           :stamp="inventoryVersion"
           @published="onPublished"
         />
+
+        <MemoryCommentsAdmin v-else-if="tab === 'comentarios'" :module="deps.rides" :clave="key" />
 
         <RolesAdmin v-else-if="tab === 'roles'" :session="key" />
 

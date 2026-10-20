@@ -26,6 +26,16 @@ export type {
 } from '@modules/rides/domain/entities/Ticket.ts'
 export { RIDES_CARD_COPY, RIDES_KIND_LABEL, RIDES_PAGE_COPY } from '@modules/rides/constants/copy.ts'
 export type { OperatorBoardOuting } from '@modules/rides/domain/ports/RidesApiPort.ts'
+export type {
+  MemoryComment,
+  MemoryCommentCounts,
+  MemoryCommentStatus,
+  MemoryCommentThread,
+  OperatorMemoryComment,
+} from '@modules/rides/domain/entities/MemoryComment.ts'
+export { applyMemoryCommentLike, threadMemoryComments } from '@modules/rides/domain/entities/MemoryComment.ts'
+export type { MemoryCommentsPort, OperatorMemoryComments } from '@modules/rides/domain/ports/MemoryCommentsPort.ts'
+export { HttpMemoryComments } from '@modules/rides/infrastructure/HttpMemoryComments.ts'
 export type { RidesModule } from '@modules/rides/composition.ts'
 export { createRidesModule } from '@modules/rides/composition.ts'
 export { PublishOuting } from '@modules/rides/application/PublishOuting.ts'

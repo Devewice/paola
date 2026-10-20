@@ -6,11 +6,12 @@ withDefaults(
     time?: string
     avatar?: string
     pinned?: boolean
+    pinnedLabel?: string
     pending?: boolean
     edited?: string
     memberBadge?: string
   }>(),
-  { avatar: '' },
+  { avatar: '', pinnedLabel: 'Fijado · moderación' },
 )
 
 const initial = (name: string) => name.trim().charAt(0).toUpperCase() || '?'
@@ -18,7 +19,7 @@ const initial = (name: string) => name.trim().charAt(0).toUpperCase() || '?'
 
 <template>
   <div v-if="pinned" class="comment-item--pinned">
-    <p class="comment-pin-label">Fijado · moderación</p>
+    <p class="comment-pin-label">{{ pinnedLabel }}</p>
     <article class="comment-item">
       <div class="comment-item__avatar">{{ avatar || initial(author) }}</div>
       <div>
@@ -26,10 +27,15 @@ const initial = (name: string) => name.trim().charAt(0).toUpperCase() || '?'
           <span class="comment-item__author">{{ author }}</span>
           <span v-if="memberBadge" class="integrante-badge">{{ memberBadge }}</span>
           <span v-if="time" class="comment-item__time">{{ time }}</span>
+          <slot name="head" />
         </div>
         <div class="comment-item__body">
           <p v-if="!$slots.body">{{ body }}</p>
           <slot name="body" />
+        </div>
+        <span v-if="edited" class="comment-edited">{{ edited }}</span>
+        <div v-if="$slots.actions" class="comment-item__actions">
+          <slot name="actions" />
         </div>
         <slot />
       </div>
@@ -42,6 +48,7 @@ const initial = (name: string) => name.trim().charAt(0).toUpperCase() || '?'
         <span class="comment-item__author">{{ author }}</span>
         <span v-if="memberBadge" class="integrante-badge">{{ memberBadge }}</span>
         <span v-if="time" class="comment-item__time">{{ time }}</span>
+        <slot name="head" />
       </div>
       <div class="comment-item__body">
         <p v-if="!$slots.body">{{ body }}</p>

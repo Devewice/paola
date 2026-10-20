@@ -20,7 +20,12 @@ const next = computed(() => deps.value.rides.nextOpenOuting())
 <template>
   <div :ref="bindReveal" class="board">
     <div class="board-section" data-reveal>
-      <MemoriasSection :module="deps.rides" :edit-clave="claveFor('rodadas')" @changed="reloadInventory" />
+      <MemoriasSection
+        :module="deps.rides"
+        :edit-clave="claveFor('rodadas')"
+        :moderate-clave="claveFor('comunidad')"
+        @changed="reloadInventory"
+      />
     </div>
     <section v-if="empty" class="board-section" :aria-label="copy.memoriesWhileTitle" data-reveal>
       <BoardHead :title="copy.memoriesWhileTitle" :lead="copy.memoriesWhileLead" />

@@ -31,6 +31,7 @@ import {
 import type { MemoryCatalogPort } from '@modules/rides/domain/ports/MemoryCatalogPort.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
 import { InMemoryMemoryCatalog } from '@modules/rides/infrastructure/InMemoryMemoryCatalog.ts'
+import { HttpMemoryComments } from '@modules/rides/infrastructure/HttpMemoryComments.ts'
 import { HttpRidesApi } from '@modules/rides/infrastructure/HttpRidesApi.ts'
 import { InMemoryOutingCatalog } from '@modules/rides/infrastructure/InMemoryOutingCatalog.ts'
 import {
@@ -103,20 +104,18 @@ function wire(
   const paola = createPaolaModule()
   const contact = paola.getPage().contact
   const club = createClubModule(clubContent, new HttpClubApi())
+  const getSessionId = () => {
+    try {
+      return localStorage.getItem(SESSION_STORAGE_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  }
   const rides = createRidesModule(
     catalog,
     memoryCatalog,
-    new HttpRidesApi({
-      email: contact.email,
-      whatsappHref: contact.whatsapp.href,
-      getSessionId: () => {
-        try {
-          return localStorage.getItem(SESSION_STORAGE_KEY) ?? ''
-        } catch {
-          return ''
-        }
-      },
-    }),
+    new HttpRidesApi({ email: contact.email, whatsappHref: contact.whatsapp.href, getSessionId }),
+    new HttpMemoryComments(getSessionId),
   )
   const voice = createVoiceModule(
     tipCatalog,

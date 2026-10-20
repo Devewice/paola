@@ -10,6 +10,7 @@ import {
 } from '@modules/rides/domain/entities/Outing.ts'
 import type { SignupDraft } from '@modules/rides/domain/entities/Ticket.ts'
 import type { MemoryCatalogPort } from '@modules/rides/domain/ports/MemoryCatalogPort.ts'
+import type { MemoryCommentsPort } from '@modules/rides/domain/ports/MemoryCommentsPort.ts'
 import type { OutingCatalogPort } from '@modules/rides/domain/ports/OutingCatalogPort.ts'
 import type { RidesApiPort } from '@modules/rides/domain/ports/RidesApiPort.ts'
 
@@ -39,12 +40,14 @@ export type RidesModule = {
   publishMemory: RidesApiPort['publishMemory']
   removeMemory: RidesApiPort['removeMemory']
   searchPlaces: RidesApiPort['searchPlaces']
+  comments: MemoryCommentsPort
 }
 
 export function createRidesModule(
   catalog: OutingCatalogPort,
   memoryCatalog: MemoryCatalogPort,
   api: RidesApiPort,
+  comments: MemoryCommentsPort,
 ): RidesModule {
   const getAgenda = new GetAgenda(catalog, today)
   const listOutings = new ListOutings(catalog, today)
@@ -70,5 +73,6 @@ export function createRidesModule(
     publishMemory: (draft: MemoryDraft, clave) => api.publishMemory(draft, clave),
     removeMemory: (memoryId, clave) => api.removeMemory(memoryId, clave),
     searchPlaces: (query, clave) => api.searchPlaces(query, clave),
+    comments,
   }
 }

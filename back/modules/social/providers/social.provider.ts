@@ -3,11 +3,15 @@ import type { Knex } from 'knex'
 import { getDb } from '../../../db/knex.js'
 import { SOCIAL_TABLES } from '../constants/social.constants.js'
 import {
+  MEMORY_COMMENT_LIKE,
+  MEMORY_COMMENT_LIMITS,
+  MEMORY_COMMENT_STATUS,
   SOCIAL_CHAT_KIND,
   SOCIAL_LIMITS,
   SOCIAL_MESSAGES,
   SOCIAL_POST_STATUS,
   SOCIAL_ROLE,
+  type MemoryCommentStatus,
 } from '../constants/social.constants.js'
 import type {
   ActivityItem,
@@ -17,6 +21,8 @@ import type {
   CommunityPost,
   FriendRow,
   MemoryComment,
+  MemoryCommentCounts,
+  OperatorMemoryComment,
   OutingMeta,
   PublicParcero,
   SessionUser,
@@ -309,30 +315,154 @@ export async function insertMemoryComment(data: {
   })
 }
 
-export async function listMemoryComments(memoryId: string): Promise<MemoryComment[]> {
-  const rows = await db()(SOCIAL_TABLES.MEMORY_COMMENTS)
-    .join(SOCIAL_TABLES.USERS, `${SOCIAL_TABLES.USERS}.id`, `${SOCIAL_TABLES.MEMORY_COMMENTS}.user_id`)
+const MC = SOCIAL_TABLES.MEMORY_COMMENTS
+const CR = SOCIAL_TABLES.COMMENT_REACTIONS
+
+const MEMORY_COMMENT_SELECT = [
+  `${MC}.id`,
+  `${MC}.memory_id`,
+  `${MC}.user_id`,
+  `${SOCIAL_TABLES.USERS}.alias as author_alias`,
+  `${MC}.body`,
+  `${MC}.status`,
+  `${MC}.parent_id`,
+  `${MC}.is_pinned`,
+  `${MC}.created_at`,
+]
+
+function isoDate(value: unknown): string {
+  if (value instanceof Date) return value.toISOString()
+  const date = new Date(String(value))
+  return Number.isNaN(date.valueOf()) ? String(value) : date.toISOString()
+}
+
+type LikeTally = { likes: number; liked: boolean }
+
+async function likesFor(ids: readonly string[], viewerId?: string): Promise<Map<string, LikeTally>> {
+  if (!ids.length) return new Map()
+  const rows = await db()(CR)
     .select(
-      `${SOCIAL_TABLES.MEMORY_COMMENTS}.id`,
-      `${SOCIAL_TABLES.MEMORY_COMMENTS}.memory_id`,
-      `${SOCIAL_TABLES.USERS}.alias as author_alias`,
-      `${SOCIAL_TABLES.MEMORY_COMMENTS}.body`,
-      `${SOCIAL_TABLES.MEMORY_COMMENTS}.status`,
-      `${SOCIAL_TABLES.MEMORY_COMMENTS}.parent_id`,
-      `${SOCIAL_TABLES.MEMORY_COMMENTS}.created_at`,
+      'comment_id',
+      db().raw('COUNT(*) as likes'),
+      db().raw('SUM(CASE WHEN user_id = ? THEN 1 ELSE 0 END) as liked', [viewerId ?? '']),
     )
-    .where(`${SOCIAL_TABLES.MEMORY_COMMENTS}.memory_id`, memoryId)
-    .andWhere(`${SOCIAL_TABLES.MEMORY_COMMENTS}.status`, 'publicado')
-    .orderBy(`${SOCIAL_TABLES.MEMORY_COMMENTS}.created_at`, 'asc')
-  return rows.map((row) => ({
+    .whereIn('comment_id', [...ids])
+    .andWhere('reaction', MEMORY_COMMENT_LIKE)
+    .groupBy('comment_id')
+  return new Map(
+    rows.map((row: Record<string, unknown>) => [String(row.comment_id), { likes: Number(row.likes), liked: Number(row.liked) > 0 }]),
+  )
+}
+
+function toMemoryComment(row: Record<string, unknown>, tally: LikeTally | undefined, viewerId?: string): MemoryComment {
+  return {
     id: String(row.id),
     memoryId: String(row.memory_id),
     authorAlias: String(row.author_alias),
     body: String(row.body),
     parentId: row.parent_id ? String(row.parent_id) : undefined,
     status: String(row.status) as MemoryComment['status'],
-    createdAt: String(row.created_at),
+    createdAt: isoDate(row.created_at),
+    isPinned: Boolean(row.is_pinned),
+    likes: tally?.likes ?? 0,
+    liked: tally?.liked ?? false,
+    mine: Boolean(viewerId) && String(row.user_id) === viewerId,
+  }
+}
+
+/** Publicados para todos; quien escribió ve también los suyos en revisión. */
+export async function listMemoryComments(memoryId: string, viewerId?: string): Promise<MemoryComment[]> {
+  const rows: Record<string, unknown>[] = await db()(MC)
+    .join(SOCIAL_TABLES.USERS, `${SOCIAL_TABLES.USERS}.id`, `${MC}.user_id`)
+    .select(...MEMORY_COMMENT_SELECT)
+    .where(`${MC}.memory_id`, memoryId)
+    .andWhere((query) => {
+      query.where(`${MC}.status`, MEMORY_COMMENT_STATUS.PUBLISHED)
+      if (viewerId) {
+        query.orWhere((mine) => mine.where(`${MC}.user_id`, viewerId).andWhere(`${MC}.status`, MEMORY_COMMENT_STATUS.PENDING))
+      }
+    })
+    .orderBy(`${MC}.is_pinned`, 'desc')
+    .orderBy(`${MC}.created_at`, 'asc')
+  const tallies = await likesFor(rows.map((row) => String(row.id)), viewerId)
+  return rows.map((row) => toMemoryComment(row, tallies.get(String(row.id)), viewerId))
+}
+
+export async function listOperatorMemoryComments(filter: {
+  status?: MemoryCommentStatus
+  memoryId?: string
+}): Promise<OperatorMemoryComment[]> {
+  const query = db()(MC)
+    .join(SOCIAL_TABLES.USERS, `${SOCIAL_TABLES.USERS}.id`, `${MC}.user_id`)
+    .join(SOCIAL_TABLES.MEMORIES, `${SOCIAL_TABLES.MEMORIES}.id`, `${MC}.memory_id`)
+    .join(SOCIAL_TABLES.OUTINGS, `${SOCIAL_TABLES.OUTINGS}.id`, `${SOCIAL_TABLES.MEMORIES}.outing_id`)
+    .select(...MEMORY_COMMENT_SELECT, `${SOCIAL_TABLES.OUTINGS}.title as memory_title`, `${SOCIAL_TABLES.MEMORIES}.outing_id`)
+    .orderBy(`${MC}.created_at`, 'desc')
+    .limit(MEMORY_COMMENT_LIMITS.OPERATOR_LIST_MAX)
+  if (filter.status) query.where(`${MC}.status`, filter.status)
+  if (filter.memoryId) query.where(`${MC}.memory_id`, filter.memoryId)
+  const rows: Record<string, unknown>[] = await query
+  const tallies = await likesFor(rows.map((row) => String(row.id)))
+  return rows.map((row) => ({
+    ...toMemoryComment(row, tallies.get(String(row.id))),
+    memoryTitle: String(row.memory_title),
+    outingId: String(row.outing_id),
   }))
+}
+
+export async function countMemoryCommentsByStatus(memoryId?: string): Promise<MemoryCommentCounts> {
+  const query = db()(MC).select('status').count({ total: '*' }).groupBy('status')
+  if (memoryId) query.where('memory_id', memoryId)
+  const rows: Record<string, unknown>[] = await query
+  const counts: MemoryCommentCounts = { en_revision: 0, publicado: 0, rechazado: 0, oculto: 0 }
+  for (const row of rows) {
+    const status = String(row.status) as keyof MemoryCommentCounts
+    if (status in counts) counts[status] = Number(row.total)
+  }
+  return counts
+}
+
+export async function findMemoryComment(
+  id: string,
+): Promise<{ id: string; memoryId: string; parentId?: string; status: MemoryCommentStatus } | null> {
+  const row = await db()(MC).select('id', 'memory_id', 'parent_id', 'status').where('id', id).first()
+  if (!row) return null
+  return {
+    id: String(row.id),
+    memoryId: String(row.memory_id),
+    parentId: row.parent_id ? String(row.parent_id) : undefined,
+    status: String(row.status) as MemoryCommentStatus,
+  }
+}
+
+export async function memoryExists(memoryId: string): Promise<boolean> {
+  return Boolean(await db()(SOCIAL_TABLES.MEMORIES).select('id').where('id', memoryId).first())
+}
+
+export async function setMemoryCommentStatus(id: string, status: MemoryCommentStatus): Promise<void> {
+  await db()(MC).where('id', id).update({ status })
+}
+
+export async function toggleMemoryCommentPinned(id: string): Promise<void> {
+  await db()(MC).where('id', id).update({ is_pinned: db().raw('NOT is_pinned') })
+}
+
+export async function deleteMemoryComment(id: string): Promise<void> {
+  await db()(MC).where('id', id).delete()
+}
+
+/** Da o quita el like; devuelve cómo quedó. */
+export async function toggleMemoryCommentLike(commentId: string, userId: string): Promise<LikeTally> {
+  return db().transaction(async (trx) => {
+    const existing = await trx(CR)
+      .select('id')
+      .where({ comment_id: commentId, user_id: userId, reaction: MEMORY_COMMENT_LIKE })
+      .first()
+    if (existing) await trx(CR).where('id', existing.id).delete()
+    else await trx(CR).insert({ id: randomUUID(), comment_id: commentId, user_id: userId, reaction: MEMORY_COMMENT_LIKE })
+    const total = await trx(CR).where({ comment_id: commentId, reaction: MEMORY_COMMENT_LIKE }).count({ likes: '*' }).first()
+    return { likes: Number(total?.likes ?? 0), liked: !existing }
+  })
 }
 
 export async function insertCommentReaction(data: { id: string; commentId: string; userId: string; reaction: string }): Promise<void> {

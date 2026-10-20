@@ -77,7 +77,7 @@ Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 ## Social / feed / cuenta
 
-`FeedPost` `EngageBar` `HomeFeedWidget` · `Comment*` (lista, compose, replies, mod) · `CommunityCard` `CommunityDir` `CommunityScope` · `ChatLayout` `ChatBubble` `WaBubble` · `ProfileHead` `ProfilePublic` `Avatar` `AvatarStack` `Follow` `FriendRow` · `AuthPanel` `AccountTeaser` `UserPanel` `UserMenuDropdown` `LoginStrip`
+`FeedPost` `EngageBar` `HomeFeedWidget` · `Comment*` (lista, compose, replies, mod; `Comment` acepta `pinnedLabel` y slots `head` / `actions` / default para chips, likes, moderación y respuestas) · `CommunityCard` `CommunityDir` `CommunityScope` · `ChatLayout` `ChatBubble` `WaBubble` · `ProfileHead` `ProfilePublic` `Avatar` `AvatarStack` `Follow` `FriendRow` · `AuthPanel` `AccountTeaser` `UserPanel` `UserMenuDropdown` `LoginStrip`
 
 ## Tu voz
 

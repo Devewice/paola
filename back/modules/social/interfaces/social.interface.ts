@@ -47,6 +47,25 @@ export interface MemoryComment {
   body: string
   status: 'en_revision' | 'publicado' | 'rechazado' | 'oculto'
   createdAt: string
+  isPinned: boolean
+  likes: number
+  /** Quien mira le dio like. */
+  liked: boolean
+  /** Lo escribió quien mira (ve sus comentarios en revisión). */
+  mine: boolean
+}
+
+/** Fila del moderador: incluye a qué memoria pertenece. */
+export interface OperatorMemoryComment extends MemoryComment {
+  memoryTitle: string
+  outingId: string
+}
+
+export interface MemoryCommentCounts {
+  en_revision: number
+  publicado: number
+  rechazado: number
+  oculto: number
 }
 
 export interface ChatMessage {

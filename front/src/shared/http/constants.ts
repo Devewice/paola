@@ -53,6 +53,7 @@ export const API = {
   OPERAR_ALLIANCES: '/api/operar/alliances',
   OPERAR_MEMBERS: '/api/operar/members',
   OPERAR_MEMORIES: '/api/operar/memories',
+  OPERAR_MEMORY_COMMENTS: '/api/operar/memory-comments',
   OPERAR_PRODUCTS: '/api/operar/products',
   OPERAR_SERVICES: '/api/operar/services',
   OPERAR_ORDERS: '/api/operar/orders',
@@ -182,6 +183,22 @@ export function apiOperarReportStatus(id: string): string {
 
 export function apiMemoryComments(id: string): string {
   return `${API.MEMORIES}/${encodeURIComponent(id)}/comments`
+}
+
+export function apiMemoryCommentLike(id: string): string {
+  return `/api/memory-comments/${encodeURIComponent(id)}/like`
+}
+
+export function apiOperarMemoryComment(id: string, action: 'status' | 'pin' | 'delete'): string {
+  return `${API.OPERAR_MEMORY_COMMENTS}/${encodeURIComponent(id)}/${action}`
+}
+
+export function apiOperarMemoryComments(filter: { status?: string; memoryId?: string }): string {
+  const query = new URLSearchParams()
+  if (filter.status) query.set('status', filter.status)
+  if (filter.memoryId) query.set('memoryId', filter.memoryId)
+  const search = query.toString()
+  return search ? `${API.OPERAR_MEMORY_COMMENTS}?${search}` : API.OPERAR_MEMORY_COMMENTS
 }
 
 export function apiCommunityJoin(id: string): string {

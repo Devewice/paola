@@ -18,7 +18,12 @@ import {
   highlightPost,
   joinCommunity,
   leaveCommunity,
+  likeMemoryComment,
   loginUser,
+  moderateMemoryComment,
+  pinMemoryComment,
+  readOperatorMemoryComments,
+  removeMemoryComment,
   pinOutingChatNotice,
   pinPost,
   reactToComment,
@@ -147,8 +152,55 @@ export const feedController: RouteHandler = async (request, response) => {
   sendJson(response, HTTP_STATUS.OK, await readFeed(sessionId(request)))
 }
 
-export const listMemoryCommentsController: RouteHandler = async (_request, response, _url, params) => {
-  sendJson(response, HTTP_STATUS.OK, await readMemoryComments(params.id ?? ''))
+export const listMemoryCommentsController: RouteHandler = async (request, response, _url, params) => {
+  sendJson(response, HTTP_STATUS.OK, await readMemoryComments(params.id ?? '', sessionId(request)))
+}
+
+export const likeMemoryCommentController: RouteHandler = async (request, response, _url, params) => {
+  const result = await likeMemoryComment(sessionId(request), params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, result)
+}
+
+export const operatorMemoryCommentsController: RouteHandler = async (request, response, url) => {
+  if (!(await requirePermission(request, response, PERMISSION.COMUNIDAD))) return
+  sendJson(response, HTTP_STATUS.OK, await readOperatorMemoryComments(url.searchParams))
+}
+
+export const moderateMemoryCommentController: RouteHandler = async (request, response, _url, params) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
+  const result = await moderateMemoryComment(params.id ?? '', body)
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, result)
+}
+
+export const pinMemoryCommentController: RouteHandler = async (request, response, _url, params) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
+  const result = await pinMemoryComment(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, result)
+}
+
+export const deleteMemoryCommentController: RouteHandler = async (request, response, _url, params) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body || !(await requirePermission(request, response, PERMISSION.COMUNIDAD, body))) return
+  const result = await removeMemoryComment(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, result)
 }
 
 export const createMemoryCommentController: RouteHandler = async (request, response, _url, params) => {

@@ -29,6 +29,11 @@ export const SOCIAL_ROUTES = {
   VISIBILITY: '/api/me/visibility',
   PROFILE: '/api/parcero/:alias',
   MEMORY_COMMENTS: '/api/memories/:id/comments',
+  MEMORY_COMMENT_LIKE: '/api/memory-comments/:id/like',
+  OPERAR_MEMORY_COMMENTS: '/api/operar/memory-comments',
+  OPERAR_MEMORY_COMMENT_STATUS: '/api/operar/memory-comments/:id/status',
+  OPERAR_MEMORY_COMMENT_PIN: '/api/operar/memory-comments/:id/pin',
+  OPERAR_MEMORY_COMMENT_DELETE: '/api/operar/memory-comments/:id/delete',
   COMMENT_REACTION: '/api/comments/:id/reactions',
   COMMUNITIES: '/api/communities',
   COMMUNITY_JOIN: '/api/communities/:id/join',
@@ -70,6 +75,25 @@ export const SOCIAL_CHAT_KIND = {
 export const SOCIAL_POST_STATUS = {
   PUBLISHED: 'publicado',
   HIDDEN: 'oculto',
+} as const
+
+export const MEMORY_COMMENT_STATUS = {
+  PENDING: 'en_revision',
+  PUBLISHED: 'publicado',
+  REJECTED: 'rechazado',
+  HIDDEN: 'oculto',
+} as const
+
+export type MemoryCommentStatus = (typeof MEMORY_COMMENT_STATUS)[keyof typeof MEMORY_COMMENT_STATUS]
+
+export const MEMORY_COMMENT_STATUS_SET = new Set<string>(Object.values(MEMORY_COMMENT_STATUS))
+
+/** Reacción única de los comentarios de memorias. */
+export const MEMORY_COMMENT_LIKE = 'like'
+
+export const MEMORY_COMMENT_LIMITS = {
+  OPERATOR_LIST_MAX: 300,
+  BODY_MAX: 1000,
 } as const
 
 export const SOCIAL_ROLE = {
@@ -115,5 +139,9 @@ export const SOCIAL_MESSAGES = {
   COMMUNITY_NOT_FOUND: 'Esa comunidad no está.',
   MODERATE_FORBIDDEN: 'Solo Paola o un moderador de esa comunidad puede hacer eso.',
   REACTION_INVALID: 'Esa reacción no existe.',
+  COMMENT_NOT_FOUND: 'Ese comentario no está.',
+  COMMENT_STATUS_INVALID: 'Ese estado no existe.',
+  COMMENT_TOO_LONG: 'El comentario es muy largo.',
+  REPLY_ONLY_ONE_LEVEL: 'Solo se responde a comentarios, no a respuestas.',
   PINNED_AUTHOR: 'Paola',
 } as const
