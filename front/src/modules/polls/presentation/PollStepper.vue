@@ -180,7 +180,13 @@ function irisClose(instant = false): Promise<void> {
   gsap.set(el, { '--x': `${x}px`, '--y': `${y}px`, '--r': instant ? '0px' : `${reach(x, y)}px`, autoAlpha: 1 })
   if (instant) return Promise.resolve()
   return new Promise((resolve) => {
-    gsap.to(el, { '--r': '0px', duration: 0.28, ease: 'power3.in', onComplete: () => resolve() })
+    gsap.to(el, {
+      '--r': '0px',
+      duration: 0.28,
+      ease: 'power3.in',
+      onComplete: () => resolve(),
+      onInterrupt: () => resolve(),
+    })
   })
 }
 
@@ -203,22 +209,44 @@ function irisOpen(): Promise<void> {
         gsap.set(el, { autoAlpha: 0 })
         resolve()
       },
+      onInterrupt: () => resolve(),
     })
   })
 }
 
+/** Lo que se pidió mientras corría el obturador: se cumple al terminar, gana el último pedido. */
+let pendingKey: string | null = null
+let leavingIntro = false
+
 async function goTo(target: number, fromBlack = false) {
-  if (!steps.value[target] || moving) return
+  const destination = steps.value[target]
+  if (!destination) return
+  if (moving) {
+    pendingKey = destination.key
+    return
+  }
   if (!cinematic()) {
     commit(target)
     return
   }
   moving = true
-  await irisClose(fromBlack)
-  commit(target)
-  await nextTick()
-  await irisOpen()
-  moving = false
+  try {
+    await irisClose(fromBlack)
+    commit(target)
+    await nextTick()
+    await irisOpen()
+  } finally {
+    moving = false
+  }
+  flushPending()
+}
+
+function flushPending() {
+  const key = pendingKey
+  pendingKey = null
+  if (!key || key === currentKey.value) return
+  const target = steps.value.findIndex((item) => item.key === key)
+  if (target >= 0) void goTo(target)
 }
 
 function onPointerDown(event: PointerEvent) {
@@ -227,16 +255,21 @@ function onPointerDown(event: PointerEvent) {
 
 async function next() {
   window.clearTimeout(advanceTimer)
-  if (finale.value) return
+  if (finale.value || leavingIntro) return
   if (step.value.type === 'submit') {
-    void submit()
+    if (!moving) void submit()
     return
   }
   if (step.value.type === 'intro') {
-    if (intro.value) await intro.value.leave()
+    leavingIntro = true
+    try {
+      if (intro.value) await intro.value.leave()
+    } finally {
+      leavingIntro = false
+    }
     introSeen.value = true
     startedAt = Date.now()
-    void goTo(index.value + 1, true)
+    if (step.value.type === 'intro') void goTo(index.value + 1, true)
     return
   }
   if (!canAdvance.value) {
