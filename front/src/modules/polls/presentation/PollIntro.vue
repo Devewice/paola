@@ -142,7 +142,7 @@ function build(el: HTMLElement): void {
     .from(q('.poll-intro__fact'), { scale: 0.6, opacity: 0, duration: 0.4, stagger: 0.08, ease: 'back.out(2.2)' }, 1.5)
     .from(q('.poll-intro__actions'), { y: 24, opacity: 0, duration: 0.55, ease: 'back.out(1.6)' }, 1.7)
     .from(q('.poll-intro__line'), { y: 10, opacity: 0, scale: 0.9, duration: 0.4, ease: 'back.out(2)' }, 1.8)
-    .fromTo(q('.poll-intro__streak'), { xPercent: -120, opacity: 0.9 }, { xPercent: 260, duration: 1.1, ease: 'power2.inOut' }, 1.6)
+    .fromTo(q('.poll-intro__streak'), { xPercent: -120, opacity: 0.9 }, { xPercent: 560, opacity: 0, duration: 1.2, ease: 'power2.inOut' }, 1.6)
     .to(q('.poll-intro__skip'), { opacity: 0, duration: 0.3 }, '>-0.3')
   if (props.replay) timeline.timeScale(intro.replaySpeed)
 }

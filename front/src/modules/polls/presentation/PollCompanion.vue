@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import gsap from 'gsap'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { POLLS_COMPANION_LINES, POLLS_STAGE } from '@modules/polls/constants/copy.ts'
 import { prefersReducedMotion } from '@shared/motion/prefersReducedMotion.ts'
 
@@ -10,6 +10,8 @@ const props = defineProps<{
   /** Cambia en cada pantalla para rotar la pose. */
   beat: number
   line?: string
+  /** Contenedor de la encuesta: en escritorio la cámara no baja de su borde inferior. */
+  boundary?: HTMLElement | null
 }>()
 
 const BUBBLE_MS = 3200
@@ -41,13 +43,43 @@ function snap() {
   gsap.fromTo(q('.poll-companion__pose'), { rotate: -10, scale: 0.86 }, { rotate: 0, scale: 1, duration: 0.5, ease: 'back.out(2.4)' })
 }
 
+let liftFrame = 0
+
+/** Si el pie del sitio entra en pantalla, la cámara sube con el final de la encuesta en vez de quedar debajo. */
+function measureLift() {
+  liftFrame = 0
+  const el = root.value
+  const box = props.boundary?.getBoundingClientRect()
+  if (!el) return
+  const lift = box ? Math.max(0, Math.round(window.innerHeight - box.bottom)) : 0
+  el.style.setProperty('--lift', `${lift}px`)
+}
+
+function scheduleLift() {
+  if (!liftFrame) liftFrame = window.requestAnimationFrame(measureLift)
+}
+
 watch(text, openBubble, { immediate: true })
 watch(
   () => props.beat,
-  () => snap(),
+  () => {
+    snap()
+    void nextTick(scheduleLift)
+  },
 )
 
-onBeforeUnmount(() => window.clearTimeout(bubbleTimer))
+onMounted(() => {
+  window.addEventListener('scroll', scheduleLift, { passive: true })
+  window.addEventListener('resize', scheduleLift)
+  scheduleLift()
+})
+
+onBeforeUnmount(() => {
+  window.clearTimeout(bubbleTimer)
+  window.cancelAnimationFrame(liftFrame)
+  window.removeEventListener('scroll', scheduleLift)
+  window.removeEventListener('resize', scheduleLift)
+})
 
 defineExpose({ snap })
 </script>
@@ -70,7 +102,7 @@ defineExpose({ snap })
 .poll-companion {
   position: fixed;
   right: clamp(12px, 3vw, 32px);
-  bottom: clamp(12px, 3vw, 32px);
+  bottom: calc(clamp(12px, 3vw, 32px) + var(--lift, 0px));
   z-index: 30;
   display: flex;
   align-items: flex-end;
@@ -154,8 +186,8 @@ defineExpose({ snap })
 @keyframes poll-rec {
   50% { opacity: 0.2; }
 }
-/* Escritorio: globo encima de la cámara, para no invadir la columna de la pregunta. */
-@media (min-width: 960px) {
+/* Escritorio ancho: flota a la derecha, fuera de la columna, con el globo encima. */
+@media (min-width: 1280px) {
   .poll-companion {
     flex-direction: column;
     align-items: flex-end;
@@ -165,8 +197,8 @@ defineExpose({ snap })
     margin: 0;
   }
 }
-/* Móvil: acoplada en la barra de Atrás/Siguiente, nunca encima de un botón u opción. */
-@media (max-width: 959px) {
+/* Móvil y escritorio angosto: acoplada en la barra de Atrás/Siguiente, nunca encima de un botón u opción. */
+@media (max-width: 1279px) {
   .poll-companion {
     position: relative;
     right: auto;

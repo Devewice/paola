@@ -23,6 +23,7 @@ import {
   type PollStep,
 } from '@modules/polls/domain/entities/Poll.ts'
 import PollCompanion from '@modules/polls/presentation/PollCompanion.vue'
+import PollFinale from '@modules/polls/presentation/PollFinale.vue'
 import PollIntro from '@modules/polls/presentation/PollIntro.vue'
 import PollQuestionField from '@modules/polls/presentation/PollQuestionField.vue'
 import PollSectionSplash from '@modules/polls/presentation/PollSectionSplash.vue'
@@ -53,7 +54,13 @@ const stage = ref<HTMLElement | null>(null)
 const heading = ref<HTMLElement | null>(null)
 const field = ref<InstanceType<typeof PollQuestionField> | null>(null)
 const companion = ref<InstanceType<typeof PollCompanion> | null>(null)
+const iris = ref<HTMLElement | null>(null)
+const finale = ref<{ answered: number; total: number; elapsed: number; poll: Poll } | null>(null)
 let advanceTimer = 0
+let startedAt = Date.now()
+let moving = false
+/** Donde tocó por última vez: el iris se cierra hacia ahí. */
+let point: { x: number; y: number } | null = null
 /** Alto de la barra de navegación fija del sitio más un respiro. */
 const SCROLL_OFFSET = 88
 
@@ -139,7 +146,7 @@ const isSkip = computed(
   () => step.value.type === 'question' && !step.value.question.required && !isAnswered(step.value.question, answerOf(step.value.question)),
 )
 
-function goTo(target: number) {
+function commit(target: number) {
   const next = steps.value[target]
   if (!next) return
   direction.value = target >= index.value ? 1 : -1
@@ -147,8 +154,80 @@ function goTo(target: number) {
   currentKey.value = next.key
 }
 
+/** Pantalla completa con obturador: no en la tarjeta del listado ni con movimiento reducido. */
+function cinematic(): boolean {
+  return !props.compact && !prefersReducedMotion() && Boolean(iris.value)
+}
+
+function reach(x: number, y: number): number {
+  return Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y)) + 40
+}
+
+function closeOrigin(): { x: number; y: number } {
+  if (point) return point
+  const button = root.value?.querySelector('.poll-stepper__nav--dock > :last-child, .poll-stepper__hero .btn-primary--hero')
+  const box = button?.getBoundingClientRect()
+  return box ? { x: box.left + box.width / 2, y: box.top + box.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+}
+
+/** El iris se cierra hacia donde tocó; `instant` cuando la pantalla ya quedó negra (salida de la portada). */
+function irisClose(instant = false): Promise<void> {
+  const el = iris.value
+  if (!el) return Promise.resolve()
+  const { x, y } = closeOrigin()
+  point = null
+  gsap.killTweensOf(el)
+  gsap.set(el, { '--x': `${x}px`, '--y': `${y}px`, '--r': instant ? '0px' : `${reach(x, y)}px`, autoAlpha: 1 })
+  if (instant) return Promise.resolve()
+  return new Promise((resolve) => {
+    gsap.to(el, { '--r': '0px', duration: 0.28, ease: 'power3.in', onComplete: () => resolve() })
+  })
+}
+
+/** Se abre en el centro de lo que quedó a la vista. */
+function irisOpen(): Promise<void> {
+  const el = iris.value
+  if (!el) return Promise.resolve()
+  const box = stage.value?.getBoundingClientRect()
+  const x = box ? box.left + box.width / 2 : window.innerWidth / 2
+  const top = box ? Math.max(box.top, 0) : 0
+  const bottom = box ? Math.min(box.bottom, window.innerHeight) : window.innerHeight
+  const y = bottom > top ? (top + bottom) / 2 : window.innerHeight / 2
+  gsap.set(el, { '--x': `${x}px`, '--y': `${y}px`, '--r': '0px', autoAlpha: 1 })
+  return new Promise((resolve) => {
+    gsap.to(el, {
+      '--r': `${reach(x, y)}px`,
+      duration: 0.48,
+      ease: 'power3.out',
+      onComplete: () => {
+        gsap.set(el, { autoAlpha: 0 })
+        resolve()
+      },
+    })
+  })
+}
+
+async function goTo(target: number, fromBlack = false) {
+  if (!steps.value[target] || moving) return
+  if (!cinematic()) {
+    commit(target)
+    return
+  }
+  moving = true
+  await irisClose(fromBlack)
+  commit(target)
+  await nextTick()
+  await irisOpen()
+  moving = false
+}
+
+function onPointerDown(event: PointerEvent) {
+  point = { x: event.clientX, y: event.clientY }
+}
+
 async function next() {
   window.clearTimeout(advanceTimer)
+  if (finale.value) return
   if (step.value.type === 'submit') {
     void submit()
     return
@@ -156,7 +235,8 @@ async function next() {
   if (step.value.type === 'intro') {
     if (intro.value) await intro.value.leave()
     introSeen.value = true
-    goTo(index.value + 1)
+    startedAt = Date.now()
+    void goTo(index.value + 1, true)
     return
   }
   if (!canAdvance.value) {
@@ -176,7 +256,8 @@ function back() {
 
 function onIntroStart() {
   introSeen.value = true
-  if (step.value.type === 'intro') goTo(index.value + 1)
+  startedAt = Date.now()
+  if (step.value.type === 'intro') void goTo(index.value + 1, true)
 }
 
 function onSectionDone(key: string) {
@@ -193,7 +274,7 @@ function onAdvance() {
 }
 
 async function submit() {
-  if (sending.value) return
+  if (sending.value || finale.value) return
   sending.value = true
   const result = await props.module.submit(props.poll, ballot.value, signedIn)
   sending.value = false
@@ -202,8 +283,32 @@ async function submit() {
     return
   }
   props.module.drafts.clear(props.poll.id)
-  showToast(copy.voted, 'ok')
-  emit('voted', result.value)
+  if (props.compact) {
+    showToast(copy.voted, 'ok')
+    emit('voted', result.value)
+    return
+  }
+  const scene = {
+    answered: answeredCount.value,
+    total: questionSteps.value.length,
+    elapsed: Date.now() - startedAt,
+    poll: result.value,
+  }
+  if (!cinematic()) {
+    finale.value = scene
+    return
+  }
+  moving = true
+  await irisClose()
+  finale.value = scene
+  await nextTick()
+  window.scrollTo({ top: Math.max(0, window.scrollY + (root.value?.getBoundingClientRect().top ?? 0) - SCROLL_OFFSET) })
+  await irisOpen()
+  moving = false
+}
+
+function showResults() {
+  if (finale.value) emit('voted', finale.value.poll)
 }
 
 function isTyping(target: EventTarget | null): boolean {
@@ -213,7 +318,7 @@ function isTyping(target: EventTarget | null): boolean {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return
+  if (finale.value || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return
   const typing = isTyping(event.target)
   if (event.key === 'Enter') {
     if (typing && (event.target as HTMLElement).tagName === 'TEXTAREA' && !event.shiftKey) return
@@ -231,14 +336,33 @@ watch(currentKey, async () => {
   await nextTick()
   heading.value?.focus({ preventScroll: true })
   const top = root.value?.getBoundingClientRect().top ?? 0
+  const film = cinematic()
   if (top < 0 || (!props.compact && top > window.innerHeight * 0.4)) {
     window.scrollTo({
       top: Math.max(0, window.scrollY + top - SCROLL_OFFSET),
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      behavior: prefersReducedMotion() || film ? 'auto' : 'smooth',
     })
   }
   if (step.value.type === 'section' || !stage.value || prefersReducedMotion()) return
   if (step.value.type === 'intro' && !props.compact) return
+  if (film) {
+    const q = gsap.utils.selector(stage.value)
+    gsap.fromTo(
+      q('.poll-stepper__corner'),
+      { scale: 1.35, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'back.out(2.2)', delay: 0.12 },
+    )
+    gsap.from(q('.poll-stepper__q, .poll-stepper__q ~ *, .poll-stepper__hero-copy > *'), {
+      y: 18,
+      opacity: 0,
+      duration: 0.5,
+      stagger: 0.07,
+      delay: 0.15,
+      ease: MOTION.ease.enter,
+      clearProps: 'transform,opacity',
+    })
+    return
+  }
   /* Sin transform residual: la portada usa capas fijas a toda la pantalla. */
   gsap.fromTo(
     stage.value,
@@ -264,9 +388,10 @@ onBeforeUnmount(() => {
   <section
     ref="root"
     class="poll-stepper"
-    :class="[`poll-stepper--${step.type}`, { 'poll-stepper--compact': compact }]"
+    :class="[finale ? 'poll-stepper--finale' : `poll-stepper--${step.type}`, { 'poll-stepper--compact': compact }]"
     :aria-label="poll.title"
     @keydown="onLocalKeydown"
+    @pointerdown="onPointerDown"
   >
     <div v-if="!compact" class="poll-stepper__backdrop" aria-hidden="true">
       <Transition name="poll-photo">
@@ -275,9 +400,12 @@ onBeforeUnmount(() => {
       <span class="poll-stepper__veil" />
     </div>
 
-    <header v-if="step.type !== 'intro'" class="poll-stepper__bar">
+    <header v-if="step.type !== 'intro' && !finale" class="poll-stepper__bar">
       <div class="poll-stepper__meta">
-        <span class="poll-stepper__section">{{ sectionLabel ?? poll.title }}</span>
+        <span class="poll-stepper__section">
+          <span v-if="!compact" class="poll-stepper__rec" aria-hidden="true" />
+          {{ sectionLabel ?? poll.title }}
+        </span>
         <span v-if="step.type === 'question' && !isGate" class="poll-stepper__count">{{ remainingLabel }}</span>
       </div>
       <div
@@ -293,9 +421,31 @@ onBeforeUnmount(() => {
 
     <div class="poll-stepper__body">
     <div ref="stage" class="poll-stepper__stage">
+      <span
+        v-if="!compact && !finale && (step.type === 'question' || step.type === 'submit')"
+        class="poll-stepper__finder"
+        aria-hidden="true"
+      >
+        <span class="poll-stepper__corner poll-stepper__corner--tl" />
+        <span class="poll-stepper__corner poll-stepper__corner--tr" />
+        <span class="poll-stepper__corner poll-stepper__corner--bl" />
+        <span class="poll-stepper__corner poll-stepper__corner--br" />
+      </span>
+
+      <!-- Cierre -->
+      <PollFinale
+        v-if="finale"
+        :poll-title="poll.title"
+        :answered="finale.answered"
+        :total="finale.total"
+        :elapsed="finale.elapsed"
+        :has-results="Boolean(finale.poll.results)"
+        @results="showResults"
+      />
+
       <!-- Portada -->
       <PollIntro
-        v-if="step.type === 'intro' && !compact"
+        v-else-if="step.type === 'intro' && !compact"
         ref="intro"
         :title="poll.title"
         :description="poll.description"
@@ -349,7 +499,7 @@ onBeforeUnmount(() => {
       <!-- Envío -->
       <div v-else class="poll-stepper__hero">
         <div class="poll-stepper__hero-copy">
-          <p class="poll-stepper__kicker">{{ copy.kicker }}</p>
+          <p class="poll-stepper__kicker">{{ compact ? copy.kicker : copy.stepSubmitKicker }}</p>
           <h2 ref="heading" class="poll-stepper__title" tabindex="-1">{{ copy.stepSubmitTitle }}</h2>
           <p class="poll-stepper__lead">{{ filteredOut ? copy.stepGateEnd : copy.stepSubmitLead }}</p>
           <p v-if="!filteredOut" class="poll-stepper__facts">
@@ -370,16 +520,17 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <footer v-if="step.type === 'question'" class="poll-stepper__nav poll-stepper__nav--dock">
+    <footer v-if="step.type === 'question' && !finale" class="poll-stepper__nav poll-stepper__nav--dock">
       <Button variant="ghost" @click="back">{{ copy.stepBack }}</Button>
       <div class="poll-stepper__dock-mid">
         <p v-if="nudge" class="poll-stepper__nudge" role="status">{{ copy.stepRequired }}</p>
         <p v-else class="poll-stepper__hint poll-stepper__hint--keys">{{ copy.stepKeys }}</p>
-        <PollCompanion v-if="!compact" ref="companion" :progress="progress / 100" :beat="index" />
+        <PollCompanion v-if="!compact" ref="companion" :progress="progress / 100" :beat="index" :boundary="root" />
       </div>
       <Button :variant="isSkip ? 'ghost' : 'primary'" @click="next">{{ isSkip ? copy.stepSkip : copy.stepNext }}</Button>
     </footer>
     </div>
+    <span v-if="!compact" ref="iris" class="poll-stepper__iris" aria-hidden="true" />
   </section>
 </template>
 
@@ -452,6 +603,9 @@ onBeforeUnmount(() => {
   to { transform: scale(1.12) translate3d(-2%, -1.5%, 0); }
 }
 
+.poll-stepper--submit:not(.poll-stepper--compact) .poll-stepper__stage {
+  padding: clamp(20px, 4vw, 36px);
+}
 .poll-stepper__hero {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
@@ -596,9 +750,71 @@ onBeforeUnmount(() => {
 }
 
 .poll-stepper__stage {
+  position: relative;
   display: grid;
   gap: 20px;
   align-content: start;
+}
+
+/* Obturador entre pantallas: agujero que se cierra y se abre, con borde cian de lente. */
+.poll-stepper__iris {
+  --x: 50vw;
+  --y: 50vh;
+  --r: 0px;
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    transparent var(--r),
+    rgba(72, 180, 252, 0.9) calc(var(--r) + 1px),
+    rgba(0, 16, 40, 0.98) calc(var(--r) + 6px),
+    #05070c calc(var(--r) + 70px)
+  );
+}
+
+/* Visor que enfoca cada pregunta */
+.poll-stepper__finder {
+  position: absolute;
+  inset: 8px;
+  z-index: 1;
+  pointer-events: none;
+}
+.poll-stepper__corner {
+  position: absolute;
+  width: 22px;
+  aspect-ratio: 1;
+  border: 0 solid rgba(72, 180, 252, 0.85);
+  filter: drop-shadow(0 0 6px rgba(72, 180, 252, 0.6));
+}
+.poll-stepper__corner--tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 10px; }
+.poll-stepper__corner--tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 10px; }
+.poll-stepper__corner--bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 10px; }
+.poll-stepper__corner--br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 10px; }
+.poll-stepper__section {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.poll-stepper__rec {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b3b;
+  box-shadow: 0 0 8px #ff3b3b;
+  animation: poll-stepper-rec 1.2s steps(2, jump-none) infinite;
+}
+@keyframes poll-stepper-rec {
+  50% { opacity: 0.15; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .poll-stepper__rec {
+    animation: none;
+  }
 }
 .poll-stepper__kicker {
   margin: 0;

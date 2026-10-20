@@ -40,6 +40,34 @@ export const POLLS_INTRO = {
   replaySpeed: 3,
 } as const
 
+/** Cierre de película al enviar: claqueta, toma guardada y créditos. */
+export const POLLS_FINALE = {
+  stop: 'STOP',
+  hud: 'Toma final',
+  clapScene: 'Escena final',
+  clapTake: 'Toma 1',
+  clap: 'Corte',
+  kicker: 'Fin de la grabación',
+  title: 'Toma guardada',
+  lead: 'Tu voz ya quedó en la película del parche. Con esto armamos lo que sigue.',
+  answered: 'Respondidas',
+  time: 'Tiempo en cámara',
+  camLine: '¡Quedó! Gracias por rodar conmigo.',
+  credits: [
+    { role: 'Protagonista', name: 'Tú' },
+    { role: 'Cámara', name: 'Yo' },
+    { role: 'Producción', name: 'Paola Biker' },
+    { role: 'Locación', name: 'El parche' },
+  ],
+  resultsCta: 'Ver cómo va',
+  moreCta: 'Más encuestas',
+  shareCta: 'Compartir',
+  shareText: (title: string) => `Respondí «${title}» en Paola Biker. Súmale tu voz:`,
+  shareCopied: 'Enlace copiado.',
+  /** Segundos entre el giro de celebración y el saludo de la cámara. */
+  celebrateGap: 2.8,
+} as const
+
 /** Lo que dice la cámara según el avance (0 a 1). */
 export const POLLS_COMPANION_LINES: readonly { readonly from: number; readonly text: string }[] = [
   { from: 0, text: 'Arranquemos. Yo voy grabando.' },
@@ -126,6 +154,7 @@ export const POLLS_COPY = {
   stepKeys: 'Usa los números para elegir y Enter para seguir.',
   stepMinutes: 'min aprox.',
   stepQuestions: 'preguntas',
+  stepSubmitKicker: 'Última toma',
   stepSubmitTitle: 'Eso es todo',
   stepSubmitLead: 'Revisa lo que quieras con «Atrás» y envía cuando estés listo.',
   stepAnswered: 'respondidas',
