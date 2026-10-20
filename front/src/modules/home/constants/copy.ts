@@ -6,6 +6,8 @@ export const HOME_FIGURES = {
   TIP: MASCOT.EN_PIE,
   MEMORY: MASCOT.LENTE,
   PAOLA: '/kit-assets/paola-hero.png',
+  /** Ocupa el cuadro del panel del hero cuando la salida aún no tiene foto. */
+  PANEL_FALLBACK: '/kit-assets/paola-moto.png',
   PULSE: MASCOT.X5,
 } as const
 

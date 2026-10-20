@@ -5,6 +5,7 @@ import { getAppDependencies, inventoryVersion, refreshInventory } from '@app/boo
 import { PARCHESE_COPY, PARCHESE_HERO_PHOTO, PARCHESE_NAV } from '@app/constants/parchese.ts'
 import { PARCHESE_CONTEXT, shortDate } from '@app/shell/parchese/context.ts'
 import type { Poll } from '@modules/polls/index.ts'
+import { RIDES_KIND_LABEL } from '@modules/rides/index.ts'
 import { usePageReveal } from '@shared/motion/usePageReveal.ts'
 import AficheHero from '@ui/AficheHero.vue'
 import Button from '@ui/Button.vue'
@@ -36,10 +37,16 @@ const rideHero = computed(() => {
   if (route.name !== 'parchese-rodada') return null
   const outing = rides.value.getOuting(String(route.params.id ?? ''))
   if (!outing) return { title: copy.navAgenda, ...copy.heroRides }
+  const done = outing.status === 'realizado'
+  const tintada = outing.kind === 'tintada'
+  const plate = tintada
+    ? done ? copy.heroTintadaDonePlate : copy.heroTintadaPlate
+    : done ? copy.heroRideDonePlate : copy.heroRidePlate
   return {
     title: outing.title,
-    plate: copy.heroRidePlate,
-    lead: `${shortDate(outing.date)} · ${outing.meetingPoint}`,
+    plate,
+    lead: `${RIDES_KIND_LABEL[outing.kind]} · ${shortDate(outing.date)}`,
+    photo: outing.cover?.src,
   }
 })
 const subpage = computed(() => rideHero.value ?? SUBPAGE_HEROES[String(route.name)] ?? null)
@@ -79,7 +86,7 @@ provide(PARCHESE_CONTEXT, { deps, pollsFor, orphanPolls, onVoted, reloadPolls, r
       :kicker="copy.title"
       :title="subpage.title"
       :plate="subpage.plate"
-      :photo-src="PARCHESE_HERO_PHOTO"
+      :photo-src="rideHero?.photo ?? PARCHESE_HERO_PHOTO"
     >
       <template #lead>{{ subpage.lead }}</template>
     </AficheHero>

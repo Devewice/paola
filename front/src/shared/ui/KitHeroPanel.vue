@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BrushSplash from '@ui/BrushSplash.vue'
+import BrushText from '@ui/BrushText.vue'
 import Button from '@ui/Button.vue'
 
 const emit = defineEmits<{
@@ -14,6 +15,8 @@ const props = withDefaults(
     mediaSrc?: string
     /** Sin foto real: no usa la imagen de demo del kit. */
     blankMedia?: boolean
+    /** Figura recortada que ocupa el cuadro cuando no hay foto. */
+    mediaFigure?: string
     title?: string
     km?: string
     cupo?: string
@@ -39,6 +42,15 @@ const props = withDefaults(
 
 const mediaStyle = computed(() => {
   if (props.mediaSrc) return { backgroundImage: `url("${props.mediaSrc}")` }
+  if (props.mediaFigure) {
+    return {
+      background: [
+        `url("${props.mediaFigure}") center 30% / auto 122% no-repeat`,
+        'radial-gradient(circle at 50% 45%, rgba(0, 136, 248, 0.45), transparent 62%)',
+        'linear-gradient(160deg, #001028 0%, #05070c 100%)',
+      ].join(', '),
+    }
+  }
   if (props.blankMedia) {
     return {
       backgroundImage: 'none',
@@ -51,12 +63,16 @@ const mediaStyle = computed(() => {
 
 <template>
   <span class="kit-hero__panel-label">{{ label }}</span>
-  <div class="kit-hero__panel-media" :class="{ 'is-blank': blankMedia && !mediaSrc }" :style="mediaStyle">
-    <span>{{ mediaLabel }}</span>
+  <div
+    class="kit-hero__panel-media"
+    :class="{ 'is-blank': blankMedia && !mediaSrc && !mediaFigure, 'is-figure': Boolean(mediaFigure && !mediaSrc) }"
+    :style="mediaStyle"
+  >
+    <span v-if="!mediaFigure || mediaSrc">{{ mediaLabel }}</span>
   </div>
   <div class="kit-hero__panel-title">
     <p class="type-brush-dry type-brush-dry--blue type-brush-dry--card">
-      <span class="kit-hero__panel-title-pulse">{{ title }}</span>
+      <span class="kit-hero__panel-title-pulse"><BrushText :text="title" /></span>
     </p>
   </div>
   <div class="kit-hero__panel-stats">

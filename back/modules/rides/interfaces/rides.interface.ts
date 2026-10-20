@@ -18,6 +18,8 @@ export interface Outing {
   status: OutingStatus
   mapHref?: string
   route?: OutingRoute
+  /** Primera foto de la memoria de la salida, si ya se publicó. */
+  cover?: { src: string; alt: string }
 }
 
 /** Salida y destino en el mapa; `path` es la polyline por carretera si se pudo trazar. */

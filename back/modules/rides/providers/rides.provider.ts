@@ -46,7 +46,35 @@ async function outingSelect(extraWhere = '', params: readonly string[] = [], ord
      GROUP BY ${OUTING_GROUP}${mapGroup}${orderSql}`,
     [...params],
   )
-  return rowsOf(raw).map(toOuting)
+  const outings = rowsOf(raw).map(toOuting)
+  const covers = await findCovers(outings.map((outing) => outing.id))
+  return outings.map((outing) => {
+    const cover = covers.get(outing.id)
+    return cover ? { ...outing, cover } : outing
+  })
+}
+
+/** Portada de cada salida: la primera foto de su memoria. */
+async function findCovers(outingIds: readonly string[]): Promise<Map<string, { src: string; alt: string }>> {
+  const covers = new Map<string, { src: string; alt: string }>()
+  if (!outingIds.length) return covers
+  const db = getDb()
+  if (!(await db.schema.hasTable(RIDES_TABLES.MEMORIES)) || !(await db.schema.hasTable(RIDES_TABLES.MEMORY_PHOTOS))) {
+    return covers
+  }
+  const rows = (await db(`${RIDES_TABLES.MEMORIES} as m`)
+    .join(`${RIDES_TABLES.MEMORY_PHOTOS} as p`, 'p.memory_id', 'm.id')
+    .whereIn('m.outing_id', [...outingIds])
+    .select('m.outing_id', 'p.src', 'p.alt')
+    .orderBy([
+      { column: 'p.sort_order', order: 'asc' },
+      { column: 'p.created_at', order: 'asc' },
+    ])) as Record<string, unknown>[]
+  for (const row of rows) {
+    const id = String(row.outing_id)
+    if (!covers.has(id) && row.src) covers.set(id, { src: String(row.src), alt: String(row.alt ?? '') })
+  }
+  return covers
 }
 
 export async function findOutings(): Promise<Outing[]> {

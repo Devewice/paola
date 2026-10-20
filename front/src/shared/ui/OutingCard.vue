@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import Chip from '@ui/Chip.vue'
 import Icon from '@ui/Icon.vue'
 import MapBlock from '@ui/MapBlock.vue'
+import { MAP_COPY } from '@ui/mapCopy.ts'
 import type { MapRoute } from './mapTypes.ts'
 
 const props = withDefaults(
@@ -19,10 +20,15 @@ const props = withDefaults(
     paid: boolean
     mapHref?: string
     route?: MapRoute
+    /** Foto que ocupa el lugar del mapa cuando la salida no tiene ruta (tintadas, encuentros). */
+    photoSrc?: string
+    photoAlt?: string
+    /** Ruta a la página de la salida; el título se vuelve enlace. */
+    to?: string
     /** Versión de grilla: mapa bajo, texto recortado y la acción pegada al fondo. */
     compact?: boolean
   }>(),
-  { taken: 0, mapHref: '', route: undefined, compact: false },
+  { taken: 0, mapHref: '', route: undefined, photoSrc: '', photoAlt: '', to: '', compact: false },
 )
 
 const shortDate = computed(() => {
@@ -46,7 +52,10 @@ const showBring = computed(() => Boolean(props.whatToBring) && !(props.compact &
           <span class="paola-outing__kind">{{ kindLabel }}</span>
           <time class="paola-outing__date" :datetime="date">{{ shortDate }}</time>
         </div>
-        <h3 class="paola-outing__title">{{ title }}</h3>
+        <h3 class="paola-outing__title">
+          <router-link v-if="to" :to="to" class="paola-outing__link">{{ title }}</router-link>
+          <template v-else>{{ title }}</template>
+        </h3>
         <p class="paola-outing__meta paola-outing__where">
           <Icon name="pin" size="sm" :circle="false" />
           <span>{{ meetingPoint }}</span>
@@ -58,6 +67,13 @@ const showBring = computed(() => Boolean(props.whatToBring) && !(props.compact &
           :route="route"
           :compact="compact"
         />
+        <figure v-else-if="photoSrc" class="paola-outing__media">
+          <img :src="photoSrc" :alt="photoAlt" loading="lazy" />
+        </figure>
+        <div v-else-if="compact" class="paola-outing__media paola-outing__media--pending">
+          <span class="map-block__pin" aria-hidden="true" />
+          <span>{{ MAP_COPY.pendingRoute }}</span>
+        </div>
         <p v-if="routeText" class="paola-outing__meta paola-outing__route">{{ routeText }}</p>
         <p class="paola-outing__facts">
           <span>Cupo {{ taken }} / {{ capacity }}</span>

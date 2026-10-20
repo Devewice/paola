@@ -60,7 +60,7 @@
         --radius: 10px;
         --display: "Oswald", sans-serif;
         --ui: "Montserrat", sans-serif;
-        --brush-dry: "Brush King", system-ui, sans-serif;
+        --brush-dry: "Paola Brush Digits", "Brush King", system-ui, sans-serif;
         --brush-wet: var(--brush-dry);
         --brush-hand: "Rock Salt", "Knewave", "Sedgwick Ave", cursive;
         --brush-script: "Caveat", "Sedgwick Ave", cursive;

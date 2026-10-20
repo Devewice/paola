@@ -13,6 +13,8 @@ export type KitHeroPanelSlide = {
   readonly mediaLabel?: string
   readonly mediaSrc?: string
   readonly blankMedia?: boolean
+  /** Figura recortada (PNG) cuando la salida aún no tiene foto: se ve entera sobre navy. */
+  readonly mediaFigure?: string
   readonly title?: string
   readonly km?: string
   readonly cupo?: string
@@ -616,6 +618,7 @@ watch(borderPath, async () => {
                       :media-label="activeSlide.mediaLabel"
                       :media-src="activeSlide.mediaSrc"
                       :blank-media="activeSlide.blankMedia ?? !activeSlide.mediaSrc"
+                      :media-figure="activeSlide.mediaFigure"
                       :title="activeSlide.title"
                       :km="activeSlide.km"
                       :cupo="activeSlide.cupo"

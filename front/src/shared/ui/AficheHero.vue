@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
+import BrushText from '@ui/BrushText.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -54,12 +55,12 @@ const hasPanel = computed(() => Boolean(slots.panel))
           <div class="kit-hero__titles">
             <p class="type-brush-script">{{ kicker }}</p>
             <div class="kit-hero__brush-line">
-              <p class="type-brush-dry type-brush-dry--sm">{{ titleParts.main }}</p>
+              <p class="type-brush-dry type-brush-dry--sm"><BrushText :text="titleParts.main ?? ''" /></p>
               <p
                 v-if="titleParts.accent"
                 class="type-brush-dry type-brush-dry--blue type-brush-dry--sm"
               >
-                {{ titleParts.accent }}
+                <BrushText :text="titleParts.accent" />
               </p>
             </div>
             <p v-if="plate" class="type-condensed type-condensed--blue kit-hero__plate">

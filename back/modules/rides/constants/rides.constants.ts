@@ -46,6 +46,7 @@ export const RIDES_TABLES = {
   USERS: 'users',
   MOTORCYCLES: 'user_motorcycles',
   MEMORIES: 'memories',
+  MEMORY_PHOTOS: 'memory_photos',
 } as const
 
 export const RIDES_MOTO_LABEL_MAX = 120

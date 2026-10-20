@@ -25,7 +25,7 @@ Reglas: afiche (brocha) ≠ formularios; un CTA `hero` por vista; vacío → `Pa
 | `PageVacant` | Página en construcción (mascota + CTAs; anillo cian estático tipo hero) | `title`, `kicker`, `copy` |
 | `AppLink` | `router-link` o `<a>` según `to` / `href` | `to`, `href`, `target` |
 | `KitHero` | Hero full-bleed del kit. `portal`: corte del día. `panelSlides`: mazo de rodadas (dots afuera, borde con resplandor) | `heroId`, `variant`, `tagline`, `kicker`, `photoSrc`, `panelSlides`, slots `voices` `panel` `footer` `actions` |
-| `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `blankMedia` |
+| `KitHeroPanel` | Panel “corte del día” | `title`, `km`, `cupo`, `fecha`, `splash`, `ctaTo`, `mediaSrc`, `blankMedia`, `mediaFigure` (PNG recortado sobre navy si no hay foto) |
 | `KitHeroFooter` | KPIs bajo el hero portal | `stamp`, `rodadas`, `km`, `integrantes` |
 | `AficheHero` | Hero de página (más bajo que el kit). `compact`: subpáginas, sin panel ni CTA hero | `kicker`, `title`, `plate`, `logo`, `photoSrc`, `compact`, slots `lead` `actions` `panel` |
 | `SectionTabs` | Pestañas entre subpáginas (`router-link`, activa exacta) con estilo `filter-pill` | `label`, `items: { to, tag, label }[]` |
@@ -51,7 +51,7 @@ Combinar sin repetir: cada vista elige una o dos piezas (banda, afiche en el rai
 
 ## Marca / afiche / brocha
 
-`BrushButton` CTA afiche (texto blanco, Montserrat 800) · `BrushSplash` mancha + label · `BrushBanner` / `KitBrushBanner` · `BrushDivider` / `KitBrushDivider` · `BrushPlate` · `AficheBlock` marco afiche · `AficheMiniDemo` `AficheAnapoimaDemo` `AficheCumpleDemo` `AficheRefs` solo kit · `VoiceBadge` Loigca/Incauta/Armargura · `VoiceCard` · `PaolaBlock` · `RoadLightsBackdrop` luces de vía (fondo /paola) · `Mascot3d` cámara GLB/Draco · `MascotFlash` poses 360 + destello
+`BrushButton` CTA afiche (texto blanco, Montserrat 800) · `BrushText` (texto dinámico en títulos brocha: los números van en placa, Brush King no trae dígitos) · `BrushSplash` mancha + label · `BrushBanner` / `KitBrushBanner` · `BrushDivider` / `KitBrushDivider` · `BrushPlate` · `AficheBlock` marco afiche · `AficheMiniDemo` `AficheAnapoimaDemo` `AficheCumpleDemo` `AficheRefs` solo kit · `VoiceBadge` Loigca/Incauta/Armargura · `VoiceCard` · `PaolaBlock` · `RoadLightsBackdrop` luces de vía (fondo /paola) · `Mascot3d` cámara GLB/Draco · `MascotFlash` poses 360 + destello
 
 Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 

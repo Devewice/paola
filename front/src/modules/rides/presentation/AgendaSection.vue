@@ -97,6 +97,9 @@ async function onChanged(): Promise<void> {
           :route-text="outing.routeText"
           :map-href="outing.mapHref"
           :route="outing.route"
+          :photo-src="outing.cover?.src"
+          :photo-alt="outing.cover?.alt"
+          :to="appRodada(outing.id)"
           :capacity="outing.capacity"
           :taken="outing.taken"
           :what-to-bring="outing.whatToBring"
@@ -174,7 +177,11 @@ async function onChanged(): Promise<void> {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  align-items: start;
+}
+
+.agenda__grid > .admin-spot,
+.agenda__grid :deep(.paola-outing) {
+  height: 100%;
 }
 
 .agenda__cta {

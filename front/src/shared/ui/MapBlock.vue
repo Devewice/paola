@@ -25,14 +25,23 @@ const live = computed(() => Boolean(props.route?.start || props.route?.end))
 const straight = computed(() => Boolean(props.route?.start && props.route?.end && props.route.path.length < 2))
 const staticImage = computed(() => !live.value && Boolean(props.mapHref) && isStaticImage(props.mapHref))
 
-const directionsHref = computed(() => {
+const navApps = computed(() => {
   const route = props.route
-  if (!route?.end && !route?.start) return ''
-  const target = route.end ?? route.start
-  const params = new URLSearchParams()
-  if (route.start && route.end) params.set('origin', `${route.start.lat},${route.start.lng}`)
-  if (target) params.set('destination', `${target.lat},${target.lng}`)
-  return `${MAP_LINKS.DIRECTIONS}&${params}`
+  const target = route?.end ?? route?.start
+  if (!route || !target) return []
+  const to = `${target.lat},${target.lng}`
+  const from = route.start && route.end ? `${route.start.lat},${route.start.lng}` : ''
+
+  const google = new URLSearchParams({ destination: to })
+  if (from) google.set('origin', from)
+  const apple = new URLSearchParams({ daddr: to })
+  if (from) apple.set('saddr', from)
+
+  return [
+    { id: 'google', label: MAP_COPY.googleMaps, href: `${MAP_LINKS.DIRECTIONS}&${google}` },
+    { id: 'waze', label: MAP_COPY.waze, href: `${MAP_LINKS.WAZE}&${new URLSearchParams({ ll: to })}` },
+    { id: 'apple', label: MAP_COPY.appleMaps, href: `${MAP_LINKS.APPLE}&${apple}` },
+  ]
 })
 
 const stats = computed(() => {
@@ -52,11 +61,11 @@ const footText = computed(() =>
     .join(' · '),
 )
 const footLink = computed(() => {
-  if (props.compact) return null
-  if (directionsHref.value) return { href: directionsHref.value, label: MAP_COPY.directions, external: true }
-  if (props.mapHref && !isStaticImage(props.mapHref)) return { href: props.mapHref, label: MAP_COPY.howToGet, external: false }
+  if (props.compact || navApps.value.length) return null
+  if (props.mapHref && !isStaticImage(props.mapHref)) return { href: props.mapHref, label: MAP_COPY.howToGet }
   return null
 })
+const showApps = computed(() => !props.compact && navApps.value.length > 0)
 </script>
 
 <template>
@@ -89,12 +98,19 @@ const footLink = computed(() => {
       {{ footText }}
       <template v-if="footLink">
         <template v-if="footText"> · </template>
-        <a
-          :href="footLink.href"
-          :target="footLink.external ? '_blank' : undefined"
-          :rel="footLink.external ? 'noopener noreferrer' : undefined"
-        >{{ footLink.label }}</a>
+        <a :href="footLink.href">{{ footLink.label }}</a>
       </template>
     </p>
+    <nav v-if="showApps" class="map-block__apps" :aria-label="MAP_COPY.openIn">
+      <span class="map-block__apps-label">{{ MAP_COPY.openIn }}</span>
+      <a
+        v-for="app in navApps"
+        :key="app.id"
+        class="map-block__app"
+        :href="app.href"
+        target="_blank"
+        rel="noopener noreferrer"
+      >{{ app.label }}</a>
+    </nav>
   </div>
 </template>

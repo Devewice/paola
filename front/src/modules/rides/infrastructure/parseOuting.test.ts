@@ -49,4 +49,12 @@ describe('parseOuting', () => {
   it('sin puntos válidos no hay ruta', () => {
     expect(parseOuting({ ...valid, route: { start: { label: 'X', lat: 200, lng: 0 } } })?.route).toBeUndefined()
   })
+
+  it('lee la portada de la memoria y descarta la que no trae foto', () => {
+    expect(parseOuting({ ...valid, cover: { src: '/contenido/a.jpg', alt: 'Parche' } })?.cover).toEqual({
+      src: '/contenido/a.jpg',
+      alt: 'Parche',
+    })
+    expect(parseOuting({ ...valid, cover: { alt: 'Sin foto' } })?.cover).toBeUndefined()
+  })
 })

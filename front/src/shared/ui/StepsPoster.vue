@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BrushText from '@ui/BrushText.vue'
+
 withDefaults(
   defineProps<{
     title: string
@@ -23,7 +25,7 @@ withDefaults(
     <img v-if="mascotSrc" class="poster__mascot" :src="mascotSrc" alt="" aria-hidden="true" loading="lazy" />
     <div class="poster__copy">
       <span v-if="kicker" class="board-kicker">{{ kicker }}</span>
-      <h3 class="type-brush-dry type-brush-dry--xs">{{ title }}</h3>
+      <h3 class="type-brush-dry type-brush-dry--xs"><BrushText :text="title" /></h3>
       <p v-if="lead">{{ lead }}</p>
     </div>
     <ol v-if="steps?.length" class="steps-poster__steps">

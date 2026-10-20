@@ -20,6 +20,8 @@ export const MAP_COLORS = {
 
 export const MAP_LINKS = {
   DIRECTIONS: 'https://www.google.com/maps/dir/?api=1&travelmode=driving',
+  WAZE: 'https://waze.com/ul?navigate=yes',
+  APPLE: 'https://maps.apple.com/?dirflg=d',
 } as const
 
 export const MAP_COPY = {
@@ -28,10 +30,14 @@ export const MAP_COPY = {
   end: 'Destino',
   startShort: 'S',
   endShort: 'D',
-  directions: 'Abrir en Google Maps',
+  openIn: 'Abrir en',
+  googleMaps: 'Google Maps',
+  waze: 'Waze',
+  appleMaps: 'Apple Maps',
   howToGet: 'Cómo llegar',
   pendingPoint: 'Punto por confirmar',
-  failed: 'No se pudo cargar el mapa. Usa el enlace de Google Maps.',
+  pendingRoute: 'Ruta por confirmar',
+  failed: 'No se pudo cargar el mapa. Ábrelo en Google Maps, Waze o Apple Maps.',
   zoomHint: 'Toca el mapa para hacer zoom',
   straight: 'Trazo aproximado: la ruta exacta la confirmo en el grupo.',
   distance: (km: number) => `${km.toLocaleString('es-CO', { maximumFractionDigits: 1 })} km`,

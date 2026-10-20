@@ -37,6 +37,8 @@ export type Outing = {
   readonly status: OutingStatus
   readonly mapHref?: string
   readonly route?: OutingRoute
+  /** Primera foto de la memoria, si ya se publicó. */
+  readonly cover?: { readonly src: string; readonly alt: string }
 }
 
 export type OutingDraft = {

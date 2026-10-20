@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { VoiceId } from '@shared/theme/voices.ts'
+import BrushText from '@ui/BrushText.vue'
 import VoiceBadge from '@ui/VoiceBadge.vue'
 
 const props = withDefaults(
@@ -55,7 +56,7 @@ const linkAttrs = computed(() => {
 
     <span class="hub-tile__body">
       <span v-if="kicker" class="hub-tile__kicker">{{ kicker }}</span>
-      <span class="hub-tile__title type-brush-dry type-brush-dry--xs">{{ title }}</span>
+      <span class="hub-tile__title type-brush-dry type-brush-dry--xs"><BrushText :text="title" /></span>
       <slot />
     </span>
 

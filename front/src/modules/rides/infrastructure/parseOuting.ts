@@ -42,7 +42,15 @@ export function parseOuting(raw: unknown): Outing | null {
     status: row.status as OutingStatus,
     mapHref: typeof row.mapHref === 'string' && row.mapHref ? row.mapHref : undefined,
     route: parseRoute(row.route),
+    cover: parseCover(row.cover),
   }
+}
+
+function parseCover(raw: unknown): Outing['cover'] {
+  if (!raw || typeof raw !== 'object') return undefined
+  const row = raw as Record<string, unknown>
+  if (typeof row.src !== 'string' || !row.src) return undefined
+  return { src: row.src, alt: typeof row.alt === 'string' ? row.alt : '' }
 }
 
 export function parseMapPoint(raw: unknown): MapPoint | undefined {
