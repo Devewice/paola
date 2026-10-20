@@ -20,8 +20,10 @@ import {
   type BallotAnswer,
   type Poll,
   type PollQuestion,
+  type PollStep,
 } from '@modules/polls/domain/entities/Poll.ts'
 import PollCompanion from '@modules/polls/presentation/PollCompanion.vue'
+import PollIntro from '@modules/polls/presentation/PollIntro.vue'
 import PollQuestionField from '@modules/polls/presentation/PollQuestionField.vue'
 import PollSectionSplash from '@modules/polls/presentation/PollSectionSplash.vue'
 import { MOTION } from '@shared/motion/tokens.ts'
@@ -79,22 +81,37 @@ const index = computed(() => {
   return found < 0 ? Math.min(lastIndex.value, steps.value.length - 1) : found
 })
 const step = computed(() => steps.value[index.value] ?? steps.value[0]!)
-const questionSteps = computed(() => steps.value.filter((item) => item.type === 'question'))
-const progress = computed(() => (steps.value.length > 1 ? (index.value / (steps.value.length - 1)) * 100 : 0))
-const position = computed(
-  () => steps.value.slice(0, index.value + 1).filter((item) => item.type === 'question').length,
-)
+type QuestionStep = Extract<PollStep, { type: 'question' }>
+const isCounted = (item: PollStep): item is QuestionStep => item.type === 'question' && !item.gate
+const questionSteps = computed(() => steps.value.filter(isCounted))
+const progress = computed(() => {
+  if (steps.value.length <= 1) return 0
+  const current = steps.value[index.value]
+  if (current?.type === 'question' && current.gate) return 0
+  return (index.value / (steps.value.length - 1)) * 100
+})
 const answeredCount = computed(
-  () => questionSteps.value.filter((item) => item.type === 'question' && isAnswered(item.question, answerOf(item.question))).length,
+  () => questionSteps.value.filter((item) => isAnswered(item.question, answerOf(item.question))).length,
 )
 const total = computed(() => countQuestions(props.poll))
 const minutes = computed(() => Math.max(1, Math.round((total.value * POLLS_SECONDS_PER_QUESTION) / 60)))
-const gate = computed(() => (step.value.type === 'intro' ? step.value.gate : undefined))
+/** Lo que falta desde esta pantalla: no choca con el conteo del documento que muestra la portada. */
+const remainingLabel = computed(() => {
+  const left = steps.value.slice(index.value).filter(isCounted).length
+  return copy.stepRemaining(Math.ceil((left * POLLS_SECONDS_PER_QUESTION) / 60))
+})
+const isGate = computed(() => step.value.type === 'question' && Boolean(step.value.gate))
 const activeQuestion = computed<PollQuestion | undefined>(() =>
-  step.value.type === 'question' ? step.value.question : gate.value,
+  step.value.type === 'question' ? step.value.question : undefined,
 )
-const sectionLabel = computed(() => (step.value.type === 'question' ? step.value.section : undefined))
-const filteredOut = computed(() => Boolean(steps.value[0]?.type === 'intro' && steps.value[0].gate) && questionSteps.value.length === 0)
+const sectionLabel = computed(() => {
+  if (isGate.value) return copy.stepGateLabel
+  return step.value.type === 'question' ? step.value.section : undefined
+})
+const hasGate = computed(() => steps.value.some((item) => item.type === 'question' && item.gate))
+const filteredOut = computed(() => hasGate.value && questionSteps.value.length === 0)
+const introSeen = ref(false)
+const intro = ref<InstanceType<typeof PollIntro> | null>(null)
 const sectionIndex = computed(
   () => steps.value.slice(0, index.value + 1).filter((item) => item.type === 'section').length,
 )
@@ -130,10 +147,16 @@ function goTo(target: number) {
   currentKey.value = next.key
 }
 
-function next() {
+async function next() {
   window.clearTimeout(advanceTimer)
   if (step.value.type === 'submit') {
     void submit()
+    return
+  }
+  if (step.value.type === 'intro') {
+    if (intro.value) await intro.value.leave()
+    introSeen.value = true
+    goTo(index.value + 1)
     return
   }
   if (!canAdvance.value) {
@@ -149,6 +172,11 @@ function back() {
   let target = index.value - 1
   while (target > 0 && steps.value[target]?.type === 'section') target -= 1
   goTo(target)
+}
+
+function onIntroStart() {
+  introSeen.value = true
+  if (step.value.type === 'intro') goTo(index.value + 1)
 }
 
 function onSectionDone(key: string) {
@@ -210,10 +238,12 @@ watch(currentKey, async () => {
     })
   }
   if (step.value.type === 'section' || !stage.value || prefersReducedMotion()) return
+  if (step.value.type === 'intro' && !props.compact) return
+  /* Sin transform residual: la portada usa capas fijas a toda la pantalla. */
   gsap.fromTo(
     stage.value,
     { x: direction.value * (props.compact ? 24 : 40), opacity: 0 },
-    { x: 0, opacity: 1, duration: MOTION.duration.reveal, ease: MOTION.ease.enter },
+    { x: 0, opacity: 1, duration: MOTION.duration.reveal, ease: MOTION.ease.enter, clearProps: 'transform' },
   )
 })
 
@@ -248,9 +278,7 @@ onBeforeUnmount(() => {
     <header v-if="step.type !== 'intro'" class="poll-stepper__bar">
       <div class="poll-stepper__meta">
         <span class="poll-stepper__section">{{ sectionLabel ?? poll.title }}</span>
-        <span v-if="step.type === 'question'" class="poll-stepper__count">
-          {{ position }} {{ copy.stepOf }} {{ questionSteps.length }}
-        </span>
+        <span v-if="step.type === 'question' && !isGate" class="poll-stepper__count">{{ remainingLabel }}</span>
       </div>
       <div
         class="poll-stepper__progress"
@@ -266,44 +294,23 @@ onBeforeUnmount(() => {
     <div class="poll-stepper__body">
     <div ref="stage" class="poll-stepper__stage">
       <!-- Portada -->
-      <template v-if="step.type === 'intro'">
-        <p v-if="compact" class="poll-stepper__facts">
+      <PollIntro
+        v-if="step.type === 'intro' && !compact"
+        ref="intro"
+        :title="poll.title"
+        :description="poll.description"
+        :total="total"
+        :minutes="minutes"
+        :replay="introSeen"
+        @start="onIntroStart"
+      />
+      <template v-else-if="step.type === 'intro'">
+        <p class="poll-stepper__facts">
           <span>{{ total }} {{ copy.stepQuestions }}</span>
           <span>{{ minutes }} {{ copy.stepMinutes }}</span>
         </p>
-        <div v-else class="poll-stepper__hero">
-          <div class="poll-stepper__hero-copy">
-            <p class="poll-stepper__kicker">{{ copy.kicker }}</p>
-            <h1 ref="heading" class="poll-stepper__title" tabindex="-1">{{ poll.title }}</h1>
-            <p v-if="poll.description" class="poll-stepper__lead">{{ poll.description }}</p>
-            <p class="poll-stepper__facts">
-              <span>{{ total }} {{ copy.stepQuestions }}</span>
-              <span>{{ minutes }} {{ copy.stepMinutes }}</span>
-            </p>
-          </div>
-          <figure class="poll-stepper__mascot">
-            <div class="poll-stepper__mascot-frame"><Mascot3d /></div>
-            <figcaption class="poll-stepper__mascot-line">{{ copy.stageIntroLine }}</figcaption>
-          </figure>
-        </div>
-
-        <div v-if="gate" class="poll-stepper__gate">
-          <h2 class="poll-stepper__prompt">{{ gate.prompt }}</h2>
-          <p v-if="gate.help" class="poll-stepper__help">{{ gate.help }}</p>
-          <PollQuestionField
-            ref="field"
-            :question="gate"
-            :answer="answerOf(gate)"
-            step
-            @update:answer="setAnswer(gate, $event)"
-            @advance="onAdvance"
-          />
-          <div v-if="canAdvance" class="poll-stepper__nav poll-stepper__nav--start">
-            <Button @click="next">{{ copy.stepContinue }}</Button>
-          </div>
-        </div>
-        <div v-else class="poll-stepper__nav poll-stepper__nav--start">
-          <Button :variant="compact ? 'primary' : 'hero'" @click="next">{{ copy.stepStart }}</Button>
+        <div class="poll-stepper__nav poll-stepper__nav--start">
+          <Button @click="next">{{ copy.stepStart }}</Button>
         </div>
         <p class="poll-stepper__hint">{{ copy.stepDraftSaved }}</p>
       </template>
@@ -320,7 +327,7 @@ onBeforeUnmount(() => {
       <!-- Pregunta -->
       <template v-else-if="step.type === 'question'">
         <div class="poll-stepper__q">
-          <span v-if="questionNumber(poll, step.question)" class="poll-stepper__num">
+          <span v-if="!step.gate && questionNumber(poll, step.question)" class="poll-stepper__num">
             {{ questionNumber(poll, step.question) }}
           </span>
           <div class="poll-stepper__q-text">
@@ -363,15 +370,16 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <footer v-if="step.type === 'question'" class="poll-stepper__nav">
+    <footer v-if="step.type === 'question'" class="poll-stepper__nav poll-stepper__nav--dock">
       <Button variant="ghost" @click="back">{{ copy.stepBack }}</Button>
-      <p v-if="nudge" class="poll-stepper__nudge" role="status">{{ copy.stepRequired }}</p>
-      <p v-else class="poll-stepper__hint poll-stepper__hint--keys">{{ copy.stepKeys }}</p>
+      <div class="poll-stepper__dock-mid">
+        <p v-if="nudge" class="poll-stepper__nudge" role="status">{{ copy.stepRequired }}</p>
+        <p v-else class="poll-stepper__hint poll-stepper__hint--keys">{{ copy.stepKeys }}</p>
+        <PollCompanion v-if="!compact" ref="companion" :progress="progress / 100" :beat="index" />
+      </div>
       <Button :variant="isSkip ? 'ghost' : 'primary'" @click="next">{{ isSkip ? copy.stepSkip : copy.stepNext }}</Button>
     </footer>
     </div>
-
-    <PollCompanion v-if="!compact && step.type === 'question'" ref="companion" :progress="progress / 100" :beat="index" />
   </section>
 </template>
 
@@ -384,7 +392,7 @@ onBeforeUnmount(() => {
   grid-template-rows: auto minmax(0, 1fr);
   gap: 24px;
   min-height: calc(100svh - 220px);
-  padding-bottom: 96px;
+  padding-bottom: 32px;
   overflow-x: clip;
 }
 .poll-stepper__bar {
@@ -400,7 +408,7 @@ onBeforeUnmount(() => {
 @media (max-width: 959px) {
   .poll-stepper {
     min-height: calc(100svh - 280px);
-    padding-bottom: 120px;
+    padding-bottom: 16px;
   }
 }
 
@@ -539,10 +547,6 @@ onBeforeUnmount(() => {
   height: 40px;
   font-size: 18px;
 }
-.poll-stepper--compact .poll-stepper__gate {
-  margin-top: 0;
-  padding: 16px;
-}
 .poll-stepper--compact.poll-stepper--question .poll-stepper__stage {
   padding: 0;
   background: none;
@@ -631,17 +635,6 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 600;
 }
-.poll-stepper__gate {
-  display: grid;
-  gap: 12px;
-  margin-top: 8px;
-  padding: clamp(20px, 4vw, 28px);
-  border-radius: 16px;
-  border: 1px solid rgba(72, 180, 252, 0.22);
-  border-top: 6px solid var(--blue, #0088f8);
-  background: rgba(0, 16, 40, 0.6);
-}
-
 .poll-stepper__q {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -691,6 +684,50 @@ onBeforeUnmount(() => {
 .poll-stepper__nav--start {
   justify-content: flex-start;
   border-top: 0;
+}
+/* Atrás / Siguiente siempre a mano: se pega abajo aunque la pregunta sea larga. */
+.poll-stepper__nav--dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin-inline: -8px;
+  padding: 16px 8px;
+  border-top: 0;
+  background: linear-gradient(180deg, rgba(5, 7, 12, 0) 0%, rgba(5, 7, 12, 0.9) 35%);
+}
+.poll-stepper__dock-mid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+@media (max-width: 959px) {
+  .poll-stepper__nav--dock {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    margin-inline: -16px;
+    padding: 10px 16px;
+    background: rgba(5, 7, 12, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .poll-stepper__dock-mid .poll-stepper__nudge {
+    position: absolute;
+    inset: auto 0 100%;
+    padding: 8px 16px;
+    background: rgba(5, 7, 12, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 13px;
+    text-align: center;
+  }
+}
+.poll-stepper--compact .poll-stepper__nav--dock {
+  position: static;
+  margin-inline: 0;
+  padding: 16px 0 0;
+  background: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 .poll-stepper__hint {
   margin: 0;

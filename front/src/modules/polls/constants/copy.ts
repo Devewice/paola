@@ -27,6 +27,19 @@ export const POLLS_STAGE = {
   sectionHold: 1.25,
 } as const
 
+/** Portada de cine: visor de cámara, barras de cine y obturador al arrancar. */
+export const POLLS_INTRO = {
+  rec: 'REC',
+  hud: ['360°', '4K', 'ISO 100'],
+  line: 'Te acompaño en todo el recorrido.',
+  ctaHoverLine: '¿Le damos? Yo grabo.',
+  skip: 'Toca para saltar la intro',
+  /** Fotogramas por segundo del contador del visor. */
+  fps: 30,
+  /** La segunda vez (al volver con «Atrás») la intro corre más rápido. */
+  replaySpeed: 3,
+} as const
+
 /** Lo que dice la cámara según el avance (0 a 1). */
 export const POLLS_COMPANION_LINES: readonly { readonly from: number; readonly text: string }[] = [
   { from: 0, text: 'Arranquemos. Yo voy grabando.' },
@@ -101,11 +114,12 @@ export const POLLS_COPY = {
   counterChosen: 'elegidas',
   limitReached: 'Llegaste al máximo. Quita una para cambiarla.',
   deckProgress: 'Afirmaciones',
-  stepStart: 'Empezar',
+  stepStart: 'Arrancar',
+  stepRemaining: (minutes: number) => (minutes <= 1 ? 'Último tramo' : `Quedan ~${minutes} min`),
+  stepGateLabel: 'Antes de arrancar',
   stepNext: 'Siguiente',
   stepBack: 'Atrás',
   stepSkip: 'Saltar',
-  stepContinue: 'Seguir',
   stepOf: 'de',
   stepSection: 'Sección',
   stepRequired: 'Responde para seguir.',
@@ -119,7 +133,6 @@ export const POLLS_COPY = {
   stepDraftSaved: 'Tus respuestas se guardan en este navegador hasta que envíes.',
   stageSkip: 'Toca para seguir',
   stageSubmitLine: 'Última foto. Envía y queda guardado.',
-  stageIntroLine: 'Te acompaño en todo el recorrido.',
   otherPlaceholder: '¿Cuál?',
   otherMissing: 'Escribe cuál en «Otro».',
   gridRowHeader: 'Pregunta',

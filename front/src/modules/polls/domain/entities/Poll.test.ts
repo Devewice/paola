@@ -201,7 +201,7 @@ describe('encuestas largas', () => {
     expect(missingRequired(survey, ballot).map((question) => question.id)).toEqual(['g'])
   })
 
-  it('arma el recorrido: portada con filtro, entrada de sección y envío', () => {
+  it('arma el recorrido: portada sola, filtro aparte, entrada de sección y envío', () => {
     const gated = {
       questions: [
         { ...filter, display: 'gate' as const, section: 'Filtro' },
@@ -211,10 +211,13 @@ describe('encuestas largas', () => {
       ],
     }
     const no = { ...emptyBallot(gated), f: { ...EMPTY_ANSWER, optionIds: ['no'] } }
-    expect(buildSteps(gated, no).map((step) => step.type)).toEqual(['intro', 'submit'])
+    expect(buildSteps(gated, no).map((step) => step.key)).toEqual(['intro', 'f', 'submit'])
     const yes = { ...emptyBallot(gated), f: { ...EMPTY_ANSWER, optionIds: ['si'] } }
-    expect(buildSteps(gated, yes).map((step) => step.key)).toEqual([
+    const steps = buildSteps(gated, yes)
+    expect(steps[1]).toMatchObject({ type: 'question', gate: true })
+    expect(steps.map((step) => step.key)).toEqual([
       'intro',
+      'f',
       'section:t',
       't',
       'c',

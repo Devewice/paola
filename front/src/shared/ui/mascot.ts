@@ -13,6 +13,22 @@ export const MASCOT_FLASH = {
   fade: 0.32,
 } as const
 
+/** Gestos de la cámara 3D que se pueden pedir con `cue` (además de la rotación al azar). */
+export type Mascot3dClip =
+  | 'sides'
+  | 'up'
+  | 'back'
+  | 'curious'
+  | 'sway'
+  | 'peek'
+  | 'dream'
+  | 'nod'
+  | 'jelly'
+  | 'peace'
+  | 'shoot'
+  | 'spin'
+  | 'tilt'
+
 export const MASCOT_3D = {
   model: '/mascota/3d/camera.draco.glb',
   diffuse: '/mascota/3d/diffuse.png',

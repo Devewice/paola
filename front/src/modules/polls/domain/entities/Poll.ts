@@ -302,24 +302,32 @@ export function countQuestions(poll: Pick<Poll, 'questions'>): number {
 }
 
 export type PollStep =
-  | { readonly key: string; readonly type: 'intro'; readonly gate?: PollQuestion }
+  | { readonly key: string; readonly type: 'intro' }
   | { readonly key: string; readonly type: 'section'; readonly title: string }
-  | { readonly key: string; readonly type: 'question'; readonly question: PollQuestion; readonly section?: string }
+  | {
+      readonly key: string
+      readonly type: 'question'
+      readonly question: PollQuestion
+      readonly section?: string
+      /** Filtro de entrada: pantalla propia, sin número y sin contar en el avance. */
+      readonly gate?: boolean
+    }
   | { readonly key: string; readonly type: 'submit' }
 
 /**
- * Recorrido de una pregunta por pantalla: portada (con el filtro si lo hay), una pantalla
- * de entrada por sección, las preguntas visibles y el envío.
+ * Recorrido de una pregunta por pantalla: portada sola, el filtro en su propia pantalla
+ * si lo hay, una entrada por sección, las preguntas visibles y el envío.
  */
 export function buildSteps(poll: Pick<Poll, 'questions'>, ballot: Ballot): readonly PollStep[] {
   const visible = visibleQuestions(poll, ballot)
   const [first] = visible
   const gate = first && resolveDisplay(first) === 'gate' ? first : undefined
-  const steps: PollStep[] = [{ key: 'intro', type: 'intro', gate }]
+  const steps: PollStep[] = [{ key: 'intro', type: 'intro' }]
   let section: string | undefined
   for (const question of visible) {
     if (question === gate) {
       section = question.section
+      steps.push({ key: question.id, type: 'question', question, gate: true })
       continue
     }
     if (question.section && question.section !== section) {

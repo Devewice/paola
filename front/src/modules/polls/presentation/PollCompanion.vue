@@ -154,15 +154,40 @@ defineExpose({ snap })
 @keyframes poll-rec {
   50% { opacity: 0.2; }
 }
-@media (max-width: 959px) {
+/* Escritorio: globo encima de la cámara, para no invadir la columna de la pregunta. */
+@media (min-width: 960px) {
   .poll-companion {
-    bottom: calc(76px + env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .poll-companion__bubble {
+    max-width: 200px;
+    margin: 0;
   }
 }
-@media (max-width: 600px) {
+/* Móvil: acoplada en la barra de Atrás/Siguiente, nunca encima de un botón u opción. */
+@media (max-width: 959px) {
+  .poll-companion {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    justify-content: center;
+  }
+  .poll-companion__orb {
+    width: 48px;
+    box-shadow: 0 0 0 3px rgba(5, 7, 12, 0.7), 0 0 18px rgba(0, 136, 248, 0.45);
+    animation-duration: 3.2s;
+  }
+  .poll-companion__ring {
+    inset: -4px;
+  }
+  .poll-companion__rec {
+    width: 6px;
+    height: 6px;
+  }
   .poll-companion__bubble {
-    max-width: 160px;
-    font-size: 12px;
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

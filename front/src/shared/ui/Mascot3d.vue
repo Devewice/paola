@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import type { Mesh, MeshPhysicalMaterial, Texture, WebGLRenderer } from 'three'
 import { prefersReducedMotion } from '@shared/motion/prefersReducedMotion.ts'
-import { MASCOT_3D } from '@shared/ui/mascot.ts'
+import { MASCOT_3D, type Mascot3dClip } from '@shared/ui/mascot.ts'
 import MascotFlash from '@ui/MascotFlash.vue'
 
 const host = ref<HTMLElement | null>(null)
@@ -11,6 +11,14 @@ const failed = ref(false)
 let renderer: WebGLRenderer | undefined
 let frame = 0
 let dead = false
+let cueClip: ((id: Mascot3dClip) => void) | null = null
+
+/** Pide un gesto puntual (no hace nada si el modelo no cargó o hay movimiento reducido). */
+function cue(id: Mascot3dClip): void {
+  cueClip?.(id)
+}
+
+defineExpose({ cue })
 
 onMounted(() => {
   void boot()
@@ -18,6 +26,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   dead = true
+  cueClip = null
   window.cancelAnimationFrame(frame)
   const shell = host.value?.parentElement
   if (shell) {
@@ -364,6 +373,52 @@ function clipEnter(u: number, twist: number): Pose {
   }
 }
 
+/** Se acerca de golpe como quien dispara una foto, con el temblor del obturador. */
+function clipShoot(u: number, twist: number): Pose {
+  return poseAt(
+    [
+      beat(0, {}, 'soft'),
+      beat(0.2, { pitch: -0.08, push: -0.06, hop: -0.01, bend: twist * 0.1 }, 'soft'),
+      beat(0.34, { pitch: -0.14, push: 0.34, shake: 0.55, hop: 0.012, bend: twist * 0.2 }, 'snap'),
+      beat(0.46, { pitch: -0.1, push: 0.3, shake: 0.12, bend: twist * 0.16 }, 'soft'),
+      beat(0.72, { pitch: -0.02, push: 0.06, roll: 0.02, bend: twist * 0.05 }, 'settle'),
+      beat(1, {}, 'soft'),
+    ],
+    u,
+  )
+}
+
+/** Vuelta completa con salto: celebración. */
+function clipSpin(u: number, twist: number): Pose {
+  return poseAt(
+    [
+      beat(0, {}, 'soft'),
+      beat(0.14, { hop: -0.02, flat: 0.28, bend: twist * 0.2 }, 'soft'),
+      beat(0.36, { yaw: 2.1, hop: 0.09, flat: -0.1, roll: 0.08, bend: -twist * 0.4 }, 'snap'),
+      beat(0.56, { yaw: 4.2, hop: 0.07, roll: -0.08, bend: twist * 0.4 }, 'soft'),
+      beat(0.76, { yaw: Math.PI * 2, hop: 0, flat: 0.22, bend: 0 }, 'fall'),
+      beat(0.88, { yaw: Math.PI * 2, hop: 0.012, flat: 0 }, 'bounce'),
+      beat(1, { yaw: Math.PI * 2 }, 'soft'),
+    ],
+    u,
+  )
+}
+
+/** Ladea la cabeza hacia quien mira, como preguntando. */
+function clipTilt(u: number, twist: number): Pose {
+  return poseAt(
+    [
+      beat(0, {}, 'soft'),
+      beat(0.26, { roll: 0.26, yaw: -0.18, push: 0.1, bend: -twist * 0.35 }, 'soft'),
+      beat(0.5, { roll: 0.3, yaw: -0.14, push: 0.14, hop: 0.01, bend: -twist * 0.3 }, 'soft'),
+      beat(0.62, { roll: -0.2, yaw: 0.16, push: 0.1, bend: twist * 0.3 }, 'soft'),
+      beat(0.94, { roll: -0.01, yaw: 0.01, bend: twist * 0.02 }, 'soft'),
+      beat(1, {}, 'soft'),
+    ],
+    u,
+  )
+}
+
 const ENTRY_CLIP: Clip = { id: 'enter', duration: 2.5, play: clipEnter }
 
 function playClipPose(clip: Clip, progress: number, twist: number): Pose {
@@ -384,6 +439,9 @@ function allClips(): readonly Clip[] {
     { id: 'nod', duration: 3.8, play: clipNod },
     { id: 'jelly', duration: 5.8, play: clipJelly },
     { id: 'peace', duration: 5.2, play: clipPeace },
+    { id: 'shoot', duration: 2.4, play: clipShoot },
+    { id: 'spin', duration: 2.6, play: clipSpin },
+    { id: 'tilt', duration: 3.6, play: clipTilt },
   ]
 }
 
@@ -414,6 +472,8 @@ function pauseUntil(seconds: number, pauseMin: number, pauseMax: number, factor 
 type PosePlayer = {
   pose: (seconds: number) => Pose
   animating: () => boolean
+  /** Interrumpe lo que esté haciendo y arranca ese clip ya. */
+  cue: (clip: Clip) => void
 }
 
 function makePlayer(twist: number, pauseMin: number, pauseMax: number): PosePlayer {
@@ -425,9 +485,17 @@ function makePlayer(twist: number, pauseMin: number, pauseMax: number): PosePlay
   let until = 0
   let playAt = 0
   let primed = false
+  let now = 0
 
   return {
+    cue(next: Clip): void {
+      if (!primed) return
+      clip = next
+      phase = 'play'
+      playAt = now
+    },
     pose(seconds: number): Pose {
+      now = seconds
       if (!primed) {
         primed = true
         playAt = seconds
@@ -832,6 +900,10 @@ async function boot(): Promise<void> {
 
     const motion = !prefersReducedMotion()
     const player = look ? makePlayer(look.yaw, look.pauseMin, look.pauseMax) : null
+    cueClip = (id) => {
+      const clip = allClips().find((item) => item.id === id)
+      if (clip) player?.cue(clip)
+    }
     let pageVisible = !document.hidden
     let lastShellAt = 0
     let staticRendered = false
