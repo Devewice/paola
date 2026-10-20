@@ -1,4 +1,11 @@
-import type { Outing, OutingKind, OutingStatus } from '@modules/rides/domain/entities/Outing.ts'
+import type {
+  MapPoint,
+  Outing,
+  OutingKind,
+  OutingRoute,
+  OutingStatus,
+} from '@modules/rides/domain/entities/Outing.ts'
+import { decodePolyline } from '@shared/geo/polyline.ts'
 
 const KINDS = new Set<OutingKind>(['rodada', 'actividad', 'tintada'])
 const STATUSES = new Set<OutingStatus>(['abierto', 'lleno', 'cerrado', 'realizado'])
@@ -34,5 +41,36 @@ export function parseOuting(raw: unknown): Outing | null {
     paid: row.paid,
     status: row.status as OutingStatus,
     mapHref: typeof row.mapHref === 'string' && row.mapHref ? row.mapHref : undefined,
+    route: parseRoute(row.route),
+  }
+}
+
+export function parseMapPoint(raw: unknown): MapPoint | undefined {
+  if (!raw || typeof raw !== 'object') return undefined
+  const row = raw as Record<string, unknown>
+  const lat = Number(row.lat)
+  const lng = Number(row.lng)
+  if (typeof row.label !== 'string' || !Number.isFinite(lat) || !Number.isFinite(lng)) return undefined
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return undefined
+  return { label: row.label, lat, lng }
+}
+
+function positive(value: unknown): number | undefined {
+  const number = Number(value)
+  return Number.isFinite(number) && number > 0 ? number : undefined
+}
+
+function parseRoute(raw: unknown): OutingRoute | undefined {
+  if (!raw || typeof raw !== 'object') return undefined
+  const row = raw as Record<string, unknown>
+  const start = parseMapPoint(row.start)
+  const end = parseMapPoint(row.end)
+  if (!start && !end) return undefined
+  return {
+    start,
+    end,
+    path: typeof row.path === 'string' ? decodePolyline(row.path) : [],
+    distanceKm: positive(row.distanceKm),
+    durationMin: positive(row.durationMin),
   }
 }

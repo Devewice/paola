@@ -56,7 +56,6 @@ import NoticeBar from '@ui/NoticeBar.vue'
 import ProductCard from '@ui/ProductCard.vue'
 import Search from '@ui/Search.vue'
 import Select from '@ui/Select.vue'
-import ServiceCard from '@ui/ServiceCard.vue'
 import SortToolbar from '@ui/SortToolbar.vue'
 
 type FilterChip = {
@@ -640,14 +639,17 @@ const filtersDirty = computed(() => chips.value.length > 0)
                 <template #tools>
                   <ShopItemTools :module="module" :clave="editClave ?? ''" :service="item" @changed="emit('changed')" />
                 </template>
-              <ServiceCard
+              <ProductCard
+                poster
                 :title="item.title"
-                :copy="`${copy.kindWashTag}. ${item.includesText}`"
-              >
-                <img v-if="item.photoSrc" class="service-card__flyer" :src="item.photoSrc" :alt="item.title" loading="lazy" />
-                <p class="price">{{ formatProductPrice(item.priceCop) }}</p>
-                <Button size="sm" variant="ghost" :to="appTiendaServicio(item.id)">{{ copy.fichaCta }}</Button>
-              </ServiceCard>
+                :copy="item.includesText"
+                :price="formatProductPrice(item.priceCop)"
+                :photo-src="item.photoSrc"
+                :to="appTiendaServicio(item.id)"
+                :cta-label="copy.serviceCta"
+                :shelf="copy.kindWashTag"
+                :media-label="copy.mediaLabel"
+              />
               </AdminSpot>
             </div>
           </section>

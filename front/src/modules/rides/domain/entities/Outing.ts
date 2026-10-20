@@ -1,3 +1,22 @@
+/** Lugar con nombre: lo que se ve en la tarjeta y en el pin del mapa. */
+export type MapPoint = {
+  readonly label: string
+  readonly lat: number
+  readonly lng: number
+}
+
+/** Resultado de búsqueda: `detail` es la dirección completa para distinguir homónimos. */
+export type PlaceResult = MapPoint & { readonly detail: string }
+
+export type OutingRoute = {
+  readonly start?: MapPoint
+  readonly end?: MapPoint
+  /** Trazado por carretera `[lat, lng]`; vacío si no se pudo trazar. */
+  readonly path: readonly (readonly [number, number])[]
+  readonly distanceKm?: number
+  readonly durationMin?: number
+}
+
 export type OutingKind = 'rodada' | 'actividad' | 'tintada'
 export type OutingStatus = 'abierto' | 'lleno' | 'cerrado' | 'realizado'
 export type OperatorOutingStatus = Extract<OutingStatus, 'abierto' | 'cerrado' | 'realizado'>
@@ -17,6 +36,7 @@ export type Outing = {
   readonly paid: boolean
   readonly status: OutingStatus
   readonly mapHref?: string
+  readonly route?: OutingRoute
 }
 
 export type OutingDraft = {
@@ -28,6 +48,8 @@ export type OutingDraft = {
   readonly capacity: number
   readonly whatToBring: string
   readonly paid: boolean
+  readonly start?: MapPoint | null
+  readonly end?: MapPoint | null
 }
 
 export function remainingSpots(outing: Outing): number {

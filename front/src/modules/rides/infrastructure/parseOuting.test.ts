@@ -29,4 +29,24 @@ describe('parseOuting', () => {
     )
     expect(parseOuting(valid)?.mapHref).toBeUndefined()
   })
+
+  it('lee salida, destino y trazado de la ruta', () => {
+    const outing = parseOuting({
+      ...valid,
+      route: {
+        start: { label: 'Peaje', lat: '4.66', lng: -74.0 },
+        end: { label: 'Guatavita', lat: 4.93, lng: -73.83 },
+        path: '_p~iF~ps|U_ulLnnqC',
+        distanceKm: 43.6,
+        durationMin: 48,
+      },
+    })
+    expect(outing?.route?.start).toEqual({ label: 'Peaje', lat: 4.66, lng: -74 })
+    expect(outing?.route?.path).toHaveLength(2)
+    expect(outing?.route?.distanceKm).toBe(43.6)
+  })
+
+  it('sin puntos válidos no hay ruta', () => {
+    expect(parseOuting({ ...valid, route: { start: { label: 'X', lat: 200, lng: 0 } } })?.route).toBeUndefined()
+  })
 })

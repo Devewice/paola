@@ -103,6 +103,7 @@ function initial(alias: string): string {
           :meeting-point="outing.meetingPoint"
           :route-text="outing.routeText"
           :map-href="outing.mapHref"
+          :route="outing.route"
           :capacity="outing.capacity"
           :taken="outing.taken"
           :what-to-bring="outing.whatToBring"

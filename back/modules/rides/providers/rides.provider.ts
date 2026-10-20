@@ -9,6 +9,7 @@ import {
   RIDES_TABLES,
   type RideConfirmation,
 } from '../constants/rides.constants.js'
+import type { RoadRoute } from '../../maps/index.js'
 import type { CreateOutingDto, CrewRiderDto } from '../dtos/rides.dto.js'
 import type { OperatorTicket, Outing, OutingStatus, Ticket } from '../interfaces/rides.interface.js'
 import { toOperatorTicket, toOuting } from '../schemas/rides.schema.js'
@@ -20,11 +21,19 @@ const OUTING_GROUP = `s.id, s.title, s.date, s.kind, s.meeting_point, s.route_te
 const SEATS_OF = (alias: string) =>
   `CASE WHEN ${alias}.passenger_name IS NOT NULL AND ${alias}.passenger_name <> '' THEN 2 ELSE 1 END`
 
+const ROUTE_POINT_COLUMNS =
+  'r.start_label, r.start_lat, r.start_lng, r.end_label, r.end_lat, r.end_lng, r.path, r.distance_m, r.duration_s'
+
+async function hasRoutePoints(): Promise<boolean> {
+  return getDb().schema.hasColumn(RIDES_TABLES.OUTING_ROUTES, 'start_lat')
+}
+
 async function outingSelect(extraWhere = '', params: readonly string[] = [], order = false): Promise<Outing[]> {
   const hasRoutes = await getDb().schema.hasTable(RIDES_TABLES.OUTING_ROUTES)
-  const mapSelect = hasRoutes ? ', r.map_href' : ''
+  const routeColumns = hasRoutes && (await hasRoutePoints()) ? `, ${ROUTE_POINT_COLUMNS}` : ''
+  const mapSelect = hasRoutes ? `, r.map_href${routeColumns}` : ''
   const mapJoin = hasRoutes ? `LEFT JOIN ${RIDES_TABLES.OUTING_ROUTES} r ON r.outing_id = s.id` : ''
-  const mapGroup = hasRoutes ? ', r.map_href' : ''
+  const mapGroup = mapSelect
   const orderSql = order ? ' ORDER BY s.date ASC' : ''
   const raw = await getDb().raw(
     `SELECT s.id, s.title, s.date, s.kind, s.meeting_point, s.route_text, s.capacity,
@@ -73,6 +82,31 @@ export async function findTickets(): Promise<OperatorTicket[]> {
     )
     .orderBy(`${t}.created_at`, 'asc')) as Record<string, unknown>[]
   return rows.map(toOperatorTicket)
+}
+
+function routePointColumns(draft: CreateOutingDto, road: RoadRoute | null): Record<string, unknown> {
+  const { start, end } = draft.points ?? { start: null, end: null }
+  return {
+    start_label: start?.label ?? null,
+    start_lat: start?.lat ?? null,
+    start_lng: start?.lng ?? null,
+    end_label: end?.label ?? null,
+    end_lat: end?.lat ?? null,
+    end_lng: end?.lng ?? null,
+    path: road?.path ?? null,
+    distance_m: road?.distanceM ?? null,
+    duration_s: road?.durationS ?? null,
+  }
+}
+
+/** Sin `points` en el borrador no se tocan; la fila de ruta se crea si la salida es vieja. */
+export async function saveOutingRoute(id: string, draft: CreateOutingDto, road: RoadRoute | null): Promise<void> {
+  if (!draft.points) return
+  if (!(await getDb().schema.hasTable(RIDES_TABLES.OUTING_ROUTES)) || !(await hasRoutePoints())) return
+  await getDb()(RIDES_TABLES.OUTING_ROUTES)
+    .insert({ id: randomUUID(), outing_id: id, preview_text: draft.routeText || null, ...routePointColumns(draft, road) })
+    .onConflict('outing_id')
+    .merge(['preview_text', ...Object.keys(routePointColumns(draft, road))])
 }
 
 export async function insertOuting(id: string, draft: CreateOutingDto): Promise<void> {

@@ -149,6 +149,7 @@ import LinkPreview from '@ui/LinkPreview.vue'
 import ListBlock from '@ui/ListBlock.vue'
 import LoadingRow from '@ui/LoadingRow.vue'
 import LoginStrip from '@ui/LoginStrip.vue'
+import { decodePolyline } from '@shared/geo/polyline.ts'
 import MapBlock from '@ui/MapBlock.vue'
 import MapStatic from '@ui/MapStatic.vue'
 import Mascot3d from '@ui/Mascot3d.vue'
@@ -375,6 +376,16 @@ function removeTag(tag: string): void {
 
 function toggleSetting(id: string): void {
   settingRows.value = settingRows.value.map((row) => (row.id === id ? { ...row, on: !row.on } : row))
+}
+
+const kitRoute = {
+  start: { label: 'Bomba antes del peaje Patios', lat: 4.661555, lng: -74.005538 },
+  end: { label: 'Guatavita', lat: 4.934395, lng: -73.835301 },
+  path: decodePolyline(
+    'wmm[reubMkoBqxAwfBqa@stAquAu{@eZq`@u`@dIai@yJkQyh@uKeoBbGog@lHsb@t_@am@|Eaf@o_@i{Cm]uhB}h@_c@_^lJsb@}[~@cS}X}b@_Eb\\}OuaAoy@ijIo_EeWqhAsy@_Mo|@{~CgkB{sAPdX',
+  ),
+  distanceKm: 43.6,
+  durationMin: 48,
 }
 
 const ciudadOptions = [
@@ -1589,6 +1600,11 @@ onMounted(async () => {
             <h3 class="kit">Mapa estático — punto de encuentro</h3>
             <p class="sm" style="color:var(--muted);margin:0 0 10px">Sin GPS en vivo. Solo pin + enlace externo.</p>
             <MapBlock meeting-point="Punto por confirmar" />
+          </div>
+          <div>
+            <h3 class="kit">Mapa real — ruta de la rodada</h3>
+            <p class="sm" style="color:var(--muted);margin:0 0 10px">Salida, destino y trazado por carretera. No es GPS en vivo.</p>
+            <MapBlock meeting-point="Bomba antes del peaje Patios" :route="kitRoute" />
           </div>
           <div>
             <h3 class="kit">Compartir memoria</h3>

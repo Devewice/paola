@@ -1,4 +1,5 @@
 import type { RideConfirmation, RideLevel } from '../constants/rides.constants.js'
+import type { MapPoint } from '../../maps/index.js'
 import type { OutingKind, OperatorOutingStatus } from '../interfaces/rides.interface.js'
 
 export interface ClaimSpotDto {
@@ -42,6 +43,8 @@ export interface CreateOutingDto {
   whatToBring: string
   capacity: number
   paid: boolean
+  /** Solo si el cuerpo trae `start` o `end`; `null` borra el punto. */
+  points?: { start: MapPoint | null; end: MapPoint | null }
 }
 
 export interface SetOutingStatusDto {

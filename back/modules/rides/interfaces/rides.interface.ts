@@ -1,3 +1,5 @@
+import type { MapPoint } from '../../maps/index.js'
+
 export type OutingKind = 'rodada' | 'actividad' | 'tintada'
 export type OutingStatus = 'abierto' | 'lleno' | 'cerrado' | 'realizado'
 export type OperatorOutingStatus = Extract<OutingStatus, 'abierto' | 'cerrado' | 'realizado'>
@@ -15,6 +17,16 @@ export interface Outing {
   paid: boolean
   status: OutingStatus
   mapHref?: string
+  route?: OutingRoute
+}
+
+/** Salida y destino en el mapa; `path` es la polyline por carretera si se pudo trazar. */
+export interface OutingRoute {
+  start?: MapPoint
+  end?: MapPoint
+  path?: string
+  distanceKm?: number
+  durationMin?: number
 }
 
 export interface Ticket {

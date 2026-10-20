@@ -1,7 +1,7 @@
 import type { AppError } from '@core/errors/AppError.ts'
 import type { Result } from '@core/result.ts'
 import type { MemoryDraft } from '@modules/rides/domain/entities/Memory.ts'
-import type { OperatorOutingStatus, Outing, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
+import type { OperatorOutingStatus, Outing, OutingDraft, PlaceResult } from '@modules/rides/domain/entities/Outing.ts'
 import type { Memory } from '@modules/rides/domain/entities/Memory.ts'
 import type {
   ClaimedSpot,
@@ -35,4 +35,5 @@ export interface RidesApiPort {
   remove(outingId: string, clave: string): Promise<Result<true, AppError>>
   publishMemory(draft: MemoryDraft, clave: string): Promise<Result<Memory, AppError>>
   removeMemory(memoryId: string, clave: string): Promise<Result<true, AppError>>
+  searchPlaces(query: string, clave: string): Promise<Result<readonly PlaceResult[], AppError>>
 }

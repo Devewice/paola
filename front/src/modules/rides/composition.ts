@@ -38,6 +38,7 @@ export type RidesModule = {
   removeOuting: RidesApiPort['remove']
   publishMemory: RidesApiPort['publishMemory']
   removeMemory: RidesApiPort['removeMemory']
+  searchPlaces: RidesApiPort['searchPlaces']
 }
 
 export function createRidesModule(
@@ -68,5 +69,6 @@ export function createRidesModule(
     removeOuting: (outingId, clave) => api.remove(outingId, clave),
     publishMemory: (draft: MemoryDraft, clave) => api.publishMemory(draft, clave),
     removeMemory: (memoryId, clave) => api.removeMemory(memoryId, clave),
+    searchPlaces: (query, clave) => api.searchPlaces(query, clave),
   }
 }

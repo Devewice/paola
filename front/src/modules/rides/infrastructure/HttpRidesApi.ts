@@ -2,7 +2,7 @@ import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { RIDES_MESSAGES } from '@modules/rides/constants/copy.ts'
 import { buildOutingNotice, buildSignupNotice } from '@modules/rides/application/buildOutingNotice.ts'
-import type { OperatorOutingStatus, Outing, OutingDraft } from '@modules/rides/domain/entities/Outing.ts'
+import type { OperatorOutingStatus, Outing, OutingDraft, PlaceResult } from '@modules/rides/domain/entities/Outing.ts'
 import type {
   CrewRider,
   OperatorTicket,
@@ -14,7 +14,7 @@ import type {
 import type { OperatorBoardOuting, RidesApiPort } from '@modules/rides/domain/ports/RidesApiPort.ts'
 import type { MemoryDraft } from '@modules/rides/domain/entities/Memory.ts'
 import { parseMemory } from '@modules/rides/infrastructure/parseMemory.ts'
-import { parseOuting } from '@modules/rides/infrastructure/parseOuting.ts'
+import { parseMapPoint, parseOuting } from '@modules/rides/infrastructure/parseOuting.ts'
 import {
   API,
   API_FAIL_FALLBACK,
@@ -189,6 +189,22 @@ export class HttpRidesApi implements RidesApiPort {
       outings.push({ ...outing, tickets })
     }
     return ok(outings)
+  }
+
+  async searchPlaces(query: string, clave: string) {
+    const response = await fetch(`${API.OPERAR_PLACES}?q=${encodeURIComponent(query)}`, {
+      headers: { [OPERADOR_CLAVE_HEADER]: clave },
+    })
+    const body = await readBody(response)
+    if (!response.ok) return fail(response.status, body)
+    const places = Array.isArray(body.places)
+      ? body.places.flatMap((row): PlaceResult[] => {
+          const point = parseMapPoint(row)
+          const detail = (row as { detail?: unknown }).detail
+          return point ? [{ ...point, detail: typeof detail === 'string' ? detail : point.label }] : []
+        })
+      : []
+    return ok(places)
   }
 }
 

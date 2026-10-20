@@ -2,6 +2,7 @@
 import Chip from '@ui/Chip.vue'
 import Icon from '@ui/Icon.vue'
 import MapBlock from '@ui/MapBlock.vue'
+import type { MapRoute } from './mapTypes.ts'
 
 withDefaults(
   defineProps<{
@@ -16,8 +17,9 @@ withDefaults(
     whatToBring: string
     paid: boolean
     mapHref?: string
+    route?: MapRoute
   }>(),
-  { taken: 0, mapHref: '' },
+  { taken: 0, mapHref: '', route: undefined },
 )
 </script>
 
@@ -35,10 +37,11 @@ withDefaults(
           {{ date }} · {{ meetingPoint }}
         </p>
         <MapBlock
-          v-if="routeText"
+          v-if="routeText || route"
           :meeting-point="meetingPoint"
           :route-text="routeText"
           :map-href="mapHref"
+          :route="route"
         />
         <p class="paola-outing__meta">
           Cupo {{ taken }} / {{ capacity }} · {{ paid ? 'De pago · se avisa por WhatsApp' : 'Gratis' }}

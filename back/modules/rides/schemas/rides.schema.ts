@@ -1,4 +1,5 @@
 import { HTTP_STATUS } from '../../../http/constants.js'
+import { parseMapPoint } from '../../maps/index.js'
 import { fail } from '../../../http/fail.js'
 import type { Parsed } from '../../../http/types.js'
 import { formatDate, isIsoDate } from '../../../shared/dates.js'
@@ -24,6 +25,7 @@ import type { ClaimSpotDto, CreateOutingDto, SetOutingStatusDto } from '../dtos/
 import type {
   Outing,
   OutingKind,
+  OutingRoute,
   OperatorTicket,
   OutingStatus,
   Ticket,
@@ -112,6 +114,10 @@ export function parseCreateOuting(draft: Record<string, unknown>): Parsed<Create
   const whatToBring = String(draft.whatToBring ?? '').trim()
   const capacity = Number(draft.capacity)
   const paid = draft.paid === true
+  const points =
+    'start' in draft || 'end' in draft
+      ? { start: parseMapPoint(draft.start), end: parseMapPoint(draft.end) }
+      : undefined
 
   if (!isIsoDate(date)) {
     return fail(HTTP_STATUS.BAD_REQUEST, RIDES_MESSAGES.DATE_INVALID)
@@ -140,6 +146,7 @@ export function parseCreateOuting(draft: Record<string, unknown>): Parsed<Create
       whatToBring,
       capacity,
       paid,
+      points,
     },
   }
 }
@@ -174,6 +181,28 @@ export function toOuting(row: Record<string, unknown>): Outing {
     paid: Boolean(row.paid),
     status,
     mapHref: row.map_href ? String(row.map_href) : undefined,
+    route: toRoute(row),
+  }
+}
+
+function toPoint(label: unknown, lat: unknown, lng: unknown) {
+  if (lat === null || lat === undefined || lng === null || lng === undefined) return undefined
+  const point = { label: String(label ?? ''), lat: Number(lat), lng: Number(lng) }
+  return Number.isFinite(point.lat) && Number.isFinite(point.lng) ? point : undefined
+}
+
+function toRoute(row: Record<string, unknown>): OutingRoute | undefined {
+  const start = toPoint(row.start_label, row.start_lat, row.start_lng)
+  const end = toPoint(row.end_label, row.end_lat, row.end_lng)
+  if (!start && !end) return undefined
+  const distance = Number(row.distance_m)
+  const duration = Number(row.duration_s)
+  return {
+    start,
+    end,
+    path: row.path ? String(row.path) : undefined,
+    distanceKm: distance > 0 ? Math.round(distance / 100) / 10 : undefined,
+    durationMin: duration > 0 ? Math.round(duration / 60) : undefined,
   }
 }
 

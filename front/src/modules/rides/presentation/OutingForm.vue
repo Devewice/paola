@@ -2,11 +2,13 @@
 import { computed, ref, watch } from 'vue'
 import type { RidesModule } from '@modules/rides/composition.ts'
 import { RIDES_ADMIN_COPY, RIDES_KIND } from '@modules/rides/constants/copy.ts'
-import type { Outing, OutingKind } from '@modules/rides/domain/entities/Outing.ts'
+import type { MapPoint, Outing, OutingKind } from '@modules/rides/domain/entities/Outing.ts'
+import RoutePointField from '@modules/rides/presentation/RoutePointField.vue'
 import Button from '@ui/Button.vue'
 import Choice from '@ui/Choice.vue'
 import Field from '@ui/Field.vue'
 import Input from '@ui/Input.vue'
+import RouteMap from '@ui/RouteMap.vue'
 import Select from '@ui/Select.vue'
 import Textarea from '@ui/Textarea.vue'
 import { showToast } from '@ui/toast.ts'
@@ -33,6 +35,8 @@ function fromOuting(outing?: Outing | null) {
     whatToBring: outing?.whatToBring ?? '',
     capacity: String(outing?.capacity ?? 20),
     paid: outing?.paid ?? false,
+    start: (outing?.route?.start ?? null) as MapPoint | null,
+    end: (outing?.route?.end ?? null) as MapPoint | null,
   }
 }
 
@@ -45,6 +49,13 @@ watch(
     draft.value = fromOuting(outing)
   },
 )
+
+/** El trazado guardado solo vale si no se movieron los puntos. */
+const previewPath = computed(() => {
+  const route = props.outing?.route
+  const same = (a?: MapPoint | null, b?: MapPoint) => a?.lat === b?.lat && a?.lng === b?.lng
+  return route && same(draft.value.start, route.start) && same(draft.value.end, route.end) ? route.path : []
+})
 
 const kindOptions = [
   { value: RIDES_KIND.RODADA, label: copy.kindRodada },
@@ -64,6 +75,8 @@ async function submit() {
     whatToBring: value.whatToBring.trim(),
     capacity: Number(value.capacity),
     paid: value.paid,
+    start: value.start,
+    end: value.end,
   }
   const result = props.outing
     ? await props.module.updateOuting(props.outing.id, payload, props.clave)
@@ -96,6 +109,17 @@ async function submit() {
     <Field :label="copy.fieldRoute">
       <Textarea v-model="draft.routeText" />
     </Field>
+    <fieldset class="outing-form__map">
+      <legend>{{ copy.mapHeading }}</legend>
+      <p class="outing-form__hint">{{ copy.mapHint }}</p>
+      <div class="admin-fields">
+        <RoutePointField v-model="draft.start" :module="module" :clave="clave" :label="copy.fieldStart" />
+        <RoutePointField v-model="draft.end" :module="module" :clave="clave" :label="copy.fieldEnd" />
+      </div>
+      <div v-if="draft.start || draft.end" class="outing-form__preview">
+        <RouteMap :start="draft.start ?? undefined" :end="draft.end ?? undefined" :path="previewPath" />
+      </div>
+    </fieldset>
     <div class="admin-fields">
       <Field :label="copy.fieldBring">
         <Input v-model="draft.whatToBring" />
@@ -111,3 +135,31 @@ async function submit() {
     </div>
   </form>
 </template>
+
+<style scoped>
+.outing-form__map {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.outing-form__map legend {
+  padding: 0 8px;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.outing-form__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.outing-form__preview {
+  height: 220px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+</style>

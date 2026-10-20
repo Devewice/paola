@@ -11,8 +11,9 @@ import {
   RIDES_STATUS_FULL,
   RIDES_STATUS_OPEN,
 } from '../constants/rides.constants.js'
+import { routeBetween, type RoadRoute } from '../../maps/index.js'
 import type { SessionUser } from '../../social/interfaces/social.interface.js'
-import type { OutingCrewDto } from '../dtos/rides.dto.js'
+import type { CreateOutingDto, OutingCrewDto } from '../dtos/rides.dto.js'
 import type { OperatorBoardOuting, OperatorTicket, Outing, Ticket } from '../interfaces/rides.interface.js'
 import {
   confirmTicket,
@@ -29,6 +30,7 @@ import {
   insertTicket,
   lockOutingRow,
   outingHasMemory,
+  saveOutingRoute,
   saveUserEmergency,
   updateOuting,
   updateOutingStatus,
@@ -194,6 +196,11 @@ export async function readCrew(outingId: string, user: SessionUser | null): Prom
   }
 }
 
+async function roadFor(draft: CreateOutingDto): Promise<RoadRoute | null> {
+  const { start, end } = draft.points ?? {}
+  return start && end ? routeBetween(start, end) : null
+}
+
 export async function createOuting(
   draft: Record<string, unknown>,
 ): Promise<Fail | { ok: true; outing: Outing | null }> {
@@ -202,6 +209,7 @@ export async function createOuting(
 
   const id = randomUUID()
   await insertOuting(id, parsed.value)
+  await saveOutingRoute(id, parsed.value, await roadFor(parsed.value))
   const outing = await findOutingById(id)
   return { ok: true, outing }
 }
@@ -246,6 +254,7 @@ export async function editOuting(
       ? RIDES_STATUS_FULL
       : RIDES_STATUS_OPEN
   await updateOuting(outingId, parsed.value, status)
+  await saveOutingRoute(outingId, parsed.value, await roadFor(parsed.value))
   return { ok: true, outing: await findOutingById(outingId) }
 }
 
