@@ -88,6 +88,7 @@ async function onChanged(): Promise<void> {
         </template>
         <OutingCard
           :class="{ 'paola-outing--featured': group.id === 'featured' }"
+          :compact="group.id === 'grid'"
           :title="outing.title"
           :date="outing.date"
           :kind-label="RIDES_KIND_LABEL[outing.kind]"
@@ -136,10 +137,10 @@ async function onChanged(): Promise<void> {
               <Button :to="appRodada(outing.id)">{{ cardCopy.signupCta }}</Button>
               <p class="agenda__note">{{ cardCopy.quickNote }}</p>
             </template>
-            <template v-else>
-              <p class="paola-outing__copy">{{ outingStatusCopy(outing.status) }}</p>
+            <div v-else class="agenda__closed">
+              <p class="agenda__note">{{ outingStatusCopy(outing.status) }}</p>
               <Button variant="ghost" size="sm" :to="appRodada(outing.id)">{{ cardCopy.detailCta }}</Button>
-            </template>
+            </div>
             <slot name="hilo" :outing="outing" />
           </div>
         </OutingCard>
@@ -172,13 +173,27 @@ async function onChanged(): Promise<void> {
 .agenda__grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
   align-items: start;
 }
 
 .agenda__cta {
   display: grid;
   gap: 16px;
+  justify-items: start;
+}
+
+.agenda__grid .agenda__cta {
+  gap: 12px;
+}
+
+.agenda__grid .agenda__count-value {
+  font-size: 2rem;
+}
+
+.agenda__closed {
+  display: grid;
+  gap: 12px;
   justify-items: start;
 }
 
@@ -232,8 +247,12 @@ async function onChanged(): Promise<void> {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.agenda__cta > .agenda__note {
+  margin-top: -8px;
+}
+
 .agenda__note {
-  margin: -8px 0 0;
+  margin: 0;
   font-size: 0.8125rem;
   color: rgba(255, 255, 255, 0.55);
 }

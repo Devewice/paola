@@ -11,8 +11,10 @@ const props = withDefaults(
     routeText?: string
     mapHref?: string
     route?: MapRoute
+    /** Mapa bajo sin etiquetas flotantes; la ruta va en una sola línea. */
+    compact?: boolean
   }>(),
-  { meetingPoint: MAP_COPY.pendingPoint, routeText: '', mapHref: '', route: undefined },
+  { meetingPoint: MAP_COPY.pendingPoint, routeText: '', mapHref: '', route: undefined, compact: false },
 )
 
 function isStaticImage(href: string): boolean {
@@ -21,6 +23,7 @@ function isStaticImage(href: string): boolean {
 
 const live = computed(() => Boolean(props.route?.start || props.route?.end))
 const straight = computed(() => Boolean(props.route?.start && props.route?.end && props.route.path.length < 2))
+const staticImage = computed(() => !live.value && Boolean(props.mapHref) && isStaticImage(props.mapHref))
 
 const directionsHref = computed(() => {
   const route = props.route
@@ -42,16 +45,36 @@ const stats = computed(() => {
     .filter(Boolean)
     .join(' · ')
 })
+
+const footText = computed(() =>
+  [props.meetingPoint, props.routeText, straight.value && !props.compact ? MAP_COPY.straight : '']
+    .filter(Boolean)
+    .join(' · '),
+)
+const footLink = computed(() => {
+  if (props.compact) return null
+  if (directionsHref.value) return { href: directionsHref.value, label: MAP_COPY.directions, external: true }
+  if (props.mapHref && !isStaticImage(props.mapHref)) return { href: props.mapHref, label: MAP_COPY.howToGet, external: false }
+  return null
+})
 </script>
 
 <template>
-  <div class="map-block" :class="{ 'map-block--live': live }">
-    <div class="map-block__canvas">
-      <RouteMap v-if="live && route" :start="route.start" :end="route.end" :path="route.path" />
-      <img v-else-if="mapHref && isStaticImage(mapHref)" :src="mapHref" alt="" />
+  <div class="map-block" :class="{ 'map-block--live': live, 'map-block--compact': compact }">
+    <div v-if="live || staticImage || (!footText && !footLink)" class="map-block__canvas">
+      <RouteMap v-if="live && route" :start="route.start" :end="route.end" :path="route.path" :compact="compact" />
+      <img v-else-if="staticImage" :src="mapHref" alt="" />
       <span v-else class="map-block__pin" aria-hidden="true" />
     </div>
-    <div v-if="live && route" class="map-block__legs">
+    <div v-if="live && route && compact" class="map-block__line">
+      <span class="map-block__trip">
+        <template v-if="route.start">{{ route.start.label }}</template>
+        <template v-if="route.start && route.end"> → </template>
+        <template v-if="route.end">{{ route.end.label }}</template>
+      </span>
+      <span v-if="stats" class="map-block__stats">{{ stats }}</span>
+    </div>
+    <div v-else-if="live && route" class="map-block__legs">
       <span v-if="route.start" class="map-block__leg map-block__leg--start">
         <small>{{ MAP_COPY.start }}</small>
         <strong>{{ route.start.label }}</strong>
@@ -62,15 +85,15 @@ const stats = computed(() => {
       </span>
       <span v-if="stats" class="map-block__stats">{{ stats }}</span>
     </div>
-    <p class="map-block__foot">
-      {{ meetingPoint }}
-      <template v-if="routeText"> · {{ routeText }}</template>
-      <template v-if="straight"> · {{ MAP_COPY.straight }}</template>
-      <template v-if="directionsHref">
-        · <a :href="directionsHref" target="_blank" rel="noopener noreferrer">{{ MAP_COPY.directions }}</a>
-      </template>
-      <template v-else-if="mapHref && !isStaticImage(mapHref)">
-        · <a :href="mapHref">{{ MAP_COPY.howToGet }}</a>
+    <p v-if="footText || footLink" class="map-block__foot">
+      {{ footText }}
+      <template v-if="footLink">
+        <template v-if="footText"> · </template>
+        <a
+          :href="footLink.href"
+          :target="footLink.external ? '_blank' : undefined"
+          :rel="footLink.external ? 'noopener noreferrer' : undefined"
+        >{{ footLink.label }}</a>
       </template>
     </p>
   </div>

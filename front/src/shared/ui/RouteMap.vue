@@ -11,8 +11,10 @@ const props = withDefaults(
     end?: Point
     /** Trazado por carretera `[lat, lng]`; sin él se une salida y destino con línea punteada. */
     path?: readonly (readonly [number, number])[]
+    /** Sin etiquetas ni botones de zoom: para cards angostas. */
+    compact?: boolean
   }>(),
-  { start: undefined, end: undefined, path: () => [] },
+  { start: undefined, end: undefined, path: () => [], compact: false },
 )
 
 const host = ref<HTMLElement | null>(null)
@@ -57,7 +59,7 @@ async function draw(): Promise<void> {
       attributionControl: true,
     })
     map = instance
-    L.control.zoom({ position: 'bottomright' }).addTo(instance)
+    if (!props.compact) L.control.zoom({ position: 'bottomright' }).addTo(instance)
     instance.attributionControl.setPrefix(false)
     L.tileLayer(MAP_TILES.URL, {
       attribution: MAP_TILES.ATTRIBUTION,
@@ -86,32 +88,39 @@ async function draw(): Promise<void> {
     }
 
     if (props.start) {
-      L.marker([props.start.lat, props.start.lng], { icon: pin(L, 'start'), keyboard: false })
-        .bindTooltip(label(MAP_COPY.start, props.start.label), {
+      const marker = L.marker([props.start.lat, props.start.lng], { icon: pin(L, 'start'), keyboard: false })
+      if (!props.compact) {
+        marker.bindTooltip(label(MAP_COPY.start, props.start.label), {
           permanent: true,
           direction: 'top',
           offset: [0, -16],
           className: 'route-map__label',
         })
-        .addTo(instance)
+      }
+      marker.addTo(instance)
     }
     if (props.end) {
-      L.marker([props.end.lat, props.end.lng], { icon: pin(L, 'end'), keyboard: false })
-        .bindTooltip(label(MAP_COPY.end, props.end.label), {
+      const marker = L.marker([props.end.lat, props.end.lng], { icon: pin(L, 'end'), keyboard: false })
+      if (!props.compact) {
+        marker.bindTooltip(label(MAP_COPY.end, props.end.label), {
           permanent: true,
           direction: 'top',
           offset: [0, -16],
           className: 'route-map__label route-map__label--end',
         })
-        .addTo(instance)
+      }
+      marker.addTo(instance)
     }
 
     const bounds = line.length > 1 ? L.latLngBounds(line) : null
     if (bounds) {
-      instance.fitBounds(bounds, {
-        paddingTopLeft: [MAP_TILES.FIT_PADDING, MAP_TILES.FIT_PADDING_TOP],
-        paddingBottomRight: [MAP_TILES.FIT_PADDING, MAP_TILES.FIT_PADDING_BOTTOM],
-      })
+      const edge = MAP_TILES.FIT_PADDING
+      instance.fitBounds(
+        bounds,
+        props.compact
+          ? { padding: [MAP_TILES.FIT_PADDING_COMPACT, MAP_TILES.FIT_PADDING_COMPACT] }
+          : { paddingTopLeft: [edge, MAP_TILES.FIT_PADDING_TOP], paddingBottomRight: [edge, MAP_TILES.FIT_PADDING_BOTTOM] },
+      )
     }
     else if (ends[0]) instance.setView([ends[0].lat, ends[0].lng], MAP_TILES.SINGLE_ZOOM)
 
@@ -170,7 +179,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="route-map" :class="{ 'route-map--zoom': zoomOn }">
     <div ref="host" class="route-map__canvas" role="img" :aria-label="MAP_COPY.aria" />
-    <span v-if="!zoomOn && !failed" class="route-map__hint">{{ MAP_COPY.zoomHint }}</span>
+    <span v-if="!compact && !zoomOn && !failed" class="route-map__hint">{{ MAP_COPY.zoomHint }}</span>
     <p v-if="failed" class="route-map__failed">{{ MAP_COPY.failed }}</p>
   </div>
 </template>

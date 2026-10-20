@@ -69,7 +69,7 @@ Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 ## Parchese / rodadas
 
-`AgendaItem` `AgendaRow` `RideListItem` `RideCard` `OutingCard` `RideFicha` `RideStates` `RideThreadHead` · `ApuntarseBox` · `TicketCard` `PrintTicket` `DonutCupo` · `MapBlock` (con `route`: mapa real con salida, destino, trazado, km y enlace a Google Maps) `RouteMap` (Leaflet + OpenStreetMap oscurecido; carga perezosa) `MapStatic` (estático) — nada de GPS en vivo · `Itinerary` `StopList` `Formation` `Countdown` `WeatherPill` · `MemoriaHero` `MemoryLayout` `Gallery` `PhotoMeta` `ParticipantRow`
+`AgendaItem` `AgendaRow` `RideListItem` `RideCard` `OutingCard` (`compact` para grillas: mapa bajo, texto recortado) `RideFicha` `RideStates` `RideThreadHead` · `ApuntarseBox` · `TicketCard` `PrintTicket` `DonutCupo` · `MapBlock` (con `route`: mapa real con salida, destino, trazado, km y enlace a Google Maps) `RouteMap` (Leaflet + OpenStreetMap oscurecido; carga perezosa) `MapStatic` (estático) — nada de GPS en vivo · `Itinerary` `StopList` `Formation` `Countdown` `WeatherPill` · `MemoriaHero` `MemoryLayout` `Gallery` `PhotoMeta` `ParticipantRow`
 
 ## Tienda
 

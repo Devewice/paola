@@ -2325,13 +2325,36 @@ html.admin-drawer-open {
 /* Mapa real de la ruta (Leaflet + base oscura) */
 .map-block--live .map-block__canvas {
   display: block;
-  height: 360px;
+  height: 280px;
   background: #05070c;
+}
+.map-block--live.map-block--compact .map-block__canvas {
+  height: 170px;
 }
 @media (max-width: 600px) {
   .map-block--live .map-block__canvas {
-    height: 240px;
+    height: 220px;
   }
+}
+.map-block__line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.map-block__trip {
+  min-width: 0;
+  color: #fff;
+  font-weight: 600;
+}
+.map-block__line .map-block__stats {
+  margin-left: 0;
+  font-size: 15px;
+  white-space: nowrap;
 }
 .route-map,
 .route-map__canvas {

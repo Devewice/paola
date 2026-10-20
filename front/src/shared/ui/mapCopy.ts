@@ -10,6 +10,7 @@ export const MAP_TILES = {
   FIT_PADDING: 36,
   /** Abajo va el aviso de zoom. */
   FIT_PADDING_BOTTOM: 44,
+  FIT_PADDING_COMPACT: 22,
 } as const
 
 export const MAP_COLORS = {
