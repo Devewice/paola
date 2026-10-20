@@ -69,7 +69,7 @@ Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 ## Parchese / rodadas
 
-`AgendaItem` `AgendaRow` `RideListItem` `RideCard` `OutingCard` (`compact` para grillas: mapa bajo, texto recortado) `RideFicha` `RideStates` `RideThreadHead` · `ApuntarseBox` · `TicketCard` `PrintTicket` `DonutCupo` · `MapBlock` (con `route`: mapa real con salida, destino, trazado, km y enlace a Google Maps) `RouteMap` (Leaflet + OpenStreetMap oscurecido; carga perezosa) `MapStatic` (estático) — nada de GPS en vivo · `Itinerary` `StopList` `Formation` `Countdown` `WeatherPill` · `MemoriaHero` `MemoryLayout` `Gallery` `PhotoMeta` `ParticipantRow`
+`AgendaItem` `AgendaRow` `RideListItem` `RideCard` `OutingCard` (`compact` para grillas: mapa bajo, texto recortado) `RideFicha` `RideStates` `RideThreadHead` · `ApuntarseBox` · `TicketCard` `PrintTicket` `DonutCupo` · `MapBlock` (con `route`: mapa real con salida, destino, trazado, km y enlace a Google Maps) `RouteMap` (Leaflet + OpenStreetMap oscurecido; carga perezosa) `MapStatic` (estático) — nada de GPS en vivo · `Itinerary` `StopList` `Formation` `Countdown` `WeatherPill` · `MemoriaHero` `MemoryLayout` `Gallery` (foto completa + miniaturas; al tocarla abre `PhotoViewer`) `PhotoViewer` (visor a pantalla completa: pellizcar o rueda para acercar, arrastrar, doble toque acerca/restablece, deslizar cambia, deslizar abajo o Esc cierra; `v-model` = índice o `null`, `photos`) `PhotoMeta` `ParticipantRow`
 
 ## Tienda
 
@@ -100,6 +100,8 @@ En el panel: listado primero, botón *Nuevo* abre el `AdminDrawer`. En vistas p�
 ## Datos / KPI
 
 `StatBig` `StatGrid` `KpiStrip` `DataBlock` `Timeline` `KitTable` `CompareTable` `SparkBars` `RingProgress`
+
+`ChartView` gráfica SVG/CSS sin librerías (`type`: `bars` | `hbars` | `donut` | `pie` | `line`; `labels`, `series`, `compact`). Dona y torta usan la primera serie. · `ChartDeck` slider de gráficas: flechas, puntos, deslizar y ←/→; `slides: ChartSlide[]` (el primer tipo de `types` arranca), `pickable` muestra el selector de tipo, `compact` para tarjetas. Tipos y paleta en `chartCopy.ts`.
 
 ## Kit-only / demo (no uses en vistas de producto)
 

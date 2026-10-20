@@ -3,9 +3,11 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { PollsModule } from '@modules/polls/composition.ts'
 import { POLLS_ADMIN_COPY, POLLS_LOCALE } from '@modules/polls/constants/copy.ts'
 import type { OperatorPoll, PollDayPoint, PollInsights } from '@modules/polls/domain/ports/PollsPort.ts'
+import { insightCharts, questionCharts } from '@modules/polls/application/pollCharts.ts'
 import PollResults from '@modules/polls/presentation/PollResults.vue'
 import AdminModal from '@ui/AdminModal.vue'
 import Button from '@ui/Button.vue'
+import ChartDeck from '@ui/ChartDeck.vue'
 import Chip from '@ui/Chip.vue'
 import FilterPills from '@ui/FilterPills.vue'
 import Tabs from '@ui/Tabs.vue'
@@ -123,6 +125,11 @@ const axisLabels = computed(() => {
     .map((point) => shortDay(point.day))
 })
 
+const charts = computed(() => [
+  ...(insights.value ? insightCharts(insights.value, series.value, shortDay) : []),
+  ...questionCharts(props.poll.questions, props.poll.results),
+])
+
 const visitors = computed(() => {
   const list = insights.value?.visitors ?? []
   if (visitorFilter.value === 'pending') return list.filter((visitor) => !visitor.responded)
@@ -206,6 +213,8 @@ defineExpose({ reload: load })
           <small>{{ kpi.hint }}</small>
         </div>
       </dl>
+
+      <ChartDeck v-if="charts.length" :key="poll.id" :slides="charts" pickable />
 
       <section class="poll-dash__panel">
         <h4 class="poll-dash__title">{{ copy.funnelTitle }}</h4>

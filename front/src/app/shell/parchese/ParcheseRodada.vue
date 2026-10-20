@@ -29,6 +29,7 @@ import Chip from '@ui/Chip.vue'
 import Empty from '@ui/Empty.vue'
 import Icon from '@ui/Icon.vue'
 import MapBlock from '@ui/MapBlock.vue'
+import PhotoViewer from '@ui/PhotoViewer.vue'
 import StepsPoster from '@ui/StepsPoster.vue'
 
 const copy = RIDES_PAGE_COPY
@@ -56,6 +57,7 @@ const upcoming = computed(() => Boolean(outing.value && outing.value.status !== 
 const memory = computed(
   () => deps.value.rides.getMemories().items.find((item) => item.outingId === outingId.value) ?? null,
 )
+const viewerIndex = ref<number | null>(null)
 /** Mosaico de 4 columnas con la primera foto en 2×2: la última estira lo que sobre de su fila. */
 const lastSpan = computed(() => {
   const count = memory.value?.photos.length ?? 0
@@ -302,18 +304,18 @@ function initial(alias: string): string {
           :class="{ 'ride-gallery--few': memory.photos.length < 3 }"
           :style="{ '--last-span': lastSpan }"
         >
-          <a
-            v-for="photo in memory.photos"
+          <button
+            v-for="(photo, photoIndex) in memory.photos"
             :key="photo.id"
+            type="button"
             class="ride-gallery__item"
-            :href="photo.src"
-            target="_blank"
-            rel="noopener"
             :aria-label="copy.galleryOpen(photo.alt)"
+            @click="viewerIndex = photoIndex"
           >
             <img :src="photo.src" :alt="photo.alt" loading="lazy" />
-          </a>
+          </button>
         </div>
+        <PhotoViewer v-model="viewerIndex" :photos="memory.photos" />
         <blockquote v-if="memory.closingText" class="ride-gallery__closing">{{ memory.closingText }}</blockquote>
       </section>
     </template>
@@ -510,6 +512,8 @@ function initial(alias: string): string {
 }
 
 .ride-gallery__item {
+  padding: 0;
+  cursor: zoom-in;
   overflow: hidden;
   border-radius: 10px;
   border: 1px solid rgba(72, 180, 252, 0.18);

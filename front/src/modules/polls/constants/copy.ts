@@ -128,6 +128,39 @@ export const POLLS_COPY = {
   pageNotFoundCopy: 'Puede que la hayan quitado o que el enlace esté mal.',
 } as const
 
+/** Gráficas del tablero admin y del mini tablero público. */
+export const POLLS_CHART_COPY = {
+  questionKicker: (number: string) => (number ? `Pregunta ${number}` : 'Pregunta'),
+  answered: (count: number) => (count === 1 ? '1 respuesta' : `${count} respuestas`),
+  votes: 'Votos',
+  firstPlace: 'Veces en primer lugar',
+  rankCaption: (answered: number) => `Cuántos la pusieron de primera · ${answered} respuestas`,
+  scaleCaption: (average: string, max: number, answered: number) => `Promedio ${average} de ${max} · ${answered} respuestas`,
+  deckTitle: 'Gráficas',
+  trafficKicker: 'Tráfico',
+  peopleKicker: 'Personas',
+  responsesKicker: 'Respuestas',
+  overviewTitle: 'Cifras generales',
+  dailyTitle: 'Movimiento de los últimos 30 días',
+  respondedTitle: 'Visitantes que respondieron',
+  responded: 'Respondieron',
+  notResponded: 'No respondieron',
+  accountsTitle: 'Visitantes con cuenta y sin cuenta',
+  responseAccountsTitle: 'Respuestas con cuenta y sin cuenta',
+  withAccount: 'Con cuenta',
+  withoutAccount: 'Sin cuenta',
+  hourTitle: 'A qué hora responden',
+  weekdayTitle: 'Qué día de la semana responden',
+  weekdays: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+  hourLabel: (hour: number) => `${hour}h`,
+  sampleCaption: (shown: number, total: number) =>
+    shown < total ? `Sobre las últimas ${shown} de ${total} respuestas.` : `Sobre ${total} respuestas.`,
+  visitorsCaption: (count: number) => `${count} personas distintas la vieron.`,
+  miniLead: 'Pasa con las flechas para ver cada pregunta.',
+  detailShow: 'Ver el detalle completo',
+  detailHide: 'Ocultar el detalle',
+} as const
+
 export const POLLS_ADMIN_COPY = {
   listTitle: 'Encuestas publicadas',
   listLead: 'Abre, cierra o destaca en Inicio. Los resultados se actualizan con cada voto.',

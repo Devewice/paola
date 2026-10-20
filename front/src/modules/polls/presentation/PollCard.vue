@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { PollsModule } from '@modules/polls/composition.ts'
+import { questionCharts } from '@modules/polls/application/pollCharts.ts'
 import {
+  POLLS_CHART_COPY,
   POLLS_COPY,
   POLLS_DATE_FORMAT,
   POLLS_INLINE_MAX,
@@ -25,6 +27,7 @@ import PollResults from '@modules/polls/presentation/PollResults.vue'
 import PollStepper from '@modules/polls/presentation/PollStepper.vue'
 import { appEncuesta, appRodada } from '@shared/http/constants.ts'
 import Button from '@ui/Button.vue'
+import ChartDeck from '@ui/ChartDeck.vue'
 import Chip from '@ui/Chip.vue'
 import { showToast } from '@ui/toast.ts'
 
@@ -76,6 +79,11 @@ const closesLabel = computed(() => {
 })
 
 const resultsLead = computed(() => (current.value.isOpen ? copy.alreadyVoted : copy.closedNote))
+const chartCopy = POLLS_CHART_COPY
+const charts = computed(() => (current.value.results ? questionCharts(current.value.questions, current.value.results) : []))
+/** Encuesta larga: mini tablero en vez de la lista completa, que queda plegada. */
+const miniDash = computed(() => long.value && charts.value.length > 0)
+const detailOpen = ref(false)
 const shown = computed(() => visibleQuestions(current.value, ballot.value))
 
 function answerOf(question: PollQuestion): BallotAnswer {
@@ -166,8 +174,18 @@ async function submit() {
     </header>
 
     <template v-if="showResults && current.results">
-      <p class="poll-card__note">{{ resultsLead }}</p>
-      <PollResults :questions="current.questions" :results="current.results" />
+      <p class="poll-card__note">
+        {{ resultsLead }}
+        <template v-if="miniDash && charts.length > 1">{{ chartCopy.miniLead }}</template>
+      </p>
+      <template v-if="miniDash">
+        <ChartDeck :slides="charts" compact />
+        <Button size="sm" variant="ghost" :aria-expanded="detailOpen" @click="detailOpen = !detailOpen">
+          {{ detailOpen ? chartCopy.detailHide : chartCopy.detailShow }}
+        </Button>
+        <PollResults v-if="detailOpen" :questions="current.questions" :results="current.results" />
+      </template>
+      <PollResults v-else :questions="current.questions" :results="current.results" />
     </template>
 
     <p v-else-if="resultsHidden" class="poll-card__note">

@@ -56,6 +56,8 @@ import ChatLayout from '@ui/ChatLayout.vue'
 import CheckList from '@ui/CheckList.vue'
 import Changelog from '@ui/Changelog.vue'
 import CheckoutSteps from '@ui/CheckoutSteps.vue'
+import ChartDeck from '@ui/ChartDeck.vue'
+import type { ChartSlide } from '@ui/chartCopy.ts'
 import Chip from '@ui/Chip.vue'
 import Choice from '@ui/Choice.vue'
 import ChoiceList from '@ui/ChoiceList.vue'
@@ -656,6 +658,28 @@ const heatmapCells = [
 ] as const
 
 const sparkHeights = ['30%', '55%', '40%', '80%', '45%', '65%', '50%'] as const
+const chartSlides: ChartSlide[] = [
+  {
+    id: 'ruta',
+    kicker: 'Pregunta 1',
+    title: '¿A dónde rodamos?',
+    caption: '42 respuestas',
+    labels: ['Anapoima', 'La Vega', 'Villeta', 'Guatavita'],
+    series: [{ id: 'votos', label: 'Votos', values: [18, 11, 8, 5] }],
+    types: ['donut', 'hbars', 'bars', 'pie'],
+  },
+  {
+    id: 'semana',
+    kicker: 'Tráfico',
+    title: 'Movimiento de la semana',
+    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    series: [
+      { id: 'vistas', label: 'Impresiones', values: [12, 18, 9, 22, 30, 41, 26] },
+      { id: 'votos', label: 'Respuestas', values: [3, 5, 2, 6, 9, 14, 8] },
+    ],
+    types: ['line', 'bars'],
+  },
+]
 
 const multiProgressRows = [
   { label: 'Km mes', value: '—', width: '65%' },
@@ -2176,6 +2200,10 @@ onMounted(async () => {
             <h4>Sparkline km</h4>
             <SparkBars :heights="sparkHeights" />
             <MultiProgress :rows="multiProgressRows" style="margin-top:16px" />
+          </ArsenalBlock>
+          <ArsenalBlock>
+            <h4>ChartDeck</h4>
+            <ChartDeck :slides="chartSlides" pickable />
           </ArsenalBlock>
         </div>
 
