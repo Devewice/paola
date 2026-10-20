@@ -295,7 +295,7 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
   gap: clamp(24px, 5vw, 64px);
   align-items: center;
 }
@@ -358,7 +358,8 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 0 0.28em;
   margin: 0;
-  font: 700 clamp(34px, 6.4vw, 64px) / 1.02 var(--display, Oswald, sans-serif);
+  font: 700 clamp(32px, 4vw, 52px) / 1.02 var(--display, Oswald, sans-serif);
+  overflow-wrap: anywhere;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   outline: none;

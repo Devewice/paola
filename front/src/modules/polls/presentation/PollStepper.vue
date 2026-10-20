@@ -709,14 +709,15 @@ onBeforeUnmount(() => {
     bottom: calc(64px + env(safe-area-inset-bottom));
     margin-inline: -16px;
     padding: 10px 16px;
-    background: rgba(5, 7, 12, 0.95);
+    background: #05070c;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -16px 20px -8px #05070c;
   }
   .poll-stepper__dock-mid .poll-stepper__nudge {
     position: absolute;
     inset: auto 0 100%;
     padding: 8px 16px;
-    background: rgba(5, 7, 12, 0.95);
+    background: #05070c;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 13px;
     text-align: center;
