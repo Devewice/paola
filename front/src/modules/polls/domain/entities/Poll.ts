@@ -90,6 +90,8 @@ export type Poll = {
   readonly audience: PollAudience
   readonly status: PollStatus
   readonly featured: boolean
+  /** Falso: el público no ve resultados, ni al votar ni al cerrar. */
+  readonly showResults: boolean
   readonly outingId?: string
   readonly outingTitle?: string
   readonly closesAt?: string

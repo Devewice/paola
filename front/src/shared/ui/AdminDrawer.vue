@@ -8,8 +8,10 @@ const props = withDefaults(
     title: string
     lead?: string
     closeLabel?: string
+    /** Editores largos y tableros de datos. */
+    wide?: boolean
   }>(),
-  { closeLabel: ADMIN_TOOLS_COPY.close },
+  { closeLabel: ADMIN_TOOLS_COPY.close, wide: false },
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
@@ -44,7 +46,10 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <Transition name="admin-drawer">
       <div v-if="modelValue" class="admin-drawer" @click.self="close">
-        <aside class="admin-drawer__panel" role="dialog" aria-modal="true" :aria-label="title">
+        <aside
+          class="admin-drawer__panel"
+          :class="{ 'admin-drawer__panel--wide': wide }"
+          role="dialog" aria-modal="true" :aria-label="title">
           <header class="admin-drawer__head">
             <div class="admin-drawer__titles">
               <h3>{{ title }}</h3>

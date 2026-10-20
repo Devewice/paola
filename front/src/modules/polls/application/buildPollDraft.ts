@@ -2,6 +2,7 @@ import { appError, type AppError } from '@core/errors/AppError.ts'
 import { err, ok, type Result } from '@core/result.ts'
 import { POLLS_EDITOR_MESSAGES, POLLS_LIMITS } from '@modules/polls/constants/copy.ts'
 import type {
+  Poll,
   PollAudience,
   PollConditionMode,
   PollDisplay,
@@ -17,9 +18,11 @@ import type {
   RowDraft,
 } from '@modules/polls/domain/ports/PollsPort.ts'
 
-export type OptionForm = { label: string; imageSrc: string; isOther?: boolean; exclusive?: boolean }
+/** `id` viene de la encuesta publicada; al editar, conservar el id conserva las respuestas. */
+export type OptionForm = { id?: string; label: string; imageSrc: string; isOther?: boolean; exclusive?: boolean }
 
 export type QuestionForm = {
+  id?: string
   kind: PollKind
   prompt: string
   help: string
@@ -38,6 +41,7 @@ export type QuestionForm = {
   /** Filas de la cuadrícula y su número del documento (misma posición). */
   rows?: string[]
   rowCodes?: string[]
+  rowIds?: string[]
   /** Posición (como texto) de la pregunta de la que depende; vacío = siempre visible. */
   showIfQuestion?: string
   showIfOptions?: number[]
@@ -50,6 +54,7 @@ export type PollForm = {
   audience: PollAudience
   status: PollStatus
   featured: boolean
+  showResults: boolean
   outingId: string
   closesAt: string
   questions: QuestionForm[]
@@ -93,6 +98,7 @@ export function emptyPollForm(): PollForm {
     audience: 'public',
     status: 'open',
     featured: false,
+    showResults: true,
     outingId: '',
     closesAt: '',
     questions: [emptyQuestion()],
@@ -141,6 +147,7 @@ function buildQuestion(form: QuestionForm, index: number, built: readonly Built[
   const condition = buildCondition(form, index, built)
   if (!condition.ok) return condition
   const base: QuestionDraft = {
+    ...(form.id ? { id: form.id } : {}),
     kind: form.kind,
     prompt,
     help: optional(form.help),
@@ -167,6 +174,7 @@ function buildQuestion(form: QuestionForm, index: number, built: readonly Built[
       }
       optionMap.push(options.length)
       options.push({
+        ...(option.id ? { id: option.id } : {}),
         label,
         imageSrc: optional(option.imageSrc),
         ...(picks && option.isOther ? { isOther: true } : {}),
@@ -179,9 +187,10 @@ function buildQuestion(form: QuestionForm, index: number, built: readonly Built[
 
     if (form.kind === 'grid') {
       const rows: RowDraft[] = (form.rows ?? [])
-        .map((row, position) => {
+        .map((row, position): RowDraft => {
           const code = optional(form.rowCodes?.[position])
-          return code ? { label: row.trim(), code } : { label: row.trim() }
+          const id = optional(form.rowIds?.[position])
+          return { ...(id ? { id } : {}), label: row.trim(), ...(code ? { code } : {}) }
         })
         .filter((row) => row.label)
       if (rows.length < POLLS_LIMITS.ROWS_MIN || rows.length > POLLS_LIMITS.ROWS_MAX) {
@@ -241,8 +250,74 @@ export function buildPollDraft(form: PollForm): Result<PollDraft, AppError> {
     audience: form.audience,
     status: form.status,
     featured: form.featured,
+    showResults: form.showResults,
     outingId: optional(form.outingId),
     closesAt,
     questions,
   })
+}
+
+/** `datetime-local` espera la hora local sin zona. */
+function toLocalInput(iso: string | undefined): string {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (Number.isNaN(date.valueOf())) return ''
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+/** Encuesta publicada → formulario editable, con ids para conservar respuestas. */
+export function pollToForm(poll: Pick<Poll, 'title' | 'description' | 'audience' | 'status' | 'featured' | 'showResults' | 'outingId' | 'closesAt' | 'questions'>): PollForm {
+  const positions = new Map(poll.questions.map((question, index) => [question.id, index]))
+  return {
+    title: poll.title,
+    description: poll.description ?? '',
+    audience: poll.audience,
+    status: poll.status,
+    featured: poll.featured,
+    showResults: poll.showResults,
+    outingId: poll.outingId ?? '',
+    closesAt: toLocalInput(poll.closesAt),
+    questions: poll.questions.map((question) => {
+      const condition = question.showIf
+      const target = condition ? poll.questions.find((item) => item.id === condition.questionId) : undefined
+      const rows = question.rows ?? []
+      return {
+        id: question.id,
+        kind: question.kind,
+        prompt: question.prompt,
+        help: question.help ?? '',
+        section: question.section ?? '',
+        code: question.code ?? '',
+        display: question.display ?? 'auto',
+        tone: question.tone ?? 'plain',
+        required: question.required,
+        maxChoices: question.maxChoices === undefined ? '' : String(question.maxChoices),
+        scaleMin: String(question.scaleMin ?? 1),
+        scaleMax: String(question.scaleMax ?? 5),
+        scaleMinLabel: question.scaleMinLabel ?? '',
+        scaleMaxLabel: question.scaleMaxLabel ?? '',
+        options: question.options.length
+          ? question.options.map((option) => ({
+              id: option.id,
+              label: option.label,
+              imageSrc: option.imageSrc ?? '',
+              isOther: option.isOther ?? false,
+              exclusive: option.exclusive ?? false,
+            }))
+          : [emptyOption(), emptyOption()],
+        rows: rows.length ? rows.map((row) => row.label) : ['', ''],
+        rowCodes: rows.length ? rows.map((row) => row.code ?? '') : ['', ''],
+        rowIds: rows.map((row) => row.id),
+        showIfQuestion: condition && target ? String(positions.get(target.id) ?? '') : '',
+        showIfOptions:
+          condition && target
+            ? condition.optionIds
+                .map((optionId) => target.options.findIndex((option) => option.id === optionId))
+                .filter((index) => index >= 0)
+            : [],
+        showIfMode: condition?.mode ?? 'any',
+      }
+    }),
+  }
 }

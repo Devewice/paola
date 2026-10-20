@@ -29,7 +29,8 @@ import type {
 const CHOICE_KINDS: readonly PollKind[] = ['single', 'multiple', 'ranking', 'grid']
 const PICK_KINDS: readonly PollKind[] = ['single', 'multiple']
 
-export type OptionDraft = Omit<PollOption, 'id'>
+/** `id` solo al editar: lo que ya existe se actualiza y conserva sus respuestas. */
+export type OptionDraft = Omit<PollOption, 'id'> & { id?: string }
 
 /** Condición por posiciones: la pregunta y sus opciones aún no tienen id. */
 export type ConditionDraft = {
@@ -38,9 +39,10 @@ export type ConditionDraft = {
   mode: PollConditionMode
 }
 
-export type RowDraft = Omit<PollRow, 'id'>
+export type RowDraft = Omit<PollRow, 'id'> & { id?: string }
 
 export type QuestionDraft = Omit<PollQuestion, 'id' | 'options' | 'rows' | 'showIf'> & {
+  id?: string
   options: OptionDraft[]
   rows: RowDraft[]
   showIf?: ConditionDraft
@@ -52,6 +54,7 @@ export type PollDraft = {
   audience: PollAudience
   status: PollStatus
   featured: boolean
+  showResults: boolean
   outingId?: string
   closesAt?: string
   questions: QuestionDraft[]
@@ -60,7 +63,13 @@ export type PollDraft = {
 export type PollPatch = {
   status?: PollStatus
   featured?: boolean
+  showResults?: boolean
   closesAt?: string | null
+}
+
+function optionalId(value: unknown): string | undefined {
+  const id = text(value)
+  return id && id.length <= 64 ? id : undefined
 }
 
 function text(value: unknown): string {
@@ -123,6 +132,7 @@ function parseQuestion(raw: unknown, index: number, previous: readonly QuestionD
     .map((item) => {
       const option = asRecord(item)
       return {
+        id: optionalId(option.id),
         label: text(option.label).slice(0, POLL_LIMITS.OPTION_MAX),
         imageSrc: optionalText(option.imageSrc),
         isOther: picks && option.isOther === true,
@@ -135,6 +145,7 @@ function parseQuestion(raw: unknown, index: number, previous: readonly QuestionD
   if (!condition.ok) return condition
 
   const question: QuestionDraft = {
+    id: optionalId(row.id),
     kind,
     prompt,
     help: optionalText(row.help),
@@ -161,6 +172,7 @@ function parseQuestion(raw: unknown, index: number, previous: readonly QuestionD
         .map((item) => {
           const record = typeof item === 'string' ? { label: item } : asRecord(item)
           return {
+            id: optionalId(record.id),
             label: text(record.label).slice(0, POLL_LIMITS.OPTION_MAX),
             code: optionalText(record.code)?.slice(0, POLL_LIMITS.CODE_MAX),
           }
@@ -224,6 +236,7 @@ export function parsePollDraft(draft: Record<string, unknown>): Parsed<PollDraft
       audience,
       status,
       featured: draft.featured === true,
+      showResults: draft.showResults !== false,
       outingId: optionalText(draft.outingId),
       closesAt: closesAt.value,
       questions,
@@ -238,6 +251,7 @@ export function parsePollPatch(draft: Record<string, unknown>): Parsed<PollPatch
     patch.status = draft.status
   }
   if (typeof draft.featured === 'boolean') patch.featured = draft.featured
+  if (typeof draft.showResults === 'boolean') patch.showResults = draft.showResults
   if (draft.closesAt !== undefined) {
     if (draft.closesAt === null || draft.closesAt === '') {
       patch.closesAt = null
@@ -403,6 +417,7 @@ export function toPollBase(row: Record<string, unknown>): Omit<Poll, 'questions'
     audience: row.audience === 'account' ? 'account' : 'public',
     status: isOneOf(POLL_STATUSES, row.status) ? row.status : 'draft',
     featured: Boolean(row.featured),
+    showResults: row.show_results === undefined || row.show_results === null ? true : Boolean(row.show_results),
     outingId: optionalText(row.outing_id),
     outingTitle: optionalText(row.outing_title),
     closesAt: row.closes_at ? new Date(String(row.closes_at)).toISOString() : undefined,

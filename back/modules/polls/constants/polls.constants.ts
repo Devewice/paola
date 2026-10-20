@@ -5,17 +5,38 @@ export const POLL_TABLES = {
   ROWS: 'poll_rows',
   RESPONSES: 'poll_responses',
   ANSWERS: 'poll_answers',
+  VIEWS: 'poll_views',
   SESSIONS: 'sessions',
+  USERS: 'users',
 } as const
 
 export const POLL_ROUTES = {
   LIST: '/api/polls',
   DETAIL: '/api/polls/:id',
   VOTE: '/api/polls/:id/votes',
+  VIEWS: '/api/polls/views',
   OPERAR_LIST: '/api/operar/polls',
   OPERAR_CREATE: '/api/operar/polls',
   OPERAR_UPDATE: '/api/operar/polls/:id',
+  OPERAR_EDIT: '/api/operar/polls/:id/edit',
   OPERAR_DELETE: '/api/operar/polls/:id/delete',
+  OPERAR_INSIGHTS: '/api/operar/polls/:id/insights',
+  OPERAR_RESPONSE_DELETE: '/api/operar/polls/:id/responses/:responseId/delete',
+  OPERAR_RESPONSES_CLEAR: '/api/operar/polls/:id/responses/clear',
+} as const
+
+/** `impression`: la encuesta salió en pantalla (listas, Inicio, rodada); `visit`: abrieron su página. */
+export const POLL_VIEW_KINDS = ['impression', 'visit'] as const
+
+export const POLL_INSIGHTS = {
+  /** No se cuenta otra vista igual del mismo visitante antes de este tiempo. */
+  VIEW_COOLDOWN_MIN: 30,
+  /** Encuestas por lote de impresiones. */
+  VIEW_BATCH_MAX: 20,
+  SERIES_DAYS: 30,
+  VISITORS_MAX: 500,
+  RESPONSES_MAX: 500,
+  ANSWER_PREVIEW_MAX: 400,
 } as const
 
 export const POLL_QUERY = {
@@ -84,4 +105,15 @@ export const POLL_MESSAGES = {
   ANSWER_REQUIRED: 'Responde las preguntas obligatorias.',
   ANSWER_INVALID: 'Alguna respuesta no es válida. Revisa e intenta de nuevo.',
   TOO_MANY_CHOICES: 'Elegiste más opciones de las permitidas.',
+  VIEW_INVALID: 'Vista no válida.',
+  RESPONSE_NOT_FOUND: 'Esa respuesta no existe.',
+} as const
+
+/** Cómo se describe cada respuesta en el panel. */
+export const POLL_ANSWER_TEXT = {
+  OTHER: 'Otro',
+  SEPARATOR: ', ',
+  RANK_SEPARATOR: ' › ',
+  GRID_PAIR: ': ',
+  GRID_SEPARATOR: ' · ',
 } as const

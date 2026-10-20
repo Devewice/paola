@@ -115,6 +115,26 @@ export function apiOperarPollDelete(id: string): string {
   return `${apiOperarPoll(id)}/delete`
 }
 
+export function apiPollViews(): string {
+  return `${API.POLLS}/views`
+}
+
+export function apiOperarPollEdit(id: string): string {
+  return `${apiOperarPoll(id)}/edit`
+}
+
+export function apiOperarPollInsights(id: string): string {
+  return `${apiOperarPoll(id)}/insights`
+}
+
+export function apiOperarPollResponseDelete(id: string, responseId: string): string {
+  return `${apiOperarPoll(id)}/responses/${encodeURIComponent(responseId)}/delete`
+}
+
+export function apiOperarPollResponsesClear(id: string): string {
+  return `${apiOperarPoll(id)}/responses/clear`
+}
+
 export function apiOutingTickets(id: string): string {
   return `${API.OUTINGS}/${encodeURIComponent(id)}/tickets`
 }

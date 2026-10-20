@@ -1,4 +1,4 @@
-import type { Poll, PollResults } from '../interfaces/polls.interface.js'
+import type { Poll, PollResults, PollStats } from '../interfaces/polls.interface.js'
 
 export type PublicPollDto = Poll & {
   hasVoted: boolean
@@ -11,4 +11,5 @@ export type PublicPollDto = Poll & {
 
 export type OperatorPollDto = Poll & {
   results: PollResults
+  stats: PollStats
 }

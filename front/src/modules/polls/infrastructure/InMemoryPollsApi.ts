@@ -5,6 +5,7 @@ import type { AnswerPayload, Poll } from '@modules/polls/domain/entities/Poll.ts
 import type {
   OperatorPoll,
   PollFilter,
+  PollInsights,
   PollsAdminPort,
   PollsPort,
 } from '@modules/polls/domain/ports/PollsPort.ts'
@@ -33,6 +34,8 @@ export class InMemoryPollsApi implements PollsPort {
   async vote(_pollId: string, _answers: readonly AnswerPayload[]): Promise<Result<Poll, AppError>> {
     return err(appError('INFRASTRUCTURE', POLLS_COPY.voteFail))
   }
+
+  track(): void {}
 }
 
 export class InMemoryPollsAdminApi implements PollsAdminPort {
@@ -50,5 +53,21 @@ export class InMemoryPollsAdminApi implements PollsAdminPort {
 
   async remove(): Promise<Result<true, AppError>> {
     return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.deleteFail))
+  }
+
+  async edit(): Promise<Result<true, AppError>> {
+    return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.updateFail))
+  }
+
+  async insights(): Promise<Result<PollInsights, AppError>> {
+    return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.insightsFail))
+  }
+
+  async removeResponse(): Promise<Result<true, AppError>> {
+    return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.responseDeleteFail))
+  }
+
+  async clearResponses(): Promise<Result<true, AppError>> {
+    return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.responseDeleteFail))
   }
 }

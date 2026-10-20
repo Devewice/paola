@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { PollsModule } from '@modules/polls/composition.ts'
-import { POLLS_COPY, POLLS_DATE_FORMAT, POLLS_INLINE_MAX, POLLS_LOCALE } from '@modules/polls/constants/copy.ts'
+import {
+  POLLS_COPY,
+  POLLS_DATE_FORMAT,
+  POLLS_INLINE_MAX,
+  POLLS_LOCALE,
+  POLLS_TRACKING,
+} from '@modules/polls/constants/copy.ts'
 import {
   EMPTY_ANSWER,
   emptyBallot,
@@ -47,10 +53,12 @@ watch(
   },
 )
 
-const showResults = computed(() => Boolean(current.value.results) && (current.value.hasVoted || !current.value.isOpen))
+const finished = computed(() => current.value.hasVoted || !current.value.isOpen)
+const showResults = computed(() => Boolean(current.value.results) && finished.value)
+const resultsHidden = computed(() => finished.value && !current.value.results)
 const needsAccount = computed(() => current.value.audience === 'account' && !signedIn)
 const ticketGate = computed(() => needsTicket(current.value))
-const canAnswer = computed(() => !showResults.value && !ticketGate.value && !needsAccount.value && current.value.isOpen)
+const canAnswer = computed(() => !finished.value && !ticketGate.value && !needsAccount.value)
 const stepper = computed(() => props.standalone && canAnswer.value)
 const long = computed(() => current.value.questions.length > POLLS_INLINE_MAX)
 const responses = computed(() => current.value.results?.responses)
@@ -83,6 +91,42 @@ function onVoted(poll: Poll) {
   emit('voted', poll)
 }
 
+const root = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | null = null
+
+function stopWatching() {
+  observer?.disconnect()
+  observer = null
+}
+
+/** Página propia = visita; en listas cuenta como impresión cuando se ve al menos la mitad. */
+function watchExposure() {
+  stopWatching()
+  const id = current.value.id
+  if (props.standalone) {
+    props.module.track(id, 'visit')
+    return
+  }
+  const element = root.value
+  if (!element || typeof IntersectionObserver === 'undefined') {
+    props.module.track(id, 'impression')
+    return
+  }
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return
+      props.module.track(id, 'impression')
+      stopWatching()
+    },
+    { threshold: POLLS_TRACKING.VISIBLE_RATIO },
+  )
+  observer.observe(element)
+}
+
+onMounted(watchExposure)
+onBeforeUnmount(stopWatching)
+watch(() => props.poll.id, () => void nextTick(watchExposure))
+
 async function submit() {
   sending.value = true
   const result = await props.module.submit(current.value, ballot.value, signedIn)
@@ -101,6 +145,7 @@ async function submit() {
 
   <article
     v-else
+    ref="root"
     class="poll-card"
     :class="{ 'poll-card--compact': compact && !standalone, 'poll-card--standalone': standalone }"
   >
@@ -124,6 +169,10 @@ async function submit() {
       <p class="poll-card__note">{{ resultsLead }}</p>
       <PollResults :questions="current.questions" :results="current.results" />
     </template>
+
+    <p v-else-if="resultsHidden" class="poll-card__note">
+      {{ current.hasVoted ? copy.votedHidden : copy.closedHidden }}
+    </p>
 
     <div v-else-if="ticketGate" class="poll-card__gate">
       <ol class="poll-card__preview">

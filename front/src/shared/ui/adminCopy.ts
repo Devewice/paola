@@ -8,5 +8,12 @@ export const ADMIN_TOOLS_COPY = {
   editing: 'Editando',
 } as const
 
+export type AdminMenuItem = {
+  readonly id: string
+  readonly label: string
+  readonly tone?: 'danger'
+  readonly disabled?: boolean
+}
+
 /** Ventana para el segundo toque de "Borrar". */
 export const ADMIN_CONFIRM_MS = 4000

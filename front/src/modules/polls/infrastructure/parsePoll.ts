@@ -15,7 +15,14 @@ import type {
   QuestionResult,
   RowResult,
 } from '@modules/polls/domain/entities/Poll.ts'
-import type { OperatorPoll } from '@modules/polls/domain/ports/PollsPort.ts'
+import type {
+  OperatorPoll,
+  PollDayPoint,
+  PollInsights,
+  PollResponseEntry,
+  PollStats,
+  PollVisitor,
+} from '@modules/polls/domain/ports/PollsPort.ts'
 
 type Row = Record<string, unknown>
 
@@ -167,6 +174,7 @@ function parseBase(row: Row): Omit<Poll, 'isOpen' | 'hasVoted' | 'ridersOnly' | 
     audience,
     status: STATUSES.find((item) => item === row.status) ?? 'draft',
     featured: row.featured === true,
+    showResults: row.showResults !== false,
     outingId: str(row.outingId),
     outingTitle: str(row.outingTitle),
     closesAt: str(row.closesAt),
@@ -196,12 +204,77 @@ export function parsePollList(value: unknown): Poll[] {
     .filter((item): item is Poll => item !== null)
 }
 
+function parseStats(value: unknown): PollStats {
+  const row = asRow(value) ?? {}
+  return { impressions: num(row.impressions) ?? 0, visits: num(row.visits) ?? 0, visitors: num(row.visitors) ?? 0 }
+}
+
 export function parseOperatorPollList(value: unknown): OperatorPoll[] {
   return list(value)
     .map((row) => {
       const base = parseBase(row)
       if (!base) return null
-      return { ...base, results: parseResults(row.results) ?? { responses: 0, questions: [] } }
+      return {
+        ...base,
+        results: parseResults(row.results) ?? { responses: 0, questions: [] },
+        stats: parseStats(row.stats),
+      }
     })
     .filter((item): item is OperatorPoll => item !== null)
+}
+
+function parseVisitor(row: Row): PollVisitor | null {
+  const key = str(row.key)
+  if (!key) return null
+  return {
+    key,
+    userId: str(row.userId),
+    name: str(row.name),
+    whatsapp: str(row.whatsapp),
+    impressions: num(row.impressions) ?? 0,
+    visits: num(row.visits) ?? 0,
+    firstSeen: str(row.firstSeen) ?? '',
+    lastSeen: str(row.lastSeen) ?? '',
+    responded: row.responded === true,
+  }
+}
+
+function parseResponseEntry(row: Row): PollResponseEntry | null {
+  const id = str(row.id)
+  if (!id) return null
+  return {
+    id,
+    createdAt: str(row.createdAt) ?? '',
+    userId: str(row.userId),
+    name: str(row.name),
+    answers: list(row.answers)
+      .map((item) => {
+        const questionId = str(item.questionId)
+        const text = str(item.text)
+        return questionId && text ? { questionId, text } : null
+      })
+      .filter((item): item is { questionId: string; text: string } => item !== null),
+  }
+}
+
+export function parseInsights(value: unknown): PollInsights {
+  const row = asRow(value) ?? {}
+  const stats = asRow(row.stats) ?? {}
+  return {
+    stats: { ...parseStats(stats), responses: num(stats.responses) ?? 0 },
+    series: list(row.series)
+      .map((item) => {
+        const day = str(item.day)
+        return day
+          ? { day, impressions: num(item.impressions) ?? 0, visits: num(item.visits) ?? 0, responses: num(item.responses) ?? 0 }
+          : null
+      })
+      .filter((item): item is PollDayPoint => item !== null),
+    visitors: list(row.visitors)
+      .map(parseVisitor)
+      .filter((item): item is PollVisitor => item !== null),
+    responses: list(row.responses)
+      .map(parseResponseEntry)
+      .filter((item): item is PollResponseEntry => item !== null),
+  }
 }

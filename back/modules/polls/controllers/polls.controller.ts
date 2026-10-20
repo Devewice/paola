@@ -5,12 +5,17 @@ import { sendJson } from '../../../http/send.js'
 import type { RouteHandler } from '../../../http/types.js'
 import { POLL_QUERY } from '../constants/polls.constants.js'
 import {
+  clearPollResponses,
   createPoll,
+  editPoll,
   listOperatorPolls,
   listPublicPolls,
   patchPoll,
+  readInsights,
   readPublicPoll,
+  recordPollViews,
   removePoll,
+  removeResponse,
   vote,
   type VoterIdentity,
 } from '../services/polls.service.js'
@@ -94,6 +99,60 @@ export const updatePollController: RouteHandler = async (request, response, _url
     return
   }
   sendJson(response, HTTP_STATUS.OK, { ok: true })
+}
+
+export const recordViewsController: RouteHandler = async (request, response) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body) return
+  const result = await recordPollViews(body, identityOf(request))
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, saved: result.value.saved })
+}
+
+export const editPollController: RouteHandler = async (request, response, _url, params) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body || !(await requirePermission(request, response, PERMISSION.ENCUESTAS, body))) return
+  const result = await editPoll(params.id ?? '', body)
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, id: result.value.id })
+}
+
+export const pollInsightsController: RouteHandler = async (request, response, _url, params) => {
+  if (!(await requirePermission(request, response, PERMISSION.ENCUESTAS))) return
+  const result = await readInsights(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, insights: result.value })
+}
+
+export const deleteResponseController: RouteHandler = async (request, response, _url, params) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body || !(await requirePermission(request, response, PERMISSION.ENCUESTAS, body))) return
+  const result = await removeResponse(params.id ?? '', params.responseId ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true })
+}
+
+export const clearResponsesController: RouteHandler = async (request, response, _url, params) => {
+  const body = await readBodyOrReject(request, response)
+  if (!body || !(await requirePermission(request, response, PERMISSION.ENCUESTAS, body))) return
+  const result = await clearPollResponses(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendJson(response, HTTP_STATUS.OK, { ok: true, removed: result.value.removed })
 }
 
 export const deletePollController: RouteHandler = async (request, response, _url, params) => {

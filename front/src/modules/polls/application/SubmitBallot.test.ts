@@ -11,6 +11,7 @@ const poll: Poll = {
   audience: 'public',
   status: 'open',
   featured: true,
+  showResults: true,
   createdAt: '2026-10-14T00:00:00.000Z',
   isOpen: true,
   hasVoted: false,
@@ -39,6 +40,7 @@ function spyPort() {
       calls.push({ pollId, answers })
       return ok({ ...poll, hasVoted: true })
     },
+    track: () => {},
   }
   return { port, calls }
 }

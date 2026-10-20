@@ -5,7 +5,10 @@ import type {
   POLL_KINDS,
   POLL_STATUSES,
   POLL_TONES,
+  POLL_VIEW_KINDS,
 } from '../constants/polls.constants.js'
+
+export type PollViewKind = (typeof POLL_VIEW_KINDS)[number]
 
 export type PollKind = (typeof POLL_KINDS)[number]
 export type PollDisplay = (typeof POLL_DISPLAYS)[number]
@@ -68,11 +71,54 @@ export interface Poll {
   audience: PollAudience
   status: PollStatus
   featured: boolean
+  /** Si es falso, el público no ve resultados ni al votar ni al cerrar. */
+  showResults: boolean
   outingId?: string
   outingTitle?: string
   closesAt?: string
   createdAt: string
   questions: PollQuestion[]
+}
+
+export interface PollStats {
+  impressions: number
+  visits: number
+  /** Personas distintas que la vieron (impresión o visita). */
+  visitors: number
+}
+
+export interface PollVisitor {
+  key: string
+  userId?: string
+  name?: string
+  whatsapp?: string
+  impressions: number
+  visits: number
+  firstSeen: string
+  lastSeen: string
+  responded: boolean
+}
+
+export interface PollDayPoint {
+  day: string
+  impressions: number
+  visits: number
+  responses: number
+}
+
+export interface PollResponseEntry {
+  id: string
+  createdAt: string
+  userId?: string
+  name?: string
+  answers: { questionId: string; text: string }[]
+}
+
+export interface PollInsights {
+  stats: PollStats & { responses: number }
+  series: PollDayPoint[]
+  visitors: PollVisitor[]
+  responses: PollResponseEntry[]
 }
 
 export interface OptionTally {

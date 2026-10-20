@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPollDraft, emptyPollForm, emptyQuestion } from '@modules/polls/application/buildPollDraft.ts'
+import { buildPollDraft, emptyPollForm, emptyQuestion, pollToForm } from '@modules/polls/application/buildPollDraft.ts'
 
 describe('buildPollDraft', () => {
   it('exige título', () => {
@@ -119,6 +119,51 @@ describe('buildPollDraft', () => {
     ])
     expect(contents?.showIf).toEqual({ question: 1, options: [2], mode: 'none' })
     expect(grid?.rows).toEqual([{ label: 'Respetas la velocidad' }, { label: 'Usas casco' }])
+  })
+
+  it('al editar conserva ids, condiciones y filas de la encuesta publicada', () => {
+    const form = pollToForm({
+      title: 'Educación vial',
+      audience: 'public',
+      status: 'open',
+      featured: false,
+      showResults: false,
+      questions: [
+        {
+          id: 'q1',
+          kind: 'single',
+          prompt: '¿Rodas en Bogotá?',
+          required: true,
+          options: [
+            { id: 'o1', label: 'Sí' },
+            { id: 'o2', label: 'No' },
+          ],
+        },
+        {
+          id: 'q2',
+          kind: 'grid',
+          prompt: '¿Con qué frecuencia…?',
+          required: true,
+          options: [
+            { id: 'c1', label: 'Nunca' },
+            { id: 'c2', label: 'Siempre' },
+          ],
+          rows: [{ id: 'r1', label: 'Usas casco', code: 'a' }],
+          showIf: { questionId: 'q1', optionIds: ['o2'], mode: 'any' },
+        },
+      ],
+    })
+    form.questions[0]!.options.push({ label: 'A veces', imageSrc: '' })
+    const result = buildPollDraft(form)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    const [first, second] = result.value.questions
+    expect(result.value.showResults).toBe(false)
+    expect(first?.id).toBe('q1')
+    expect(first?.options.map((option) => option.id)).toEqual(['o1', 'o2', undefined])
+    expect(second?.id).toBe('q2')
+    expect(second?.showIf).toEqual({ question: 0, options: [1], mode: 'any' })
+    expect(second?.rows).toEqual([{ id: 'r1', label: 'Usas casco', code: 'a' }])
   })
 
   it('rechaza condiciones hacia adelante o sobre preguntas sin opciones', () => {

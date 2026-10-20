@@ -93,7 +93,7 @@ Frames exportados de referencia (sprites): `front/public/mascota/frames/`.
 
 ## Administración
 
-`AdminBar` (barra fija al navegar con sesión de operador) · `AdminNav` (barra lateral del panel) · `AdminPane` (listado con título, conteo y acciones) · `AdminDrawer` (formulario en panel lateral) · `AdminSpot` + `AdminItemTools` (Editar / Borrar sobre una pieza pública; borrar pide doble toque). Textos por defecto en `adminCopy.ts`.
+`AdminBar` (barra fija al navegar con sesión de operador) · `AdminNav` (barra lateral del panel) · `AdminPane` (listado con título, conteo y acciones) · `AdminDrawer` (formulario en panel lateral; `wide` para editores largos y tableros) · `AdminModal` (confirmación por encima del drawer; `tone="danger"`, slot `actions`) · `AdminMenu` (caja de herramientas «Más ▾» con acciones secundarias de una fila; `items: AdminMenuItem[]`, emite `select`) · `AdminSpot` + `AdminItemTools` (Editar / Borrar sobre una pieza pública; borrar pide doble toque). Textos por defecto en `adminCopy.ts`.
 
 En el panel: listado primero, botón *Nuevo* abre el `AdminDrawer`. En vistas públicas, el módulo recibe `editClave` y envuelve cada pieza en `AdminSpot`.
 

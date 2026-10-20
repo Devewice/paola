@@ -1,35 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import {
-  CONDITION_KINDS,
-  buildPollDraft,
-  emptyOption,
-  emptyPollForm,
-  emptyQuestion,
-  type PollForm,
-  type QuestionForm,
-} from '@modules/polls/application/buildPollDraft.ts'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import type { PollsModule } from '@modules/polls/composition.ts'
 import {
   POLLS_ADMIN_COPY,
   POLLS_COPY,
-  POLLS_LIMITS,
+  POLLS_DATE_FORMAT,
+  POLLS_LOCALE,
   POLL_AUDIENCE_LABELS,
-  POLL_DISPLAY_LABELS,
-  POLL_KIND_LABELS,
   POLL_STATUS_LABELS,
-  POLL_TONE_LABELS,
 } from '@modules/polls/constants/copy.ts'
-import type { PollDisplay, PollKind, PollStatus, PollTone } from '@modules/polls/domain/entities/Poll.ts'
+import type { PollStatus } from '@modules/polls/domain/entities/Poll.ts'
 import type { OperatorPoll, PollPatch } from '@modules/polls/domain/ports/PollsPort.ts'
-import PollResults from '@modules/polls/presentation/PollResults.vue'
+import PollDashboard from '@modules/polls/presentation/PollDashboard.vue'
+import PollEditor from '@modules/polls/presentation/PollEditor.vue'
+import { appEncuesta } from '@shared/http/constants.ts'
+import type { AdminMenuItem } from '@ui/adminCopy.ts'
+import AdminDrawer from '@ui/AdminDrawer.vue'
+import AdminMenu from '@ui/AdminMenu.vue'
+import AdminModal from '@ui/AdminModal.vue'
+import AdminPane from '@ui/AdminPane.vue'
 import Button from '@ui/Button.vue'
 import Chip from '@ui/Chip.vue'
-import Choice from '@ui/Choice.vue'
-import Field from '@ui/Field.vue'
-import Input from '@ui/Input.vue'
-import Select from '@ui/Select.vue'
-import Textarea from '@ui/Textarea.vue'
+import FilterPills from '@ui/FilterPills.vue'
 import { showToast } from '@ui/toast.ts'
 
 const props = defineProps<{
@@ -41,158 +33,74 @@ const props = defineProps<{
 const emit = defineEmits<{ published: [] }>()
 
 const copy = POLLS_ADMIN_COPY
-const form = ref<PollForm>(emptyPollForm())
 const polls = ref<readonly OperatorPoll[]>([])
+const loaded = ref(false)
 const busy = ref<string | null>(null)
-const expanded = ref<string | null>(null)
-const confirmDelete = ref<string | null>(null)
+const filter = ref('all')
+const editorOpen = ref(false)
+const editingId = ref<string | null>(null)
+const dashboardId = ref<string | null>(null)
+const deletingId = ref<string | null>(null)
+const clearingId = ref<string | null>(null)
 
-const kindOptions = (Object.keys(POLL_KIND_LABELS) as PollKind[]).map((value) => ({
-  value,
-  label: POLL_KIND_LABELS[value],
-}))
-const statusOptions = (['open', 'draft'] as PollStatus[]).map((value) => ({ value, label: POLL_STATUS_LABELS[value] }))
-const audienceOptions = (['public', 'account'] as const).map((value) => ({ value, label: POLL_AUDIENCE_LABELS[value] }))
-const outingOptions = computed(() => [{ value: '', label: copy.outingNone }, ...props.outings])
-
-const modeOptions = [
-  { value: 'any', label: copy.conditionAny },
-  { value: 'none', label: copy.conditionNone },
+const filters = [
+  { id: 'all', label: copy.filterAll },
+  { id: 'open', label: copy.filterOpen },
+  { id: 'draft', label: copy.filterDraft },
+  { id: 'closed', label: copy.filterClosed },
 ]
 
-const DISPLAYS_BY_KIND: Partial<Record<PollKind, PollDisplay[]>> = {
-  single: ['auto', 'chips', 'cards', 'gate'],
-  multiple: ['auto', 'chips', 'cards'],
-  grid: ['auto', 'deck', 'table'],
-}
-const toneOptions = (Object.keys(POLL_TONE_LABELS) as PollTone[]).map((value) => ({
-  value,
-  label: POLL_TONE_LABELS[value],
-}))
+const shown = computed(() => (filter.value === 'all' ? polls.value : polls.value.filter((poll) => poll.status === filter.value)))
+const editing = computed(() => polls.value.find((poll) => poll.id === editingId.value))
+const dashboardPoll = computed(() => polls.value.find((poll) => poll.id === dashboardId.value))
+const deleting = computed(() => polls.value.find((poll) => poll.id === deletingId.value))
+const clearing = computed(() => polls.value.find((poll) => poll.id === clearingId.value))
 
-function displayOptions(question: QuestionForm) {
-  return (DISPLAYS_BY_KIND[question.kind] ?? []).map((value) => ({ value, label: POLL_DISPLAY_LABELS[value] }))
-}
-
-function hasTone(question: QuestionForm): boolean {
-  return question.kind === 'scale' || question.kind === 'grid'
-}
-
-function setDisplay(question: QuestionForm, value: string) {
-  question.display = value as PollDisplay
-}
-
-function setTone(question: QuestionForm, value: string) {
-  question.tone = value as PollTone
-}
-
-function setRowCode(question: QuestionForm, index: number, value: string) {
-  const codes = [...(question.rowCodes ?? [])]
-  while (codes.length <= index) codes.push('')
-  codes[index] = value
-  question.rowCodes = codes
-}
-
-function hasOptions(question: QuestionForm): boolean {
-  return ['single', 'multiple', 'ranking', 'grid'].includes(question.kind)
-}
-
-function canDependOn(question: QuestionForm): boolean {
-  return CONDITION_KINDS.includes(question.kind)
-}
-
-function conditionTargets(index: number) {
+const totals = computed(() => {
+  const sum = (pick: (poll: OperatorPoll) => number) => polls.value.reduce((total, poll) => total + pick(poll), 0)
   return [
-    { value: '', label: copy.conditionAlways },
-    ...form.value.questions
-      .slice(0, index)
-      .map((question, position) => ({ question, position }))
-      .filter(({ question }) => canDependOn(question))
-      .map(({ question, position }) => ({ value: String(position), label: `${position + 1}. ${question.prompt || '—'}` })),
+    { id: 'impressions', label: copy.kpiImpressions, value: sum((poll) => poll.stats.impressions), hint: copy.hintImpressions },
+    { id: 'visitors', label: copy.kpiVisitors, value: sum((poll) => poll.stats.visitors), hint: copy.hintVisitors },
+    { id: 'responses', label: copy.kpiResponses, value: sum((poll) => poll.results.responses), hint: copy.hintResponses },
+  ]
+})
+
+const dateFormat = new Intl.DateTimeFormat(POLLS_LOCALE, POLLS_DATE_FORMAT)
+
+function closesLabel(poll: OperatorPoll): string {
+  if (!poll.closesAt) return ''
+  const date = new Date(poll.closesAt)
+  if (Number.isNaN(date.valueOf())) return ''
+  return `${poll.status === 'closed' ? POLLS_COPY.closedOn : POLLS_COPY.closesOn} ${dateFormat.format(date)}`
+}
+
+function statusTone(status: PollStatus): 'abierto' | 'cerrado' | 'realizado' {
+  if (status === 'open') return 'abierto'
+  return status === 'closed' ? 'cerrado' : 'realizado'
+}
+
+function stats(poll: OperatorPoll) {
+  return [
+    { id: 'impressions', label: copy.kpiImpressions, value: poll.stats.impressions },
+    { id: 'visitors', label: copy.kpiVisitors, value: poll.stats.visitors },
+    { id: 'responses', label: copy.kpiResponses, value: poll.results.responses },
   ]
 }
 
-function conditionTarget(question: QuestionForm): QuestionForm | undefined {
-  const raw = question.showIfQuestion ?? ''
-  return raw ? form.value.questions[Number(raw)] : undefined
-}
-
-function setConditionQuestion(question: QuestionForm, value: string) {
-  question.showIfQuestion = value
-  question.showIfOptions = []
-}
-
-function toggleConditionOption(question: QuestionForm, option: number, on: boolean) {
-  const current = new Set(question.showIfOptions ?? [])
-  if (on) current.add(option)
-  else current.delete(option)
-  question.showIfOptions = [...current].sort((a, b) => a - b)
-}
-
-/** Reubica las condiciones cuando cambian las posiciones de las preguntas. */
-function remapConditions(map: (position: number) => number | null) {
-  for (const question of form.value.questions) {
-    const raw = question.showIfQuestion ?? ''
-    if (!raw) continue
-    const next = map(Number(raw))
-    if (next === null) setConditionQuestion(question, '')
-    else question.showIfQuestion = String(next)
-  }
-}
-
-function addQuestion() {
-  if (form.value.questions.length >= POLLS_LIMITS.QUESTIONS_MAX) return
-  form.value.questions.push(emptyQuestion())
-}
-
-function removeQuestion(index: number) {
-  form.value.questions.splice(index, 1)
-  remapConditions((position) => (position === index ? null : position > index ? position - 1 : position))
-}
-
-function moveQuestion(index: number, delta: number) {
-  const target = index + delta
-  const list = form.value.questions
-  if (target < 0 || target >= list.length) return
-  const [item] = list.splice(index, 1)
-  if (item) list.splice(target, 0, item)
-  remapConditions((position) => (position === index ? target : position === target ? index : position))
-  list.forEach((question, position) => {
-    if (question.showIfQuestion && Number(question.showIfQuestion) >= position) setConditionQuestion(question, '')
-  })
-}
-
-function addRow(question: QuestionForm) {
-  const rows = question.rows ?? []
-  if (rows.length >= POLLS_LIMITS.ROWS_MAX) return
-  question.rows = [...rows, '']
-  question.rowCodes = [...(question.rowCodes ?? []), '']
-}
-
-function removeRow(question: QuestionForm, index: number) {
-  question.rows = (question.rows ?? []).filter((_, position) => position !== index)
-  question.rowCodes = (question.rowCodes ?? []).filter((_, position) => position !== index)
-}
-
-function setRow(question: QuestionForm, index: number, value: string) {
-  question.rows = (question.rows ?? []).map((row, position) => (position === index ? value : row))
-}
-
-function setKind(question: QuestionForm, kind: string) {
-  question.kind = kind as PollKind
-}
-
-function addOption(question: QuestionForm) {
-  if (question.options.length >= POLLS_LIMITS.OPTIONS_MAX) return
-  question.options.push(emptyOption())
-}
-
-function removeOption(question: QuestionForm, index: number) {
-  question.options.splice(index, 1)
+function toolsFor(poll: OperatorPoll): AdminMenuItem[] {
+  return [
+    poll.status === 'open' ? { id: 'close', label: copy.closeCta } : { id: 'open', label: copy.openCta },
+    { id: 'feature', label: poll.featured ? copy.unfeatureCta : copy.featureCta },
+    { id: 'results', label: poll.showResults ? copy.hidePublicResults : copy.showPublicResults },
+    { id: 'view', label: copy.viewOnSite, disabled: poll.status === 'draft' },
+    { id: 'clear', label: copy.clearCta, tone: 'danger', disabled: !poll.results.responses },
+    { id: 'delete', label: copy.deleteTitle, tone: 'danger' },
+  ]
 }
 
 async function load() {
   const result = await props.module.listOperator(props.clave)
+  loaded.value = true
   if (!result.ok) {
     showToast(result.error.message || copy.loadFail, 'bad')
     return
@@ -200,23 +108,25 @@ async function load() {
   polls.value = result.value
 }
 
-async function save() {
-  const draft = buildPollDraft(form.value)
-  if (!draft.ok) {
-    showToast(draft.error.message, 'warn')
-    return
-  }
-  busy.value = 'create'
-  const result = await props.module.create(draft.value, props.clave)
-  busy.value = null
-  if (!result.ok) {
-    showToast(result.error.message || copy.createFail, 'bad')
-    return
-  }
-  form.value = emptyPollForm()
-  showToast(copy.createOk, 'ok')
-  emit('published')
+async function refresh() {
   await load()
+  emit('published')
+}
+
+function openCreate() {
+  editingId.value = null
+  editorOpen.value = true
+}
+
+function openEdit(poll: OperatorPoll) {
+  editingId.value = poll.id
+  editorOpen.value = true
+}
+
+async function onSaved() {
+  editorOpen.value = false
+  editingId.value = null
+  await refresh()
 }
 
 async function patch(poll: OperatorPoll, change: PollPatch) {
@@ -228,35 +138,55 @@ async function patch(poll: OperatorPoll, change: PollPatch) {
     return
   }
   showToast(copy.updateOk, 'ok')
-  emit('published')
-  await load()
+  await refresh()
 }
 
-async function remove(poll: OperatorPoll) {
-  if (confirmDelete.value !== poll.id) {
-    confirmDelete.value = poll.id
-    return
-  }
-  confirmDelete.value = null
+function onTool(poll: OperatorPoll, id: string) {
+  if (id === 'open') void patch(poll, { status: 'open' })
+  else if (id === 'close') void patch(poll, { status: 'closed' })
+  else if (id === 'feature') void patch(poll, { featured: !poll.featured })
+  else if (id === 'results') void patch(poll, { showResults: !poll.showResults })
+  else if (id === 'view') window.open(appEncuesta(poll.id), '_blank', 'noopener')
+  else if (id === 'clear') clearingId.value = poll.id
+  else if (id === 'delete') deletingId.value = poll.id
+}
+
+async function confirmDelete() {
+  const poll = deleting.value
+  if (!poll) return
   busy.value = poll.id
   const result = await props.module.remove(poll.id, props.clave)
   busy.value = null
+  deletingId.value = null
   if (!result.ok) {
     showToast(result.error.message || copy.deleteFail, 'bad')
     return
   }
+  if (dashboardId.value === poll.id) dashboardId.value = null
   showToast(copy.deleteOk, 'ok')
-  emit('published')
-  await load()
+  await refresh()
 }
 
-function statusTone(status: PollStatus): 'abierto' | 'cerrado' | 'realizado' {
-  if (status === 'open') return 'abierto'
-  return status === 'closed' ? 'cerrado' : 'realizado'
+async function confirmClear() {
+  const poll = clearing.value
+  if (!poll) return
+  busy.value = poll.id
+  const result = await props.module.clearResponses(poll.id, props.clave)
+  busy.value = null
+  clearingId.value = null
+  if (!result.ok) {
+    showToast(result.error.message || copy.responseDeleteFail, 'bad')
+    return
+  }
+  showToast(copy.clearOk, 'ok')
+  await refresh()
 }
 
-function votesLabel(poll: OperatorPoll): string {
-  return poll.results.responses === 1 ? POLLS_COPY.responsesOne : `${poll.results.responses} ${POLLS_COPY.responsesMany}`
+async function editFromDashboard() {
+  const poll = dashboardPoll.value
+  dashboardId.value = null
+  await nextTick()
+  if (poll) openEdit(poll)
 }
 
 onMounted(() => void load())
@@ -264,297 +194,116 @@ onMounted(() => void load())
 
 <template>
   <div class="admin-stack">
-    <form class="admin-card poll-editor" @submit.prevent="save">
-      <header class="admin-card__head">
-        <h3>{{ copy.formTitle }}</h3>
-        <p>{{ copy.formLead }}</p>
-      </header>
+    <AdminPane :title="copy.paneTitle" :lead="copy.paneLead" :count="polls.length">
+      <template #actions>
+        <Button size="sm" variant="ghost" @click="load">{{ copy.refreshCta }}</Button>
+        <Button size="sm" @click="openCreate">+ {{ copy.newCta }}</Button>
+      </template>
 
-      <Field :label="copy.fieldTitle">
-        <Input v-model="form.title" />
-      </Field>
-      <Field :label="copy.fieldDescription">
-        <Textarea v-model="form.description" />
-      </Field>
-
-      <div class="admin-fields">
-        <Select
-          :model-value="form.audience"
-          :label="copy.fieldAudience"
-          :options="audienceOptions"
-          @update:model-value="form.audience = $event === 'account' ? 'account' : 'public'"
-        />
-        <Select
-          :model-value="form.status"
-          :label="copy.fieldStatus"
-          :options="statusOptions"
-          @update:model-value="form.status = $event === 'draft' ? 'draft' : 'open'"
-        />
-      </div>
-      <div class="admin-fields">
-        <Select v-model="form.outingId" :label="copy.fieldOuting" :options="outingOptions" />
-        <Field :label="copy.fieldClosesAt">
-          <Input v-model="form.closesAt" type="datetime-local" />
-        </Field>
-      </div>
-      <Choice v-model="form.featured" kind="switch" :label="copy.fieldFeatured" />
-
-      <section class="poll-editor__questions">
-        <h4 class="poll-editor__title">{{ copy.questionsTitle }}</h4>
-
-        <div v-for="(question, qIndex) in form.questions" :key="qIndex" class="poll-editor__q">
-          <header class="poll-editor__q-head">
-            <span class="poll-editor__q-num">{{ qIndex + 1 }}</span>
-            <Select
-              :model-value="question.kind"
-              :options="kindOptions"
-              @update:model-value="setKind(question, $event)"
-            />
-            <div class="poll-editor__q-actions">
-              <Button size="sm" variant="ghost" :disabled="qIndex === 0" @click="moveQuestion(qIndex, -1)">
-                {{ copy.moveUp }}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                :disabled="qIndex === form.questions.length - 1"
-                @click="moveQuestion(qIndex, 1)"
-              >
-                {{ copy.moveDown }}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                :disabled="form.questions.length === 1"
-                @click="removeQuestion(qIndex)"
-              >
-                {{ copy.removeQuestion }}
-              </Button>
-            </div>
-          </header>
-
-          <Field :label="copy.fieldSection">
-            <Input :model-value="question.section ?? ''" @update:model-value="question.section = $event" />
-          </Field>
-          <div class="admin-fields">
-            <Field :label="copy.fieldCode">
-              <Input :model-value="question.code ?? ''" @update:model-value="question.code = $event" />
-            </Field>
-            <Field v-if="displayOptions(question).length" :label="copy.fieldDisplay">
-              <Select
-                :model-value="question.display ?? 'auto'"
-                :options="displayOptions(question)"
-                @update:model-value="setDisplay(question, $event)"
-              />
-            </Field>
-            <Field v-if="hasTone(question)" :label="copy.fieldTone">
-              <Select
-                :model-value="question.tone ?? 'plain'"
-                :options="toneOptions"
-                @update:model-value="setTone(question, $event)"
-              />
-            </Field>
-          </div>
-          <Field :label="copy.fieldPrompt">
-            <Input v-model="question.prompt" />
-          </Field>
-          <Field :label="copy.fieldHelp">
-            <Input v-model="question.help" />
-          </Field>
-          <Choice v-model="question.required" :label="copy.fieldRequired" />
-
-          <Field v-if="question.kind === 'multiple'" :label="copy.fieldMaxChoices">
-            <Input v-model="question.maxChoices" type="number" />
-          </Field>
-
-          <div v-if="question.kind === 'scale'" class="admin-fields">
-            <Field :label="copy.fieldScaleMin">
-              <Input v-model="question.scaleMin" type="number" />
-            </Field>
-            <Field :label="copy.fieldScaleMax">
-              <Input v-model="question.scaleMax" type="number" />
-            </Field>
-            <Field :label="copy.fieldScaleMinLabel">
-              <Input v-model="question.scaleMinLabel" />
-            </Field>
-            <Field :label="copy.fieldScaleMaxLabel">
-              <Input v-model="question.scaleMaxLabel" />
-            </Field>
-          </div>
-
-          <div v-if="question.kind === 'grid'" class="poll-editor__options">
-            <p class="poll-editor__subtitle">{{ copy.rowsTitle }}</p>
-            <div v-for="(row, rIndex) in question.rows ?? []" :key="rIndex" class="poll-editor__row">
-              <Field :label="copy.rowCode" class="poll-editor__code">
-                <Input
-                  :model-value="question.rowCodes?.[rIndex] ?? ''"
-                  @update:model-value="setRowCode(question, rIndex, $event)"
-                />
-              </Field>
-              <Field :label="`${copy.rowLabel} ${rIndex + 1}`">
-                <Input :model-value="row" @update:model-value="setRow(question, rIndex, $event)" />
-              </Field>
-              <Button
-                size="sm"
-                variant="ghost"
-                :disabled="(question.rows ?? []).length <= POLLS_LIMITS.ROWS_MIN"
-                @click="removeRow(question, rIndex)"
-              >
-                {{ copy.removeOption }}
-              </Button>
-            </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              :disabled="(question.rows ?? []).length >= POLLS_LIMITS.ROWS_MAX"
-              @click="addRow(question)"
-            >
-              {{ copy.addRow }}
-            </Button>
-          </div>
-
-          <div v-if="hasOptions(question)" class="poll-editor__options">
-            <p class="poll-editor__subtitle">{{ question.kind === 'grid' ? copy.columnsTitle : copy.optionsTitle }}</p>
-            <div v-for="(option, oIndex) in question.options" :key="oIndex" class="poll-editor__option">
-              <span class="poll-editor__thumb" :class="{ 'is-empty': !option.imageSrc.trim() }">
-                <img v-if="option.imageSrc.trim()" :src="option.imageSrc.trim()" alt="" />
-              </span>
-              <Field :label="`${copy.optionLabel} ${oIndex + 1}`">
-                <Input v-model="option.label" />
-              </Field>
-              <Field :label="copy.optionImage">
-                <Input v-model="option.imageSrc" type="url" placeholder="https://" />
-              </Field>
-              <Button
-                size="sm"
-                variant="ghost"
-                :disabled="question.options.length <= POLLS_LIMITS.OPTIONS_MIN"
-                @click="removeOption(question, oIndex)"
-              >
-                {{ copy.removeOption }}
-              </Button>
-              <div v-if="canDependOn(question)" class="poll-editor__flags">
-                <Choice
-                  :model-value="option.isOther ?? false"
-                  :label="copy.optionOther"
-                  @update:model-value="option.isOther = $event"
-                />
-                <Choice
-                  v-if="question.kind === 'multiple'"
-                  :model-value="option.exclusive ?? false"
-                  :label="copy.optionExclusive"
-                  @update:model-value="option.exclusive = $event"
-                />
-              </div>
-            </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              :disabled="question.options.length >= POLLS_LIMITS.OPTIONS_MAX"
-              @click="addOption(question)"
-            >
-              {{ copy.addOption }}
-            </Button>
-          </div>
-
-          <div v-if="qIndex > 0" class="poll-editor__options">
-            <p class="poll-editor__subtitle">{{ copy.conditionTitle }}</p>
-            <div class="admin-fields">
-              <Select
-                :model-value="question.showIfQuestion ?? ''"
-                :label="copy.conditionQuestion"
-                :options="conditionTargets(qIndex)"
-                @update:model-value="setConditionQuestion(question, $event)"
-              />
-              <Select
-                v-if="conditionTarget(question)"
-                :model-value="question.showIfMode ?? 'any'"
-                :label="copy.conditionMode"
-                :options="modeOptions"
-                @update:model-value="question.showIfMode = $event === 'none' ? 'none' : 'any'"
-              />
-            </div>
-            <div v-if="conditionTarget(question)" class="poll-editor__flags">
-              <Choice
-                v-for="(option, oIndex) in conditionTarget(question)?.options ?? []"
-                :key="oIndex"
-                :model-value="(question.showIfOptions ?? []).includes(oIndex)"
-                :label="option.label || `${copy.optionLabel} ${oIndex + 1}`"
-                @update:model-value="toggleConditionOption(question, oIndex, $event)"
-              />
-            </div>
-          </div>
+      <dl v-if="polls.length" class="poll-admin__totals" :aria-label="copy.totalsAria">
+        <div v-for="item in totals" :key="item.id" class="poll-admin__total" :title="item.hint">
+          <dt>{{ item.label }}</dt>
+          <dd>{{ item.value }}</dd>
         </div>
+      </dl>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          :disabled="form.questions.length >= POLLS_LIMITS.QUESTIONS_MAX"
-          @click="addQuestion"
-        >
-          {{ copy.addQuestion }}
-        </Button>
-      </section>
+      <FilterPills v-if="polls.length" v-model="filter" :pills="filters" />
 
-      <Button type="submit" :disabled="busy === 'create'">{{ copy.createCta }}</Button>
-    </form>
+      <p v-if="loaded && !polls.length" class="admin-empty">{{ copy.listEmpty }}</p>
+      <p v-else-if="loaded && !shown.length" class="admin-empty">{{ copy.filterEmpty }}</p>
 
-    <section class="admin-card">
-      <header class="admin-card__head">
-        <h3>{{ copy.listTitle }}</h3>
-        <p>{{ copy.listLead }}</p>
-      </header>
-      <p v-if="!polls.length" class="admin-empty">{{ copy.listEmpty }}</p>
-      <ul v-else class="admin-list">
-        <li v-for="poll in polls" :key="poll.id" class="admin-list__item">
-          <div class="admin-list__main">
-            <strong>{{ poll.title }}</strong>
-            <span class="admin-list__meta">
-              {{ POLL_AUDIENCE_LABELS[poll.audience] }} · {{ votesLabel(poll) }}
-              <template v-if="poll.outingTitle"> · {{ POLLS_COPY.linkedRide }} {{ poll.outingTitle }}</template>
-            </span>
+      <ul v-else class="poll-admin__list">
+        <li v-for="poll in shown" :key="poll.id" class="poll-admin__row" :class="{ 'is-busy': busy === poll.id }">
+          <div class="poll-admin__main">
+            <button type="button" class="poll-admin__title" @click="dashboardId = poll.id">{{ poll.title }}</button>
             <div class="admin-list__chips">
               <Chip :tone="statusTone(poll.status)">{{ POLL_STATUS_LABELS[poll.status] }}</Chip>
               <Chip v-if="poll.featured" tone="zona-ok">{{ copy.featuredChip }}</Chip>
+              <Chip v-if="!poll.showResults" tone="lleno">{{ copy.resultsHiddenChip }}</Chip>
             </div>
+            <span class="admin-list__meta">
+              {{ POLL_AUDIENCE_LABELS[poll.audience] }} · {{ copy.questionsCount(poll.questions.length) }}
+              <template v-if="poll.outingTitle"> · {{ POLLS_COPY.linkedRide }} {{ poll.outingTitle }}</template>
+              <template v-if="closesLabel(poll)"> · {{ closesLabel(poll) }}</template>
+            </span>
           </div>
-          <div class="admin-list__actions">
-            <Button
-              v-if="poll.status !== 'open'"
-              size="sm"
-              :disabled="busy === poll.id"
-              @click="patch(poll, { status: 'open' })"
-            >
-              {{ copy.openCta }}
-            </Button>
-            <Button
-              v-else
-              size="sm"
-              variant="ghost"
-              :disabled="busy === poll.id"
-              @click="patch(poll, { status: 'closed' })"
-            >
-              {{ copy.closeCta }}
-            </Button>
-            <Button size="sm" variant="ghost" :disabled="busy === poll.id" @click="patch(poll, { featured: !poll.featured })">
-              {{ poll.featured ? copy.unfeatureCta : copy.featureCta }}
-            </Button>
-            <Button size="sm" variant="ghost" @click="expanded = expanded === poll.id ? null : poll.id">
-              {{ expanded === poll.id ? copy.hideResults : copy.showResults }}
-            </Button>
-            <Button size="sm" variant="danger" :disabled="busy === poll.id" @click="remove(poll)">
-              {{ confirmDelete === poll.id ? copy.deleteConfirm : copy.deleteCta }}
-            </Button>
+
+          <dl class="poll-admin__stats">
+            <div v-for="item in stats(poll)" :key="item.id" class="poll-admin__stat">
+              <dd>{{ item.value }}</dd>
+              <dt>{{ item.label }}</dt>
+            </div>
+          </dl>
+
+          <div class="poll-admin__actions">
+            <Button size="sm" @click="dashboardId = poll.id">{{ copy.dataCta }}</Button>
+            <Button size="sm" variant="ghost" @click="openEdit(poll)">{{ copy.editCta }}</Button>
+            <AdminMenu :label="copy.toolsLabel" :items="toolsFor(poll)" @select="onTool(poll, $event)" />
           </div>
-          <PollResults
-            v-if="expanded === poll.id"
-            class="admin-list__results"
-            :questions="poll.questions"
-            :results="poll.results"
-            show-texts
-          />
         </li>
       </ul>
-    </section>
+    </AdminPane>
+
+    <AdminDrawer
+      v-model="editorOpen"
+      wide
+      :title="editing ? copy.editTitle : copy.formTitle"
+      :lead="editing ? editing.title : copy.formLead"
+    >
+      <PollEditor
+        v-if="editorOpen"
+        :module="module"
+        :clave="clave"
+        :outings="outings"
+        :poll="editing"
+        @saved="onSaved"
+        @cancel="editorOpen = false"
+      />
+    </AdminDrawer>
+
+    <AdminDrawer
+      :model-value="dashboardPoll !== undefined"
+      wide
+      :title="dashboardPoll?.title ?? ''"
+      :lead="copy.dashboardLead"
+      @update:model-value="dashboardId = $event ? dashboardId : null"
+    >
+      <PollDashboard
+        v-if="dashboardPoll"
+        :module="module"
+        :clave="clave"
+        :poll="dashboardPoll"
+        @changed="refresh"
+        @edit="editFromDashboard"
+      />
+    </AdminDrawer>
+
+    <AdminModal
+      :model-value="deleting !== undefined"
+      :title="copy.deleteTitle"
+      :copy="copy.deleteCopy"
+      tone="danger"
+      @update:model-value="deletingId = $event ? deletingId : null"
+    >
+      <p v-if="deleting" class="poll-admin__modal-target">{{ deleting.title }}</p>
+      <template #actions>
+        <Button variant="ghost" size="sm" @click="deletingId = null">{{ copy.cancelCta }}</Button>
+        <Button variant="danger" size="sm" :disabled="busy !== null" @click="confirmDelete">{{ copy.deleteYes }}</Button>
+      </template>
+    </AdminModal>
+
+    <AdminModal
+      :model-value="clearing !== undefined"
+      :title="copy.clearTitle"
+      :copy="copy.clearCopy(clearing?.results.responses ?? 0)"
+      tone="danger"
+      @update:model-value="clearingId = $event ? clearingId : null"
+    >
+      <p v-if="clearing" class="poll-admin__modal-target">{{ clearing.title }}</p>
+      <template #actions>
+        <Button variant="ghost" size="sm" @click="clearingId = null">{{ copy.cancelCta }}</Button>
+        <Button variant="danger" size="sm" :disabled="busy !== null" @click="confirmClear">{{ copy.deleteYes }}</Button>
+      </template>
+    </AdminModal>
   </div>
 </template>
