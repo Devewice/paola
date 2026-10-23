@@ -26,6 +26,17 @@ export type PollFilter = {
   ids?: readonly string[]
 }
 
+export function pushTo<T>(map: Map<string, T[]>, key: string, value: T): void {
+  const list = map.get(key)
+  if (list) list.push(value)
+  else map.set(key, [value])
+}
+
+async function byQuestionIds(table: string, questionIds: string[]): Promise<Record<string, unknown>[]> {
+  if (!questionIds.length) return []
+  return (await getDb()(table).whereIn('question_id', questionIds).orderBy('position', 'asc')) as Record<string, unknown>[]
+}
+
 async function hydrate(rows: Record<string, unknown>[]): Promise<Poll[]> {
   if (!rows.length) return []
   const pollIds = rows.map((row) => String(row.id))
@@ -33,32 +44,21 @@ async function hydrate(rows: Record<string, unknown>[]): Promise<Poll[]> {
     .whereIn('poll_id', pollIds)
     .orderBy('position', 'asc')) as Record<string, unknown>[]
   const questionIds = questionRows.map((row) => String(row.id))
-  const optionRows = questionIds.length
-    ? ((await getDb()(POLL_TABLES.OPTIONS)
-        .whereIn('question_id', questionIds)
-        .orderBy('position', 'asc')) as Record<string, unknown>[])
-    : []
-  const gridRows = questionIds.length
-    ? ((await getDb()(POLL_TABLES.ROWS)
-        .whereIn('question_id', questionIds)
-        .orderBy('position', 'asc')) as Record<string, unknown>[])
-    : []
+  const [optionRows, gridRows] = await Promise.all([
+    byQuestionIds(POLL_TABLES.OPTIONS, questionIds),
+    byQuestionIds(POLL_TABLES.ROWS, questionIds),
+  ])
 
   const optionsByQuestion = new Map<string, PollOption[]>()
-  for (const row of optionRows) {
-    const key = String(row.question_id)
-    optionsByQuestion.set(key, [...(optionsByQuestion.get(key) ?? []), toOption(row)])
-  }
+  for (const row of optionRows) pushTo(optionsByQuestion, String(row.question_id), toOption(row))
   const rowsByQuestion = new Map<string, PollRow[]>()
-  for (const row of gridRows) {
-    const key = String(row.question_id)
-    rowsByQuestion.set(key, [...(rowsByQuestion.get(key) ?? []), toRow(row)])
-  }
+  for (const row of gridRows) pushTo(rowsByQuestion, String(row.question_id), toRow(row))
+  const questionsByPoll = new Map<string, Record<string, unknown>[]>()
+  for (const question of questionRows) pushTo(questionsByPoll, String(question.poll_id), question)
 
   return rows.map((row) => ({
     ...toPollBase(row),
-    questions: questionRows
-      .filter((question) => String(question.poll_id) === String(row.id))
+    questions: (questionsByPoll.get(String(row.id)) ?? [])
       .map((question) =>
         toQuestion(
           question,
@@ -530,7 +530,7 @@ export async function findAnswers(pollIds: readonly string[]): Promise<Map<strin
       valueNumber: row.valueNumber === null ? null : Number(row.valueNumber),
       valueText: row.valueText === null ? null : String(row.valueText),
     }
-    result.set(pollId, [...(result.get(pollId) ?? []), answer])
+    pushTo(result, pollId, answer)
   }
   return result
 }

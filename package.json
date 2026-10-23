@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Portal Paola Biker — Vue + Vuetify, arquitectura modular",
+  "engines": {
+    "node": ">=24.22.1"
+  },
   "scripts": {
     "dev": "concurrently -k -n front,back -c cyan,magenta \"npm run dev:front\" \"npm run dev:back\"",
     "dev:back": "tsx watch back/index.ts",
@@ -49,5 +52,8 @@
     "vue": "^3.5.41",
     "vue-router": "^5.2.0",
     "vuetify": "^4.1.9"
+  },
+  "overrides": {
+    "proxy-addr": "^2.0.8"
   }
 }

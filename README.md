@@ -30,6 +30,7 @@ Build: `npm run build` → `dist/` + `back/dist/`. Producción: `npm start` sirv
 | Build | `npm run build` |
 | Salida | `dist` |
 | Arranque | `npm start` |
+| Node | 24.x LTS, mínimo 24.22.1 (`.nvmrc`) |
 
 Variables MySQL en `.env` del hosting (no en git). Copia `.env.example` → `.env` en local.
 

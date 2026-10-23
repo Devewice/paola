@@ -9,8 +9,7 @@ function round(value: number): number {
   return Math.round(value * 10) / 10
 }
 
-function tallyQuestion(question: PollQuestion, answers: readonly StoredAnswer[], withTexts: boolean, textLimit: number): QuestionResult {
-  const own = answers.filter((answer) => answer.questionId === question.id)
+function tallyQuestion(question: PollQuestion, own: readonly StoredAnswer[], withTexts: boolean, textLimit: number): QuestionResult {
   const answered = new Set(own.map((answer) => answer.responseId)).size
 
   if (question.kind === 'single' || question.kind === 'multiple') {
@@ -81,8 +80,16 @@ export function tallyPoll(
   responses: number,
   options: { withTexts: boolean; textLimit: number },
 ): PollResults {
+  const byQuestion = new Map<string, StoredAnswer[]>()
+  for (const answer of answers) {
+    const list = byQuestion.get(answer.questionId)
+    if (list) list.push(answer)
+    else byQuestion.set(answer.questionId, [answer])
+  }
   return {
     responses,
-    questions: poll.questions.map((question) => tallyQuestion(question, answers, options.withTexts, options.textLimit)),
+    questions: poll.questions.map((question) =>
+      tallyQuestion(question, byQuestion.get(question.id) ?? [], options.withTexts, options.textLimit),
+    ),
   }
 }

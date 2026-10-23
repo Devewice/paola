@@ -30,6 +30,7 @@ import {
   insertPoll,
   insertResponse,
   outingExists,
+  pushTo,
   recordViews,
   replacePoll,
   updatePoll,
@@ -54,7 +55,9 @@ function validAnonKey(key: string): boolean {
   return key.length >= POLL_LIMITS.VOTER_KEY_MIN && key.length <= POLL_LIMITS.VOTER_KEY_MAX && /^[A-Za-z0-9-]+$/.test(key)
 }
 
-async function candidateKeys(identity: VoterIdentity): Promise<{ userId: string | null; keys: string[] }> {
+type VoterKeys = { userId: string | null; keys: string[] }
+
+async function candidateKeys(identity: VoterIdentity): Promise<VoterKeys> {
   const userId = await findSessionUserId(identity.sessionId)
   const keys: string[] = []
   if (userId) keys.push(`${POLL_VOTER_PREFIX.ACCOUNT}${userId}`)
@@ -62,20 +65,23 @@ async function candidateKeys(identity: VoterIdentity): Promise<{ userId: string 
   return { userId, keys }
 }
 
-async function toPublic(polls: Poll[], identity: VoterIdentity): Promise<PublicPollDto[]> {
+async function toPublic(polls: Poll[], identity: VoterIdentity, voter?: Promise<VoterKeys>): Promise<PublicPollDto[]> {
   const ids = polls.map((poll) => poll.id)
   const outingIds = [...new Set(polls.map((poll) => poll.outingId).filter((id): id is string => Boolean(id)))]
-  const { userId, keys } = await candidateKeys(identity)
-  const [voted, answers, responses, inscribed] = await Promise.all([
+  const { userId, keys } = await (voter ?? candidateKeys(identity))
+  const [voted, responses, inscribed] = await Promise.all([
     findVotedPollIds(keys, ids),
-    findAnswers(ids),
     countResponses(ids),
     findInscribedOutingIds(userId, outingIds),
   ])
+  const shown = new Set(
+    polls.filter((poll) => poll.showResults && (voted.has(poll.id) || !isOpen(poll))).map((poll) => poll.id),
+  )
+  const answers = await findAnswers([...shown])
   return polls.map((poll) => {
     const open = isOpen(poll)
     const hasVoted = voted.has(poll.id)
-    const showResults = poll.showResults && (hasVoted || !open)
+    const showResults = shown.has(poll.id)
     return {
       ...poll,
       isOpen: open,
@@ -90,14 +96,16 @@ async function toPublic(polls: Poll[], identity: VoterIdentity): Promise<PublicP
 }
 
 export async function listPublicPolls(filter: Omit<PollFilter, 'includeDrafts'>, identity: VoterIdentity) {
-  const polls = await findPolls({ ...filter, includeDrafts: false })
-  return toPublic(polls, identity)
+  const voter = candidateKeys(identity)
+  const [polls] = await Promise.all([findPolls({ ...filter, includeDrafts: false }), voter])
+  return toPublic(polls, identity, voter)
 }
 
 export async function readPublicPoll(id: string, identity: VoterIdentity): Promise<Parsed<PublicPollDto>> {
-  const poll = await findPoll(id, false)
+  const voter = candidateKeys(identity)
+  const [poll] = await Promise.all([findPoll(id, false), voter])
   if (!poll) return fail(HTTP_STATUS.NOT_FOUND, POLL_MESSAGES.NOT_FOUND)
-  const [dto] = await toPublic([poll], identity)
+  const [dto] = await toPublic([poll], identity, voter)
   if (!dto) return fail(HTTP_STATUS.NOT_FOUND, POLL_MESSAGES.NOT_FOUND)
   return { ok: true, value: dto }
 }
@@ -224,7 +232,7 @@ export async function readInsights(id: string): Promise<Parsed<PollInsights>> {
   ])
   const byResponse = new Map<string, StoredAnswer[]>()
   for (const answer of answers.get(id) ?? []) {
-    byResponse.set(answer.responseId, [...(byResponse.get(answer.responseId) ?? []), answer])
+    pushTo(byResponse, answer.responseId, answer)
   }
   return {
     ok: true,

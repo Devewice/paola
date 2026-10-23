@@ -1,4 +1,4 @@
-export const FETCH_TIMEOUT_MS = 2500
+export const FETCH_TIMEOUT_MS = 8000
 
 export const JSON_HEADERS = { 'content-type': 'application/json' } as const
 
