@@ -338,6 +338,10 @@ export const POLLS_ADMIN_COPY = {
   clearCopy: (count: number) =>
     `Se borran ${count === 1 ? 'la única respuesta' : `las ${count} respuestas`} y la encuesta queda en cero. Las preguntas y las métricas de vistas se quedan.`,
   clearOk: 'Respuestas borradas.',
+  exportCta: 'Descargar Excel',
+  exportBusy: 'Preparando…',
+  exportFail: 'No se pudo descargar el Excel.',
+  exportFileFallback: 'encuesta.xlsx',
   visitorsEmpty: 'Todavía no hay visitas registradas.',
   visitorFilterAll: 'Todos',
   visitorFilterPending: 'No respondieron',

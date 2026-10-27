@@ -146,6 +146,13 @@ export interface PollsAdminPort {
   insights(id: string, clave: string): Promise<Result<PollInsights, AppError>>
   removeResponse(id: string, responseId: string, clave: string): Promise<Result<true, AppError>>
   clearResponses(id: string, clave: string): Promise<Result<true, AppError>>
+  /** Todas las respuestas en un `.xlsx`. */
+  exportResponses(id: string, clave: string): Promise<Result<PollExportFile, AppError>>
+}
+
+export type PollExportFile = {
+  readonly fileName: string
+  readonly data: Blob
 }
 
 /** Respuestas a medio camino, para no perderlas si recargan la página. */

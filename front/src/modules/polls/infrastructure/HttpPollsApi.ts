@@ -5,6 +5,7 @@ import type { AnswerPayload, Poll } from '@modules/polls/domain/entities/Poll.ts
 import type {
   OperatorPoll,
   PollDraft,
+  PollExportFile,
   PollFilter,
   PollInsights,
   PollPatch,
@@ -22,6 +23,7 @@ import {
 import { abortAfter } from '@shared/http/abortAfter.ts'
 import {
   API,
+  DOWNLOAD_TIMEOUT_MS,
   FETCH_TIMEOUT_MS,
   JSON_HEADERS,
   OPERADOR_CLAVE_HEADER,
@@ -31,6 +33,7 @@ import {
   apiOperarPoll,
   apiOperarPollDelete,
   apiOperarPollEdit,
+  apiOperarPollExport,
   apiOperarPollInsights,
   apiOperarPollResponseDelete,
   apiOperarPollResponsesClear,
@@ -210,6 +213,24 @@ export class HttpPollsAdminApi implements PollsAdminPort {
       return ok(parseInsights(body.insights))
     } catch {
       return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.insightsFail))
+    }
+  }
+
+  async exportResponses(id: string, clave: string): Promise<Result<PollExportFile, AppError>> {
+    try {
+      const response = await fetch(apiOperarPollExport(id), {
+        headers: { [OPERADOR_CLAVE_HEADER]: clave },
+        signal: abortAfter(DOWNLOAD_TIMEOUT_MS),
+      })
+      if (!response.ok) {
+        const body = await readJson(response)
+        return err(appError('VALIDATION', detailOr(body, POLLS_ADMIN_COPY.exportFail)))
+      }
+      const disposition = response.headers.get('content-disposition') ?? ''
+      const fileName = /filename="([^"]+)"/.exec(disposition)?.[1] ?? POLLS_ADMIN_COPY.exportFileFallback
+      return ok({ fileName, data: await response.blob() })
+    } catch {
+      return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.exportFail))
     }
   }
 

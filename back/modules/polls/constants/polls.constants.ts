@@ -23,6 +23,7 @@ export const POLL_ROUTES = {
   OPERAR_INSIGHTS: '/api/operar/polls/:id/insights',
   OPERAR_RESPONSE_DELETE: '/api/operar/polls/:id/responses/:responseId/delete',
   OPERAR_RESPONSES_CLEAR: '/api/operar/polls/:id/responses/clear',
+  OPERAR_EXPORT: '/api/operar/polls/:id/export',
 } as const
 
 /** `impression`: la encuesta salió en pantalla (listas, Inicio, rodada); `visit`: abrieron su página. */
@@ -107,6 +108,33 @@ export const POLL_MESSAGES = {
   TOO_MANY_CHOICES: 'Elegiste más opciones de las permitidas.',
   VIEW_INVALID: 'Vista no válida.',
   RESPONSE_NOT_FOUND: 'Esa respuesta no existe.',
+} as const
+
+/** Descarga en Excel desde el panel. */
+export const POLL_EXPORT = {
+  RESPONSES_MAX: 20000,
+  TIME_ZONE: 'America/Bogota',
+  /** `sv-SE` da `2026-10-27 08:15`, que Excel ordena bien. */
+  DATE_LOCALE: 'sv-SE',
+  FILE_PREFIX: 'encuesta',
+  SHEET_RESPONSES: 'Respuestas',
+  SHEET_SUMMARY: 'Resumen',
+  COL_DATE: 'Fecha',
+  COL_VOTER: 'Quién',
+  COL_ACCOUNT: 'Con cuenta',
+  ANONYMOUS: 'Anónimo',
+  YES: 'Sí',
+  NO: 'No',
+  GRID_COLUMN: ' — ',
+  SUMMARY_HEADERS: ['Pregunta', 'Opción', 'Votos', '%', 'Puesto promedio'],
+  TOTAL: 'Respuestas totales',
+  AVERAGE: 'Promedio',
+  WRITTEN: 'Respuestas escritas',
+  DATE_WIDTH: 18,
+  VOTER_WIDTH: 24,
+  ACCOUNT_WIDTH: 11,
+  ANSWER_WIDTH: 32,
+  SUMMARY_WIDTHS: [48, 36, 10, 8, 16],
 } as const
 
 /** Cómo se describe cada respuesta en el panel. */

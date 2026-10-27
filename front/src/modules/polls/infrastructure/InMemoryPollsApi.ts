@@ -5,6 +5,7 @@ import type { AnswerPayload, Poll } from '@modules/polls/domain/entities/Poll.ts
 import type {
   OperatorPoll,
   PollFilter,
+  PollExportFile,
   PollInsights,
   PollsAdminPort,
   PollsPort,
@@ -69,5 +70,9 @@ export class InMemoryPollsAdminApi implements PollsAdminPort {
 
   async clearResponses(): Promise<Result<true, AppError>> {
     return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.responseDeleteFail))
+  }
+
+  async exportResponses(): Promise<Result<PollExportFile, AppError>> {
+    return err(appError('INFRASTRUCTURE', POLLS_ADMIN_COPY.exportFail))
   }
 }

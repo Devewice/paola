@@ -1,4 +1,5 @@
 import type { OptionTally, Poll, PollQuestion, PollResults, QuestionResult } from '../interfaces/polls.interface.js'
+import { POLL_ANSWER_TEXT } from '../constants/polls.constants.js'
 import type { StoredAnswer } from '../providers/polls.provider.js'
 
 function percent(count: number, total: number): number {
@@ -72,6 +73,45 @@ function tallyQuestion(question: PollQuestion, own: readonly StoredAnswer[], wit
         .slice(0, textLimit)
     : undefined
   return { questionId: question.id, answered, options: [], texts }
+}
+
+export function optionLabel(question: PollQuestion, optionId: string | null): string {
+  return question.options.find((option) => option.id === optionId)?.label ?? ''
+}
+
+/** La respuesta de una persona a una pregunta, en una línea legible. */
+export function answerText(question: PollQuestion, rows: readonly StoredAnswer[]): string {
+  if (question.kind === 'single' || question.kind === 'multiple') {
+    return rows
+      .map((row) => {
+        const option = question.options.find((item) => item.id === row.optionId)
+        if (!option) return ''
+        return option.isOther && row.valueText ? `${POLL_ANSWER_TEXT.OTHER}: ${row.valueText}` : option.label
+      })
+      .filter(Boolean)
+      .join(POLL_ANSWER_TEXT.SEPARATOR)
+  }
+  if (question.kind === 'ranking') {
+    return [...rows]
+      .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+      .map((row) => optionLabel(question, row.optionId))
+      .filter(Boolean)
+      .join(POLL_ANSWER_TEXT.RANK_SEPARATOR)
+  }
+  if (question.kind === 'grid') {
+    return question.rows
+      .map((gridRow) => {
+        const picked = rows.find((row) => row.rowId === gridRow.id)
+        return picked ? `${gridRow.label}${POLL_ANSWER_TEXT.GRID_PAIR}${optionLabel(question, picked.optionId)}` : ''
+      })
+      .filter(Boolean)
+      .join(POLL_ANSWER_TEXT.GRID_SEPARATOR)
+  }
+  if (question.kind === 'scale') {
+    const value = rows[0]?.valueNumber
+    return value === null || value === undefined ? '' : String(value)
+  }
+  return rows[0]?.valueText ?? ''
 }
 
 export function tallyPoll(

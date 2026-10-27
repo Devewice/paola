@@ -1,5 +1,8 @@
 export const FETCH_TIMEOUT_MS = 8000
 
+/** Descargas que el back arma al vuelo (Excel). */
+export const DOWNLOAD_TIMEOUT_MS = 30000
+
 export const JSON_HEADERS = { 'content-type': 'application/json' } as const
 
 export const OPERADOR_CLAVE_HEADER = 'x-operador-clave'
@@ -126,6 +129,10 @@ export function apiOperarPollEdit(id: string): string {
 
 export function apiOperarPollInsights(id: string): string {
   return `${apiOperarPoll(id)}/insights`
+}
+
+export function apiOperarPollExport(id: string): string {
+  return `${apiOperarPoll(id)}/export`
 }
 
 export function apiOperarPollResponseDelete(id: string, responseId: string): string {

@@ -12,6 +12,7 @@ import Chip from '@ui/Chip.vue'
 import FilterPills from '@ui/FilterPills.vue'
 import Tabs from '@ui/Tabs.vue'
 import { showToast } from '@ui/toast.ts'
+import { saveBlob } from '@shared/presentation/saveBlob.ts'
 
 const props = defineProps<{
   module: PollsModule
@@ -34,6 +35,7 @@ const tabs = [
 const insights = ref<PollInsights | null>(null)
 const loading = ref(false)
 const busy = ref(false)
+const exporting = ref(false)
 const pendingDelete = ref<string | null>(null)
 const clearOpen = ref(false)
 const visitorFilter = ref('all')
@@ -165,6 +167,17 @@ async function confirmDeleteResponse() {
   await load()
 }
 
+async function downloadExcel() {
+  exporting.value = true
+  const result = await props.module.exportResponses(props.poll.id, props.clave)
+  exporting.value = false
+  if (!result.ok) {
+    showToast(result.error.message || copy.exportFail, 'bad')
+    return
+  }
+  saveBlob(result.value.data, result.value.fileName)
+}
+
 async function confirmClear() {
   busy.value = true
   const result = await props.module.clearResponses(props.poll.id, props.clave)
@@ -258,9 +271,14 @@ defineExpose({ reload: load })
         <p class="meta-text">
           {{ copy.responsesShown(insights?.responses.length ?? 0, stats.responses) || `${stats.responses} ${copy.kpiResponses.toLowerCase()}` }}
         </p>
-        <Button v-if="stats.responses > 0" size="sm" variant="danger" :disabled="busy" @click="clearOpen = true">
-          {{ copy.clearCta }}
-        </Button>
+        <div v-if="stats.responses > 0" class="poll-dash__toolbar-actions">
+          <Button size="sm" :disabled="exporting" @click="downloadExcel">
+            {{ exporting ? copy.exportBusy : copy.exportCta }}
+          </Button>
+          <Button size="sm" variant="danger" :disabled="busy" @click="clearOpen = true">
+            {{ copy.clearCta }}
+          </Button>
+        </div>
       </header>
       <p v-if="!insights?.responses.length" class="admin-empty">{{ copy.responsesEmpty }}</p>
       <ul v-else class="poll-dash__responses">

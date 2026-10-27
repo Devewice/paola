@@ -1,9 +1,11 @@
 import type { IncomingMessage } from 'node:http'
 import { HTTP_HEADER, HTTP_MESSAGES, HTTP_STATUS, PERMISSION } from '../../../http/constants.js'
 import { readBodyOrReject, requirePermission } from '../../../http/guard.js'
-import { sendJson } from '../../../http/send.js'
+import { sendDownload, sendJson } from '../../../http/send.js'
 import type { RouteHandler } from '../../../http/types.js'
+import { XLSX_CONTENT_TYPE } from '../../../shared/xlsx.js'
 import { POLL_QUERY } from '../constants/polls.constants.js'
+import { exportPollResponses } from '../services/polls.export.js'
 import {
   clearPollResponses,
   createPoll,
@@ -131,6 +133,16 @@ export const pollInsightsController: RouteHandler = async (request, response, _u
     return
   }
   sendJson(response, HTTP_STATUS.OK, { ok: true, insights: result.value })
+}
+
+export const exportPollController: RouteHandler = async (request, response, _url, params) => {
+  if (!(await requirePermission(request, response, PERMISSION.ENCUESTAS))) return
+  const result = await exportPollResponses(params.id ?? '')
+  if (!result.ok) {
+    sendJson(response, result.status, result)
+    return
+  }
+  sendDownload(response, XLSX_CONTENT_TYPE, result.value.fileName, result.value.data)
 }
 
 export const deleteResponseController: RouteHandler = async (request, response, _url, params) => {

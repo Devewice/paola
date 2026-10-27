@@ -21,6 +21,7 @@ export type PollsModule = {
   insights: PollsAdminPort['insights']
   removeResponse: PollsAdminPort['removeResponse']
   clearResponses: PollsAdminPort['clearResponses']
+  exportResponses: PollsAdminPort['exportResponses']
 }
 
 export function createPollsModule(
@@ -45,5 +46,6 @@ export function createPollsModule(
     insights: (id, clave) => admin.insights(id, clave),
     removeResponse: (id, responseId, clave) => admin.removeResponse(id, responseId, clave),
     clearResponses: (id, clave) => admin.clearResponses(id, clave),
+    exportResponses: (id, clave) => admin.exportResponses(id, clave),
   }
 }

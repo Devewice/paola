@@ -2,7 +2,6 @@ import { fail } from '../../../http/fail.js'
 import { HTTP_STATUS } from '../../../http/constants.js'
 import type { Parsed } from '../../../http/types.js'
 import {
-  POLL_ANSWER_TEXT,
   POLL_INSIGHTS,
   POLL_LIMITS,
   POLL_MESSAGES,
@@ -38,7 +37,7 @@ import {
   type StoredAnswer,
 } from '../providers/polls.provider.js'
 import { parseAnswers, parsePollDraft, parsePollPatch } from '../schemas/polls.schema.js'
-import { tallyPoll } from './polls.results.js'
+import { answerText, tallyPoll } from './polls.results.js'
 
 export type VoterIdentity = {
   sessionId: string
@@ -185,38 +184,7 @@ export async function recordPollViews(body: Record<string, unknown>, identity: V
 }
 
 function describeAnswer(question: PollQuestion, rows: readonly StoredAnswer[]): string {
-  const label = (optionId: string | null) => question.options.find((option) => option.id === optionId)?.label ?? ''
-  let text = ''
-  if (question.kind === 'single' || question.kind === 'multiple') {
-    text = rows
-      .map((row) => {
-        const option = question.options.find((item) => item.id === row.optionId)
-        if (!option) return ''
-        return option.isOther && row.valueText ? `${POLL_ANSWER_TEXT.OTHER}: ${row.valueText}` : option.label
-      })
-      .filter(Boolean)
-      .join(POLL_ANSWER_TEXT.SEPARATOR)
-  } else if (question.kind === 'ranking') {
-    text = [...rows]
-      .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-      .map((row) => label(row.optionId))
-      .filter(Boolean)
-      .join(POLL_ANSWER_TEXT.RANK_SEPARATOR)
-  } else if (question.kind === 'grid') {
-    text = question.rows
-      .map((gridRow) => {
-        const picked = rows.find((row) => row.rowId === gridRow.id)
-        return picked ? `${gridRow.label}${POLL_ANSWER_TEXT.GRID_PAIR}${label(picked.optionId)}` : ''
-      })
-      .filter(Boolean)
-      .join(POLL_ANSWER_TEXT.GRID_SEPARATOR)
-  } else if (question.kind === 'scale') {
-    const value = rows[0]?.valueNumber
-    text = value === null || value === undefined ? '' : String(value)
-  } else {
-    text = rows[0]?.valueText ?? ''
-  }
-  return text.slice(0, POLL_INSIGHTS.ANSWER_PREVIEW_MAX)
+  return answerText(question, rows).slice(0, POLL_INSIGHTS.ANSWER_PREVIEW_MAX)
 }
 
 export async function readInsights(id: string): Promise<Parsed<PollInsights>> {
