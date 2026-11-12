@@ -251,7 +251,7 @@ export const SHOP_COPY = {
   checkoutNext: 'Siguiente',
   checkoutBack: 'Atrás',
   payWaTitle: 'WhatsApp',
-  payWaCopy: 'Me escribes y cuadramos precio, talla y entrega.',
+  payWaCopy: 'Escribes en el grupo y cuadramos precio, talla y entrega.',
   payMailTitle: 'Correo',
   payMailCopy: 'Si prefieres dejarlo por escrito.',
   paySecure: 'Primero hablamos y después pagas. Nada se cobra sin que lo confirmemos juntos.',
@@ -278,7 +278,7 @@ export const SHOP_HERO_PHOTO = '/kit-assets/paola-moto.png'
 export const SHOP_PROMO = {
   on: false,
   kicker: 'Pedido',
-  text: 'Escríbeme por WhatsApp o correo y cuadramos tu pedido.',
+  text: 'Escribe en el grupo de WhatsApp o por correo y cuadramos tu pedido.',
 } as const
 
 export const SHOP_PRODUCT_PROMISES = [

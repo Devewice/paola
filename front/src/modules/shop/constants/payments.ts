@@ -48,12 +48,12 @@ export type GatewayCatalogItem = {
 
 export const PAYMENT_COPY = {
   humanWhatsappTitle: 'WhatsApp',
-  humanWhatsappCopy: 'Me escribes y cuadramos precio, talla y entrega.',
+  humanWhatsappCopy: 'Escribes en el grupo y cuadramos precio, talla y entrega.',
   humanMailTitle: 'Correo',
   humanMailCopy: 'Si prefieres dejarlo por escrito.',
   paySecureHuman: 'Primero hablamos y después pagas. Nada se cobra sin que lo confirmemos juntos.',
   paySecureGateway: 'El pago en línea llega pronto. Mientras, escríbeme y lo cuadramos.',
-  gatewayDeferred: 'El pago en línea todavía no está activo. Escríbeme por WhatsApp y lo cuadramos.',
+  gatewayDeferred: 'El pago en línea todavía no está activo. Escribe en el grupo de WhatsApp y lo cuadramos.',
   wizardKicker: 'Pasarela',
   wizardTitle: 'Cobro en tienda',
   wizardLead:

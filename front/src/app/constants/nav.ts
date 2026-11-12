@@ -93,7 +93,7 @@ export const MEGA_NAV: readonly MegaNavItem[] = [
         title: 'Paola',
         links: [
           { label: 'Quién soy', note: 'De Usme a la carretera', to: `${APP_PATHS.PAOLA}#quien` },
-          { label: 'Contacto', note: 'Escríbeme por WhatsApp o correo', to: `${APP_PATHS.PAOLA}#contacto` },
+          { label: 'Contacto', note: 'Grupo de WhatsApp o correo', to: `${APP_PATHS.PAOLA}#contacto` },
         ],
       },
     ],

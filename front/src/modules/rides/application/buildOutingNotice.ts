@@ -18,7 +18,7 @@ export function buildSignupNotice(outing: Outing, alias: string, contact: Contac
 function noticeLinks(outing: Outing, body: string, contact: Contact): OutingNotice {
   const base = contact.whatsappHref.split('?')[0] ?? contact.whatsappHref
   return {
-    whatsappHref: `${base}?text=${encodeURIComponent(body)}`,
+    whatsappHref: base.includes('chat.whatsapp.com') ? contact.whatsappHref : `${base}?text=${encodeURIComponent(body)}`,
     mailtoHref: `mailto:${contact.email}?subject=${encodeURIComponent(`Cupo: ${outing.title}`)}&body=${encodeURIComponent(body)}`,
   }
 }

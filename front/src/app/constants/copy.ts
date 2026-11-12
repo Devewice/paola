@@ -1,6 +1,6 @@
 export const CONTACT_COPY = {
   cta: 'Escríbeme',
-  ctaWhatsApp: 'Escríbeme por WhatsApp',
+  ctaWhatsApp: 'Escribe en el grupo de WhatsApp',
   ctaMail: 'Escríbenos por correo',
 } as const
 
@@ -82,6 +82,6 @@ export const FOOTER_COPY = {
   legalName: 'Paola Biker',
   domain: 'paolabiker.com',
   writeLabel: 'Escríbeme',
-  businessLabel: (phone: string) => `Negocios y lavado: ${phone}`,
+  businessLabel: (channel: string) => `Negocios y lavado: ${channel}`,
   communityLabel: 'Grupo de WhatsApp',
 } as const

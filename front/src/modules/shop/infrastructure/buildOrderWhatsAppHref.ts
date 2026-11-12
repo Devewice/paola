@@ -12,6 +12,7 @@ export function buildOrderWhatsAppHref(
   contactWhatsAppHref: string,
 ): string {
   const base = contactWhatsAppHref.split('?')[0] ?? contactWhatsAppHref
+  if (base.includes('chat.whatsapp.com')) return contactWhatsAppHref
 
   const zoneText = deliveryZoneText(order.deliveryZone)
   const sizeLine = order.size ? `Talla: ${order.size}` : 'Talla: (no aplica)'

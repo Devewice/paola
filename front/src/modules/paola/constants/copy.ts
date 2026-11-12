@@ -1,5 +1,7 @@
 import type { PaolaPage } from '@modules/paola/domain/entities/PaolaPage.ts'
 
+const WHATSAPP_GROUP_HREF = 'https://chat.whatsapp.com/CRDP1hSnmbMGxibE7BCf0C?s=cl&p=a&iam=2'
+
 const youtube = {
   id: 'youtube',
   label: 'YouTube',
@@ -34,16 +36,16 @@ export const PAOLA_PAGE: PaolaPage = {
     email: 'contacto@paolabiker.com',
     domain: 'paolabiker.com',
     whatsapp: {
-      href: 'https://wa.me/573123136679',
-      label: 'WhatsApp',
+      href: WHATSAPP_GROUP_HREF,
+      label: 'Grupo de WhatsApp',
     },
     business: {
-      href: 'https://wa.me/573228475423',
+      href: WHATSAPP_GROUP_HREF,
       label: 'Negocios y servicios',
-      display: '322 847 5423',
+      display: 'Grupo de WhatsApp',
     },
     community: {
-      href: 'https://chat.whatsapp.com/CRDP1hSnmbMGxibE7BCf0C',
+      href: WHATSAPP_GROUP_HREF,
       label: 'Grupo de la comunidad',
     },
     social: [
@@ -69,14 +71,14 @@ export const PAOLA_VIEW_COPY = {
   kicker: '¡Hola! Soy…',
   title: 'Paola Biker',
   plate: 'Acompáñame a rodar con propósito',
-  lead: 'Acá te cuento quién soy. Si te late el parche, ven a rodadas, escríbeme y nos conocemos en la vía.',
+  lead: 'Acá te cuento quién soy. Si te late el parche, ven a rodadas, únete al grupo y nos conocemos en la vía.',
   writeCta: 'Escríbeme',
   contactHeading: 'Escríbeme',
-  contactLead: 'Correo o WhatsApp. Te respondo personalmente.',
+  contactLead: 'Por correo o en el grupo de WhatsApp del parche.',
   socialHeading: 'Redes',
   businessHeading: 'Negocios y servicios',
   businessLead:
-    'Lavado de cascos, pedidos de la tienda, alianzas o patrocinios: escríbeme a esta línea y lo cuadramos.',
+    'Lavado de cascos, pedidos de la tienda, alianzas o patrocinios: escribe en el grupo de WhatsApp y lo cuadramos.',
   communityHeading: 'Únete al parche',
   communityLead: 'Rodadas, cambios de última hora y fotos de ruta salen primero en el grupo de WhatsApp.',
   communityCta: 'Entrar al grupo',

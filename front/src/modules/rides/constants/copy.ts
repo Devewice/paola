@@ -83,7 +83,7 @@ export const RIDES_SIGNUP_COPY = {
   sending: 'Inscribiendo…',
   insideTitle: 'Ya estás dentro',
   insideCopy: 'Dos días antes te pregunto aquí y en tu cuenta si sigues firme. Si te sale algo, suelta el cupo para otro.',
-  insideWhatsapp: 'Escríbeme por WhatsApp',
+  insideWhatsapp: 'Ir al grupo de WhatsApp',
   insideMail: 'Escríbeme por correo',
   loading: 'Revisando tu cupo…',
   loadFail: 'No pudimos revisar tu cupo. Recarga la página.',
